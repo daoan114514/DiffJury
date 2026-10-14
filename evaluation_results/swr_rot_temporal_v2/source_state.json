@@ -1,0 +1,3026 @@
+{
+  "next_event": 243,
+  "measurements": [
+    {
+      "event": 0,
+      "arm": "naive",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 0,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 25,
+      "arm": "naive",
+      "live_rules": 24,
+      "live_learned_skills": 1,
+      "live_knowledge_tokens": 2383,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 315.2,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 25,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 23,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 50,
+      "arm": "naive",
+      "live_rules": 46,
+      "live_learned_skills": 4,
+      "live_knowledge_tokens": 5690,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 334.6,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 50,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 36,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 75,
+      "arm": "naive",
+      "live_rules": 70,
+      "live_learned_skills": 5,
+      "live_knowledge_tokens": 7881,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 350.1,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 75,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 55,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 100,
+      "arm": "naive",
+      "live_rules": 94,
+      "live_learned_skills": 7,
+      "live_knowledge_tokens": 10334,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 350.1,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 100,
+      "arm": "governed",
+      "live_rules": 1,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 59,
+      "probation": 71,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 125,
+      "arm": "naive",
+      "live_rules": 117,
+      "live_learned_skills": 9,
+      "live_knowledge_tokens": 12710,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 395.9,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 125,
+      "arm": "governed",
+      "live_rules": 1,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 59,
+      "probation": 81,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 150,
+      "arm": "naive",
+      "live_rules": 140,
+      "live_learned_skills": 11,
+      "live_knowledge_tokens": 15242,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 440.0,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 150,
+      "arm": "governed",
+      "live_rules": 1,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 59,
+      "probation": 97,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 175,
+      "arm": "naive",
+      "live_rules": 163,
+      "live_learned_skills": 13,
+      "live_knowledge_tokens": 17988,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 453.1,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 175,
+      "arm": "governed",
+      "live_rules": 1,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 59,
+      "probation": 115,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 200,
+      "arm": "naive",
+      "live_rules": 186,
+      "live_learned_skills": 15,
+      "live_knowledge_tokens": 20679,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 486.5,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 200,
+      "arm": "governed",
+      "live_rules": 2,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 116,
+      "probation": 96,
+      "archived": 32,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 225,
+      "arm": "naive",
+      "live_rules": 210,
+      "live_learned_skills": 16,
+      "live_knowledge_tokens": 22699,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 521.8,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 225,
+      "arm": "governed",
+      "live_rules": 2,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 116,
+      "probation": 112,
+      "archived": 32,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 243,
+      "arm": "naive",
+      "live_rules": 228,
+      "live_learned_skills": 16,
+      "live_knowledge_tokens": 23862,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 521.8,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 243,
+      "arm": "governed",
+      "live_rules": 2,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 116,
+      "probation": 95,
+      "archived": 61,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    }
+  ],
+  "checkpoints": {
+    "0": {
+      "naive": {
+        "f1": 0.3508,
+        "precision": 0.3448,
+        "recall": 0.3571,
+        "high_risk_recall": 0.36,
+        "clean_accuracy": 0.8623,
+        "average_instruction_tokens_per_call": 1056.79,
+        "average_total_tokens_per_pr": 24267.33,
+        "average_latency_ms_per_pr": 74693.32,
+        "failure_rate": 0.0
+      },
+      "governed": {
+        "f1": 0.3508,
+        "precision": 0.3448,
+        "recall": 0.3571,
+        "high_risk_recall": 0.36,
+        "clean_accuracy": 0.8623,
+        "average_instruction_tokens_per_call": 1056.79,
+        "average_total_tokens_per_pr": 24267.33,
+        "average_latency_ms_per_pr": 74693.32,
+        "failure_rate": 0.0
+      }
+    },
+    "243": {
+      "naive": {
+        "f1": 0.3063,
+        "precision": 0.3091,
+        "recall": 0.3036,
+        "high_risk_recall": 0.36,
+        "clean_accuracy": 0.8383,
+        "average_instruction_tokens_per_call": 1840.59,
+        "average_total_tokens_per_pr": 27609.71,
+        "average_latency_ms_per_pr": 66273.85,
+        "failure_rate": 0.0091
+      },
+      "governed": {
+        "f1": 0.2623,
+        "precision": 0.2424,
+        "recall": 0.2857,
+        "high_risk_recall": 0.32,
+        "clean_accuracy": 0.8204,
+        "average_instruction_tokens_per_call": 837.12,
+        "average_total_tokens_per_pr": 22312.59,
+        "average_latency_ms_per_pr": 68927.33,
+        "failure_rate": 0.0046
+      }
+    }
+  },
+  "maintenance": [
+    {
+      "event": 100,
+      "summary": {
+        "dream": {
+          "clusters": 0,
+          "evictions": {},
+          "live_items_before": 72,
+          "live_items_after": 72,
+          "live_tokens_before": 6112,
+          "live_tokens_after": 6112,
+          "consolidated": true
+        },
+        "promotion": {
+          "status": "released",
+          "version": 2,
+          "changes": {
+            "promoted": [
+              "K-5af1f6aa"
+            ]
+          }
+        },
+        "promotion_gate_failures": [],
+        "dream_release": null,
+        "dream_gate_failures": null,
+        "live_tokens_before": 6112,
+        "live_tokens_after": 6112
+      }
+    },
+    {
+      "event": 200,
+      "summary": {
+        "dream": {
+          "clusters": 0,
+          "evictions": {
+            "K-228513a9": "capacity",
+            "K-b3f745e1": "capacity",
+            "K-247df0a6": "capacity",
+            "K-962fa994": "capacity",
+            "K-f5a0a35d": "capacity",
+            "K-fb44df5d": "capacity",
+            "K-7c243108": "capacity",
+            "K-7a9a1930": "capacity",
+            "K-0f95dfb8": "capacity",
+            "K-54f1e256": "capacity",
+            "K-dc2e079e": "capacity",
+            "K-04021aab": "capacity",
+            "K-aa608edc": "capacity",
+            "K-ba56012a": "capacity",
+            "K-f58a1d75": "capacity",
+            "K-5fb9f846": "capacity",
+            "K-c6e9ad99": "capacity",
+            "K-27784f63": "capacity",
+            "K-ab4c0b87": "capacity",
+            "K-be8a4120": "capacity",
+            "K-40499fa5": "capacity",
+            "K-688a2ee8": "capacity",
+            "K-8c16615a": "capacity",
+            "K-1279fd3a": "capacity",
+            "K-291f29fa": "capacity",
+            "K-6dd81d91": "capacity",
+            "K-c565eb03": "capacity",
+            "K-68ba849b": "capacity",
+            "K-1ecc859b": "capacity",
+            "K-1cc93d05": "capacity",
+            "K-f89219da": "capacity",
+            "K-f07163af": "capacity"
+          },
+          "live_items_before": 130,
+          "live_items_after": 98,
+          "live_tokens_before": 13489,
+          "live_tokens_after": 11700,
+          "consolidated": true,
+          "release": {
+            "status": "released",
+            "version": 3,
+            "gate": {
+              "passed": true,
+              "failures": [],
+              "margin": 0.02,
+              "max_point_drop": 0.1,
+              "dataset_fingerprint": "cf28cf398969a8e5ac09670a5d6d936f7669e4239c1d8551130a26a7bfd2442a",
+              "cases": 73,
+              "metrics": {
+                "f1": {
+                  "baseline": 0.3704,
+                  "candidate": 0.3333,
+                  "delta": -0.0371,
+                  "ci95": [
+                    -0.1713,
+                    0.089
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                },
+                "high_risk_recall": {
+                  "baseline": 0.4118,
+                  "candidate": 0.3529,
+                  "delta": -0.0589,
+                  "ci95": [
+                    -0.2308,
+                    0.0
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                },
+                "clean_accuracy": {
+                  "baseline": 0.8542,
+                  "candidate": 0.8333,
+                  "delta": -0.0209,
+                  "ci95": [
+                    -0.1277,
+                    0.0851
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                }
+              },
+              "instruction_tokens_per_call": {
+                "baseline": 983.3,
+                "candidate": 965.93,
+                "max_growth": 0.0,
+                "passed": true
+              },
+              "execution_success_rate": {
+                "baseline": 1.0,
+                "candidate": 1.0
+              },
+              "baseline_snapshot": "dc2b86e593c4d2dcae5ce9da",
+              "candidate_snapshot": "9f95738b51db93f58664fce7"
+            },
+            "changes": {
+              "updated": [],
+              "archived": [
+                "K-228513a9",
+                "K-40499fa5",
+                "K-f58a1d75",
+                "K-8c16615a",
+                "K-ba56012a",
+                "K-7a9a1930",
+                "K-c565eb03",
+                "K-68ba849b",
+                "K-1ecc859b",
+                "K-27784f63",
+                "K-b3f745e1",
+                "K-0f95dfb8",
+                "K-1279fd3a",
+                "K-247df0a6",
+                "K-54f1e256",
+                "K-5fb9f846",
+                "K-c6e9ad99",
+                "K-291f29fa",
+                "K-688a2ee8",
+                "K-1cc93d05",
+                "K-f5a0a35d",
+                "K-dc2e079e",
+                "K-f89219da",
+                "K-04021aab",
+                "K-f07163af",
+                "K-962fa994",
+                "K-aa608edc",
+                "K-ab4c0b87",
+                "K-be8a4120",
+                "K-fb44df5d",
+                "K-7c243108",
+                "K-6dd81d91"
+              ],
+              "created": []
+            }
+          }
+        },
+        "promotion": {
+          "status": "released",
+          "version": 4,
+          "changes": {
+            "promoted": [
+              "K-db90d837"
+            ]
+          }
+        },
+        "promotion_gate_failures": [],
+        "dream_release": "released",
+        "dream_gate_failures": [],
+        "live_tokens_before": 13489,
+        "live_tokens_after": 11700
+      }
+    },
+    {
+      "event": 243,
+      "summary": {
+        "dream": {
+          "clusters": 0,
+          "evictions": {
+            "K-f220a712": "capacity",
+            "K-73e92176": "capacity",
+            "K-341a013b": "capacity",
+            "K-6a50e024": "capacity",
+            "K-a00f8264": "capacity",
+            "K-e983d24c": "capacity",
+            "K-15692fcc": "capacity",
+            "K-d10cf422": "capacity",
+            "K-56ec12ea": "capacity",
+            "K-d4adcd7d": "capacity",
+            "K-bffe54d2": "capacity",
+            "K-b333b35f": "capacity",
+            "K-af7f43aa": "capacity",
+            "K-b12fef51": "capacity",
+            "K-02d87541": "capacity",
+            "K-a27114ac": "capacity",
+            "K-d7f733bb": "capacity",
+            "K-4e359cec": "capacity",
+            "K-0a0eedc4": "capacity",
+            "K-d6b8dfc7": "capacity",
+            "K-3121b7a4": "capacity",
+            "K-f1180922": "capacity",
+            "K-89c76163": "capacity",
+            "K-d664cad7": "capacity",
+            "K-4c122d71": "capacity",
+            "K-81f70a1a": "capacity",
+            "K-cf06fa10": "capacity",
+            "K-aae39b62": "capacity",
+            "K-e1b122e4": "capacity"
+          },
+          "live_items_before": 126,
+          "live_items_after": 97,
+          "live_tokens_before": 13814,
+          "live_tokens_after": 12229,
+          "consolidated": true,
+          "release": {
+            "status": "released",
+            "version": 5,
+            "gate": {
+              "passed": true,
+              "failures": [],
+              "margin": 0.02,
+              "max_point_drop": 0.1,
+              "dataset_fingerprint": "cf28cf398969a8e5ac09670a5d6d936f7669e4239c1d8551130a26a7bfd2442a",
+              "cases": 73,
+              "metrics": {
+                "f1": {
+                  "baseline": 0.2692,
+                  "candidate": 0.339,
+                  "delta": 0.0698,
+                  "ci95": [
+                    -0.0242,
+                    0.1923
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                },
+                "high_risk_recall": {
+                  "baseline": 0.3529,
+                  "candidate": 0.3529,
+                  "delta": 0.0,
+                  "ci95": [
+                    0.0,
+                    0.0
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                },
+                "clean_accuracy": {
+                  "baseline": 0.8333,
+                  "candidate": 0.7917,
+                  "delta": -0.0416,
+                  "ci95": [
+                    -0.1225,
+                    0.0378
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                }
+              },
+              "instruction_tokens_per_call": {
+                "baseline": 982.19,
+                "candidate": 924.56,
+                "max_growth": 0.0,
+                "passed": true
+              },
+              "execution_success_rate": {
+                "baseline": 1.0,
+                "candidate": 1.0
+              },
+              "baseline_snapshot": "0d5bf44c1aba0982eb99807b",
+              "candidate_snapshot": "f9a57f9c16e2e46b286316c8"
+            },
+            "changes": {
+              "updated": [],
+              "archived": [
+                "K-e983d24c",
+                "K-d664cad7",
+                "K-4c122d71",
+                "K-73e92176",
+                "K-81f70a1a",
+                "K-a00f8264",
+                "K-4e359cec",
+                "K-3121b7a4",
+                "K-341a013b",
+                "K-cf06fa10",
+                "K-15692fcc",
+                "K-f1180922",
+                "K-aae39b62",
+                "K-d10cf422",
+                "K-d4adcd7d",
+                "K-bffe54d2",
+                "K-0a0eedc4",
+                "K-56ec12ea",
+                "K-e1b122e4",
+                "K-b333b35f",
+                "K-d6b8dfc7",
+                "K-af7f43aa",
+                "K-f220a712",
+                "K-b12fef51",
+                "K-02d87541",
+                "K-89c76163",
+                "K-6a50e024",
+                "K-a27114ac",
+                "K-d7f733bb"
+              ],
+              "created": []
+            }
+          }
+        },
+        "promotion": {},
+        "promotion_gate_failures": null,
+        "dream_release": "released",
+        "dream_gate_failures": [],
+        "live_tokens_before": 13814,
+        "live_tokens_after": 12229
+      }
+    }
+  ],
+  "attribution": [
+    {
+      "event": 25,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 50,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 0,
+      "failed": 0
+    },
+    {
+      "event": 75,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 0,
+      "failed": 0
+    },
+    {
+      "event": 100,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 0,
+      "failed": 0
+    },
+    {
+      "event": 125,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 150,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 2,
+      "failed": 0
+    },
+    {
+      "event": 175,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 0,
+      "failed": 0
+    },
+    {
+      "event": 200,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 225,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 1,
+      "failed": 0
+    }
+  ],
+  "admission_actions": {
+    "ADD": 158,
+    "REJECT": 80,
+    "UPVOTE": 6
+  },
+  "comparisons": {
+    "243": {
+      "f1": {
+        "delta": -0.044,
+        "ci95": [
+          -0.1276,
+          0.0377
+        ],
+        "iterations": 2000
+      },
+      "precision": {
+        "delta": -0.0667,
+        "ci95": [
+          -0.1569,
+          0.0101
+        ],
+        "iterations": 2000
+      },
+      "recall": {
+        "delta": -0.0179,
+        "ci95": [
+          -0.1111,
+          0.0747
+        ],
+        "iterations": 2000
+      },
+      "high_risk_recall": {
+        "delta": -0.04,
+        "ci95": [
+          -0.1818,
+          0.0909
+        ],
+        "iterations": 2000
+      },
+      "clean_accuracy": {
+        "delta": -0.0179,
+        "ci95": [
+          -0.0614,
+          0.0227
+        ],
+        "iterations": 2000
+      },
+      "average_instruction_tokens_per_call": {
+        "delta": -1003.47,
+        "ci95": [
+          -1089.61,
+          -916.92
+        ],
+        "iterations": 2000
+      },
+      "average_total_tokens_per_pr": {
+        "delta": -5297.12,
+        "ci95": [
+          -7259.97,
+          -3681.83
+        ],
+        "iterations": 2000
+      }
+    }
+  },
+  "model": "gpt-6.1-sol",
+  "seed": 20261013,
+  "holdout_repeats": 1,
+  "started_at": "2026-10-13T17:27:19",
+  "dataset": {
+    "train": 434,
+    "gate": 73,
+    "holdout": 219,
+    "holdout_recent_2024": 66,
+    "holdout_executed_all": 217
+  },
+  "run_configuration": {
+    "dataset_sha256": "68ac91c4e7489fa13d13b57d9a81081cd6a5792131b6c07f75f61c9105b286af",
+    "model": "gpt-6.1-sol",
+    "fake": false,
+    "seed": 20261013,
+    "train_ids": [
+      "astropy__astropy-1010",
+      "astropy__astropy-1020",
+      "astropy__astropy-112",
+      "astropy__astropy-1134",
+      "astropy__astropy-1199",
+      "astropy__astropy-1312",
+      "astropy__astropy-1526",
+      "astropy__astropy-1700",
+      "astropy__astropy-1796",
+      "astropy__astropy-1810",
+      "astropy__astropy-187",
+      "astropy__astropy-2213",
+      "astropy__astropy-228",
+      "astropy__astropy-2444",
+      "astropy__astropy-2457",
+      "astropy__astropy-2562",
+      "astropy__astropy-271",
+      "astropy__astropy-2775",
+      "astropy__astropy-3096",
+      "astropy__astropy-3128",
+      "astropy__astropy-3129",
+      "astropy__astropy-3132",
+      "astropy__astropy-323",
+      "astropy__astropy-3348",
+      "astropy__astropy-3419",
+      "astropy__astropy-344",
+      "astropy__astropy-3537",
+      "astropy__astropy-3778",
+      "astropy__astropy-3824",
+      "astropy__astropy-3953",
+      "astropy__astropy-3977",
+      "astropy__astropy-411",
+      "astropy__astropy-4114",
+      "astropy__astropy-4136",
+      "astropy__astropy-417",
+      "astropy__astropy-4203",
+      "astropy__astropy-4380",
+      "astropy__astropy-444",
+      "astropy__astropy-4570",
+      "astropy__astropy-4614",
+      "astropy__astropy-4657",
+      "astropy__astropy-4736",
+      "astropy__astropy-4979",
+      "astropy__astropy-4984",
+      "astropy__astropy-5020",
+      "astropy__astropy-5097",
+      "astropy__astropy-5446",
+      "astropy__astropy-5450",
+      "astropy__astropy-5494",
+      "astropy__astropy-5569",
+      "astropy__astropy-5682",
+      "astropy__astropy-573",
+      "astropy__astropy-5796",
+      "astropy__astropy-5868",
+      "astropy__astropy-6157",
+      "astropy__astropy-629",
+      "astropy__astropy-6342",
+      "astropy__astropy-6422",
+      "astropy__astropy-654",
+      "astropy__astropy-6541",
+      "astropy__astropy-692",
+      "astropy__astropy-702",
+      "astropy__astropy-7082",
+      "astropy__astropy-7136",
+      "astropy__astropy-7338",
+      "astropy__astropy-775",
+      "astropy__astropy-840",
+      "matplotlib__matplotlib-10031",
+      "matplotlib__matplotlib-10032",
+      "matplotlib__matplotlib-10206",
+      "matplotlib__matplotlib-10363",
+      "matplotlib__matplotlib-10413",
+      "matplotlib__matplotlib-1189",
+      "matplotlib__matplotlib-128",
+      "matplotlib__matplotlib-1294",
+      "matplotlib__matplotlib-1416",
+      "matplotlib__matplotlib-1477",
+      "matplotlib__matplotlib-1710",
+      "matplotlib__matplotlib-1813",
+      "matplotlib__matplotlib-1818",
+      "matplotlib__matplotlib-1874",
+      "matplotlib__matplotlib-2030",
+      "matplotlib__matplotlib-2036",
+      "matplotlib__matplotlib-2659",
+      "matplotlib__matplotlib-2713",
+      "matplotlib__matplotlib-2720",
+      "matplotlib__matplotlib-2726",
+      "matplotlib__matplotlib-2756",
+      "matplotlib__matplotlib-2807",
+      "matplotlib__matplotlib-3188",
+      "matplotlib__matplotlib-3196",
+      "matplotlib__matplotlib-3258",
+      "matplotlib__matplotlib-3461",
+      "matplotlib__matplotlib-3752",
+      "matplotlib__matplotlib-3755",
+      "matplotlib__matplotlib-3834",
+      "matplotlib__matplotlib-3985",
+      "matplotlib__matplotlib-416",
+      "matplotlib__matplotlib-4290",
+      "matplotlib__matplotlib-4422",
+      "matplotlib__matplotlib-4441",
+      "matplotlib__matplotlib-4521",
+      "matplotlib__matplotlib-4570",
+      "matplotlib__matplotlib-4595",
+      "matplotlib__matplotlib-4685",
+      "matplotlib__matplotlib-4689",
+      "matplotlib__matplotlib-4709",
+      "matplotlib__matplotlib-4714",
+      "matplotlib__matplotlib-4824",
+      "matplotlib__matplotlib-4935",
+      "matplotlib__matplotlib-5177",
+      "matplotlib__matplotlib-5195",
+      "matplotlib__matplotlib-5224",
+      "matplotlib__matplotlib-5233",
+      "matplotlib__matplotlib-5292",
+      "matplotlib__matplotlib-5300",
+      "matplotlib__matplotlib-5374",
+      "matplotlib__matplotlib-5432",
+      "matplotlib__matplotlib-5486",
+      "matplotlib__matplotlib-5515",
+      "matplotlib__matplotlib-5591",
+      "matplotlib__matplotlib-563",
+      "matplotlib__matplotlib-582",
+      "matplotlib__matplotlib-5825",
+      "matplotlib__matplotlib-6179",
+      "matplotlib__matplotlib-6185",
+      "matplotlib__matplotlib-6238",
+      "matplotlib__matplotlib-6283",
+      "matplotlib__matplotlib-6310",
+      "matplotlib__matplotlib-6311",
+      "matplotlib__matplotlib-6745",
+      "matplotlib__matplotlib-6843",
+      "matplotlib__matplotlib-6993",
+      "matplotlib__matplotlib-715",
+      "matplotlib__matplotlib-7279",
+      "matplotlib__matplotlib-7381",
+      "matplotlib__matplotlib-747",
+      "matplotlib__matplotlib-7494",
+      "matplotlib__matplotlib-7500",
+      "matplotlib__matplotlib-7552",
+      "matplotlib__matplotlib-7677",
+      "matplotlib__matplotlib-7831",
+      "matplotlib__matplotlib-7847",
+      "matplotlib__matplotlib-7944",
+      "matplotlib__matplotlib-7968",
+      "matplotlib__matplotlib-8178",
+      "matplotlib__matplotlib-8375",
+      "matplotlib__matplotlib-8591",
+      "matplotlib__matplotlib-8737",
+      "matplotlib__matplotlib-8950",
+      "matplotlib__matplotlib-8954",
+      "matplotlib__matplotlib-8983",
+      "matplotlib__matplotlib-9002",
+      "matplotlib__matplotlib-9169",
+      "scikit-learn__scikit-learn-10241",
+      "scikit-learn__scikit-learn-1039",
+      "scikit-learn__scikit-learn-10474",
+      "scikit-learn__scikit-learn-10527",
+      "scikit-learn__scikit-learn-10615",
+      "scikit-learn__scikit-learn-10852",
+      "scikit-learn__scikit-learn-1110",
+      "scikit-learn__scikit-learn-11277",
+      "scikit-learn__scikit-learn-11298",
+      "scikit-learn__scikit-learn-11425",
+      "scikit-learn__scikit-learn-11509",
+      "scikit-learn__scikit-learn-11534",
+      "scikit-learn__scikit-learn-11537",
+      "scikit-learn__scikit-learn-11552",
+      "scikit-learn__scikit-learn-11587",
+      "scikit-learn__scikit-learn-11724",
+      "scikit-learn__scikit-learn-11756",
+      "scikit-learn__scikit-learn-11810",
+      "scikit-learn__scikit-learn-11838",
+      "scikit-learn__scikit-learn-1201",
+      "scikit-learn__scikit-learn-12033",
+      "scikit-learn__scikit-learn-12155",
+      "scikit-learn__scikit-learn-12399",
+      "scikit-learn__scikit-learn-12409",
+      "scikit-learn__scikit-learn-12708",
+      "scikit-learn__scikit-learn-12718",
+      "scikit-learn__scikit-learn-12834",
+      "scikit-learn__scikit-learn-12915",
+      "scikit-learn__scikit-learn-13018",
+      "scikit-learn__scikit-learn-13095",
+      "scikit-learn__scikit-learn-13251",
+      "scikit-learn__scikit-learn-13280",
+      "scikit-learn__scikit-learn-13353",
+      "scikit-learn__scikit-learn-13468",
+      "scikit-learn__scikit-learn-13827",
+      "scikit-learn__scikit-learn-13934",
+      "scikit-learn__scikit-learn-14080",
+      "scikit-learn__scikit-learn-14316",
+      "scikit-learn__scikit-learn-14323",
+      "scikit-learn__scikit-learn-14465",
+      "scikit-learn__scikit-learn-14817",
+      "scikit-learn__scikit-learn-14824",
+      "scikit-learn__scikit-learn-1496",
+      "scikit-learn__scikit-learn-14985",
+      "scikit-learn__scikit-learn-15061",
+      "scikit-learn__scikit-learn-15098",
+      "scikit-learn__scikit-learn-15284",
+      "scikit-learn__scikit-learn-15394",
+      "scikit-learn__scikit-learn-15423",
+      "scikit-learn__scikit-learn-15433",
+      "scikit-learn__scikit-learn-15532",
+      "scikit-learn__scikit-learn-15645",
+      "scikit-learn__scikit-learn-15756",
+      "scikit-learn__scikit-learn-15847",
+      "scikit-learn__scikit-learn-15926",
+      "scikit-learn__scikit-learn-16269",
+      "scikit-learn__scikit-learn-16361",
+      "scikit-learn__scikit-learn-16435",
+      "scikit-learn__scikit-learn-16499",
+      "scikit-learn__scikit-learn-16724",
+      "scikit-learn__scikit-learn-16841",
+      "scikit-learn__scikit-learn-16973",
+      "scikit-learn__scikit-learn-17078",
+      "scikit-learn__scikit-learn-1712",
+      "scikit-learn__scikit-learn-17122",
+      "scikit-learn__scikit-learn-17552",
+      "scikit-learn__scikit-learn-17672",
+      "scikit-learn__scikit-learn-17682",
+      "scikit-learn__scikit-learn-17864",
+      "scikit-learn__scikit-learn-17888",
+      "scikit-learn__scikit-learn-18033",
+      "scikit-learn__scikit-learn-18055",
+      "scikit-learn__scikit-learn-18062",
+      "scikit-learn__scikit-learn-18149",
+      "scikit-learn__scikit-learn-182",
+      "scikit-learn__scikit-learn-18278",
+      "scikit-learn__scikit-learn-18650",
+      "scikit-learn__scikit-learn-18655",
+      "scikit-learn__scikit-learn-18693",
+      "scikit-learn__scikit-learn-18885",
+      "scikit-learn__scikit-learn-18920",
+      "scikit-learn__scikit-learn-19205",
+      "scikit-learn__scikit-learn-19325",
+      "scikit-learn__scikit-learn-19646",
+      "scikit-learn__scikit-learn-19669",
+      "scikit-learn__scikit-learn-19870",
+      "scikit-learn__scikit-learn-20057",
+      "scikit-learn__scikit-learn-20149",
+      "scikit-learn__scikit-learn-20165",
+      "scikit-learn__scikit-learn-20385",
+      "scikit-learn__scikit-learn-20421",
+      "scikit-learn__scikit-learn-20468",
+      "scikit-learn__scikit-learn-20580",
+      "scikit-learn__scikit-learn-20684",
+      "scikit-learn__scikit-learn-20780",
+      "scikit-learn__scikit-learn-20889",
+      "scikit-learn__scikit-learn-20912",
+      "scikit-learn__scikit-learn-2410",
+      "scikit-learn__scikit-learn-2462",
+      "scikit-learn__scikit-learn-259",
+      "scikit-learn__scikit-learn-280",
+      "scikit-learn__scikit-learn-2931",
+      "scikit-learn__scikit-learn-3030",
+      "scikit-learn__scikit-learn-3065",
+      "scikit-learn__scikit-learn-3196",
+      "scikit-learn__scikit-learn-3365",
+      "scikit-learn__scikit-learn-343",
+      "scikit-learn__scikit-learn-3925",
+      "scikit-learn__scikit-learn-398",
+      "scikit-learn__scikit-learn-4506",
+      "scikit-learn__scikit-learn-4584",
+      "scikit-learn__scikit-learn-5195",
+      "scikit-learn__scikit-learn-5283",
+      "scikit-learn__scikit-learn-5858",
+      "scikit-learn__scikit-learn-5954",
+      "scikit-learn__scikit-learn-679",
+      "scikit-learn__scikit-learn-6987",
+      "scikit-learn__scikit-learn-711",
+      "scikit-learn__scikit-learn-7214",
+      "scikit-learn__scikit-learn-7413",
+      "scikit-learn__scikit-learn-7415",
+      "scikit-learn__scikit-learn-7470",
+      "scikit-learn__scikit-learn-748",
+      "scikit-learn__scikit-learn-7498",
+      "scikit-learn__scikit-learn-763",
+      "scikit-learn__scikit-learn-7709",
+      "scikit-learn__scikit-learn-7897",
+      "scikit-learn__scikit-learn-7949",
+      "scikit-learn__scikit-learn-812",
+      "scikit-learn__scikit-learn-8278",
+      "scikit-learn__scikit-learn-8375",
+      "scikit-learn__scikit-learn-8567",
+      "scikit-learn__scikit-learn-869",
+      "scikit-learn__scikit-learn-8733",
+      "scikit-learn__scikit-learn-889",
+      "scikit-learn__scikit-learn-8901",
+      "scikit-learn__scikit-learn-8983",
+      "scikit-learn__scikit-learn-9035",
+      "scikit-learn__scikit-learn-9051",
+      "scikit-learn__scikit-learn-9097",
+      "scikit-learn__scikit-learn-9126",
+      "scikit-learn__scikit-learn-9302",
+      "scikit-learn__scikit-learn-9376",
+      "scikit-learn__scikit-learn-9437",
+      "scikit-learn__scikit-learn-9712",
+      "sympy__sympy-10037",
+      "sympy__sympy-10277",
+      "sympy__sympy-10480",
+      "sympy__sympy-10499",
+      "sympy__sympy-10692",
+      "sympy__sympy-10741",
+      "sympy__sympy-10763",
+      "sympy__sympy-10853",
+      "sympy__sympy-11163",
+      "sympy__sympy-11180",
+      "sympy__sympy-11195",
+      "sympy__sympy-11576",
+      "sympy__sympy-11748",
+      "sympy__sympy-11929",
+      "sympy__sympy-11954",
+      "sympy__sympy-11970",
+      "sympy__sympy-11997",
+      "sympy__sympy-12010",
+      "sympy__sympy-12059",
+      "sympy__sympy-12175",
+      "sympy__sympy-12228",
+      "sympy__sympy-1237",
+      "sympy__sympy-12606",
+      "sympy__sympy-12813",
+      "sympy__sympy-12971",
+      "sympy__sympy-13017",
+      "sympy__sympy-13041",
+      "sympy__sympy-13091",
+      "sympy__sympy-13131",
+      "sympy__sympy-13196",
+      "sympy__sympy-13327",
+      "sympy__sympy-13455",
+      "sympy__sympy-13471",
+      "sympy__sympy-13564",
+      "sympy__sympy-13622",
+      "sympy__sympy-13839",
+      "sympy__sympy-13888",
+      "sympy__sympy-1399",
+      "sympy__sympy-14145",
+      "sympy__sympy-14372",
+      "sympy__sympy-1487",
+      "sympy__sympy-14898",
+      "sympy__sympy-15017",
+      "sympy__sympy-1509",
+      "sympy__sympy-1513",
+      "sympy__sympy-15174",
+      "sympy__sympy-15175",
+      "sympy__sympy-15278",
+      "sympy__sympy-15569",
+      "sympy__sympy-15607",
+      "sympy__sympy-15619",
+      "sympy__sympy-15646",
+      "sympy__sympy-15683",
+      "sympy__sympy-1575",
+      "sympy__sympy-15849",
+      "sympy__sympy-15876",
+      "sympy__sympy-15936",
+      "sympy__sympy-16051",
+      "sympy__sympy-1620",
+      "sympy__sympy-16221",
+      "sympy__sympy-16224",
+      "sympy__sympy-16255",
+      "sympy__sympy-16270",
+      "sympy__sympy-16501",
+      "sympy__sympy-16637",
+      "sympy__sympy-16694",
+      "sympy__sympy-16762",
+      "sympy__sympy-1688",
+      "sympy__sympy-16995",
+      "sympy__sympy-17035",
+      "sympy__sympy-17104",
+      "sympy__sympy-17176",
+      "sympy__sympy-17193",
+      "sympy__sympy-17357",
+      "sympy__sympy-17413",
+      "sympy__sympy-17462",
+      "sympy__sympy-17476",
+      "sympy__sympy-1749",
+      "sympy__sympy-17548",
+      "sympy__sympy-17549",
+      "sympy__sympy-1756",
+      "sympy__sympy-17672",
+      "sympy__sympy-17691",
+      "sympy__sympy-17704",
+      "sympy__sympy-17720",
+      "sympy__sympy-17786",
+      "sympy__sympy-17801",
+      "sympy__sympy-17966",
+      "sympy__sympy-17986",
+      "sympy__sympy-18021",
+      "sympy__sympy-18131",
+      "sympy__sympy-18153",
+      "sympy__sympy-1989",
+      "sympy__sympy-2044",
+      "sympy__sympy-2078",
+      "sympy__sympy-2178",
+      "sympy__sympy-2246",
+      "sympy__sympy-2284",
+      "sympy__sympy-235",
+      "sympy__sympy-2379",
+      "sympy__sympy-2397",
+      "sympy__sympy-2417",
+      "sympy__sympy-2437",
+      "sympy__sympy-245",
+      "sympy__sympy-2469",
+      "sympy__sympy-260",
+      "sympy__sympy-2644",
+      "sympy__sympy-287",
+      "sympy__sympy-2987",
+      "sympy__sympy-366",
+      "sympy__sympy-416",
+      "sympy__sympy-491",
+      "sympy__sympy-542",
+      "sympy__sympy-597",
+      "sympy__sympy-697",
+      "sympy__sympy-7293",
+      "sympy__sympy-7525",
+      "sympy__sympy-755",
+      "sympy__sympy-7614",
+      "sympy__sympy-7731",
+      "sympy__sympy-7865",
+      "sympy__sympy-7978",
+      "sympy__sympy-8264",
+      "sympy__sympy-8269",
+      "sympy__sympy-8325",
+      "sympy__sympy-8465",
+      "sympy__sympy-8860",
+      "sympy__sympy-901",
+      "sympy__sympy-9306",
+      "sympy__sympy-9335",
+      "sympy__sympy-9596",
+      "sympy__sympy-9653",
+      "sympy__sympy-9749",
+      "sympy__sympy-9856",
+      "sympy__sympy-9875"
+    ],
+    "gate_ids": [
+      "astropy__astropy-7508",
+      "astropy__astropy-7731",
+      "astropy__astropy-8201",
+      "astropy__astropy-8397",
+      "astropy__astropy-9354",
+      "astropy__astropy-9623",
+      "astropy__astropy-9793",
+      "matplotlib__matplotlib-12835",
+      "matplotlib__matplotlib-13268",
+      "matplotlib__matplotlib-13421",
+      "matplotlib__matplotlib-16710",
+      "scikit-learn__scikit-learn-20919",
+      "scikit-learn__scikit-learn-21082",
+      "scikit-learn__scikit-learn-21676",
+      "scikit-learn__scikit-learn-21903",
+      "scikit-learn__scikit-learn-21918",
+      "scikit-learn__scikit-learn-22306",
+      "scikit-learn__scikit-learn-22412",
+      "scikit-learn__scikit-learn-22729",
+      "scikit-learn__scikit-learn-22957",
+      "scikit-learn__scikit-learn-23066",
+      "scikit-learn__scikit-learn-23110",
+      "scikit-learn__scikit-learn-23459",
+      "scikit-learn__scikit-learn-23813",
+      "sympy__sympy-18668",
+      "astropy__astropy-8494",
+      "astropy__astropy-8755",
+      "astropy__astropy-8759",
+      "astropy__astropy-8838",
+      "astropy__astropy-9395",
+      "matplotlib__matplotlib-11054",
+      "matplotlib__matplotlib-11483",
+      "matplotlib__matplotlib-11669",
+      "matplotlib__matplotlib-11921",
+      "matplotlib__matplotlib-12131",
+      "matplotlib__matplotlib-12629",
+      "matplotlib__matplotlib-12761",
+      "matplotlib__matplotlib-14311",
+      "matplotlib__matplotlib-14775",
+      "matplotlib__matplotlib-15429",
+      "scikit-learn__scikit-learn-21185",
+      "scikit-learn__scikit-learn-21465",
+      "scikit-learn__scikit-learn-21579",
+      "scikit-learn__scikit-learn-21697",
+      "scikit-learn__scikit-learn-21851",
+      "scikit-learn__scikit-learn-21952",
+      "scikit-learn__scikit-learn-22440",
+      "scikit-learn__scikit-learn-22797",
+      "scikit-learn__scikit-learn-22983",
+      "scikit-learn__scikit-learn-23077",
+      "scikit-learn__scikit-learn-23420",
+      "scikit-learn__scikit-learn-23729",
+      "sympy__sympy-18189",
+      "sympy__sympy-18325",
+      "sympy__sympy-18426",
+      "sympy__sympy-18441",
+      "sympy__sympy-18698",
+      "sympy__sympy-18722",
+      "sympy__sympy-18741",
+      "sympy__sympy-18835",
+      "sympy__sympy-19228",
+      "sympy__sympy-19247",
+      "sympy__sympy-19252",
+      "sympy__sympy-19382",
+      "sympy__sympy-19430",
+      "sympy__sympy-19459",
+      "sympy__sympy-19495",
+      "sympy__sympy-19508",
+      "sympy__sympy-19633",
+      "sympy__sympy-19684",
+      "sympy__sympy-19819",
+      "sympy__sympy-19842",
+      "sympy__sympy-19932"
+    ],
+    "holdout_ids": [
+      "astropy__astropy-10126",
+      "astropy__astropy-10256",
+      "astropy__astropy-10370",
+      "astropy__astropy-10492",
+      "astropy__astropy-10731",
+      "astropy__astropy-11224",
+      "astropy__astropy-11480",
+      "astropy__astropy-11764",
+      "astropy__astropy-11846",
+      "astropy__astropy-12300",
+      "astropy__astropy-12747",
+      "astropy__astropy-13074",
+      "astropy__astropy-13841",
+      "astropy__astropy-14111",
+      "astropy__astropy-14149",
+      "astropy__astropy-14437",
+      "astropy__astropy-14606",
+      "astropy__astropy-14607",
+      "astropy__astropy-14682",
+      "astropy__astropy-14854",
+      "astropy__astropy-15549",
+      "astropy__astropy-15612",
+      "astropy__astropy-15723",
+      "astropy__astropy-16207",
+      "astropy__astropy-16539",
+      "astropy__astropy-16703",
+      "astropy__astropy-16735",
+      "astropy__astropy-16872",
+      "astropy__astropy-17155",
+      "astropy__astropy-17268",
+      "astropy__astropy-17319",
+      "astropy__astropy-17461",
+      "astropy__astropy-17800",
+      "astropy__astropy-17961",
+      "matplotlib__matplotlib-16850",
+      "matplotlib__matplotlib-17105",
+      "matplotlib__matplotlib-17257",
+      "matplotlib__matplotlib-17382",
+      "matplotlib__matplotlib-17499",
+      "matplotlib__matplotlib-17759",
+      "matplotlib__matplotlib-17851",
+      "matplotlib__matplotlib-18094",
+      "matplotlib__matplotlib-18156",
+      "matplotlib__matplotlib-18395",
+      "matplotlib__matplotlib-18454",
+      "matplotlib__matplotlib-19110",
+      "matplotlib__matplotlib-19131",
+      "matplotlib__matplotlib-19359",
+      "matplotlib__matplotlib-19606",
+      "matplotlib__matplotlib-19709",
+      "matplotlib__matplotlib-20265",
+      "matplotlib__matplotlib-21039",
+      "matplotlib__matplotlib-21263",
+      "matplotlib__matplotlib-21705",
+      "matplotlib__matplotlib-22689",
+      "matplotlib__matplotlib-22696",
+      "matplotlib__matplotlib-22835",
+      "matplotlib__matplotlib-22933",
+      "matplotlib__matplotlib-23027",
+      "matplotlib__matplotlib-23066",
+      "matplotlib__matplotlib-23357",
+      "matplotlib__matplotlib-24674",
+      "matplotlib__matplotlib-25569",
+      "matplotlib__matplotlib-25692",
+      "matplotlib__matplotlib-25737",
+      "matplotlib__matplotlib-25853",
+      "matplotlib__matplotlib-26005",
+      "matplotlib__matplotlib-26113",
+      "matplotlib__matplotlib-26452",
+      "matplotlib__matplotlib-27128",
+      "matplotlib__matplotlib-27267",
+      "matplotlib__matplotlib-27750",
+      "matplotlib__matplotlib-28625",
+      "matplotlib__matplotlib-28677",
+      "matplotlib__matplotlib-29411",
+      "matplotlib__matplotlib-29427",
+      "matplotlib__matplotlib-29552",
+      "matplotlib__matplotlib-29725",
+      "scikit-learn__scikit-learn-23915",
+      "scikit-learn__scikit-learn-23937",
+      "scikit-learn__scikit-learn-24456",
+      "scikit-learn__scikit-learn-24603",
+      "scikit-learn__scikit-learn-24655",
+      "scikit-learn__scikit-learn-24710",
+      "scikit-learn__scikit-learn-24734",
+      "scikit-learn__scikit-learn-24883",
+      "scikit-learn__scikit-learn-24898",
+      "scikit-learn__scikit-learn-24917",
+      "scikit-learn__scikit-learn-24928",
+      "scikit-learn__scikit-learn-24948",
+      "scikit-learn__scikit-learn-25025",
+      "scikit-learn__scikit-learn-25108",
+      "scikit-learn__scikit-learn-25148",
+      "scikit-learn__scikit-learn-25474",
+      "scikit-learn__scikit-learn-25721",
+      "scikit-learn__scikit-learn-25774",
+      "scikit-learn__scikit-learn-25791",
+      "scikit-learn__scikit-learn-25826",
+      "scikit-learn__scikit-learn-25900",
+      "scikit-learn__scikit-learn-26052",
+      "scikit-learn__scikit-learn-26086",
+      "scikit-learn__scikit-learn-26101",
+      "scikit-learn__scikit-learn-26228",
+      "scikit-learn__scikit-learn-26229",
+      "scikit-learn__scikit-learn-26420",
+      "scikit-learn__scikit-learn-26633",
+      "scikit-learn__scikit-learn-26670",
+      "scikit-learn__scikit-learn-26690",
+      "scikit-learn__scikit-learn-26846",
+      "scikit-learn__scikit-learn-26928",
+      "scikit-learn__scikit-learn-27418",
+      "scikit-learn__scikit-learn-27444",
+      "scikit-learn__scikit-learn-27449",
+      "scikit-learn__scikit-learn-27523",
+      "scikit-learn__scikit-learn-27539",
+      "scikit-learn__scikit-learn-27698",
+      "scikit-learn__scikit-learn-27943",
+      "scikit-learn__scikit-learn-28121",
+      "scikit-learn__scikit-learn-28152",
+      "scikit-learn__scikit-learn-28198",
+      "scikit-learn__scikit-learn-28332",
+      "scikit-learn__scikit-learn-28483",
+      "scikit-learn__scikit-learn-28564",
+      "scikit-learn__scikit-learn-28599",
+      "scikit-learn__scikit-learn-28802",
+      "scikit-learn__scikit-learn-28843",
+      "scikit-learn__scikit-learn-28860",
+      "scikit-learn__scikit-learn-28876",
+      "scikit-learn__scikit-learn-28984",
+      "scikit-learn__scikit-learn-29228",
+      "scikit-learn__scikit-learn-29357",
+      "scikit-learn__scikit-learn-29387",
+      "scikit-learn__scikit-learn-29460",
+      "scikit-learn__scikit-learn-29493",
+      "scikit-learn__scikit-learn-29838",
+      "scikit-learn__scikit-learn-29916",
+      "scikit-learn__scikit-learn-30026",
+      "scikit-learn__scikit-learn-30296",
+      "scikit-learn__scikit-learn-30361",
+      "scikit-learn__scikit-learn-30409",
+      "scikit-learn__scikit-learn-30465",
+      "scikit-learn__scikit-learn-30581",
+      "scikit-learn__scikit-learn-30613",
+      "scikit-learn__scikit-learn-30726",
+      "scikit-learn__scikit-learn-30727",
+      "scikit-learn__scikit-learn-30797",
+      "scikit-learn__scikit-learn-30862",
+      "scikit-learn__scikit-learn-31106",
+      "scikit-learn__scikit-learn-31119",
+      "scikit-learn__scikit-learn-31142",
+      "scikit-learn__scikit-learn-31208",
+      "sympy__sympy-20018",
+      "sympy__sympy-20280",
+      "sympy__sympy-20439",
+      "sympy__sympy-20471",
+      "sympy__sympy-20660",
+      "sympy__sympy-20663",
+      "sympy__sympy-20792",
+      "sympy__sympy-20794",
+      "sympy__sympy-20808",
+      "sympy__sympy-21067",
+      "sympy__sympy-21500",
+      "sympy__sympy-21501",
+      "sympy__sympy-21583",
+      "sympy__sympy-22045",
+      "sympy__sympy-22113",
+      "sympy__sympy-22140",
+      "sympy__sympy-22414",
+      "sympy__sympy-22483",
+      "sympy__sympy-22703",
+      "sympy__sympy-22738",
+      "sympy__sympy-22870",
+      "sympy__sympy-22897",
+      "sympy__sympy-22957",
+      "sympy__sympy-22973",
+      "sympy__sympy-23026",
+      "sympy__sympy-23162",
+      "sympy__sympy-23335",
+      "sympy__sympy-23357",
+      "sympy__sympy-23372",
+      "sympy__sympy-23450",
+      "sympy__sympy-23659",
+      "sympy__sympy-23742",
+      "sympy__sympy-23824",
+      "sympy__sympy-23941",
+      "sympy__sympy-23976",
+      "sympy__sympy-24012",
+      "sympy__sympy-24161",
+      "sympy__sympy-24177",
+      "sympy__sympy-24358",
+      "sympy__sympy-24501",
+      "sympy__sympy-24563",
+      "sympy__sympy-24571",
+      "sympy__sympy-24573",
+      "sympy__sympy-24830",
+      "sympy__sympy-25074",
+      "sympy__sympy-25105",
+      "sympy__sympy-25246",
+      "sympy__sympy-25371",
+      "sympy__sympy-25400",
+      "sympy__sympy-25504",
+      "sympy__sympy-25536",
+      "sympy__sympy-25549",
+      "sympy__sympy-25622",
+      "sympy__sympy-25735",
+      "sympy__sympy-26233",
+      "sympy__sympy-26435",
+      "sympy__sympy-26649",
+      "sympy__sympy-26654",
+      "sympy__sympy-26660",
+      "sympy__sympy-26984",
+      "sympy__sympy-27242",
+      "sympy__sympy-27243",
+      "sympy__sympy-27247",
+      "sympy__sympy-27396",
+      "sympy__sympy-27688",
+      "sympy__sympy-27699",
+      "sympy__sympy-27708",
+      "sympy__sympy-27763"
+    ],
+    "repository_scoped": true,
+    "review_every": 25,
+    "review_batch": 6,
+    "maintain_every": 100,
+    "promote_min_exposures": 3,
+    "evict_min_exposures": 12,
+    "probation_max_exposures": 16,
+    "counterfactual_replay_limit": 40,
+    "counterfactual_cases_per_item": 3,
+    "recurrence": true,
+    "recurrence_limit": 80,
+    "settings": {
+      "agent_token_budget": 24000,
+      "agent_time_budget_seconds": 600,
+      "knowledge_rule_budget_tokens": 600,
+      "knowledge_skill_budget_tokens": 3000,
+      "knowledge_skill_body_cap_tokens": 1500,
+      "knowledge_skill_catalog_limit": 8,
+      "knowledge_rule_max_tokens": 60,
+      "knowledge_similarity_threshold": 0.3,
+      "knowledge_duplicate_threshold": 0.85,
+      "knowledge_half_life_days": 30.0,
+      "knowledge_gate_margin": 0.02,
+      "knowledge_gate_max_drop": 0.1,
+      "knowledge_capacity_tokens_per_role": 2400
+    }
+  },
+  "temporal_split": {
+    "protocol": "within-repository created_at order; floor(0.6*N), floor(0.7*N)",
+    "cases": 726,
+    "by_split": {
+      "train": 434,
+      "validation": 73,
+      "holdout": 219
+    },
+    "repositories": {
+      "scikit-learn/scikit-learn": {
+        "train": {
+          "count": 145,
+          "first_created_at": "2011-05-21T16:45:53+00:00",
+          "last_created_at": "2021-09-01T18:35:50+00:00"
+        },
+        "validation": {
+          "count": 25,
+          "first_created_at": "2021-09-02T14:20:13+00:00",
+          "last_created_at": "2022-06-30T20:57:58+00:00"
+        },
+        "holdout": {
+          "count": 73,
+          "first_created_at": "2022-07-16T10:14:55+00:00",
+          "last_created_at": "2025-04-15T11:53:30+00:00"
+        },
+        "tied_boundary_timestamps": {
+          "train_validation": false,
+          "validation_holdout": false
+        }
+      },
+      "sympy/sympy": {
+        "train": {
+          "count": 135,
+          "first_created_at": "2011-04-18T04:35:42+00:00",
+          "last_created_at": "2019-12-28T13:56:09+00:00"
+        },
+        "validation": {
+          "count": 22,
+          "first_created_at": "2019-12-31T15:45:24+00:00",
+          "last_created_at": "2020-08-09T15:46:17+00:00"
+        },
+        "holdout": {
+          "count": 68,
+          "first_created_at": "2020-08-29T22:35:12+00:00",
+          "last_created_at": "2025-03-14T13:53:42+00:00"
+        },
+        "tied_boundary_timestamps": {
+          "train_validation": false,
+          "validation_holdout": false
+        }
+      },
+      "matplotlib/matplotlib": {
+        "train": {
+          "count": 87,
+          "first_created_at": "2011-08-14T21:39:06+00:00",
+          "last_created_at": "2018-02-10T23:16:38+00:00"
+        },
+        "validation": {
+          "count": 14,
+          "first_created_at": "2018-04-15T22:41:12+00:00",
+          "last_created_at": "2020-03-08T09:42:41+00:00"
+        },
+        "holdout": {
+          "count": 44,
+          "first_created_at": "2020-03-20T06:01:32+00:00",
+          "last_created_at": "2025-03-10T16:34:04+00:00"
+        },
+        "tied_boundary_timestamps": {
+          "train_validation": false,
+          "validation_holdout": false
+        }
+      },
+      "astropy/astropy": {
+        "train": {
+          "count": 67,
+          "first_created_at": "2011-12-13T14:56:36+00:00",
+          "last_created_at": "2018-03-28T20:59:46+00:00"
+        },
+        "validation": {
+          "count": 12,
+          "first_created_at": "2018-05-29T11:06:28+00:00",
+          "last_created_at": "2019-12-17T21:58:57+00:00"
+        },
+        "holdout": {
+          "count": 34,
+          "first_created_at": "2020-04-08T15:46:38+00:00",
+          "last_created_at": "2025-03-31T16:22:41+00:00"
+        },
+        "tied_boundary_timestamps": {
+          "train_validation": false,
+          "validation_holdout": false
+        }
+      }
+    },
+    "case_disjoint": true,
+    "pr_disjoint": true,
+    "chronological": true,
+    "source": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_data\\swrbench\\swr_bench_functional.jsonl",
+    "source_sha256": "b3a48a00528cdd0845212a2985b12cef3bb6d9e8b97b7a6487eb8fe7e1d8b63a",
+    "dataset_sha256": "a095f4d6b6929309376d4f20e52c7230c96ce5231f29ff8619cd9d6619dcf2b5"
+  },
+  "training_transport": {
+    "invalid_json_retries": 1,
+    "evaluation_invalid_json_retries": 0,
+    "failed_reply_usage_recorded": true
+  },
+  "events_total": 243,
+  "event_mix": {
+    "missed": 89,
+    "false_positive": 81,
+    "noise": 49,
+    "contradiction": 24
+  },
+  "counterfactual": [
+    {
+      "event": 100,
+      "trials_considered": 55,
+      "no_training_match": 1,
+      "pairs": 20,
+      "replay_limit": 40,
+      "replays": 40,
+      "applied": 14,
+      "helpful": 2,
+      "harmful": 1,
+      "neutral": 11,
+      "failed": 0,
+      "not_exposed": 6
+    },
+    {
+      "event": 200,
+      "trials_considered": 77,
+      "no_training_match": 1,
+      "pairs": 20,
+      "replay_limit": 40,
+      "replays": 40,
+      "applied": 11,
+      "helpful": 1,
+      "harmful": 0,
+      "neutral": 10,
+      "failed": 1,
+      "not_exposed": 8
+    },
+    {
+      "event": 243,
+      "trials_considered": 94,
+      "no_training_match": 1,
+      "pairs": 20,
+      "replay_limit": 40,
+      "replays": 39,
+      "applied": 5,
+      "helpful": 1,
+      "harmful": 0,
+      "neutral": 4,
+      "failed": 1,
+      "not_exposed": 14
+    }
+  ],
+  "holdout_failures": {
+    "baseline": {
+      "first": 0.032,
+      "after_retry": 0.0,
+      "retried": 7
+    },
+    "naive": {
+      "first": 0.0228,
+      "after_retry": 0.0091,
+      "retried": 5
+    },
+    "governed": {
+      "first": 0.0183,
+      "after_retry": 0.0046,
+      "retried": 4
+    }
+  },
+  "comparisons_by_scope": {
+    "all": {
+      "governed_minus_naive": {
+        "f1": {
+          "delta": -0.044,
+          "ci95": [
+            -0.1276,
+            0.0377
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.0667,
+          "ci95": [
+            -0.1569,
+            0.0101
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0179,
+          "ci95": [
+            -0.1111,
+            0.0747
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.04,
+          "ci95": [
+            -0.1818,
+            0.0909
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.0179,
+          "ci95": [
+            -0.0614,
+            0.0227
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -1003.47,
+          "ci95": [
+            -1089.61,
+            -916.92
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -5297.12,
+          "ci95": [
+            -7259.97,
+            -3681.83
+          ],
+          "iterations": 2000
+        }
+      },
+      "naive_minus_baseline": {
+        "f1": {
+          "delta": -0.0445,
+          "ci95": [
+            -0.1302,
+            0.0378
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.0357,
+          "ci95": [
+            -0.125,
+            0.0467
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0535,
+          "ci95": [
+            -0.151,
+            0.0378
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": 0.0,
+          "ci95": [
+            -0.1111,
+            0.12
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.024,
+          "ci95": [
+            -0.0578,
+            0.0063
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": 783.8,
+          "ci95": [
+            706.01,
+            858.72
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": 3342.38,
+          "ci95": [
+            1535.67,
+            5275.46
+          ],
+          "iterations": 2000
+        }
+      },
+      "governed_minus_baseline": {
+        "f1": {
+          "delta": -0.0885,
+          "ci95": [
+            -0.1591,
+            -0.0316
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.1024,
+          "ci95": [
+            -0.1787,
+            -0.0358
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0714,
+          "ci95": [
+            -0.1463,
+            -0.0154
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.04,
+          "ci95": [
+            -0.125,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.0419,
+          "ci95": [
+            -0.0828,
+            -0.006
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -219.67,
+          "ci95": [
+            -272.89,
+            -168.68
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -1954.74,
+          "ci95": [
+            -3369.62,
+            -802.2
+          ],
+          "iterations": 2000
+        }
+      }
+    },
+    "recent_2024": {
+      "governed_minus_naive": {
+        "f1": {
+          "delta": -0.0569,
+          "ci95": [
+            -0.1892,
+            0.0077
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.0682,
+          "ci95": [
+            -0.3,
+            0.0238
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0477,
+          "ci95": [
+            -0.16,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -850.33,
+          "ci95": [
+            -1005.43,
+            -710.09
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -3328.35,
+          "ci95": [
+            -4516.62,
+            -2192.81
+          ],
+          "iterations": 2000
+        }
+      },
+      "naive_minus_baseline": {
+        "f1": {
+          "delta": 0.0643,
+          "ci95": [
+            -0.0077,
+            0.1929
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": 0.0962,
+          "ci95": [
+            -0.0238,
+            0.3778
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": 0.0477,
+          "ci95": [
+            0.0,
+            0.1579
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": 0.0,
+          "ci95": [
+            -0.0612,
+            0.0638
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": 623.5,
+          "ci95": [
+            470.83,
+            760.43
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": 880.57,
+          "ci95": [
+            -1757.29,
+            2786.18
+          ],
+          "iterations": 2000
+        }
+      },
+      "governed_minus_baseline": {
+        "f1": {
+          "delta": 0.0074,
+          "ci95": [
+            -0.0079,
+            0.0278
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": 0.028,
+          "ci95": [
+            -0.041,
+            0.1515
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": 0.0,
+          "ci95": [
+            -0.0612,
+            0.0638
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -226.83,
+          "ci95": [
+            -355.09,
+            -118.48
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -2447.78,
+          "ci95": [
+            -5003.86,
+            -759.63
+          ],
+          "iterations": 2000
+        }
+      }
+    },
+    "executed_all": {
+      "governed_minus_naive": {
+        "f1": {
+          "delta": -0.0576,
+          "ci95": [
+            -0.1392,
+            0.0239
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.0747,
+          "ci95": [
+            -0.1629,
+            0.0026
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.037,
+          "ci95": [
+            -0.125,
+            0.0535
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.0417,
+          "ci95": [
+            -0.1852,
+            0.0953
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.0179,
+          "ci95": [
+            -0.0602,
+            0.0229
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -1003.31,
+          "ci95": [
+            -1087.94,
+            -914.7
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -5548.55,
+          "ci95": [
+            -7615.53,
+            -4006.59
+          ],
+          "iterations": 2000
+        }
+      },
+      "naive_minus_baseline": {
+        "f1": {
+          "delta": -0.0336,
+          "ci95": [
+            -0.1182,
+            0.0467
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.0302,
+          "ci95": [
+            -0.1188,
+            0.0489
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0371,
+          "ci95": [
+            -0.1305,
+            0.05
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": 0.0,
+          "ci95": [
+            -0.12,
+            0.125
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.024,
+          "ci95": [
+            -0.0585,
+            0.0061
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": 784.47,
+          "ci95": [
+            709.96,
+            858.69
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": 3683.56,
+          "ci95": [
+            2025.74,
+            5664.6
+          ],
+          "iterations": 2000
+        }
+      },
+      "governed_minus_baseline": {
+        "f1": {
+          "delta": -0.0912,
+          "ci95": [
+            -0.162,
+            -0.0335
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.1049,
+          "ci95": [
+            -0.1881,
+            -0.0436
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0741,
+          "ci95": [
+            -0.1539,
+            -0.0167
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.0417,
+          "ci95": [
+            -0.1333,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.0419,
+          "ci95": [
+            -0.0823,
+            -0.0059
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -218.84,
+          "ci95": [
+            -273.56,
+            -165.69
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -1864.99,
+          "ci95": [
+            -3245.01,
+            -722.01
+          ],
+          "iterations": 2000
+        }
+      }
+    }
+  },
+  "holdout_by_scope": {
+    "all": {
+      "baseline": {
+        "f1": 0.3508,
+        "precision": 0.3448,
+        "recall": 0.3571,
+        "high_risk_recall": 0.36,
+        "clean_accuracy": 0.8623,
+        "average_instruction_tokens_per_call": 1056.79,
+        "average_total_tokens_per_pr": 24267.33
+      },
+      "naive": {
+        "f1": 0.3063,
+        "precision": 0.3091,
+        "recall": 0.3036,
+        "high_risk_recall": 0.36,
+        "clean_accuracy": 0.8383,
+        "average_instruction_tokens_per_call": 1840.59,
+        "average_total_tokens_per_pr": 27609.71
+      },
+      "governed": {
+        "f1": 0.2623,
+        "precision": 0.2424,
+        "recall": 0.2857,
+        "high_risk_recall": 0.32,
+        "clean_accuracy": 0.8204,
+        "average_instruction_tokens_per_call": 837.12,
+        "average_total_tokens_per_pr": 22312.59
+      }
+    },
+    "recent_2024": {
+      "baseline": {
+        "f1": 0.1176,
+        "precision": 0.1538,
+        "recall": 0.0952,
+        "high_risk_recall": 0.1,
+        "clean_accuracy": 0.8696,
+        "average_instruction_tokens_per_call": 1101.4,
+        "average_total_tokens_per_pr": 25605.23
+      },
+      "naive": {
+        "f1": 0.1819,
+        "precision": 0.25,
+        "recall": 0.1429,
+        "high_risk_recall": 0.1,
+        "clean_accuracy": 0.8696,
+        "average_instruction_tokens_per_call": 1724.9,
+        "average_total_tokens_per_pr": 26485.8
+      },
+      "governed": {
+        "f1": 0.125,
+        "precision": 0.1818,
+        "recall": 0.0952,
+        "high_risk_recall": 0.1,
+        "clean_accuracy": 0.8696,
+        "average_instruction_tokens_per_call": 874.57,
+        "average_total_tokens_per_pr": 23157.45
+      }
+    },
+    "executed_all": {
+      "baseline": {
+        "f1": 0.3455,
+        "precision": 0.3393,
+        "recall": 0.3519,
+        "high_risk_recall": 0.375,
+        "clean_accuracy": 0.8623,
+        "average_instruction_tokens_per_call": 1056.12,
+        "average_total_tokens_per_pr": 24180.62
+      },
+      "naive": {
+        "f1": 0.3119,
+        "precision": 0.3091,
+        "recall": 0.3148,
+        "high_risk_recall": 0.375,
+        "clean_accuracy": 0.8383,
+        "average_instruction_tokens_per_call": 1840.59,
+        "average_total_tokens_per_pr": 27864.18
+      },
+      "governed": {
+        "f1": 0.2543,
+        "precision": 0.2344,
+        "recall": 0.2778,
+        "high_risk_recall": 0.3333,
+        "clean_accuracy": 0.8204,
+        "average_instruction_tokens_per_call": 837.28,
+        "average_total_tokens_per_pr": 22315.63
+      }
+    }
+  },
+  "recurrence": {
+    "notice": "这是对已反馈问题的纠正（同一批 PR），不代表泛化能力。",
+    "sampling_unit": "PR",
+    "sample": {
+      "selected_prs": 150,
+      "paired_prs": 149,
+      "by_event_type": {
+        "missed": 80,
+        "false_positive": 80
+      },
+      "case_ids": [
+        "astropy__astropy-1312",
+        "astropy__astropy-1796",
+        "astropy__astropy-187",
+        "astropy__astropy-228",
+        "astropy__astropy-2457",
+        "astropy__astropy-2775",
+        "astropy__astropy-3096",
+        "astropy__astropy-417",
+        "astropy__astropy-444",
+        "astropy__astropy-4736",
+        "astropy__astropy-4979",
+        "astropy__astropy-5446",
+        "astropy__astropy-5494",
+        "astropy__astropy-5868",
+        "astropy__astropy-6422",
+        "astropy__astropy-692",
+        "matplotlib__matplotlib-10031",
+        "matplotlib__matplotlib-128",
+        "matplotlib__matplotlib-1294",
+        "matplotlib__matplotlib-1477",
+        "matplotlib__matplotlib-1710",
+        "matplotlib__matplotlib-1818",
+        "matplotlib__matplotlib-1874",
+        "matplotlib__matplotlib-2807",
+        "matplotlib__matplotlib-3188",
+        "matplotlib__matplotlib-3752",
+        "matplotlib__matplotlib-3985",
+        "matplotlib__matplotlib-416",
+        "matplotlib__matplotlib-4441",
+        "matplotlib__matplotlib-4714",
+        "matplotlib__matplotlib-4824",
+        "matplotlib__matplotlib-5195",
+        "matplotlib__matplotlib-5224",
+        "matplotlib__matplotlib-5233",
+        "matplotlib__matplotlib-5374",
+        "matplotlib__matplotlib-5432",
+        "matplotlib__matplotlib-5515",
+        "matplotlib__matplotlib-5591",
+        "matplotlib__matplotlib-563",
+        "matplotlib__matplotlib-5825",
+        "matplotlib__matplotlib-7279",
+        "matplotlib__matplotlib-7831",
+        "matplotlib__matplotlib-7968",
+        "scikit-learn__scikit-learn-10474",
+        "scikit-learn__scikit-learn-10615",
+        "scikit-learn__scikit-learn-10852",
+        "scikit-learn__scikit-learn-11277",
+        "scikit-learn__scikit-learn-11509",
+        "scikit-learn__scikit-learn-11534",
+        "scikit-learn__scikit-learn-1201",
+        "scikit-learn__scikit-learn-12033",
+        "scikit-learn__scikit-learn-12409",
+        "scikit-learn__scikit-learn-12718",
+        "scikit-learn__scikit-learn-12915",
+        "scikit-learn__scikit-learn-13251",
+        "scikit-learn__scikit-learn-13468",
+        "scikit-learn__scikit-learn-14465",
+        "scikit-learn__scikit-learn-14817",
+        "scikit-learn__scikit-learn-1496",
+        "scikit-learn__scikit-learn-15098",
+        "scikit-learn__scikit-learn-15423",
+        "scikit-learn__scikit-learn-15847",
+        "scikit-learn__scikit-learn-16269",
+        "scikit-learn__scikit-learn-16841",
+        "scikit-learn__scikit-learn-1712",
+        "scikit-learn__scikit-learn-17552",
+        "scikit-learn__scikit-learn-18062",
+        "scikit-learn__scikit-learn-182",
+        "scikit-learn__scikit-learn-18693",
+        "scikit-learn__scikit-learn-19669",
+        "scikit-learn__scikit-learn-20149",
+        "scikit-learn__scikit-learn-20889",
+        "scikit-learn__scikit-learn-259",
+        "scikit-learn__scikit-learn-280",
+        "scikit-learn__scikit-learn-3030",
+        "scikit-learn__scikit-learn-3065",
+        "scikit-learn__scikit-learn-3365",
+        "scikit-learn__scikit-learn-3925",
+        "scikit-learn__scikit-learn-398",
+        "scikit-learn__scikit-learn-4584",
+        "scikit-learn__scikit-learn-5195",
+        "scikit-learn__scikit-learn-5954",
+        "scikit-learn__scikit-learn-7214",
+        "scikit-learn__scikit-learn-7415",
+        "scikit-learn__scikit-learn-7498",
+        "scikit-learn__scikit-learn-7897",
+        "scikit-learn__scikit-learn-8567",
+        "scikit-learn__scikit-learn-889",
+        "scikit-learn__scikit-learn-8983",
+        "scikit-learn__scikit-learn-9035",
+        "scikit-learn__scikit-learn-9051",
+        "sympy__sympy-10499",
+        "sympy__sympy-10692",
+        "sympy__sympy-11970",
+        "sympy__sympy-12010",
+        "sympy__sympy-12059",
+        "sympy__sympy-12175",
+        "sympy__sympy-12813",
+        "sympy__sympy-13017",
+        "sympy__sympy-13091",
+        "sympy__sympy-13131",
+        "sympy__sympy-13196",
+        "sympy__sympy-13327",
+        "sympy__sympy-13622",
+        "sympy__sympy-13839",
+        "sympy__sympy-1399",
+        "sympy__sympy-14145",
+        "sympy__sympy-15174",
+        "sympy__sympy-15175",
+        "sympy__sympy-15278",
+        "sympy__sympy-15607",
+        "sympy__sympy-15619",
+        "sympy__sympy-15646",
+        "sympy__sympy-15683",
+        "sympy__sympy-15849",
+        "sympy__sympy-15876",
+        "sympy__sympy-16051",
+        "sympy__sympy-1620",
+        "sympy__sympy-16221",
+        "sympy__sympy-16637",
+        "sympy__sympy-16762",
+        "sympy__sympy-1688",
+        "sympy__sympy-17357",
+        "sympy__sympy-1749",
+        "sympy__sympy-17548",
+        "sympy__sympy-1756",
+        "sympy__sympy-17672",
+        "sympy__sympy-18021",
+        "sympy__sympy-18131",
+        "sympy__sympy-1989",
+        "sympy__sympy-2044",
+        "sympy__sympy-2078",
+        "sympy__sympy-2178",
+        "sympy__sympy-2397",
+        "sympy__sympy-2417",
+        "sympy__sympy-2437",
+        "sympy__sympy-245",
+        "sympy__sympy-287",
+        "sympy__sympy-2987",
+        "sympy__sympy-416",
+        "sympy__sympy-491",
+        "sympy__sympy-542",
+        "sympy__sympy-7293",
+        "sympy__sympy-755",
+        "sympy__sympy-7614",
+        "sympy__sympy-7731",
+        "sympy__sympy-7865",
+        "sympy__sympy-8264",
+        "sympy__sympy-9653",
+        "sympy__sympy-9856"
+      ],
+      "paired_case_ids": [
+        "astropy__astropy-1312",
+        "astropy__astropy-1796",
+        "astropy__astropy-187",
+        "astropy__astropy-228",
+        "astropy__astropy-2457",
+        "astropy__astropy-2775",
+        "astropy__astropy-3096",
+        "astropy__astropy-417",
+        "astropy__astropy-444",
+        "astropy__astropy-4736",
+        "astropy__astropy-4979",
+        "astropy__astropy-5446",
+        "astropy__astropy-5494",
+        "astropy__astropy-5868",
+        "astropy__astropy-6422",
+        "astropy__astropy-692",
+        "matplotlib__matplotlib-10031",
+        "matplotlib__matplotlib-128",
+        "matplotlib__matplotlib-1294",
+        "matplotlib__matplotlib-1477",
+        "matplotlib__matplotlib-1710",
+        "matplotlib__matplotlib-1818",
+        "matplotlib__matplotlib-1874",
+        "matplotlib__matplotlib-2807",
+        "matplotlib__matplotlib-3188",
+        "matplotlib__matplotlib-3752",
+        "matplotlib__matplotlib-3985",
+        "matplotlib__matplotlib-416",
+        "matplotlib__matplotlib-4441",
+        "matplotlib__matplotlib-4714",
+        "matplotlib__matplotlib-4824",
+        "matplotlib__matplotlib-5195",
+        "matplotlib__matplotlib-5224",
+        "matplotlib__matplotlib-5233",
+        "matplotlib__matplotlib-5374",
+        "matplotlib__matplotlib-5432",
+        "matplotlib__matplotlib-5515",
+        "matplotlib__matplotlib-5591",
+        "matplotlib__matplotlib-563",
+        "matplotlib__matplotlib-5825",
+        "matplotlib__matplotlib-7279",
+        "matplotlib__matplotlib-7831",
+        "matplotlib__matplotlib-7968",
+        "scikit-learn__scikit-learn-10474",
+        "scikit-learn__scikit-learn-10615",
+        "scikit-learn__scikit-learn-10852",
+        "scikit-learn__scikit-learn-11277",
+        "scikit-learn__scikit-learn-11509",
+        "scikit-learn__scikit-learn-11534",
+        "scikit-learn__scikit-learn-1201",
+        "scikit-learn__scikit-learn-12033",
+        "scikit-learn__scikit-learn-12409",
+        "scikit-learn__scikit-learn-12718",
+        "scikit-learn__scikit-learn-12915",
+        "scikit-learn__scikit-learn-13251",
+        "scikit-learn__scikit-learn-13468",
+        "scikit-learn__scikit-learn-14465",
+        "scikit-learn__scikit-learn-14817",
+        "scikit-learn__scikit-learn-1496",
+        "scikit-learn__scikit-learn-15098",
+        "scikit-learn__scikit-learn-15423",
+        "scikit-learn__scikit-learn-15847",
+        "scikit-learn__scikit-learn-16269",
+        "scikit-learn__scikit-learn-16841",
+        "scikit-learn__scikit-learn-1712",
+        "scikit-learn__scikit-learn-17552",
+        "scikit-learn__scikit-learn-18062",
+        "scikit-learn__scikit-learn-182",
+        "scikit-learn__scikit-learn-18693",
+        "scikit-learn__scikit-learn-19669",
+        "scikit-learn__scikit-learn-20149",
+        "scikit-learn__scikit-learn-20889",
+        "scikit-learn__scikit-learn-259",
+        "scikit-learn__scikit-learn-280",
+        "scikit-learn__scikit-learn-3030",
+        "scikit-learn__scikit-learn-3065",
+        "scikit-learn__scikit-learn-3365",
+        "scikit-learn__scikit-learn-3925",
+        "scikit-learn__scikit-learn-398",
+        "scikit-learn__scikit-learn-4584",
+        "scikit-learn__scikit-learn-5195",
+        "scikit-learn__scikit-learn-5954",
+        "scikit-learn__scikit-learn-7214",
+        "scikit-learn__scikit-learn-7415",
+        "scikit-learn__scikit-learn-7498",
+        "scikit-learn__scikit-learn-7897",
+        "scikit-learn__scikit-learn-8567",
+        "scikit-learn__scikit-learn-889",
+        "scikit-learn__scikit-learn-8983",
+        "scikit-learn__scikit-learn-9035",
+        "scikit-learn__scikit-learn-9051",
+        "sympy__sympy-10499",
+        "sympy__sympy-10692",
+        "sympy__sympy-11970",
+        "sympy__sympy-12010",
+        "sympy__sympy-12059",
+        "sympy__sympy-12175",
+        "sympy__sympy-12813",
+        "sympy__sympy-13017",
+        "sympy__sympy-13091",
+        "sympy__sympy-13131",
+        "sympy__sympy-13196",
+        "sympy__sympy-13327",
+        "sympy__sympy-13622",
+        "sympy__sympy-13839",
+        "sympy__sympy-1399",
+        "sympy__sympy-14145",
+        "sympy__sympy-15174",
+        "sympy__sympy-15175",
+        "sympy__sympy-15278",
+        "sympy__sympy-15607",
+        "sympy__sympy-15619",
+        "sympy__sympy-15646",
+        "sympy__sympy-15683",
+        "sympy__sympy-15849",
+        "sympy__sympy-15876",
+        "sympy__sympy-16051",
+        "sympy__sympy-1620",
+        "sympy__sympy-16221",
+        "sympy__sympy-16637",
+        "sympy__sympy-1688",
+        "sympy__sympy-17357",
+        "sympy__sympy-1749",
+        "sympy__sympy-17548",
+        "sympy__sympy-1756",
+        "sympy__sympy-17672",
+        "sympy__sympy-18021",
+        "sympy__sympy-18131",
+        "sympy__sympy-1989",
+        "sympy__sympy-2044",
+        "sympy__sympy-2078",
+        "sympy__sympy-2178",
+        "sympy__sympy-2397",
+        "sympy__sympy-2417",
+        "sympy__sympy-2437",
+        "sympy__sympy-245",
+        "sympy__sympy-287",
+        "sympy__sympy-2987",
+        "sympy__sympy-416",
+        "sympy__sympy-491",
+        "sympy__sympy-542",
+        "sympy__sympy-7293",
+        "sympy__sympy-755",
+        "sympy__sympy-7614",
+        "sympy__sympy-7731",
+        "sympy__sympy-7865",
+        "sympy__sympy-8264",
+        "sympy__sympy-9653",
+        "sympy__sympy-9856"
+      ],
+      "limit_per_event_type": 80
+    },
+    "failures": {
+      "baseline": 1,
+      "naive": 0,
+      "governed": 0,
+      "governed_canary": 0
+    },
+    "metrics": {
+      "baseline": {
+        "false_positive_recurrence": {
+          "numerator": 43,
+          "denominator": 79,
+          "rate": 0.544304
+        },
+        "missed_recovery": {
+          "numerator": 8,
+          "denominator": 87,
+          "rate": 0.091954
+        },
+        "correct_retention": {
+          "numerator": 10,
+          "denominator": 11,
+          "rate": 0.909091
+        }
+      },
+      "naive": {
+        "false_positive_recurrence": {
+          "numerator": 18,
+          "denominator": 79,
+          "rate": 0.227848
+        },
+        "missed_recovery": {
+          "numerator": 8,
+          "denominator": 87,
+          "rate": 0.091954
+        },
+        "correct_retention": {
+          "numerator": 10,
+          "denominator": 11,
+          "rate": 0.909091
+        }
+      },
+      "governed": {
+        "false_positive_recurrence": {
+          "numerator": 36,
+          "denominator": 79,
+          "rate": 0.455696
+        },
+        "missed_recovery": {
+          "numerator": 8,
+          "denominator": 87,
+          "rate": 0.091954
+        },
+        "correct_retention": {
+          "numerator": 10,
+          "denominator": 11,
+          "rate": 0.909091
+        }
+      },
+      "governed_canary": {
+        "false_positive_recurrence": {
+          "numerator": 36,
+          "denominator": 79,
+          "rate": 0.455696
+        },
+        "missed_recovery": {
+          "numerator": 9,
+          "denominator": 87,
+          "rate": 0.103448
+        },
+        "correct_retention": {
+          "numerator": 9,
+          "denominator": 11,
+          "rate": 0.818182
+        }
+      }
+    },
+    "comparisons": {
+      "naive_minus_baseline": {
+        "false_positive_recurrence": {
+          "delta": -0.316456,
+          "ci95": [
+            -0.426829,
+            -0.2125
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": false
+        },
+        "missed_recovery": {
+          "delta": 0.0,
+          "ci95": [
+            -0.054348,
+            0.055556
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        },
+        "correct_retention": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        }
+      },
+      "governed_minus_baseline": {
+        "false_positive_recurrence": {
+          "delta": -0.088608,
+          "ci95": [
+            -0.2,
+            0.023529
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": false
+        },
+        "missed_recovery": {
+          "delta": 0.0,
+          "ci95": [
+            -0.053333,
+            0.057471
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        },
+        "correct_retention": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        }
+      },
+      "governed_canary_minus_baseline": {
+        "false_positive_recurrence": {
+          "delta": -0.088608,
+          "ci95": [
+            -0.216216,
+            0.035714
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": false
+        },
+        "missed_recovery": {
+          "delta": 0.011494,
+          "ci95": [
+            -0.036145,
+            0.060976
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        },
+        "correct_retention": {
+          "delta": -0.090909,
+          "ci95": [
+            -0.3,
+            0.0
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        }
+      },
+      "governed_minus_naive": {
+        "false_positive_recurrence": {
+          "delta": 0.227848,
+          "ci95": [
+            0.116883,
+            0.341176
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": false
+        },
+        "missed_recovery": {
+          "delta": 0.0,
+          "ci95": [
+            -0.043011,
+            0.042254
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        },
+        "correct_retention": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        }
+      },
+      "governed_canary_minus_governed": {
+        "false_positive_recurrence": {
+          "delta": 0.0,
+          "ci95": [
+            -0.098765,
+            0.1
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": false
+        },
+        "missed_recovery": {
+          "delta": 0.011494,
+          "ci95": [
+            -0.048193,
+            0.070588
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        },
+        "correct_retention": {
+          "delta": -0.090909,
+          "ci95": [
+            -0.3,
+            0.0
+          ],
+          "iterations": 2000,
+          "paired_prs": 149,
+          "sampling_unit": "PR",
+          "higher_is_better": true
+        }
+      }
+    }
+  },
+  "finished_at": "2026-10-13T23:58:23",
+  "governance": {
+    "admission_by_source": {
+      "missed": {
+        "ADD": 76,
+        "REJECT": 9,
+        "UPVOTE": 4,
+        "CONFLICT": 0,
+        "MERGE": 0,
+        "RESTORE": 0
+      },
+      "false_positive": {
+        "ADD": 79,
+        "REJECT": 2,
+        "UPVOTE": 1,
+        "CONFLICT": 0,
+        "MERGE": 0,
+        "RESTORE": 0
+      },
+      "contradiction": {
+        "ADD": 3,
+        "REJECT": 5,
+        "UPVOTE": 1,
+        "CONFLICT": 15,
+        "MERGE": 0,
+        "RESTORE": 0
+      },
+      "noise": {
+        "ADD": 0,
+        "REJECT": 49,
+        "UPVOTE": 0,
+        "CONFLICT": 0,
+        "MERGE": 0,
+        "RESTORE": 0
+      }
+    },
+    "admission_candidates": 244,
+    "decision_definition": "CONFLICT is an exclusive display category; its stored action is REJECT",
+    "interception": {
+      "contradiction": {
+        "planned_events": 24,
+        "candidate_count": 24,
+        "rejected_candidates": 20,
+        "candidate_rate": 0.833333,
+        "events_with_candidates": 24,
+        "blocked_events": 20,
+        "event_rate": 0.833333
+      },
+      "noise": {
+        "planned_events": 49,
+        "candidate_count": 49,
+        "rejected_candidates": 49,
+        "candidate_rate": 1.0,
+        "events_with_candidates": 49,
+        "blocked_events": 49,
+        "event_rate": 1.0
+      }
+    },
+    "contamination": {
+      "naive": {
+        "items": 244,
+        "polluted_items": 73,
+        "item_rate": 0.29918,
+        "tokens": 23862,
+        "polluted_tokens": 2816,
+        "token_rate": 0.118012,
+        "by_source": {
+          "missed": 89,
+          "false_positive": 82,
+          "contradiction": 24,
+          "noise": 49
+        },
+        "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+      },
+      "governed": {
+        "items": 2,
+        "polluted_items": 0,
+        "item_rate": 0.0,
+        "tokens": 116,
+        "polluted_tokens": 0,
+        "token_rate": 0.0,
+        "by_source": {
+          "false_positive": 1,
+          "missed": 1
+        },
+        "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+      },
+      "governed_canary": {
+        "items": 97,
+        "polluted_items": 2,
+        "item_rate": 0.020619,
+        "tokens": 12229,
+        "polluted_tokens": 100,
+        "token_rate": 0.008177,
+        "by_source": {
+          "false_positive": 41,
+          "missed": 54,
+          "contradiction": 2
+        },
+        "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+      }
+    },
+    "lifecycle": {
+      "promotion_events": 2,
+      "unique_promoted_items": 2,
+      "eviction_events": 61,
+      "unique_evicted_items": 61,
+      "currently_archived": 61,
+      "archived_categories": {
+        "capacity": 61
+      },
+      "archived_reasons": {
+        "capacity": 61
+      }
+    },
+    "counterfactual": {
+      "pair_attempts": 60,
+      "individual_replays": 119,
+      "replay_definition": "review attempts, including failures and unexposed trial reviews",
+      "applied_pairs": 30,
+      "helpful": 4,
+      "harmful": 1,
+      "neutral": 25,
+      "failed": 2,
+      "not_exposed": 28,
+      "unique_items": 12,
+      "unique_prs": 23,
+      "train_only": true
+    }
+  }
+}

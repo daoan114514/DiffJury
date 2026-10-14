@@ -1,0 +1,51 @@
+{
+  "id": "matplotlib__matplotlib-715",
+  "findings": [
+    {
+      "rule_id": "delimiter-input-compatibility",
+      "severity": "medium",
+      "title": "Preserve unescaped square brackets as valid delimiters",
+      "explanation": "The delimiter sets previously accepted '[' and ']', but now accept only their escaped forms. Consequently, an existing expression such as $\\left[\\frac{1}{2}\\right]$ is rejected instead of rendering a bracketed fraction. Unlike braces, square brackets do not require escaping in standard mathematical delimiter syntax, so requiring \\[ and \\] breaks valid existing mathtext input. The added Bakoma aliases and STIX normalization operate during glyph selection and cannot restore a token rejected by the delimiter grammar. Keep the raw square-bracket tokens alongside the new escaped aliases. The supplied diff does not establish a separate defect in generalized-fraction glyph lookup or empty-content sizing; those paths should not be reported as additional findings without their surrounding implementations.",
+      "path": "lib/matplotlib/mathtext.py",
+      "line": 2125,
+      "evidence": "_left_delim = set(r\"( \\[ \\{ < \\lfloor \\langle \\lceil\".split())\n_right_delim = set(r\") \\] \\} > \\rfloor \\rangle \\rceil\".split())",
+      "fix": "Retain '[' in _left_delim and ']' in _right_delim in addition to the escaped aliases; handle the intentional brace syntax change separately.",
+      "test": "Parse and render $\\left[\\frac{1}{2}\\right]$ with the supported font sets and assert successful output with visible square brackets. Also test the new escaped aliases, empty bracket contents, and invisible delimiters to ensure the compatibility fix preserves the new behavior.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/mathtext.py",
+          "line": 2125,
+          "symbol": "Parser._left_delim"
+        },
+        {
+          "path": "lib/matplotlib/mathtext.py",
+          "line": 2127,
+          "symbol": "Parser._right_delim"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17912,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-715.json",
+  "borrowed_sha256": "721b37f842c1241cfbc0332a67392d72d548de1451a7e764a09a4df2244a69f3"
+}

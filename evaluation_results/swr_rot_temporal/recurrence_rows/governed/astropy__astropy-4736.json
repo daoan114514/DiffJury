@@ -1,0 +1,177 @@
+{
+  "id": "astropy__astropy-4736",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "quantity-vector-conversion",
+      "severity": "medium",
+      "title": "Every get_moon call attempts to convert a three-component Quantity to float",
+      "explanation": "For scalar Time, earth_p contains three Cartesian components; array Time adds leading dimensions but retains those three components. Multiplying earth_p by the dimensionless mass ratio therefore produces a nonscalar Quantity. float() cannot convert that Quantity to a Python scalar and raises TypeError at line 209. Consequently, the newly exported get_moon function fails even for get_moon(Time('2000-01-01')); one-dimensional and multidimensional inputs fail at the same operation. The velocity calculation repeats the error. Dimensionless units permit scalar conversion but do not make a vector scalar.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 209,
+      "evidence": "moon_p = float((const.M_moon+const.M_earth)/const.M_moon)*emb_p - \\\n             float(const.M_earth/const.M_moon*earth_p)\n    moon_v = float((const.M_moon+const.M_earth)/const.M_moon)*emb_v - \\\n             float(const.M_earth/const.M_moon*earth_v)",
+      "fix": "Convert only the scalar mass ratio: float(const.M_earth / const.M_moon) * earth_p, and make the equivalent change for earth_v.",
+      "test": "Call the public get_moon API with scalar Time, Time(['2000-01-01', '2000-01-02']), and a two-dimensional Time array. Assert that no Quantity-to-float exception occurs and that coordinates are returned.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "get_moon"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "erfa.epv00"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 209,
+          "symbol": "float(vector-valued Quantity)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "erfa-aberration-contract",
+      "severity": "medium",
+      "title": "Aberration uses velocities in the wrong units and an inverted Lorentz factor",
+      "explanation": "Once the preceding float conversion is corrected, the aberration calculation violates ERFA ab's numerical contract. epv00 and plan94 return velocities in AU/day, whereas ab requires the observer's barycentric velocity in units of c. earth_v - moon_v is instead an Earth–Moon relative velocity, passed without conversion. The bm argument must be sqrt(1 - |v|^2), but line 213 computes its reciprocal. For any nonzero subluminal velocity, that expression produces bm > 1, contrary to the required inverse Lorentz factor. Finally, ab's s argument is the Sun–observer distance in AU, not the lunar distance supplied here. These errors remain even if the Earth/Moon barycentre reconstruction is assumed exact; improving its accuracy cannot correct this transformation. A lunar relative speed of approximately 1 km/s is approximately 0.00058 AU/day, so passing it directly treats it as approximately 174 km/s rather than converting it to approximately 0.0000033 c. Returned directions therefore have a spurious aberration correction.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 213,
+      "evidence": "invlorentz = (1-np.sum((moon_v-earth_v)**2, axis=-1))**-0.5\n    properdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),\n                        earth_v-moon_v,\n                        dmoon,\n                        invlorentz)",
+      "fix": "Use the observer's barycentric Earth velocity from earth_pv_bary, convert AU/day to units of c, compute sqrt(1 - |v|^2), and supply the heliocentric Earth distance. Use the observer-to-Moon natural direction and corresponding output sign consistently.",
+      "test": "After fixing the scalar conversions, compare the returned direction with an explicit erfa.ab calculation using the same reconstructed Moon position, barycentric Earth velocity divided by c in AU/day, heliocentric Earth distance, and sqrt(1 - |v|^2). Include an epoch with nonzero transverse velocity. Separately compare lunar position and distance with a trusted lunar ephemeris to measure the accuracy of the mixed epv00/plan94 barycentre reconstruction.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "erfa.epv00"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 199,
+          "symbol": "erfa.plan94"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 210,
+          "symbol": "moon_v reconstruction"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "erfa.ab"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "time-array-shape-preservation",
+      "severity": "medium",
+      "title": "Flattening lunar distances breaks multidimensional Time broadcasting",
+      "explanation": "After correcting the float conversion, a Time input with shape (2, 2) produces position arrays with shape (2, 2, 3) and dmoon with shape (2, 2). Reshaping dmoon to (-1, 1) changes its shape to (4, 1), which cannot broadcast against (2, 2, 3); division raises ValueError before ab is called. Singleton dimensions can instead cause silent expansion: a (2, 1) Time input divides a (2, 1, 3) position array by a (2, 1) denominator, producing shape (2, 2, 3), so the result no longer preserves the input shape. Scalar and one-dimensional inputs do not expose this particular broadcasting defect.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 214,
+      "evidence": "properdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),",
+      "fix": "Append a component axis without flattening the Time dimensions, using dmoon[..., np.newaxis]. Adjust scalar CartesianRepresentation construction as necessary so scalar results remain scalar rather than relying on an artificially introduced length-one axis.",
+      "test": "Exercise get_moon with scalar, (2,), (2, 2), and (2, 1) Time shapes. Assert that each SkyCoord has exactly the input shape and that every array element matches an independent scalar call for the same epoch.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "get_moon"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 212,
+          "symbol": "dmoon computation"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "direction normalization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

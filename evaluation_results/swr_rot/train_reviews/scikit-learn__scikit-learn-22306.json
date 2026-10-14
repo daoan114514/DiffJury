@@ -1,0 +1,49 @@
+{
+  "id": "scikit-learn__scikit-learn-22306",
+  "findings": [
+    {
+      "rule_id": "unreachable-test-assertion",
+      "severity": "medium",
+      "title": "Dataset label mismatch disables the test-set criterion comparison",
+      "explanation": "The loop at line 232 supplies only \"train\" and \"test\", but the changed condition at line 247 checks for \"val\". Before the change, the training iteration skipped line 248 and the test iteration asserted metric_poi < metric_mse; both iterations also asserted metric_poi < 0.5 * metric_dummy. After the change, neither iteration executes line 248, and both execute only the relaxed dummy comparison at line 249. Consequently a regression where the Poisson forest performs worse than the squared-error forest on the test set, while still beating 0.8 times the dummy deviance, now passes this test. No guard prevents that outcome because the criterion comparison is unreachable. The threshold relaxation alone does not establish a defect; this finding concerns the lost criterion-comparison invariant. The changelog relocation places the existing SVM entry before the tree section and introduces no identified documentation defect.",
+      "path": "sklearn/ensemble/tests/test_forest.py",
+      "line": 247,
+      "evidence": "232 |     for X, y, data_name in [(X_train, y_train, \"train\"), (X_test, y_test, \"test\")]:\n247 |         if data_name == \"val\":\n248 |             assert metric_poi < metric_mse\n249 |         assert metric_poi < 0.8 * metric_dummy",
+      "fix": "Change the condition to `if data_name == \"test\":` so the held-out dataset executes the criterion comparison.",
+      "test": "Run test_poisson_vs_mse with the corrected guard. Verify assertion reachability by temporarily making the test-set metric_mse equal to metric_poi immediately before the guard: the test must fail at line 248, while the training iteration must still skip that comparison.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/ensemble/tests/test_forest.py",
+          "line": 232,
+          "symbol": "test_poisson_vs_mse dataset loop"
+        },
+        {
+          "path": "sklearn/ensemble/tests/test_forest.py",
+          "line": 247,
+          "symbol": "test-set comparison guard"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-561",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 14585,
+  "llm_calls": 5
+}

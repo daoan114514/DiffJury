@@ -1,0 +1,44 @@
+{
+  "id": "matplotlib__matplotlib-18156",
+  "findings": [
+    {
+      "rule_id": "correctness-review.color-point-association",
+      "severity": "medium",
+      "title": "Disabling depth shading now detaches per-point colors from their markers",
+      "explanation": "The projected positions are still reordered by z_markers_idx, but this change leaves both color arrays in their original order when depthshade=False. For a concrete counterexample, take two markers with facecolors [red, blue], edgecolors [green, black], and projected depths that produce z_markers_idx=[1, 0]. Lines 508–510 put the second marker first, while the changed conditional leaves red/green first: each marker receives the other marker's colors. Per-point scatter colors supply one color per marker, whereas uniform colors can remain singleton arrays when depth shading is disabled; avoiding indexing singleton arrays is appropriate, but disabling all color indexing is not. With depthshade=True, the existing color reordering remains intact. The added image test supplies only a single default color, so it exercises the uniform-color failure being fixed but cannot detect this per-point facecolor or distinct-edgecolor regression. Baseline availability and the surrounding color-construction implementation cannot be independently verified from the supplied two-file diff; no missing-baseline defect is asserted.",
+      "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+      "line": 511,
+      "evidence": "        vzs = vzs[z_markers_idx]\n        vxs = vxs[z_markers_idx]\n        vys = vys[z_markers_idx]\n        if self._depthshade:\n            fcs = fcs[z_markers_idx]\n            ecs = ecs[z_markers_idx]",
+      "fix": "Reorder each color array independently whenever it contains more than one entry, regardless of depthshade. Preserve singleton and empty arrays without indexing them by the marker permutation.",
+      "test": "Create a depthshade=False scatter with two separated markers, different facecolors, and different edgecolors. Choose a camera/input order yielding z_markers_idx=[1, 0], verify that the permutation is nonidentity, and assert the projected offsets and both rendered color arrays follow the same permutation. Repeat drawing and change the view to verify that color-to-point association remains stable. Retain the uniform-color regression test and cover singleton facecolors with per-point edgecolors and the converse.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+          "line": 508,
+          "symbol": "Path3DCollection.do_3d_projection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 13283,
+  "llm_calls": 5
+}

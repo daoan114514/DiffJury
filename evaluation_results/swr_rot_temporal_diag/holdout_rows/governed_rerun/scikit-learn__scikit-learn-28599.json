@@ -1,0 +1,115 @@
+{
+  "id": "scikit-learn__scikit-learn-28599",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 28599,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 18198,
+  "llm_calls": 5,
+  "input_tokens": 5284,
+  "output_tokens": 413,
+  "total_tokens": 5697,
+  "instruction_calls": 5,
+  "instruction_tokens": 1786,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 278,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

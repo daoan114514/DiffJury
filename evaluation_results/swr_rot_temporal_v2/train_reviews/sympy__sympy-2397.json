@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-2397",
+  "findings": [
+    {
+      "rule_id": "REL-DIAGNOSTIC-EXCEPTION-MASKING",
+      "severity": "low",
+      "title": "Preview diagnostics can replace the original rendering exception",
+      "explanation": "The new exception handler evaluates repr(e) before calling debug, even when SYMPY_DEBUG is disabled. If preview raises a custom exception whose __repr__ raises, the representation error escapes instead of the original rendering exception. For example, an exception implementing __repr__ as `raise RuntimeError('repr failed')` triggers this deterministically. Previously, the preview exception propagated directly. With debugging enabled, a failure writing to stdout can similarly prevent the bare raise from executing. This is a constrained exception-handling regression, not a finding about debug printing itself: debug is correctly imported and its existing SYMPY_DEBUG gate still suppresses ordinary output. The supplied evidence does not establish a sensitive-data disclosure or a consumer depending on the previous spacing between debug arguments.",
+      "path": "sympy/interactive/printing.py",
+      "line": 71,
+      "evidence": "except Exception as e:\n            # IPython swallows exceptions\n            debug(\"png printing:\", \"_preview_wrapper exception raised:\",\n                repr(e))\n            raise",
+      "fix": "Make exception diagnostics best-effort: guard representation and diagnostic writing in a nested try/except, then execute the existing bare raise outside that nested handler. Avoid evaluating the representation when debugging is disabled.",
+      "test": "Exercise the real registered PNG formatter with preview configured to raise a specific exception instance whose __repr__ raises. With SYMPY_DEBUG disabled, assert that the original exception instance propagates. Also enable debugging and use a stdout stream whose write raises OSError; assert that the same original preview exception is preserved.",
+      "confidence": 0.76,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/interactive/printing.py",
+          "line": 64,
+          "symbol": "_preview_wrapper"
+        },
+        {
+          "path": "sympy/interactive/printing.py",
+          "line": 67,
+          "symbol": "preview"
+        },
+        {
+          "path": "sympy/utilities/misc.py",
+          "line": 177,
+          "symbol": "debug"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 20874,
+  "llm_calls": 5
+}

@@ -1,0 +1,90 @@
+{
+  "id": "sympy__sympy-2987",
+  "findings": [
+    {
+      "rule_id": "use-array-explicit-modules",
+      "severity": "medium",
+      "title": "Explicit NumPy module selection bypasses use_array",
+      "explanation": "The new translation updates are inside the default-module selection branch, which initializes modules and attempts automatic NumPy import. Supported explicit selections such as modules='numpy' bypass this branch, so use_array=True does not select the array constructor. In a fresh process, lambdify((x, y, z), Matrix([[x, x*y], [sin(z) + 4, x**z]]), modules='numpy', use_array=True)(1, 2, 3) therefore retains the existing matrix translation rather than returning the requested ndarray. This breaks the new option for consumers that explicitly select NumPy. The conclusion does not depend on cache reuse: this invocation never performs the new translation update. The supplied excerpt omits _import's implementation and subsequent function-namespace construction, so it does not establish the additional behavior of alternating calls against cached imports.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 286,
+      "evidence": "        if use_array:\n            NUMPY_TRANSLATIONS.update({\"Matrix\": \"array\",\n                \"MutableDenseMatrix\": \"array\",\n                \"ImmutableMatrix\": \"array\"})",
+      "fix": "Apply the constructor selection when building each function's NumPy namespace, including explicit NumPy module selections, rather than only during automatic module selection. Prefer a per-function override so global translations and cached imports cannot determine the option's result.",
+      "test": "In a fresh process, invoke lambdify with modules='numpy' and use_array=True and assert type(result) is numpy.ndarray. Cover modules=['numpy'] as well, then alternate use_array=True and False and assert the requested type for each generated function.",
+      "confidence": 0.93,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 148,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 286,
+          "symbol": "default-module-only use_array handling"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "matrix-array-test-type-blind",
+      "severity": "low",
+      "title": "New assertions cannot detect the matrix-versus-array regression",
+      "explanation": "The added test claims to verify array output and restoration of matrix output, but both assertions check only elementwise values. NumPy matrices and ndarrays containing these same values compare elementwise equal, and numpy.all reduces either comparison to True. Consequently, this test passes if both generated functions return matrices, or if both return ndarrays. The exact behavior introduced by use_array—and the alternating-call state isolation the test intends to check—is therefore unverified. This is demonstrable independently of the omitted import-cache implementation: numpy.all(sol_mat == sol_arr) is True even though their types differ.",
+      "path": "sympy/utilities/tests/test_lambdify.py",
+      "line": 271,
+      "evidence": "    assert numpy.all(f_mat(1, 2, 3) == sol_mat)\n    assert numpy.all(f_arr(1, 2, 3) == sol_arr)",
+      "fix": "Retain the value checks and add exact output-type assertions. An isinstance(result, numpy.ndarray) check alone is insufficient because numpy.matrix subclasses numpy.ndarray.",
+      "test": "Assert type(f_arr(1, 2, 3)) is numpy.ndarray and type(f_mat(1, 2, 3)) is numpy.matrix. Exercise both call orders and evaluate previously generated functions again after constructing the next function. The test must fail when either constructor mapping is deliberately made constant.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/tests/test_lambdify.py",
+          "line": 262,
+          "symbol": "test_numpy_matrix"
+        },
+        {
+          "path": "sympy/utilities/tests/test_lambdify.py",
+          "line": 269,
+          "symbol": "lambdify calls with alternating use_array values"
+        },
+        {
+          "path": "sympy/utilities/tests/test_lambdify.py",
+          "line": 271,
+          "symbol": "value-only assertions"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      1
+    ],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 20445,
+  "llm_calls": 5
+}

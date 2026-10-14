@@ -1,0 +1,46 @@
+{
+  "id": "scikit-learn__scikit-learn-10615",
+  "findings": [
+    {
+      "rule_id": "incremental-statistics-equivalence",
+      "severity": "medium",
+      "title": "Incremental mean no longer normalizes the accumulated old sum",
+      "explanation": "For updates with last_n > 0, lines 306 and 308 convert the means into sums. The removed implementation divided their entire sum by updated_n: (last_mean[i] + new_mean[i]) / updated_n. Line 314 instead divides only new_mean, because division takes precedence over addition. A minimal example is an old batch [1] and a new batch [3]: last_n = new_n = 1, both initial variances are zero, and updated_n = 2. The expected combined mean is (1 + 3) / 2 = 2, but the changed expression returns 1 + 3 / 2 = 2.5. The variance expression still correctly returns 1 for this update, but subsequent updates consume the incorrect mean and consequently also corrupt variance. Adding a third batch [5] produces mean 20/3 and variance 37/18, instead of the correct mean 3 and variance 8/3. The last_n == 0 early return is unchanged. Mutation of last_mean and last_var, and division by zero for an empty subsequent batch, already existed in the removed loop and are not additional findings. This defect is observable with ordinary floating-point inputs and does not depend on dtype-specific rounding.",
+      "path": "sklearn/utils/sparsefuncs_fast.pyx",
+      "line": 314,
+      "evidence": "updated_mean = last_mean + new_mean / updated_n",
+      "fix": "Restore normalization of the whole accumulated sum: updated_mean = (last_mean + new_mean) / updated_n.",
+      "test": "Exercise the real incremental sparse-statistics path with successive one-feature batches [1], [3], and [5]. Assert mean 2, variance 1, and count 2 after the second batch; assert mean 3, variance 8/3, and count 3 after the third. Run for supported float32 and float64 inputs and sparse formats. Preserve copies when comparing prior statistics because their in-place mutation predates this change. Existing test coverage cannot be assessed from the supplied diff; these assertions directly expose both the immediate mean error and its propagation into variance.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/sparsefuncs_fast.pyx",
+          "line": 314,
+          "symbol": "_incr_mean_variance_axis0"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 13242,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-10615.json",
+  "borrowed_sha256": "aa30e09b222f10d18a08f1dc7f2cec6003c661c64be1024708d024b572f6c577"
+}

@@ -1,0 +1,266 @@
+{
+  "id": "scikit-learn__scikit-learn-16841",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "pca-mle-small-spectrum-zero-rank",
+      "severity": "medium",
+      "title": "The larger absolute eigenvalue cutoff introduces zero-component results for nondegenerate data",
+      "explanation": "For a float64 spectrum [9e-16, 3e-16, 2.5e-16] and 1000 samples, both permitted ranks now return -inf because their signal eigenvalues are below 1e-15. Together with ll[0] = -inf, this makes the entire likelihood array [-inf, -inf, -inf], whose argmax is 0. This is reachable through PCA(n_components='mle', svd_solver='full'): take any zero-mean 1000-by-3 matrix Q with orthonormal columns and set X = sqrt(999) * Q * diag(sqrt(spectrum)). Its explained variances are the specified strictly positive spectrum. Previously, every tested rank had residual variance above float64 epsilon, so the likelihoods were finite; rank 1 beat rank 0 by more than 200 log-likelihood units and was selected. Thus this change introduces a zero-component result for a full-rank input, rather than merely retaining the pre-existing behavior for zero spectra. Setting only the rank-zero likelihood to -inf does not exclude rank zero when every candidate receives the same value.",
+      "path": "sklearn/decomposition/_pca.py",
+      "line": 63,
+      "evidence": "    if spectrum[rank - 1] < 1e-15:\n        # When the tested rank is associated with a small eigenvalue, there's\n        # no point in testing. Also, it can lead to numerical issues below\n        # when computing pa, in particular in log((spectrum[i] - spectrum[j])\n        # because this will take the log of something very small.\n        return -np.inf",
+      "fix": "Use a scale-relative small-eigenvalue criterion so uniformly scaling a positive spectrum does not eliminate all candidate ranks. Also explicitly handle the all-invalid-candidate case instead of relying on a rank-zero -inf sentinel to exclude zero.",
+      "test": "Fit full-solver MLE PCA to the zero-mean orthogonal-column construction with spectrum [9e-16, 3e-16, 2.5e-16] and 1000 samples. Assert n_components_ == 1, and repeat after uniformly rescaling X to verify that dimension selection is scale invariant.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 461,
+          "symbol": "PCA._fit_full"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 102,
+          "symbol": "_infer_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 63,
+          "symbol": "_assess_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 103,
+          "symbol": "_infer_dimension: ll.argmax()"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "pca-mle-test-likelihood-index",
+      "severity": "low",
+      "title": "The updated likelihood array makes the rank-one test assert rank two",
+      "explanation": "Previously the comprehension included rank zero, so ll[1] was the likelihood for rank 1. After changing the range to range(1, p), ll[0] represents rank 1 and ll[1] represents rank 2, but the assertion remains unchanged. Consequently test_infer_dim_1 no longer verifies that the rank-one likelihood is within the intended tolerance of the maximum. For example, likelihoods [-inf, 0, -100] for ranks [1, 2, 3] satisfy the new assertion for any positive n despite rejecting rank 1 completely; the corresponding old rank-indexed assertion would fail. This loses the original regression assertion while updating the helper's permitted ranks.",
+      "path": "sklearn/decomposition/tests/test_pca.py",
+      "line": 336,
+      "evidence": "    ll = np.array([_assess_dimension(spect, k, n) for k in range(1, p)])\n    assert ll[1] > ll.max() - .01 * n",
+      "fix": "Change the assertion to use ll[0], or retain an explicitly rank-indexed likelihood array with an unused rank-zero entry.",
+      "test": "Verify that the updated test checks the likelihood returned for rank 1, and that forcing only that likelihood to -inf makes the test fail.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/tests/test_pca.py",
+          "line": 336,
+          "symbol": "test_infer_dim_1"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 31,
+          "symbol": "_assess_dimension"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0289f811",
+      "K-02febdba",
+      "K-04a42f60",
+      "K-05d5938d",
+      "K-06940955",
+      "K-0a9d5779",
+      "K-116601a4",
+      "K-1911e86a",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2d2f2af1",
+      "K-2fcf8cc0",
+      "K-3e3ec617",
+      "K-50891544",
+      "K-5097afae",
+      "K-517aea0d",
+      "K-53fd90dd",
+      "K-5726f975",
+      "K-58877fa4",
+      "K-5da5b627",
+      "K-6b983152",
+      "K-6caa3a53",
+      "K-7065ea3f",
+      "K-72d03d82",
+      "K-7410a7a0",
+      "K-750985c9",
+      "K-7a9550c8",
+      "K-81dce0d8",
+      "K-81df992c",
+      "K-8275c990",
+      "K-82989614",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8ac0d8df",
+      "K-8b12aa56",
+      "K-8b250572",
+      "K-8e49d3b8",
+      "K-9154d241",
+      "K-9fb0e5d3",
+      "K-9fc0d205",
+      "K-a02dc96f",
+      "K-a32f0183",
+      "K-c33a05ee",
+      "K-c59d36ba",
+      "K-c9e50aa1",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d55a9679",
+      "K-d5f0918f",
+      "K-dbd6b2da",
+      "K-e01a8db3",
+      "K-e552537e",
+      "K-e9744f86",
+      "K-eb0ce9df",
+      "K-ebb06c34",
+      "K-ef402548",
+      "K-f5fd559f",
+      "K-f6e0dac6",
+      "K-f9562eac"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-d398b681",
+          "K-04a42f60"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ebb06c34",
+          "K-53fd90dd",
+          "K-81dce0d8",
+          "K-dbd6b2da",
+          "K-1911e86a",
+          "K-5097afae",
+          "K-f9562eac",
+          "K-e01a8db3",
+          "K-d55a9679",
+          "K-9154d241",
+          "K-8e49d3b8",
+          "K-c59d36ba",
+          "K-d5f0918f",
+          "K-24b3bdf1",
+          "K-58877fa4",
+          "K-750985c9",
+          "K-f6e0dac6",
+          "K-116601a4",
+          "K-0a9d5779",
+          "K-c33a05ee",
+          "K-6b983152",
+          "K-3e3ec617",
+          "K-eb0ce9df",
+          "K-295e0897",
+          "K-f5fd559f",
+          "K-6caa3a53",
+          "K-7a9550c8"
+        ],
+        "tokens": 2106,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-72d03d82",
+          "K-8b12aa56",
+          "K-e9744f86",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-e552537e",
+          "K-20ab8e8e",
+          "K-8275c990",
+          "K-5726f975",
+          "K-cebaccb0",
+          "K-82989614",
+          "K-1c46e9f8",
+          "K-9fb0e5d3",
+          "K-7410a7a0",
+          "K-c9e50aa1",
+          "K-1a7e5ff1",
+          "K-21394d34",
+          "K-06940955",
+          "K-05d5938d",
+          "K-8ac0d8df",
+          "K-8b250572",
+          "K-2d2f2af1",
+          "K-517aea0d",
+          "K-50891544",
+          "K-218187b3",
+          "K-a02dc96f",
+          "K-0289f811",
+          "K-ef402548",
+          "K-a32f0183",
+          "K-02febdba",
+          "K-9fc0d205",
+          "K-8aa6a19d",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-81df992c",
+          "K-7065ea3f"
+        ],
+        "tokens": 2110,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

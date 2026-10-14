@@ -1,0 +1,126 @@
+{
+  "id": "sympy__sympy-15607",
+  "findings": [
+    {
+      "rule_id": "REL-LOG-COORDINATES",
+      "severity": "medium",
+      "title": "Logarithmic sampling changes and permanently mutates the requested lower bound",
+      "explanation": "For an adaptive series with expression x, bounds (1, 10), and an interned xscale='log', get_segments changes start to 0 and evaluates f(0), instead of preserving the requested endpoint (1, 1). The upper endpoint remains (10, 10), so this is not a consistent coordinate transformation. A second call changes start from 0 to -inf. Logarithmic axes require positive original coordinates, not a natural-log transformation of only one endpoint. The added logspace call likewise interprets its coordinate arguments as base-10 exponents: logspace(1, 10, 10) spans 10 through 10**10, not 1 through 10.",
+      "path": "sympy/plotting/plot.py",
+      "line": 535,
+      "evidence": "            if self.xscale is 'log':\n                self.start=np.log(self.start)",
+      "fix": "Keep start and end immutable and evaluate the expression at original coordinates. For logarithmically spaced samples, use geomspace on positive endpoints or logspace(log10(start), log10(end)); keep adaptive samples within their original coordinate interval.",
+      "test": "Create an adaptive series for x over (1, 10) with xscale='log'. Call get_segments twice; assert unchanged bounds, endpoint coordinates (1, 1) and (10, 10), and finite positive x coordinates within the requested interval. Test the logarithmic subdivision helper independently for endpoints 1 and 10.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 456,
+          "symbol": "LineOver1DRangeSeries.__init__"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 535,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 538,
+          "symbol": "LineOver1DRangeSeries.get_segments: endpoint evaluation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-XSCALE-IDENTITY",
+      "severity": "low",
+      "title": "Equal xscale strings select different sampling branches",
+      "explanation": "The constructor stores the supplied xscale without normalization, but the new conditions compare object identity. Passing xscale=''.join(['l', 'og']) supplies a value equal to 'log' that does not match the literal object, bypassing both the lower-bound transformation and logarithmic subdivision. An interned 'log' takes those branches. Thus identical public option values produce different coordinates depending on how the string was constructed. The same identity test also controls the newly added backend label rewriting.",
+      "path": "sympy/plotting/plot.py",
+      "line": 534,
+      "evidence": "            if self.xscale is 'log':",
+      "fix": "Use value equality for every xscale comparison, while also correcting the coordinate transformation and label mutation defects.",
+      "test": "Construct otherwise identical series using an interned 'log' and ''.join(['l', 'og']). Assert identical preserved bounds and sampled endpoints. Exercise both option values in backend label handling as well.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 456,
+          "symbol": "LineOver1DRangeSeries.__init__"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 534,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-UNSOLICITED-STDOUT",
+      "severity": "low",
+      "title": "Point generation now writes the sampled coordinate array to stdout",
+      "explanation": "Every successful LineOver1DRangeSeries.get_points call now prints list_x before returning its coordinate arrays. Calling get_points directly on a series for x over (1, 10) therefore produces unsolicited output, regardless of logarithmic scaling. The nonadaptive and integer-only get_segments paths delegate to the base implementation, but the supplied context does not expose that implementation; the direct get_points call alone establishes the regression. This is an output-contract defect, not evidence of sensitive-data disclosure.",
+      "path": "sympy/plotting/plot.py",
+      "line": 553,
+      "evidence": "        print(list_x)",
+      "fix": "Remove the print statement so point generation remains silent.",
+      "test": "Capture stdout while invoking get_points on a valid linear series and assert it is empty while the returned coordinate arrays remain correct.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 544,
+          "symbol": "LineOver1DRangeSeries.get_points"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 553,
+          "symbol": "LineOver1DRangeSeries.get_points: stdout write"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-200",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 33178,
+  "llm_calls": 6
+}

@@ -1,0 +1,44 @@
+{
+  "id": "astropy__astropy-3977",
+  "findings": [
+    {
+      "rule_id": "REL-DTYPE-INIT-STATE",
+      "severity": "medium",
+      "title": "Non-structured dtypes fall through without selecting an initializer",
+      "explanation": "For Table(dtype=np.dtype('i4')) with data and names omitted, np.empty succeeds, tmp.dtype.names is None, and len(tmp.dtype) is zero. Consequently dtype becomes [], the exception handler is not entered, and the names-is-not-None guard skips assigning init_func, n_cols, and data. Constructor initialization therefore falls through with incomplete state rather than rejecting the non-structured dtype with the advertised parsing ValueError; subsequent use of those initialization locals raises UnboundLocalError. Before this change, the same call returned an empty table immediately. Structured dtypes do not have this problem: their names and per-field dtype objects reach the list initializer, preserving subarray shapes. A zero-field structured dtype has names=(), so it selects the zero-column initializer rather than taking this broken path. Explicitly supplied names continue through the existing path. The replacement tests exercise structured fields and subarray shapes but omit non-structured and invalid dtype inputs; they also replace the previous explicit scalar-only dtype case. The scanner's false-success claim is unsupported: malformed dtype errors from np.empty are converted into a visible ValueError. The concrete defect here is a successful NumPy dtype parse that bypasses both the handler and initialization.",
+      "path": "astropy/table/table.py",
+      "line": 287,
+      "evidence": "tmp = np.empty(0, dtype=dtype)\nnames = tmp.dtype.names\ndtype = [tmp.dtype[i] for i in range(len(tmp.dtype))]\nexcept:\n    raise ValueError('dtype was specified but could not be '\n                     'parsed for column names')\nif names is not None:\n    init_func = self._init_from_list\n    n_cols = len(names)\n    data = [[]] * n_cols",
+      "fix": "Immediately check whether the parsed dtype has names. If names is None, raise the intended ValueError before continuing; if compatibility with previously accepted non-structured dtype calls is required, retain the old empty-table return for that case. Use an explicit is-None check so zero-field structured dtypes remain supported.",
+      "test": "For every table_type, construct with data and names omitted and dtype='i4', np.dtype('i4'), and a non-structured subarray dtype; assert the chosen documented behavior rather than an UnboundLocalError. Add dtype=[] coverage asserting a zero-column table, malformed-dtype coverage asserting ValueError, and retain an explicit-names scalar-only dtype case alongside the new subarray tests.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/table/table.py",
+          "line": 279,
+          "symbol": "Table.__init__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 19640,
+  "llm_calls": 5
+}

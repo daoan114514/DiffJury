@@ -1,0 +1,127 @@
+{
+  "id": "scikit-learn__scikit-learn-7897",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "classification-report-average-documentation",
+      "severity": "low",
+      "title": "The report's support-weighted averages are incorrectly described as micro-averages",
+      "explanation": "The added documentation calls the reported averages a \"prevalence-weighted micro-average\", but classification_report computes per-class metrics with average=None and then takes np.average(..., weights=s). This is weighted averaging, not micro averaging; only the reference to average='weighted' is correct. For y_true=[0,0,0,1] and y_pred=[0,0,0,0], the report's final precision, recall and F1 are 0.56, 0.75 and 0.64 at the default precision, whereas micro precision, recall and F1 are all 0.75. The numerical computation is unchanged by the refactor, so the introduced defect is the public documentation's incorrect characterization, not a regression in the calculated averages.",
+      "path": "sklearn/metrics/classification.py",
+      "line": 1372,
+      "evidence": "The reported averages are a prevalence-weighted micro-average across\n        classes (equivalent to :func:`precision_recall_fscore_support` with\n        ``average='weighted'``).",
+      "fix": "Replace \"prevalence-weighted micro-average\" with \"support-weighted average of the per-class metrics\" and retain the equivalence to average='weighted'.",
+      "test": "For y_true=[0,0,0,1] and y_pred=[0,0,0,0], verify the report's final row agrees with precision_recall_fscore_support(..., average='weighted') and differs from average='micro' for precision and F1; use this example to validate the documentation terminology.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1415,
+          "symbol": "classification_report: precision_recall_fscore_support(..., average=None)"
+        },
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1428,
+          "symbol": "classification_report: final row using np.average(..., weights=s)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1068",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-2019c936",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-3b1a4f4d",
+      "K-542e4ee3",
+      "K-55026f2c",
+      "K-75ffcebf",
+      "K-900623ee",
+      "K-91e5b509",
+      "K-95d752ab",
+      "K-9fbca2ff",
+      "K-c43a8094",
+      "K-d07491c7"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-900623ee",
+          "K-91e5b509",
+          "K-c43a8094",
+          "K-0466258e",
+          "K-55026f2c",
+          "K-2019c936",
+          "K-75ffcebf",
+          "K-542e4ee3",
+          "K-95d752ab"
+        ],
+        "tokens": 610,
+        "budget": 600,
+        "dropped": [
+          "K-f463a446",
+          "K-9b25215d"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2134f4e9",
+          "K-9fbca2ff",
+          "K-3b1a4f4d",
+          "K-21a33670",
+          "K-d07491c7",
+          "K-340b5726"
+        ],
+        "tokens": 410,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

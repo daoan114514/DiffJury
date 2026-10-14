@@ -1,0 +1,98 @@
+{
+  "id": "sympy__sympy-25504",
+  "repository": "sympy/sympy",
+  "pull_request": 25504,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 1,
+      "path": "sympy/external/gmpy.py",
+      "line": 173,
+      "cwe": "CWE-755",
+      "rule_id": "public-validation-before-backend-delegation",
+      "expected_severity": "medium",
+      "predicted_severity": "low",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 128057,
+  "llm_calls": 5,
+  "input_tokens": 28522,
+  "output_tokens": 4904,
+  "total_tokens": 33426,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {}
+}

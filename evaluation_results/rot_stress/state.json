@@ -1,0 +1,1168 @@
+{
+  "next_event": 500,
+  "measurements": [
+    {
+      "event": 0,
+      "arm": "naive",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 0,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 25,
+      "arm": "naive",
+      "live_rules": 22,
+      "live_learned_skills": 3,
+      "live_knowledge_tokens": 2580,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 609.0,
+      "skill_catalog_tokens": 959.0
+    },
+    {
+      "event": 25,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 10,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 50,
+      "arm": "naive",
+      "live_rules": 43,
+      "live_learned_skills": 7,
+      "live_knowledge_tokens": 5675,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 841.2,
+      "skill_catalog_tokens": 1271.0
+    },
+    {
+      "event": 50,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 17,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 75,
+      "arm": "naive",
+      "live_rules": 67,
+      "live_learned_skills": 8,
+      "live_knowledge_tokens": 7480,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1156.0,
+      "skill_catalog_tokens": 1350.0
+    },
+    {
+      "event": 75,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 23,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 100,
+      "arm": "naive",
+      "live_rules": 90,
+      "live_learned_skills": 10,
+      "live_knowledge_tokens": 9635,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1437.0,
+      "skill_catalog_tokens": 1479.0
+    },
+    {
+      "event": 100,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 25,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 125,
+      "arm": "naive",
+      "live_rules": 110,
+      "live_learned_skills": 15,
+      "live_knowledge_tokens": 13296,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1682.0,
+      "skill_catalog_tokens": 1820.0
+    },
+    {
+      "event": 125,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 16,
+      "archived": 12,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 150,
+      "arm": "naive",
+      "live_rules": 134,
+      "live_learned_skills": 16,
+      "live_knowledge_tokens": 15037,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1995.0,
+      "skill_catalog_tokens": 1896.0
+    },
+    {
+      "event": 150,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 21,
+      "archived": 12,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 175,
+      "arm": "naive",
+      "live_rules": 157,
+      "live_learned_skills": 18,
+      "live_knowledge_tokens": 17188,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 2270.2,
+      "skill_catalog_tokens": 2029.0
+    },
+    {
+      "event": 175,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 25,
+      "archived": 12,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 200,
+      "arm": "naive",
+      "live_rules": 179,
+      "live_learned_skills": 21,
+      "live_knowledge_tokens": 19819,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 2536.8,
+      "skill_catalog_tokens": 2240.0
+    },
+    {
+      "event": 200,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 29,
+      "archived": 12,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 225,
+      "arm": "naive",
+      "live_rules": 200,
+      "live_learned_skills": 25,
+      "live_knowledge_tokens": 22925,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 2776.0,
+      "skill_catalog_tokens": 2524.0
+    },
+    {
+      "event": 225,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 31,
+      "archived": 12,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 250,
+      "arm": "naive",
+      "live_rules": 222,
+      "live_learned_skills": 28,
+      "live_knowledge_tokens": 25473,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 3026.2,
+      "skill_catalog_tokens": 2734.0
+    },
+    {
+      "event": 250,
+      "arm": "governed",
+      "live_rules": 2,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 117,
+      "probation": 33,
+      "archived": 12,
+      "instruction_tokens_per_call": 320.2,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 275,
+      "arm": "naive",
+      "live_rules": 241,
+      "live_learned_skills": 34,
+      "live_knowledge_tokens": 29497,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 3257.0,
+      "skill_catalog_tokens": 3139.0
+    },
+    {
+      "event": 275,
+      "arm": "governed",
+      "live_rules": 2,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 117,
+      "probation": 34,
+      "archived": 12,
+      "instruction_tokens_per_call": 320.2,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 300,
+      "arm": "naive",
+      "live_rules": 263,
+      "live_learned_skills": 37,
+      "live_knowledge_tokens": 32330,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 3565.0,
+      "skill_catalog_tokens": 3356.0
+    },
+    {
+      "event": 300,
+      "arm": "governed",
+      "live_rules": 2,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 117,
+      "probation": 35,
+      "archived": 12,
+      "instruction_tokens_per_call": 320.2,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 325,
+      "arm": "naive",
+      "live_rules": 286,
+      "live_learned_skills": 39,
+      "live_knowledge_tokens": 34499,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 3847.8,
+      "skill_catalog_tokens": 3489.0
+    },
+    {
+      "event": 325,
+      "arm": "governed",
+      "live_rules": 2,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 117,
+      "probation": 36,
+      "archived": 12,
+      "instruction_tokens_per_call": 320.2,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 350,
+      "arm": "naive",
+      "live_rules": 310,
+      "live_learned_skills": 40,
+      "live_knowledge_tokens": 36391,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 4186.5,
+      "skill_catalog_tokens": 3571.0
+    },
+    {
+      "event": 350,
+      "arm": "governed",
+      "live_rules": 2,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 117,
+      "probation": 36,
+      "archived": 12,
+      "instruction_tokens_per_call": 320.2,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 375,
+      "arm": "naive",
+      "live_rules": 329,
+      "live_learned_skills": 46,
+      "live_knowledge_tokens": 40455,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 4415.0,
+      "skill_catalog_tokens": 3964.0
+    },
+    {
+      "event": 375,
+      "arm": "governed",
+      "live_rules": 3,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 174,
+      "probation": 36,
+      "archived": 12,
+      "instruction_tokens_per_call": 348.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 400,
+      "arm": "naive",
+      "live_rules": 352,
+      "live_learned_skills": 48,
+      "live_knowledge_tokens": 42638,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 4704.8,
+      "skill_catalog_tokens": 4097.0
+    },
+    {
+      "event": 400,
+      "arm": "governed",
+      "live_rules": 3,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 174,
+      "probation": 37,
+      "archived": 12,
+      "instruction_tokens_per_call": 348.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 425,
+      "arm": "naive",
+      "live_rules": 375,
+      "live_learned_skills": 50,
+      "live_knowledge_tokens": 44902,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 5013.0,
+      "skill_catalog_tokens": 4221.0
+    },
+    {
+      "event": 425,
+      "arm": "governed",
+      "live_rules": 3,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 174,
+      "probation": 38,
+      "archived": 12,
+      "instruction_tokens_per_call": 348.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 450,
+      "arm": "naive",
+      "live_rules": 398,
+      "live_learned_skills": 52,
+      "live_knowledge_tokens": 47215,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 5318.2,
+      "skill_catalog_tokens": 4365.0
+    },
+    {
+      "event": 450,
+      "arm": "governed",
+      "live_rules": 3,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 174,
+      "probation": 39,
+      "archived": 12,
+      "instruction_tokens_per_call": 348.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 475,
+      "arm": "naive",
+      "live_rules": 423,
+      "live_learned_skills": 52,
+      "live_knowledge_tokens": 48480,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 5633.5,
+      "skill_catalog_tokens": 4365.0
+    },
+    {
+      "event": 475,
+      "arm": "governed",
+      "live_rules": 3,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 174,
+      "probation": 41,
+      "archived": 12,
+      "instruction_tokens_per_call": 348.8,
+      "skill_catalog_tokens": 675.2
+    },
+    {
+      "event": 500,
+      "arm": "naive",
+      "live_rules": 445,
+      "live_learned_skills": 55,
+      "live_knowledge_tokens": 51078,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 5882.8,
+      "skill_catalog_tokens": 4564.0
+    },
+    {
+      "event": 500,
+      "arm": "governed",
+      "live_rules": 3,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 174,
+      "probation": 22,
+      "archived": 32,
+      "instruction_tokens_per_call": 348.8,
+      "skill_catalog_tokens": 675.2
+    }
+  ],
+  "checkpoints": {
+    "0": {
+      "naive": {
+        "f1": 0.3158,
+        "precision": 0.2727,
+        "recall": 0.375,
+        "high_risk_recall": 0.6667,
+        "clean_accuracy": 0.6667,
+        "average_instruction_tokens_per_call": 1670.86,
+        "average_total_tokens_per_pr": 43925.7,
+        "average_latency_ms_per_pr": 364669.6,
+        "failure_rate": 0.0
+      },
+      "governed": {
+        "f1": 0.3158,
+        "precision": 0.2727,
+        "recall": 0.375,
+        "high_risk_recall": 0.6667,
+        "clean_accuracy": 0.6667,
+        "average_instruction_tokens_per_call": 1670.86,
+        "average_total_tokens_per_pr": 43925.7,
+        "average_latency_ms_per_pr": 364669.6,
+        "failure_rate": 0.0
+      }
+    },
+    "100": {
+      "naive": {
+        "f1": 0.3077,
+        "precision": 0.2222,
+        "recall": 0.5,
+        "high_risk_recall": 1.0,
+        "clean_accuracy": 0.4167,
+        "average_instruction_tokens_per_call": 2917.56,
+        "average_total_tokens_per_pr": 58514.5,
+        "average_latency_ms_per_pr": 329940.0,
+        "failure_rate": 0.0
+      },
+      "governed": {
+        "f1": 0.25,
+        "precision": 0.1875,
+        "recall": 0.375,
+        "high_risk_recall": 1.0,
+        "clean_accuracy": 0.3333,
+        "average_instruction_tokens_per_call": 1397.98,
+        "average_total_tokens_per_pr": 41016.6,
+        "average_latency_ms_per_pr": 302041.55,
+        "failure_rate": 0.0
+      }
+    },
+    "250": {
+      "naive": {
+        "f1": 0.421,
+        "precision": 0.3636,
+        "recall": 0.5,
+        "high_risk_recall": 1.0,
+        "clean_accuracy": 0.6667,
+        "average_instruction_tokens_per_call": 4545.65,
+        "average_total_tokens_per_pr": 77832.15,
+        "average_latency_ms_per_pr": 181231.05,
+        "failure_rate": 0.0
+      },
+      "governed": {
+        "f1": 0.4348,
+        "precision": 0.3333,
+        "recall": 0.625,
+        "high_risk_recall": 1.0,
+        "clean_accuracy": 0.75,
+        "average_instruction_tokens_per_call": 1333.93,
+        "average_total_tokens_per_pr": 38420.7,
+        "average_latency_ms_per_pr": 170254.5,
+        "failure_rate": 0.0
+      }
+    },
+    "500": {
+      "naive": {
+        "f1": 0.2353,
+        "precision": 0.2222,
+        "recall": 0.25,
+        "high_risk_recall": 0.3333,
+        "clean_accuracy": 0.6667,
+        "average_instruction_tokens_per_call": 7076.4,
+        "average_total_tokens_per_pr": 106311.7,
+        "average_latency_ms_per_pr": 131286.35,
+        "failure_rate": 0.0
+      },
+      "governed": {
+        "f1": 0.24,
+        "precision": 0.1765,
+        "recall": 0.375,
+        "high_risk_recall": 0.6667,
+        "clean_accuracy": 0.5833,
+        "average_instruction_tokens_per_call": 1441.52,
+        "average_total_tokens_per_pr": 41684.55,
+        "average_latency_ms_per_pr": 143026.55,
+        "failure_rate": 0.0
+      }
+    }
+  },
+  "maintenance": [
+    {
+      "event": 125,
+      "summary": {
+        "dream": {
+          "clusters": 2,
+          "evictions": {
+            "K-607c7124": "probation-failed",
+            "K-baed409a": "probation-failed",
+            "K-e41ddf3d": "probation-failed",
+            "K-1963e5a5": "probation-failed",
+            "K-2183c84d": "probation-failed",
+            "K-dfb5141a": "probation-failed",
+            "K-ef9bbb68": "probation-failed",
+            "K-30da9f30": "probation-failed",
+            "K-01624d47": "probation-failed",
+            "K-022c3187": "probation-failed",
+            "K-27704d2d": "probation-failed",
+            "K-3d9ee47d": "probation-failed"
+          },
+          "live_items_before": 28,
+          "live_items_after": 16,
+          "live_tokens_before": 4401,
+          "live_tokens_after": 3743,
+          "consolidated": true,
+          "release": {
+            "status": "released",
+            "version": 2,
+            "gate": {
+              "passed": true,
+              "failures": [],
+              "margin": 0.02,
+              "dataset_fingerprint": "fc06a9f11fd0ecde481f2eb1c4baf1d98416de1e08755d6624b4f7fffd9bf70c",
+              "cases": 20,
+              "metrics": {
+                "f1": {
+                  "baseline": 0.2308,
+                  "candidate": 0.4138,
+                  "delta": 0.183,
+                  "ci95": [
+                    0.0133,
+                    0.3704
+                  ],
+                  "passed": true
+                },
+                "high_risk_recall": {
+                  "baseline": 0.5,
+                  "candidate": 0.75,
+                  "delta": 0.25,
+                  "ci95": [
+                    0.0,
+                    0.75
+                  ],
+                  "passed": true
+                },
+                "clean_accuracy": {
+                  "baseline": 0.1667,
+                  "candidate": 0.4167,
+                  "delta": 0.25,
+                  "ci95": [
+                    0.0,
+                    0.5385
+                  ],
+                  "passed": true
+                }
+              },
+              "instruction_tokens_per_call": {
+                "baseline": 1445.44,
+                "candidate": 1385.82,
+                "max_growth": 0.0,
+                "passed": true
+              },
+              "execution_success_rate": {
+                "baseline": 1.0,
+                "candidate": 1.0
+              },
+              "baseline_snapshot": "b90bc569c51040b6ffdc689f",
+              "candidate_snapshot": "df908850fb52acf0eba45adf"
+            },
+            "changes": {
+              "updated": [],
+              "archived": [
+                "K-607c7124",
+                "K-baed409a",
+                "K-e41ddf3d",
+                "K-1963e5a5",
+                "K-2183c84d",
+                "K-dfb5141a",
+                "K-ef9bbb68",
+                "K-30da9f30",
+                "K-01624d47",
+                "K-022c3187",
+                "K-27704d2d",
+                "K-3d9ee47d"
+              ],
+              "created": []
+            }
+          }
+        },
+        "merges": 0,
+        "drops": 0,
+        "promotion": {
+          "status": "rejected",
+          "version": 3
+        },
+        "dream_release": "released",
+        "dream_gate_failures": [],
+        "live_tokens_before": 4401,
+        "live_tokens_after": 3743
+      }
+    },
+    {
+      "event": 250,
+      "summary": {
+        "dream": {
+          "clusters": 3,
+          "evictions": {
+            "K-151dd8a5": "probation-failed",
+            "K-c338cda4": "probation-failed",
+            "K-aeb93438": "probation-failed",
+            "K-5fc77b80": "probation-failed",
+            "K-fc58aaac": "probation-failed",
+            "K-2292231d": "probation-failed",
+            "K-f14ffd08": "probation-failed",
+            "K-bb7903d3": "probation-failed",
+            "K-80ff85b6": "probation-failed",
+            "K-36682595": "probation-failed",
+            "K-c4cc05ec": "probation-failed",
+            "K-a0f0b7ee": "probation-failed",
+            "K-9138f340": "probation-failed",
+            "K-895f38fc": "probation-failed"
+          },
+          "live_items_before": 35,
+          "live_items_after": 21,
+          "live_tokens_before": 6304,
+          "live_tokens_after": 5550,
+          "consolidated": true,
+          "release": {
+            "status": "rejected",
+            "version": 4,
+            "gate": {
+              "passed": false,
+              "failures": [
+                "f1",
+                "clean_accuracy"
+              ],
+              "margin": 0.02,
+              "dataset_fingerprint": "fc06a9f11fd0ecde481f2eb1c4baf1d98416de1e08755d6624b4f7fffd9bf70c",
+              "cases": 20,
+              "metrics": {
+                "f1": {
+                  "baseline": 0.4445,
+                  "candidate": 0.2857,
+                  "delta": -0.1588,
+                  "ci95": [
+                    -0.2892,
+                    -0.032
+                  ],
+                  "passed": false
+                },
+                "high_risk_recall": {
+                  "baseline": 0.75,
+                  "candidate": 0.75,
+                  "delta": 0.0,
+                  "ci95": [
+                    0.0,
+                    0.0
+                  ],
+                  "passed": true
+                },
+                "clean_accuracy": {
+                  "baseline": 0.5,
+                  "candidate": 0.4167,
+                  "delta": -0.0833,
+                  "ci95": [
+                    -0.4445,
+                    0.3
+                  ],
+                  "passed": false
+                }
+              },
+              "instruction_tokens_per_call": {
+                "baseline": 1523.65,
+                "candidate": 1372.52,
+                "max_growth": 0.0,
+                "passed": true
+              },
+              "execution_success_rate": {
+                "baseline": 1.0,
+                "candidate": 1.0
+              },
+              "baseline_snapshot": "fe3b21991d65c18a1dff0ead",
+              "candidate_snapshot": "b0cc229a081d0b50efacf30c"
+            }
+          }
+        },
+        "merges": 0,
+        "drops": 0,
+        "promotion": {
+          "status": "released",
+          "version": 5,
+          "changes": {
+            "promoted": [
+              "K-43f46d5f",
+              "K-8d68b64e"
+            ]
+          }
+        },
+        "dream_release": "rejected",
+        "dream_gate_failures": [
+          "f1",
+          "clean_accuracy"
+        ],
+        "live_tokens_before": 6304,
+        "live_tokens_after": 6304
+      }
+    },
+    {
+      "event": 375,
+      "summary": {
+        "dream": {
+          "clusters": 3,
+          "evictions": {
+            "K-151dd8a5": "probation-failed",
+            "K-03464c33": "probation-failed",
+            "K-c338cda4": "probation-failed",
+            "K-aeb93438": "probation-failed",
+            "K-5fc77b80": "probation-failed",
+            "K-2292231d": "probation-failed",
+            "K-f14ffd08": "probation-failed",
+            "K-bb7903d3": "probation-failed",
+            "K-80ff85b6": "probation-failed",
+            "K-36682595": "probation-failed",
+            "K-c4cc05ec": "probation-failed",
+            "K-a0f0b7ee": "probation-failed",
+            "K-9138f340": "probation-failed",
+            "K-66e07948": "probation-failed",
+            "K-895f38fc": "probation-failed",
+            "K-b96f55bd": "probation-failed",
+            "K-31f9a4ac": "probation-failed",
+            "K-5d33a428": "probation-failed",
+            "K-2f9ce973": "probation-failed",
+            "K-421d06dc": "probation-failed"
+          },
+          "live_items_before": 39,
+          "live_items_after": 19,
+          "live_tokens_before": 6714,
+          "live_tokens_after": 5611,
+          "consolidated": true,
+          "release": {
+            "status": "rejected",
+            "version": 6,
+            "gate": {
+              "passed": false,
+              "failures": [
+                "clean_accuracy"
+              ],
+              "margin": 0.02,
+              "dataset_fingerprint": "fc06a9f11fd0ecde481f2eb1c4baf1d98416de1e08755d6624b4f7fffd9bf70c",
+              "cases": 20,
+              "metrics": {
+                "f1": {
+                  "baseline": 0.4167,
+                  "candidate": 0.4138,
+                  "delta": -0.0029,
+                  "ci95": [
+                    -0.1964,
+                    0.207
+                  ],
+                  "passed": true
+                },
+                "high_risk_recall": {
+                  "baseline": 0.75,
+                  "candidate": 1.0,
+                  "delta": 0.25,
+                  "ci95": [
+                    0.0,
+                    0.75
+                  ],
+                  "passed": true
+                },
+                "clean_accuracy": {
+                  "baseline": 0.5,
+                  "candidate": 0.4167,
+                  "delta": -0.0833,
+                  "ci95": [
+                    -0.4546,
+                    0.3
+                  ],
+                  "passed": false
+                }
+              },
+              "instruction_tokens_per_call": {
+                "baseline": 1534.57,
+                "candidate": 1454.01,
+                "max_growth": 0.0,
+                "passed": true
+              },
+              "execution_success_rate": {
+                "baseline": 1.0,
+                "candidate": 1.0
+              },
+              "baseline_snapshot": "be806231fb78423ad8a6364b",
+              "candidate_snapshot": "9b2a7c7b9a94eab942cd84ec"
+            }
+          }
+        },
+        "merges": 0,
+        "drops": 0,
+        "promotion": {
+          "status": "released",
+          "version": 7,
+          "changes": {
+            "promoted": [
+              "K-fc58aaac"
+            ]
+          }
+        },
+        "dream_release": "rejected",
+        "dream_gate_failures": [
+          "clean_accuracy"
+        ],
+        "live_tokens_before": 6714,
+        "live_tokens_after": 6714
+      }
+    },
+    {
+      "event": 500,
+      "summary": {
+        "dream": {
+          "clusters": 2,
+          "evictions": {
+            "K-151dd8a5": "probation-failed",
+            "K-03464c33": "probation-failed",
+            "K-c338cda4": "probation-failed",
+            "K-aeb93438": "probation-failed",
+            "K-5fc77b80": "probation-failed",
+            "K-2292231d": "probation-failed",
+            "K-f14ffd08": "probation-failed",
+            "K-bb7903d3": "probation-failed",
+            "K-80ff85b6": "probation-failed",
+            "K-36682595": "probation-failed",
+            "K-c4cc05ec": "probation-failed",
+            "K-a0f0b7ee": "probation-failed",
+            "K-9138f340": "probation-failed",
+            "K-66e07948": "probation-failed",
+            "K-895f38fc": "probation-failed",
+            "K-b96f55bd": "probation-failed",
+            "K-31f9a4ac": "probation-failed",
+            "K-5d33a428": "probation-failed",
+            "K-2f9ce973": "probation-failed",
+            "K-421d06dc": "probation-failed"
+          },
+          "live_items_before": 45,
+          "live_items_after": 25,
+          "live_tokens_before": 7993,
+          "live_tokens_after": 6890,
+          "consolidated": true,
+          "release": {
+            "status": "released",
+            "version": 8,
+            "gate": {
+              "passed": true,
+              "failures": [],
+              "margin": 0.02,
+              "dataset_fingerprint": "fc06a9f11fd0ecde481f2eb1c4baf1d98416de1e08755d6624b4f7fffd9bf70c",
+              "cases": 20,
+              "metrics": {
+                "f1": {
+                  "baseline": 0.4167,
+                  "candidate": 0.5,
+                  "delta": 0.0833,
+                  "ci95": [
+                    -0.24,
+                    0.3175
+                  ],
+                  "passed": true
+                },
+                "high_risk_recall": {
+                  "baseline": 0.75,
+                  "candidate": 0.75,
+                  "delta": 0.0,
+                  "ci95": [
+                    0.0,
+                    0.0
+                  ],
+                  "passed": true
+                },
+                "clean_accuracy": {
+                  "baseline": 0.5,
+                  "candidate": 0.9167,
+                  "delta": 0.4167,
+                  "ci95": [
+                    0.1111,
+                    0.6923
+                  ],
+                  "passed": true
+                }
+              },
+              "instruction_tokens_per_call": {
+                "baseline": 1581.45,
+                "candidate": 1433.92,
+                "max_growth": 0.0,
+                "passed": true
+              },
+              "execution_success_rate": {
+                "baseline": 1.0,
+                "candidate": 1.0
+              },
+              "baseline_snapshot": "eb8c6f5a49d77bb3fe9489d0",
+              "candidate_snapshot": "7359182fb4e011bea560f53e"
+            },
+            "changes": {
+              "updated": [],
+              "archived": [
+                "K-151dd8a5",
+                "K-03464c33",
+                "K-c338cda4",
+                "K-aeb93438",
+                "K-5fc77b80",
+                "K-2292231d",
+                "K-f14ffd08",
+                "K-bb7903d3",
+                "K-80ff85b6",
+                "K-36682595",
+                "K-c4cc05ec",
+                "K-a0f0b7ee",
+                "K-9138f340",
+                "K-66e07948",
+                "K-895f38fc",
+                "K-b96f55bd",
+                "K-31f9a4ac",
+                "K-5d33a428",
+                "K-2f9ce973",
+                "K-421d06dc"
+              ],
+              "created": []
+            }
+          }
+        },
+        "merges": 0,
+        "drops": 0,
+        "promotion": {},
+        "dream_release": "released",
+        "dream_gate_failures": [],
+        "live_tokens_before": 7993,
+        "live_tokens_after": 6890
+      }
+    }
+  ],
+  "attribution": [
+    {
+      "event": 25,
+      "reviews": 6,
+      "accepted": 4,
+      "false_positive": 6,
+      "failed": 0
+    },
+    {
+      "event": 50,
+      "reviews": 6,
+      "accepted": 4,
+      "false_positive": 3,
+      "failed": 0
+    },
+    {
+      "event": 75,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 7,
+      "failed": 0
+    },
+    {
+      "event": 100,
+      "reviews": 6,
+      "accepted": 3,
+      "false_positive": 6,
+      "failed": 0
+    },
+    {
+      "event": 125,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 4,
+      "failed": 0
+    },
+    {
+      "event": 150,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 5,
+      "failed": 0
+    },
+    {
+      "event": 175,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 5,
+      "failed": 0
+    },
+    {
+      "event": 200,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 3,
+      "failed": 0
+    },
+    {
+      "event": 225,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 250,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 2,
+      "failed": 0
+    },
+    {
+      "event": 275,
+      "reviews": 6,
+      "accepted": 3,
+      "false_positive": 5,
+      "failed": 0
+    },
+    {
+      "event": 300,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 3,
+      "failed": 0
+    },
+    {
+      "event": 325,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 350,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 3,
+      "failed": 0
+    },
+    {
+      "event": 375,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 400,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 5,
+      "failed": 0
+    },
+    {
+      "event": 425,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 5,
+      "failed": 0
+    },
+    {
+      "event": 450,
+      "reviews": 6,
+      "accepted": 3,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 475,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 500,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 1,
+      "failed": 0
+    }
+  ],
+  "admission_actions": {
+    "ADD": 57,
+    "REJECT": 160,
+    "UPVOTE": 242,
+    "MERGE": 41
+  },
+  "events_total": 500,
+  "model": "gpt-6.1-sol",
+  "seed": 20261010,
+  "started_at": "2026-10-10T23:44:11",
+  "finished_at": "2026-10-11T05:11:38"
+}

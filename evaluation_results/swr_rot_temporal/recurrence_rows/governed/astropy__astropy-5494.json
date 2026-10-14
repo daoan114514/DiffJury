@@ -1,0 +1,94 @@
+{
+  "id": "astropy__astropy-5494",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "ignored-coordinate-system-override",
+      "severity": "medium",
+      "title": "Honor the explicit coordsys override when writing the region declaration",
+      "explanation": "The new public parameter at lines 2632–2633 is documented at lines 2649–2652 as selecting the coordinate system, with self.wcs.radesys used only when no value is specified. However, line 2664 writes self.wcs.radesys unconditionally; coordsys is never read. The added test supplies a concrete counterexample: its ICRS WCS is written with coordsys='FK5' at test_wcs.py:618, but the assertion at line 624 still requires 'ICRS\\n'. Thus callers explicitly selecting FK5 receive a region declared as ICRS, and DS9 interprets it in that frame rather than the requested frame. The assertion encodes the defect instead of verifying the new override contract. This finding concerns the ignored argument, not a requirement to transform the polygon coordinates. No separate truncation finding is asserted: the repeated-write test explicitly expects only four lines after the second write, supporting intentional overwrite behavior. No additional unsupported coordinate-system claim is made.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "Write the supplied coordsys when it is not None, falling back to self.wcs.radesys only when it is omitted. Change the explicit-override assertion to expect 'FK5\\n'.",
+      "test": "Using the existing ICRS WCS fixture, verify that omitting coordsys writes 'ICRS\\n', specifying coordsys='FK5' writes 'FK5\\n', and specifying coordsys=None retains the default. Preserve the repeated-write and color assertions independently.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/tests/test_wcs.py",
+          "line": 618,
+          "symbol": "test_footprint_to_file: w.footprint_to_file(testfile, coordsys='FK5', color='red')"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "coordinate-system declaration write"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

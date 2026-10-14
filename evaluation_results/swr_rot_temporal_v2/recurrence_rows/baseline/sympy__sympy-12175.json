@@ -1,0 +1,50 @@
+{
+  "id": "sympy__sympy-12175",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "python-supported-version-syntax",
+      "severity": "high",
+      "title": "Trailing comma after **extra_kwargs breaks installation on supported Python 3.4",
+      "explanation": "setup.py explicitly advertises Python 3.4 support in its classifier at line 369. However, Python 3.4 does not permit a trailing comma after a call's **kwargs expansion. Its authoritative CPython grammar ends that arglist alternative with '**' test, without an optional comma (https://github.com/python/cpython/blob/v3.4.10/Grammar/Grammar). A minimal reproducer is `f(**{},)`, which is invalid under that grammar. Consequently, `python3.4 setup.py install` now fails with SyntaxError while parsing the file, before either packaging import or setup() can execute. This affects both setuptools installations and the distutils fallback. Apart from this syntax failure, the dictionary routing is valid: successful setuptools import adds zip_safe=False, while the distutils fallback leaves extra_kwargs empty and receives no newly introduced keyword. Removing the trailing comma preserves both paths.",
+      "path": "setup.py",
+      "line": 373,
+      "evidence": "          **extra_kwargs,",
+      "fix": "Remove the comma after **extra_kwargs so the setup call remains valid on Python 3.4.",
+      "test": "Run `python3.4 -m py_compile setup.py` and `python3.4 setup.py --name`. Then exercise the setuptools and distutils fallback paths, verifying that only setuptools receives zip_safe=False.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "setup.py",
+          "line": 373,
+          "symbol": "Module parsing fails before the packaging import and __main__ setup() call"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-758",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

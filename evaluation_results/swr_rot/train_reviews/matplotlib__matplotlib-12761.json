@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-12761",
+  "findings": [
+    {
+      "rule_id": "regression-test-wrong-argument",
+      "severity": "medium",
+      "title": "The Series regression test passes colors as marker sizes",
+      "explanation": "The third positional argument of scatter(x, y, s=None, c=None, ...) is s, not c. Consequently, this test supplies the non-zero-index Series as marker sizes and leaves c=None. The c_none condition then short-circuits the changed color-classification branch. Restoring the old c[0] implementation would still let this test pass, even though explicitly passing the same Series as c would raise KeyError because its index has no label 0. The new safe_first_element unit test verifies the helper independently but does not protect its integration into scatter.",
+      "path": "lib/matplotlib/tests/test_axes.py",
+      "line": 5859,
+      "evidence": "plt.scatter(x, y, c)",
+      "fix": "Pass the Series explicitly as c=c and assert that the returned collection's scalar array equals the Series values.",
+      "test": "Use the existing Series indexed 10 through 17, call collection = plt.scatter(x, y, c=c), and assert collection.get_array() equals c's values. Confirm that this regression test fails with the previous c[0] classification and passes with safe_first_element.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_axes.py",
+          "line": 5859,
+          "symbol": "test_scatter_series_non_zero_index"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4199,
+          "symbol": "Axes.scatter"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 18292,
+  "llm_calls": 5
+}

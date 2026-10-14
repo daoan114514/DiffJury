@@ -1,0 +1,174 @@
+{
+  "id": "scikit-learn__scikit-learn-259",
+  "findings": [
+    {
+      "rule_id": "nan-regression-test-wrong-input",
+      "severity": "medium",
+      "title": "The NaN regression test never fits the array it modifies",
+      "explanation": "The test creates a separate array Xnan and modifies it, but passes the original X to fit. Consequently the new rejection path is never exercised. The outcome depends on the fixture dtype, which is not included in the supplied context: if np.array(X) is integer-valued, assigning NaN raises ValueError and the @raises(ValueError) decorator accepts that setup failure without calling fit; if it is floating-point and the original fit succeeds, the test fails because no ValueError is raised. Neither outcome verifies rejection of NaN by LogisticRegression or protects against the documented infinite-loop regression.",
+      "path": "scikits/learn/linear_model/tests/test_logistic.py",
+      "line": 74,
+      "evidence": "    Xnan = np.array(X)\n    Xnan[0, 1] = np.nan\n    logistic.LogisticRegression().fit(X, Y1)",
+      "fix": "Create Xnan with an explicit floating dtype, then assert ValueError specifically around LogisticRegression().fit(Xnan, Y1), rather than decorating the entire test.",
+      "test": "Verify setup produces an array containing NaN without raising, and that fitting that exact array raises ValueError from finite-input validation. Keep the assertion scoped to fit so fixture-construction failures cannot satisfy it.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 67,
+          "symbol": "test_nan"
+        },
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 74,
+          "symbol": "LogisticRegression().fit(X, Y1)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-570",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "sparse-validation-data-access",
+      "severity": "medium",
+      "title": "Finite validation breaks supported CSR and CSC inputs",
+      "explanation": "For scipy.sparse CSR and CSC matrices, data is an ndarray attribute, not a method. Passing a finite sparse matrix such as scipy.sparse.csr_matrix([[1.0]]) to either changed helper now raises TypeError ('numpy.ndarray' object is not callable). Previously safe_asanyarray returned the sparse matrix unchanged, and atleast2d_or_csr converted it with tocsr(); both supported-input branches remain present but are now unreachable for these inputs. This is a compatibility regression in the shared helpers, independent of whether dense LibLinear supports sparse input.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 8,
+      "evidence": "    if sp.issparse(X):\n        X = X.data()",
+      "fix": "Read the sparse data attribute without calling it. Normalize formats that do not expose a numeric data ndarray before validating, while preserving the helpers' existing return contracts.",
+      "test": "Pass finite CSR and CSC matrices through both safe_asanyarray and atleast2d_or_csr. Assert that the former preserves the sparse input and the latter returns the expected CSR matrix. Also verify that a sparse matrix containing NaN raises ValueError rather than TypeError.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 16,
+          "symbol": "safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "assert_all_finite(X)"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 8,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "finite-validation-reduction-overflow",
+      "severity": "medium",
+      "title": "Float32 reduction overflow rejects finite inputs before their float64 conversion",
+      "explanation": "A finite array such as np.array([[2e38], [2e38]], dtype=np.float32) has an infinite float32 sum. The new check therefore raises ValueError claiming that the array contains NaN or infinity, although every element is finite. This is directly relevant to BaseLibLinear.fit: it requests float64 conversion, which previously converted these values successfully and whose sum is finite, but safe_asanyarray now validates the original float32 array first. Thus finite, representable estimator inputs are rejected because of the reduction's accumulator dtype, not their contents.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 12,
+      "evidence": "    if not np.isfinite(np.sum(X)):\n        raise ValueError(\"array contains NaN or infinity\")",
+      "fix": "Check elementwise finiteness rather than treating a non-finite sum as proof of a non-finite element. If retaining a sum-based fast path, perform an elementwise fallback whenever the sum is non-finite.",
+      "test": "Assert that safe_asanyarray(np.array([[2e38], [2e38]], dtype=np.float32), dtype=np.float64) returns a finite float64 array without raising. Separately assert rejection of arrays containing actual NaN and infinity.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "validation-before-numeric-conversion",
+      "severity": "medium",
+      "title": "Validation before conversion rejects previously accepted numeric strings",
+      "explanation": "BaseLibLinear.fit previously used np.asanyarray(X, dtype=np.float64, order='C'), accepting numeric-string inputs such as [['0'], ['1']] with labels [0, 1]. The replacement calls assert_all_finite before that conversion. np.sum on the resulting string array cannot perform the numeric reduction, so fitting now raises a TypeError instead of converting the valid input and proceeding. No guard or conversion precedes this check in safe_asanyarray. The same regression affects direct callers requesting a numeric dtype from that helper.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 17,
+      "evidence": "def safe_asanyarray(X, dtype=None, order=None):\n    assert_all_finite(X)",
+      "fix": "For dense inputs, apply the requested NumPy conversion first and validate the converted array before returning it or invoking the solver.",
+      "test": "Fit LogisticRegression using numeric-string features [['0'], ['1']] and labels [0, 1], and compare its result with the equivalent float64 input. Also verify that a numeric-string NaN is converted and then rejected with ValueError.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      2,
+      3
+    ],
+    "neutral": [
+      1
+    ],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 26244,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-259.json",
+  "borrowed_sha256": "bc9f8bb8c135e9e9b85282cd918acf4dbf4baacdc262ffedd6c31aabca5274cf"
+}

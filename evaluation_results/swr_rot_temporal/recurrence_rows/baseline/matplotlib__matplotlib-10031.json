@@ -1,0 +1,60 @@
+{
+  "id": "matplotlib__matplotlib-10031",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "legend-empty-collection-colors",
+      "severity": "low",
+      "title": "Repeated labels on collections with empty colors now raise ValueError",
+      "explanation": "A concrete triggering input is two calls to ax.scatter([0], [0], facecolors='none', edgecolors='none', label='empty'), followed by ax.legend(). Scatter creates supported PathCollection legend handles. Unlike Line2D.get_color() or Patch color getters, collection get_facecolor() and get_edgecolor() return arrays; for these inputs both arrays have shape (0, 4). The first handle is appended without comparison. For the second handle, the matching label and type enter _in_handles; get_color() is absent, so its AttributeError is handled, but colors.to_rgba(f_h.get_facecolor()) receives an empty array. An empty sequence cannot represent the three or four components required by to_rgba, so conversion raises ValueError, which the AttributeError-only handler does not catch. In the pre-change path, comparison of these empty arrays produced an empty Boolean array, whose false truth value allowed comparison to continue and the duplicate to be omitted under the NumPy behavior supported by this older code. The changed path instead aborts legend generation. The equivalent edgecolor conversion has the same empty-array problem. This is an independently identified failure path, not a claim inferred from missing tests; no tests or converter implementation were available for execution in this review.",
+      "path": "lib/matplotlib/legend.py",
+      "line": 1360,
+      "evidence": "if (colors.to_rgba(f_h.get_facecolor()) !=\n                        colors.to_rgba(h.get_facecolor())):\n                    continue\n            except AttributeError:\n                pass",
+      "fix": "Normalize collection color arrays with colors.to_rgba_array and compare their shapes and elements explicitly, preserving empty arrays as valid color values. Apply compatible comparison logic to color, facecolor, and edgecolor getters rather than sending every getter result through scalar to_rgba.",
+      "test": "Create two scatter handles with the same label and facecolors='none', edgecolors='none'; assert that both color getters return shape (0, 4), then invoke get_legend_handles_labels() and legend(). Assert that neither raises and that exactly one handle and label remain. Also exercise distinct labels to confirm that the failure specifically requires the deduplication comparison.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1374,
+          "symbol": "_get_legend_handles_labels"
+        },
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1378,
+          "symbol": "_in_handles(handle, label)"
+        },
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1360,
+          "symbol": "colors.to_rgba(f_h.get_facecolor())"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,111 @@
+{
+  "id": "scikit-learn__scikit-learn-7498",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-04a42f60",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2fcf8cc0",
+      "K-5726f975",
+      "K-5da5b627",
+      "K-72d03d82",
+      "K-81df992c",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8b12aa56",
+      "K-9fc0d205",
+      "K-a32f0183",
+      "K-c59d36ba",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d5f0918f",
+      "K-e01a8db3",
+      "K-e9744f86",
+      "K-ebb06c34",
+      "K-ef402548"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-d398b681",
+          "K-04a42f60"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ebb06c34",
+          "K-295e0897",
+          "K-c59d36ba",
+          "K-e01a8db3",
+          "K-24b3bdf1",
+          "K-d5f0918f"
+        ],
+        "tokens": 497,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-72d03d82",
+          "K-8b12aa56",
+          "K-e9744f86",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-cebaccb0",
+          "K-218187b3",
+          "K-20ab8e8e",
+          "K-a32f0183",
+          "K-9fc0d205",
+          "K-8aa6a19d",
+          "K-21394d34",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-81df992c",
+          "K-5726f975",
+          "K-ef402548",
+          "K-1c46e9f8",
+          "K-1a7e5ff1"
+        ],
+        "tokens": 793,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

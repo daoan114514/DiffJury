@@ -1,0 +1,129 @@
+{
+  "admission_by_source": {
+    "missed": {
+      "ADD": 76,
+      "REJECT": 9,
+      "UPVOTE": 4,
+      "CONFLICT": 0,
+      "MERGE": 0,
+      "RESTORE": 0
+    },
+    "false_positive": {
+      "ADD": 79,
+      "REJECT": 2,
+      "UPVOTE": 1,
+      "CONFLICT": 0,
+      "MERGE": 0,
+      "RESTORE": 0
+    },
+    "contradiction": {
+      "ADD": 3,
+      "REJECT": 5,
+      "UPVOTE": 1,
+      "CONFLICT": 15,
+      "MERGE": 0,
+      "RESTORE": 0
+    },
+    "noise": {
+      "ADD": 0,
+      "REJECT": 49,
+      "UPVOTE": 0,
+      "CONFLICT": 0,
+      "MERGE": 0,
+      "RESTORE": 0
+    }
+  },
+  "admission_candidates": 244,
+  "decision_definition": "CONFLICT is an exclusive display category; its stored action is REJECT",
+  "interception": {
+    "contradiction": {
+      "planned_events": 24,
+      "candidate_count": 24,
+      "rejected_candidates": 20,
+      "candidate_rate": 0.833333,
+      "events_with_candidates": 24,
+      "blocked_events": 20,
+      "event_rate": 0.833333
+    },
+    "noise": {
+      "planned_events": 49,
+      "candidate_count": 49,
+      "rejected_candidates": 49,
+      "candidate_rate": 1.0,
+      "events_with_candidates": 49,
+      "blocked_events": 49,
+      "event_rate": 1.0
+    }
+  },
+  "contamination": {
+    "naive": {
+      "items": 244,
+      "polluted_items": 73,
+      "item_rate": 0.29918,
+      "tokens": 23862,
+      "polluted_tokens": 2816,
+      "token_rate": 0.118012,
+      "by_source": {
+        "missed": 89,
+        "false_positive": 82,
+        "contradiction": 24,
+        "noise": 49
+      },
+      "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+    },
+    "governed": {
+      "items": 2,
+      "polluted_items": 0,
+      "item_rate": 0.0,
+      "tokens": 116,
+      "polluted_tokens": 0,
+      "token_rate": 0.0,
+      "by_source": {
+        "false_positive": 1,
+        "missed": 1
+      },
+      "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+    },
+    "governed_canary": {
+      "items": 97,
+      "polluted_items": 2,
+      "item_rate": 0.020619,
+      "tokens": 12229,
+      "polluted_tokens": 100,
+      "token_rate": 0.008177,
+      "by_source": {
+        "false_positive": 41,
+        "missed": 54,
+        "contradiction": 2
+      },
+      "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+    }
+  },
+  "lifecycle": {
+    "promotion_events": 2,
+    "unique_promoted_items": 2,
+    "eviction_events": 61,
+    "unique_evicted_items": 61,
+    "currently_archived": 61,
+    "archived_categories": {
+      "capacity": 61
+    },
+    "archived_reasons": {
+      "capacity": 61
+    }
+  },
+  "counterfactual": {
+    "pair_attempts": 60,
+    "individual_replays": 119,
+    "replay_definition": "review attempts, including failures and unexposed trial reviews",
+    "applied_pairs": 30,
+    "helpful": 4,
+    "harmful": 1,
+    "neutral": 25,
+    "failed": 2,
+    "not_exposed": 28,
+    "unique_items": 12,
+    "unique_prs": 23,
+    "train_only": true
+  }
+}

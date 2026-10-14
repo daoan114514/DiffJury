@@ -1,0 +1,54 @@
+{
+  "id": "scikit-learn__scikit-learn-14080",
+  "findings": [
+    {
+      "rule_id": "DOC-EVALUATION-DENOMINATOR",
+      "severity": "low",
+      "title": "Held-out evaluation reports the full dataset size instead of the test-set size",
+      "explanation": "Line 97 splits Iris's 150 samples with test_size=0.5, producing 75 test samples. Line 100 predicts only X_test, and line 102 counts mismatches against y_test, but the printed denominator remains iris.data.shape[0], or 150. Thus line 103 describes errors on 75 evaluated samples as errors out of 150, misleading readers about the held-out error rate. The expected count of 4 has not been independently verified because execution tools are unavailable; this finding concerns the demonstrably incorrect denominator, not that count. The print statement is intentional documentation output, not operational logging or sensitive-data exposure, so the scanner's logging warning is not actionable.",
+      "path": "doc/modules/naive_bayes.rst",
+      "line": 102,
+      "evidence": "...       % (iris.data.shape[0],(y_test != y_pred).sum()))",
+      "fix": "Replace iris.data.shape[0] with X_test.shape[0] or y_test.size. Update line 103 to report 75 total points, and verify the misclassification count by executing the example in the supported environment.",
+      "test": "Execute the complete example with test_size=0.5 and random_state=21. Assert that X_test.shape[0], y_test.size, and y_pred.size all equal 75, verify the exact mismatch count, and run the corrected doctest with its printed total set to 75.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/modules/naive_bayes.rst",
+          "line": 97,
+          "symbol": "train_test_split"
+        },
+        {
+          "path": "doc/modules/naive_bayes.rst",
+          "line": 100,
+          "symbol": "GaussianNB.fit(...).predict(X_test)"
+        },
+        {
+          "path": "doc/modules/naive_bayes.rst",
+          "line": 102,
+          "symbol": "held-out mismatch count and formatted total"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12760,
+  "llm_calls": 5
+}

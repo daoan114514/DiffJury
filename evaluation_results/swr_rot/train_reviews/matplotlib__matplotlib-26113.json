@@ -1,0 +1,44 @@
+{
+  "id": "matplotlib__matplotlib-26113",
+  "findings": [
+    {
+      "rule_id": "hexbin-empty-reducer-default",
+      "severity": "medium",
+      "title": "Inclusive threshold sends empty bins to reducers when mincnt is omitted",
+      "explanation": "The preceding normalization sets mincnt=None to 0. Consequently, changing the comparison to >= makes empty bins pass the threshold on the default public hexbin path. Previously, these bins became NaN without invoking reduce_C_function. A sparse plot using reduce_C_function=np.max now raises ValueError because np.max cannot reduce an empty input; the default np.mean instead emits empty-slice/invalid-division warnings. This is distinct from the intended positive-threshold fix: a bin containing exactly a positive mincnt should now be included. Both None and explicit zero newly admit empty bins, whereas positive thresholds still exclude them.",
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 5017,
+      "evidence": "            if mincnt is None:\n                mincnt = 0\n            accum = np.array(\n                [reduce_C_function(acc) if len(acc) >= mincnt else np.nan",
+      "fix": "Keep the inclusive comparison for positive thresholds, but normalize omitted mincnt to 1 rather than 0 so the default does not invoke reducers on empty bins. If explicit zero is not intended to enable empty-bin reductions, also retain an explicit nonempty-bin guard.",
+      "test": "Minimal reproduction: import numpy as np; from matplotlib.figure import Figure; ax = Figure().subplots(); ax.hexbin([0.25], [0.25], C=[2.0], gridsize=2, extent=(0, 1, 0, 1), reduce_C_function=np.max). The sparse grid has empty bins: the old comparison skips them, while the new comparison invokes np.max([]) and raises ValueError. Add a regression test asserting this default-mincnt call succeeds and retains the populated bin. Repeat with the default np.mean and assert no empty-reduction RuntimeWarning. Separately test mincnt=1 with one point per populated bin to preserve inclusive boundary behavior, and explicitly specify the expected behavior of mincnt=0. No tools were available in this review, so these reproductions were not executed, and surrounding documentation and existing test coverage could not be independently inspected.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 5017,
+          "symbol": "Axes.hexbin: C-bin aggregation invokes reduce_C_function"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 11806,
+  "llm_calls": 5
+}

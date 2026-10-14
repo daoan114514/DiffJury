@@ -1,0 +1,94 @@
+{
+  "id": "scikit-learn__scikit-learn-1201",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "zero-outlier-label-restoration",
+      "severity": "medium",
+      "title": "Zero-valued outlier labels are not restored after decoding",
+      "explanation": "A configured outlier_label=0 is valid, but the new truthiness check skips restoring it. For example, fit RadiusNeighborsClassifier(radius=0.1, outlier_label=0) on X=[[0], [1]], y=[1, 2], then predict [[0], [10]]. The expected result is [1, 0]. The changed fit creates classes_=[1, 2], and classes_.take(modes) can only produce training labels, never 0. Consequently, if decoding succeeds, the outlier receives a training label rather than the configured 0; if its sentinel is outside the valid indexing range, decoding fails before restoration. This defect does not depend on the precise sentinel construction: the zero-label restoration branch is always skipped. The supplied excerpt does not establish that construction, so an exact wrong training label or a separate out-of-range sentinel regression cannot be confirmed.",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 318,
+      "evidence": "        prediction = self.classes_.take(modes)\n        if self.outlier_label:\n            # reset outlier label\n            prediction[modes == outlier_label] = self.outlier_label",
+      "fix": "Use `self.outlier_label is not None` rather than a truthiness check. Ensure outlier positions are excluded from class-index decoding and restored explicitly so their sentinel cannot cause an indexing failure.",
+      "test": "Fit on X=[[0], [1]], y=[1, 2] with radius=0.1 and outlier_label=0. Assert predict([[0], [10]]) returns [1, 0], and predict([[10]]) returns [0] without raising. Include a nonzero outlier label outside the encoded class-index range to verify decoding excludes outlier sentinels.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 315,
+          "symbol": "RadiusNeighborsClassifier.predict"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 318,
+          "symbol": "RadiusNeighborsClassifier.predict outlier-label restoration"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

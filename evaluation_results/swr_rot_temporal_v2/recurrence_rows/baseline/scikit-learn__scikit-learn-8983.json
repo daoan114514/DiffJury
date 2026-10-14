@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-8983",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-PYTHON-SYNTAX",
+      "severity": "medium",
+      "title": "Extra comma prevents the underfitting/overfitting example from parsing",
+      "explanation": "The added scatter call contains an empty argument between two commas (`X, y, , edgecolor`). Python rejects this with SyntaxError while parsing the module, before any imports, model fitting, or plotting execute. Thus every execution of this previously runnable example fails, and it produces no figures. The remaining supplied plotting changes do not demonstrate substantive regressions. The scanner's separate print(__doc__) warning is not an introduced defect: plot_lof.py removes the same statement after the imports and adds it before them, preserving the existing documentation output on successful execution.",
+      "path": "examples/model_selection/plot_underfitting_overfitting.py",
+      "line": 63,
+      "evidence": "    plt.scatter(X, y, , edgecolor='b', s=20, label=\"Samples\")",
+      "fix": "Remove the extra comma: plt.scatter(X, y, edgecolor='b', s=20, label=\"Samples\").",
+      "test": "Compile the changed example with Python's compile() or py_compile to verify that it parses without executing dependencies. Then run it with the project's supported dependencies and a noninteractive Matplotlib backend, verifying that all three degree comparisons are plotted.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

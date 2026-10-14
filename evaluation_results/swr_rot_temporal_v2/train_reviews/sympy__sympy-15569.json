@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-15569",
+  "findings": [
+    {
+      "rule_id": "incorrect-infinite-limit-handling",
+      "severity": "medium",
+      "title": "The divergence test no longer recognizes infinite term limits",
+      "explanation": "The new `is_nonzero` predicate excludes infinity: SymPy's `is_nonzero` means a nonzero finite real number, so both `oo.is_nonzero` and `(I*oo).is_nonzero` are false. A concrete reproducer is `Sum(I*2**n, (n, 1, oo)).is_convergent()`. Its term limit is `I*oo` and its absolute-term limit is `oo`; both new divergence checks fall through, whereas the previous numeric-limit checks returned `S.false`. The exponential term does not match the intervening power/logarithmic comparison criteria. Consequently, the limit-comparison branch obtains `I*oo` and evaluates `I*oo > 0`, raising TypeError instead of reporting divergence. This reproducer uses ordinary positive-infinite bounds and does not depend on negative-infinite-bound normalization or unusual index assumptions. The added limit-sequence tests cover Fibonacci ratios and finite partial-sum expressions, not the changed infinity predicates.",
+      "path": "sympy/concrete/summations.py",
+      "line": 428,
+      "evidence": "if lim_val is not None and lim_val.is_nonzero:",
+      "fix": "Explicitly reject infinite term or absolute-term limits in the divergence checks, in addition to provably nonzero finite limits. Preserve the None guard and avoid interpreting an unknown limit as divergence.",
+      "test": "Add a regression asserting `Sum(I*2**n, (n, 1, oo)).is_convergent() is S.false`, together with direct checks for positive and negative infinite term limits. Exercise the real convergence method rather than mocking limit_seq.",
+      "confidence": 0.83,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/concrete/summations.py",
+          "line": 427,
+          "symbol": "Sum.is_convergent: limit_seq(sequence_term, sym)"
+        },
+        {
+          "path": "sympy/concrete/summations.py",
+          "line": 435,
+          "symbol": "Sum.is_convergent: absolute-term divergence check"
+        },
+        {
+          "path": "sympy/concrete/summations.py",
+          "line": 471,
+          "symbol": "Sum.is_convergent: lim_comp.is_number and lim_comp > 0"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 48759,
+  "llm_calls": 6
+}

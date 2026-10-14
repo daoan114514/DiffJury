@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-10474",
+  "findings": [
+    {
+      "rule_id": "python-invalid-conditional-suite",
+      "severity": "high",
+      "title": "Added conditional prevents estimator_checks from importing",
+      "explanation": "The added `if hasattr():` has no indented body: the following `yield check_fit2d_predict1d` is at the same indentation level. Python therefore raises IndentationError while compiling the module, before any estimator checks can run. Every import of sklearn.utils.estimator_checks fails regardless of the estimator supplied. Separately, hasattr requires two arguments, so merely indenting the yield would expose a TypeError when iteration reaches this branch; that is another aspect of the same malformed conditional, not a separate finding. The change to dispatch transformer checks by the presence of transform does not, from the supplied evidence alone, establish a separate incorrect outcome.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 228,
+      "evidence": "    if hasattr():\n    yield check_fit2d_predict1d",
+      "fix": "Remove the malformed conditional to preserve the previous unconditional yield, or supply the intended object and attribute to hasattr and indent its body if conditional dispatch is actually required.",
+      "test": "The minimal reproduction is compile(\"def checks():\\n    if hasattr():\\n    yield check_fit2d_predict1d\\n\", \"repro.py\", \"exec\"), which raises IndentationError. Add a regression smoke test that imports sklearn.utils.estimator_checks and exhausts _yield_all_checks for a supported estimator; this checks both module parsing and any runtime failure hidden by generator laziness. No existing test files were supplied for inspection.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 228,
+          "symbol": "module compilation of _yield_all_checks"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 10083,
+  "llm_calls": 5
+}

@@ -1,0 +1,78 @@
+{
+  "id": "sympy__sympy-15849",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "printer-settings-preservation",
+      "severity": "medium",
+      "title": "Higher-order LaTeX fallback discards the active printer settings",
+      "explanation": "For fifth-or-higher-order time derivatives, the new branch creates a default LatexPrinter instead of preserving the active printer configuration. For example, with t = dynamicsymbols._t, omega = dynamicsymbols('omega'), and VectorLatexPrinter({'symbol_names': {t: r'\\tau'}}).doprint(omega.diff(t, 5)), the fallback renders both the denominator and function argument using t instead of the configured \\tau. The outer printer cannot correct that already-rendered string. This affects the newly introduced higher-order fallback, rather than the existing first-through-third-order branches. The added fifth-order test uses only default settings, so it misses this regression.",
+      "path": "sympy/physics/vector/printing.py",
+      "line": 153,
+      "evidence": "return LatexPrinter().doprint(der_expr)",
+      "fix": "Preserve the active settings when invoking the standard derivative renderer. Prefer delegating to the inherited _print_Derivative implementation on the current printer; if a separate standard printer is needed to retain the intended function rendering, pass through the applicable settings and avoid invoking a document-level doprint operation inside expression rendering.",
+      "test": "Add a regression test printing omega.diff(t, 5) with symbol_names={t: r'\\tau'} and assert that the derivative denominator contains \\tau rather than t. Also exercise the derivative inside a larger expression to verify that the fallback remains consistent with the surrounding printer configuration.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

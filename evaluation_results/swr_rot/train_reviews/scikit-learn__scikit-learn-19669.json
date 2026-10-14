@@ -1,0 +1,54 @@
+{
+  "id": "scikit-learn__scikit-learn-19669",
+  "findings": [
+    {
+      "rule_id": "unescaped-error-message-regex",
+      "severity": "low",
+      "title": "Escape the cache path before using it as an exception-match regex",
+      "explanation": "The new corruption test passes a message containing str(kddcup99_dir) directly to pytest.raises(match=...), which interprets it as a regular expression rather than a literal string. On Windows, a normal tmp_path such as C:\\Users\\runner\\AppData\\Local\\Temp contains \\U, which is an invalid regex escape. Consequently, even when the fetcher correctly raises the new cache-corruption IOError and the shared fixture correctly re-raises it, the test fails during regex matching. Paths containing regex metacharacters can also cause incorrect matching on other platforms. This is a deterministic portability defect in the new test, not a defect in cache deserialization.",
+      "path": "sklearn/datasets/tests/test_kddcup99.py",
+      "line": 75,
+      "evidence": "msg = (f\"The cache for fetch_kddcup99 is invalid, please \"\n       f\"delete {str(kddcup99_dir)} and run the fetch_kddcup99 again\")\n\nwith pytest.raises(IOError, match=msg):\n    fetch_kddcup99_fxt(data_home=str(tmp_path))",
+      "fix": "Use match=re.escape(msg), or capture the exception with pytest.raises(IOError) and assert str(exc_info.value) == msg.",
+      "test": "Run the corruption test on Windows with a temporary path under C:\\Users, and verify that the expected IOError is accepted without a regex compilation error. Also exercise a temporary directory whose name contains regex metacharacters, such as cache[1].",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/tests/test_kddcup99.py",
+          "line": 75,
+          "symbol": "test_corrupted_file_error_message"
+        },
+        {
+          "path": "sklearn/conftest.py",
+          "line": 39,
+          "symbol": "_fetch_fixture.wrapped"
+        },
+        {
+          "path": "sklearn/datasets/_kddcup99.py",
+          "line": 324,
+          "symbol": "_fetch_brute_kddcup99"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17553,
+  "llm_calls": 5
+}

@@ -1,0 +1,159 @@
+{
+  "id": "astropy__astropy-417",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "helper-test-api-mismatch",
+      "severity": "medium",
+      "title": "New color helper test calls the wrong function name",
+      "explanation": "The extraction defines _color_text, and color_print correctly calls _color_text. However, the new test calls console.color_text. The supplied change provides no public color_text definition or alias, so the test does not target the implemented helper and raises AttributeError unless an unrelated public symbol exists outside the supplied context. This is a directly traceable name mismatch; no runtime test was available to verify the complete module namespace. The production extraction otherwise preserves the previous ANSI mapping, default-color fallback, and formatting. color_print still bypasses the helper for empty-string and None colors, preserving uncolored output for those inputs.",
+      "path": "astropy/utils/tests/test_console.py",
+      "line": 11,
+      "evidence": "def _color_text(text, color):\n                write(_color_text(msg, color))\n    assert console.color_text(\"foo\", \"green\") == u'\\033[0;32mfoo\\033[0m'",
+      "fix": "Change the test to call console._color_text(\"foo\", \"green\"), matching the extracted private helper and its production caller.",
+      "test": "Run test_color_text against the complete module: the corrected call must return exactly '\\033[0;32mfoo\\033[0m'. Also confirm color_print preserves its output for green, unknown, empty-string, and None colors.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/utils/tests/test_console.py",
+          "line": 10,
+          "symbol": "test_color_text"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": [
+        "K-ff9e463d"
+      ]
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0528b9a8",
+      "K-063ee88d",
+      "K-09aa8545",
+      "K-0f3086e4",
+      "K-10f071ed",
+      "K-1a7292bd",
+      "K-1bbd8c27",
+      "K-1f0dc278",
+      "K-200d328d",
+      "K-2b350bbf",
+      "K-2b35c92b",
+      "K-30246d94",
+      "K-39909304",
+      "K-3b47c9b6",
+      "K-3c9cd8b8",
+      "K-533c203b",
+      "K-5ab72cf5",
+      "K-5cfed8c0",
+      "K-6b2f7727",
+      "K-728891cc",
+      "K-915119d5",
+      "K-94ced832",
+      "K-984ea536",
+      "K-997796e9",
+      "K-9bff7ae1",
+      "K-a0373828",
+      "K-c9c94b8c",
+      "K-d6e0428e",
+      "K-d70ab557",
+      "K-d9d0df1c",
+      "K-e974c513",
+      "K-f8360044",
+      "K-fc5b6f35",
+      "K-ff9e463d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-5ab72cf5",
+          "K-9bff7ae1",
+          "K-d6e0428e"
+        ],
+        "tokens": 129,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-fc5b6f35",
+          "K-09aa8545",
+          "K-984ea536",
+          "K-063ee88d",
+          "K-0528b9a8",
+          "K-3b47c9b6",
+          "K-0f3086e4",
+          "K-200d328d",
+          "K-f8360044",
+          "K-ff9e463d",
+          "K-3c9cd8b8",
+          "K-10f071ed",
+          "K-d70ab557",
+          "K-1bbd8c27",
+          "K-39909304",
+          "K-533c203b",
+          "K-2b350bbf",
+          "K-1f0dc278",
+          "K-5cfed8c0",
+          "K-6b2f7727",
+          "K-915119d5",
+          "K-1a7292bd",
+          "K-d9d0df1c"
+        ],
+        "tokens": 1680,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-2b35c92b"
+        ],
+        "tokens": 78,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-94ced832",
+          "K-997796e9",
+          "K-30246d94",
+          "K-a0373828",
+          "K-728891cc",
+          "K-e974c513",
+          "K-c9c94b8c"
+        ],
+        "tokens": 502,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

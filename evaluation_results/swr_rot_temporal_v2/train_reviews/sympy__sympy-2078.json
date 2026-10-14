@@ -1,0 +1,120 @@
+{
+  "id": "sympy__sympy-2078",
+  "findings": [
+    {
+      "rule_id": "invalid-function-regression-test",
+      "severity": "medium",
+      "title": "The new test passes a function class and asserts a nonexistent tensor type",
+      "explanation": "sy.Function('f') creates an undefined function class, not the applied expression f(t). Its printer dispatch is based on its metaclass rather than the applied Function expression hierarchy, so the test does not exercise the intended new handler for f(t). The declared t is never passed to translation, making the expected name f_t unsupported by the input. Additionally, Theano's tensor namespace exposes TensorVariable, not TheanoVariable; the latter assertion raises AttributeError if execution reaches it. The adjacent existing test uses tt.TensorVariable correctly. Thus the new test fails in a Theano-enabled environment instead of proving the new behavior.",
+      "path": "sympy/printing/tests/test_theanocode.py",
+      "line": 221,
+      "evidence": "t = sy.Symbol('t')\n    f = sy.Function('f')\n    ft = theano_code(f)\n    assert isinstance(ft, tt.TheanoVariable)\n    assert ft.name == 'f_t'",
+      "fix": "Translate f(t), and assert isinstance(ft, tt.TensorVariable). If unapplied function classes are also intended to be supported, test that separately with an explicit contract rather than treating the class as f(t).",
+      "test": "Run the corrected test with Theano installed and assert the exact name, dtype, broadcastable tuple, and repeated-translation identity using an explicit shared cache.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 218,
+          "symbol": "test_Function"
+        },
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 221,
+          "symbol": "theano_code"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "function-printer-dispatch",
+      "severity": "medium",
+      "title": "The generic Function printer intercepts supported built-in operations",
+      "explanation": "SymPy printer dispatch searches an expression's class hierarchy for a matching printer method. Adding _print_Function therefore intercepts built-in Function subclasses, not just applied undefined functions. For example, sin(t) now becomes an independent tensor named sin_t instead of translating t and applying the mapped sine operation. The existing _print_Basic implementation performs mapping[type(expr)] and recursively prints the arguments, but that fallback is no longer reached for these expressions. Consequently, previously supported function expressions produce mathematically incorrect graphs, and dtype/broadcastable settings for their argument symbols are ignored.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 79,
+      "evidence": "def _print_Function(self, s, dtypes={}, broadcastables={}):\n        dtype = dtypes.get(s, 'floatX')\n        broadcastable = broadcastables.get(s, ())\n        name = str(type(s)) + '_' + str(s.args[0])",
+      "fix": "Restrict the new tensor-variable handler to applied undefined functions, for example by using _print_AppliedUndef, leaving mapped built-in Function expressions on the existing operation-translation path.",
+      "test": "Translate sin(t), exp(t), and a nested built-in expression with a shared cache. Assert that their tensors have the expected operation owners and reference the translated t tensor rather than becoming independent inputs. Include dtype and broadcastable overrides for t.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        },
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 87,
+          "symbol": "tt.tensor"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "zero-argument-function-printing",
+      "severity": "low",
+      "title": "Zero-argument applied functions crash during name construction",
+      "explanation": "A valid applied undefined function such as sy.Function('f')() has an empty args tuple. It reaches the new Function handler, which unconditionally reads s.args[0] and raises IndexError before creating or caching the tensor. No arity guard excludes this valid input from the newly supported function path. Multi-argument functions do not have this particular failure: their names use only the first argument, while the cache key includes the complete args tuple, so different remaining arguments retain distinct cache identities.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 82,
+      "evidence": "name = str(type(s)) + '_' + str(s.args[0])",
+      "fix": "Construct the name without requiring a first argument, preserving a deterministic name for zero-argument applications and the complete expression in the cache key.",
+      "test": "Translate f() and assert that it returns a TensorVariable without an exception. With a shared cache, assert repeated translations return the same object. Also translate f(x, y) and f(x, z), asserting distinct identities and correct dtype/broadcastable overrides.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        },
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 82,
+          "symbol": "function tensor name construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-129",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17921,
+  "llm_calls": 5
+}

@@ -1,0 +1,60 @@
+{
+  "id": "sympy__sympy-18021",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "matrix-permutation-self-swap-compatibility",
+      "severity": "low",
+      "title": "Previously valid identity swaps now raise ValueError",
+      "explanation": "An in-range swap with identical endpoints was previously supported as a no-op. For example, Matrix([[1], [2]]).permute_rows([[0, 0]]) previously returned the unchanged matrix: the removed implementation performed mapping[0], mapping[0] = mapping[0], mapping[0]. The new implementation passes [0, 0] to the Permutation cycle constructor, which rejects duplicate elements in a cycle with ValueError. The existing bounds check does not reject this input, and reversing the outer list does not remove the duplicate. This also breaks otherwise useful specifications such as [[0, 0], [0, 1]], in either direction, and affects column permutations equally. The normalforms changes avoid their own identity swaps but do not preserve this behavior for public callers. Supporting longer cycles does not require rejecting previously accepted identity swaps. No constructor source or existing tests were supplied for independent execution or inspection in this tool-free review; this finding relies on the constructor's duplicate-cycle rejection contract and the explicit old/new call paths.",
+      "path": "sympy/matrices/common.py",
+      "line": 1940,
+      "evidence": "perm = Permutation(perm, size=max_index)",
+      "fix": "Before constructing the cycle permutation, omit two-element cycles whose endpoints are equal. Preserve the existing validation of their indices and continue rejecting malformed longer cycles.",
+      "test": "Assert that permute_rows([[0, 0]]) and permute_cols([[0, 0]]) return unchanged nonempty matrices in both directions. Also assert that [[0, 0], [0, 1]] has the same result as [[0, 1]]. Keep overlapping-swap order tests and longer-cycle tests to ensure the compatibility fix does not change composition semantics.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1960,
+          "symbol": "MatrixOperations.permute_rows"
+        },
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1812,
+          "symbol": "MatrixOperations.permute"
+        },
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1940,
+          "symbol": "Permutation construction from cycles"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

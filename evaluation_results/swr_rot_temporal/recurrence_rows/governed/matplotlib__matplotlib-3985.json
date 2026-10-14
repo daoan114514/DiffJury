@@ -1,0 +1,84 @@
+{
+  "id": "matplotlib__matplotlib-3985",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "invalid-widget-index-validation",
+      "severity": "medium",
+      "title": "Both set_active methods fail to reject invalid indices",
+      "explanation": "The chained condition means index < 0 and index >= len(self.labels), which cannot be true for any label-list length. With two labels, CheckButtons.set_active(-1) therefore toggles the last button and invokes callbacks with its label instead of raising the documented ValueError. RadioButtons.set_active(-1) is worse: it sets value_selected to the last label, but no nonnegative enumeration index equals -1, so every circle receives the inactive color; callbacks nevertheless report the last label as selected. An index equal to the label count or larger raises IndexError at the subsequent list access instead of ValueError, before changing widget state. These are directly reachable through the new public methods without any caller-side validation. Valid indices preserve the previous mouse-click behavior: state changes precede the drawon-controlled redraw and eventson-controlled callback dispatch. No separate regression is demonstrated by the animation changes: the timestep changes sampling and duration, while disabling blitting permits full redraws; neither establishes an incorrect result without an additional required timing or sampling contract.",
+      "path": "lib/matplotlib/widgets.py",
+      "line": 734,
+      "evidence": "CheckButtons, lines 591–596:\n        if 0 > index >= len(self.labels):\n            raise ValueError(\"Invalid CheckButton index: %d\" % index)\n\n        l1, l2 = self.lines[index]\n        l1.set_visible(not l1.get_visible())\n        l2.set_visible(not l2.get_visible())\n\nRadioButtons, lines 734–743:\n        if 0 > index >= len(self.labels):\n            raise ValueError(\"Invalid RadioButton index: %d\" % index)\n\n        self.value_selected = self.labels[index].get_text()\n\n        for i, p in enumerate",
+      "fix": "Replace the guard in both methods with `if index < 0 or index >= len(self.labels):` before any state mutation.",
+      "test": "For each widget constructed with two labels, call set_active(-1), set_active(-3), set_active(2), and set_active(3). Assert ValueError, unchanged visibility or circle colors and value_selected, and no redraw or callback. Also test an empty label list where construction supports it. Exercise valid indices 0 and 1 through both direct calls and mouse clicks with drawon and eventson independently enabled and disabled; assert matching state, expected redraw counts, and the selected label as the callback argument. For RadioButtons, assert exactly one circle is active after each valid selection.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 723,
+          "symbol": "RadioButtons.set_active"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

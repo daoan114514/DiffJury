@@ -1,0 +1,89 @@
+{
+  "id": "sympy__sympy-2178",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-complex-argument-rewrite",
+      "severity": "medium",
+      "title": "Replacing arg with atan loses quadrants and rejects valid negative-real solutions",
+      "explanation": "The new preprocessing replaces arg(z) with atan(im(z)/re(z)), which is not an equivalent expression. A concrete regression independent of the pre-existing Abs transformation is: x = Symbol('x', real=True); solve([x + 2, arg(x) - pi], x). The original equations have the unique solution x = -2, since arg(-2) = pi. Previously, solving x + 2 and substituting -2 into the remaining constraint validates that solution. With this change, im(x) is 0 and re(x) is x, so the second equation becomes the nonzero constant -pi before solving, and the valid solution is rejected. The added test at lines 1221–1222 also enshrines an invalid candidate: its x = 2 result satisfies Abs(x) = 2 but has arg(2) - pi = -pi, so it does not satisfy both original constraints. The same rewrite is undefined when the real component is zero: at z = I it evaluates atan(1/0), whereas arg(I) is the well-defined value pi/2. The new tests omit positive-versus-negative quadrant discrimination, nonzero purely imaginary arguments, and the undefined argument at zero.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 744,
+      "evidence": "[atan(im(a.args[0])/re(a.args[0])) for a in _arg])))",
+      "fix": "Preserve arg, or use a quadrant-aware representation such as atan2(im(z), re(z)) with appropriate handling of z = 0. Validate candidates against the original equations rather than only the transformed equations. Change the added Abs/arg test to reject x = 2.",
+      "test": "Add a regression using a real symbol and solve([x + 2, arg(x) - pi], x), asserting that the unique solution is -2. For the existing solve([Abs(x) - 2, arg(x) - pi], x) test, substitute every returned candidate into both original equations and require zero residuals; +2 must not be returned. Add tests for fixed solutions in all four quadrants, x = I and x = -I, and an explicit policy for arg(0).",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 738,
+          "symbol": "solve"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 744,
+          "symbol": "arg preprocessing inside solve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

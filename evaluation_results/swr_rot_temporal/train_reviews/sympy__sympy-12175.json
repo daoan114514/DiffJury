@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-12175",
+  "findings": [
+    {
+      "rule_id": "python-version-compatibility",
+      "severity": "high",
+      "title": "Trailing comma after **extra_kwargs breaks Python 3.4 installation",
+      "explanation": "Python 3.4 is explicitly supported by the classifier at line 369, but its call grammar does not permit a trailing comma after a **kwargs argument. Consequently, the new `**extra_kwargs,` causes a SyntaxError while parsing setup.py on Python 3.4. The failure occurs before any imports or setup invocation, so neither the setuptools path nor the distutils fallback can run. A minimal reproduction is `python3.4 -c 'dict(**{},)'`; removing that trailing comma makes the expression valid. On Python versions accepting this syntax, the branch logic itself is correct: setuptools receives zip_safe=False, while the distutils fallback receives no added keyword.",
+      "path": "setup.py",
+      "line": 373,
+      "evidence": "**extra_kwargs,",
+      "fix": "Remove the comma after `**extra_kwargs`, retaining the comma after install_requires. This preserves the setuptools option and the distutils fallback while remaining valid on Python 3.4.",
+      "test": "Compile setup.py under Python 3.4 and run `python3.4 setup.py --name`. Also exercise both import branches with a captured setup call: assert zip_safe is False when setuptools is available and absent when setuptools import raises ImportError.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "setup.py",
+          "line": 373,
+          "symbol": "Module parsing during python3.4 setup.py execution"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-758",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 11068,
+  "llm_calls": 5
+}

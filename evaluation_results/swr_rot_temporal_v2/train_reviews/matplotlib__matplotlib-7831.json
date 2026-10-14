@@ -1,0 +1,61 @@
+{
+  "id": "matplotlib__matplotlib-7831",
+  "findings": [
+    {
+      "rule_id": "plotting-axis-color-association",
+      "severity": "low",
+      "title": "The extracted color helper no longer colors axis labels or tick marks",
+      "explanation": "With the supplied calls, the exponential curve and its tick labels are red, and the sine curve and its tick labels are blue, but both y-axis titles and their tick marks retain their default black color. get_yticklabels() returns only tick-label Text objects; setting their colors does not affect the axis label or tick lines. Previously, set_ylabel(..., color=...) and tick_params('y', colors=...) explicitly made the y-axis title, tick marks, and tick labels match the corresponding curve. Thus the helper loses part of the example's explicitly intended axis-color association, rather than merely choosing a different color scheme.",
+      "path": "examples/api/two_scales.py",
+      "line": 75,
+      "evidence": "    for t in ax.get_yticklabels():\n        t.set_color(color)",
+      "fix": "Have color_y_axis set ax.yaxis.label.set_color(color) and call ax.tick_params(axis='y', colors=color), preserving the previous title, tick-mark, and tick-label coloring.",
+      "test": "Run the supplied example using a noninteractive backend and draw the canvas. For each y-axis, assert that its label, visible tick marks, and tick labels have the same RGBA color as its plotted curve: red for ax1 and blue for ax2.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 69,
+          "symbol": "two_scales(ax, t, s1, s2, 'r', 'b')"
+        },
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 78,
+          "symbol": "color_y_axis(ax1, 'r')"
+        },
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 79,
+          "symbol": "color_y_axis(ax2, 'b')"
+        },
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 75,
+          "symbol": "color_y_axis"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 14257,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-7831.json",
+  "borrowed_sha256": "5dfb087dbfb7316ac633a9a29b29a749bdec87affe29493ae30142d00d65c2d1"
+}

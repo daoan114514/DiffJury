@@ -1,0 +1,94 @@
+{
+  "id": "scikit-learn__scikit-learn-15098",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "cython-c-symbol-import",
+      "severity": "high",
+      "title": "Import fabs with cimport, not a Python import",
+      "explanation": "The added statement is a Python import; it does not declare the C math function. The changed calls therefore use a Python-bound name rather than a function callable without the GIL, breaking the nogil quadtree methods during Cython compilation. Independently, a regular import requires a runtime Python module named libc.math; Cython's libc/math.pxd declaration does not provide that module. Thus this change cannot replace the removed nogil fabsf declaration as intended and blocks the quadtree extension.",
+      "path": "sklearn/neighbors/quad_tree.pyx",
+      "line": 14,
+      "evidence": "from libc.math import fabs",
+      "fix": "Change the statement to `from libc.math cimport fabs` so the calls resolve to the C function declared by Cython's libc math declarations.",
+      "test": "Cythonize and build sklearn.neighbors.quad_tree using a supported Cython version, then import the extension and run the existing quadtree duplicate-point and summarization tests.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 14,
+          "symbol": "Python import of fabs"
+        },
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 278,
+          "symbol": "fabs(point1[i] - point2[i])"
+        },
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 442,
+          "symbol": "fabs(results[idx + i])"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "id": "matplotlib__matplotlib-4824",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "correctness-caller-input-mutation",
+      "severity": "medium",
+      "title": "In-place clipping modifies caller-owned arrays and rejects read-only inputs",
+      "explanation": "For an ordinary NumPy array or an unmasked MaskedArray, ma.asarray preserves shared storage, filled returns the underlying data without copying, and np.atleast_1d also preserves that storage. Consequently, the new out=xx writes into the caller's input. A minimal counterexample is x = np.array([-1., 3.]); BoundaryNorm([0, 1, 2], 2, clip=True)(x): the previous implementation left x unchanged, whereas this implementation changes it to [0., 2.]. Making the same array read-only causes the new call to raise instead of returning normalized indices; previously np.clip allocated its output. The added clipping tests pass scalars and lists, whose temporary storage hides both regressions, and never assert input preservation. The upper-clipping result of Ncmap remains a pre-existing defect: its assignment is unchanged apart from a comment, and the new test explicitly retains that result. Interpolation arithmetic is also unchanged.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1277,
+      "evidence": "np.clip(xx, self.vmin, self.vmax, out=xx)",
+      "fix": "Use an independently allocated clipping result, for example xx = np.clip(xx, self.vmin, self.vmax), instead of writing through an array that may alias the input.",
+      "test": "Normalize writable ndarrays and unmasked MaskedArrays containing out-of-range values with constructor clipping and the clip=True call override; assert their data and masks remain unchanged. Repeat with read-only input and assert normalization succeeds. Retain separate value assertions for interpolated and non-interpolated output.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1273,
+          "symbol": "BoundaryNorm.__call__: _x = ma.asarray(x)"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1275,
+          "symbol": "BoundaryNorm.__call__: xx = np.atleast_1d(_x.filled(self.vmax + 1))"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1277,
+          "symbol": "BoundaryNorm.__call__: np.clip(..., out=xx)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-471",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "compatibility-masked-scalar-shape",
+      "severity": "low",
+      "title": "Masked scalar normalization now returns a one-element array",
+      "explanation": "The new np.atleast_1d allocation changes scalar iret from shape () to shape (1,). Unmasked Python scalars and zero-dimensional arrays still return a Python int through the updated conversion branch, but masked scalars skip that branch and retain the new one-dimensional shape. For example, BoundaryNorm([0, 1, 2], 2)(np.ma.array(0.5, mask=True)) previously returned a masked result with shape (); it now returns shape (1,). This breaks consumers relying on scalar dimensionality, such as code dispatching on result.ndim or collecting scalar results into an array. Ordinary non-scalar input shapes remain preserved. The added scalar tests cover only unmasked values and therefore cannot detect this compatibility regression.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1278,
+      "evidence": "iret = np.atleast_1d(np.zeros(_x.shape, dtype=np.int16))",
+      "fix": "Restore the original result shape for masked zero-dimensional inputs before returning, while retaining Python int conversion for unmasked scalar inputs.",
+      "test": "Test Python scalars, unmasked zero-dimensional arrays, masked zero-dimensional arrays, np.ma.masked, and one-element arrays with and without interpolation and clipping. Assert result shape and mask as well as values; masked scalar results should retain shape (), while one-element array results should retain shape (1,).",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1278,
+          "symbol": "BoundaryNorm.__call__: allocate one-dimensional scalar result"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1286,
+          "symbol": "BoundaryNorm.__call__: ret = ma.array(iret, mask=mask)"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1287,
+          "symbol": "BoundaryNorm.__call__: if _x.shape == () and not mask"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1289,
+          "symbol": "BoundaryNorm.__call__: return ret"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

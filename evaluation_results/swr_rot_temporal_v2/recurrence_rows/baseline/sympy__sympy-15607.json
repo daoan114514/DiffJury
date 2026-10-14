@@ -1,0 +1,152 @@
+{
+  "id": "sympy__sympy-15607",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-LOGSPACE-COORDINATES",
+      "severity": "medium",
+      "title": "Undefined-region probing samples outside the requested interval",
+      "explanation": "The adaptive sampler passes actual x coordinates in p[0] and q[0] and evaluates f directly at the generated coordinates. np.logspace(p[0], q[0], 10) instead interprets those endpoints as base-10 exponents, so an interval [1, 2] is probed at [10, 100]. This can create real plotted segments entirely outside the requested domain. A concrete triggering series is sqrt((x-10)*(100-x)) over (exp(1), exp(2)) with literal xscale='log': the function has no real values anywhere in that requested interval. After the new lower-endpoint transformation, the sampler initially covers [1, exp(2)]. In the first small undefined subinterval near x=1, the new logspace branch probes values near x=10, where the function is real, and recursively samples those out-of-range coordinates. Fixing only the endpoint mutation does not fix the dimensional mismatch in this branch.",
+      "path": "sympy/plotting/plot.py",
+      "line": 515,
+      "evidence": "elif p[1] is None and q[1] is None:\n                    if self.xscale is 'log':\n                        xarray = np.logspace(p[0], q[0], 10)\n                    else:\n                        xarray = np.linspace(p[0], q[0], 10)\n                    yarray = list(map(f, xarray))",
+      "fix": "Generate probes between the actual endpoints: for positive endpoints, use np.logspace(np.log10(p[0]), np.log10(q[0]), 10), or retain linear probing. Keep the coordinate convention consistent throughout recursion and use equality for the scale comparison.",
+      "test": "Exercise the real adaptive sampler with sqrt((x-10)*(100-x)) over (exp(1), exp(2)) and xscale='log'. Assert that it produces no real segments and that every generated finite x coordinate remains inside the requested interval. Add a case with a narrow real region inside the interval to verify that valid-region detection still works.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 540,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 513,
+          "symbol": "LineOver1DRangeSeries.get_segments.sample"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-LOG-RANGE-MUTATION",
+      "severity": "medium",
+      "title": "Logarithmic sampling changes the function domain and mutates it on every render",
+      "explanation": "The constructor stores the supplied xscale option at line 456. When that value is the literal 'log', adaptive get_segments() replaces the actual lower endpoint with its natural logarithm, then evaluates the original function at that replacement. For LineOver1DRangeSeries(x, (x, 1, 10), xscale='log'), the first call samples from x=0 rather than x=1. Logarithmic axis scaling should change the display or sampling distribution, not replace the function's input domain. Because the assignment changes self.start, subsequent calls transform it again: starting at 10 gives successive starts approximately 2.303, 0.834, and -0.181. Starting at 1 gives 0 on the first call and negative infinity on the second; zero and negative initial starts produce nonfinite values immediately instead of being preserved or explicitly validated. The identity comparison also makes this behavior depend on string object identity: an equal value constructed with ''.join(['l', 'o', 'g']) bypasses the branch. Thus repeated rendering and equivalent option values can produce different data.",
+      "path": "sympy/plotting/plot.py",
+      "line": 535,
+      "evidence": "if self.xscale is 'log':\n                self.start=np.log(self.start)\n\n\n            f_start = f(self.start)\n            f_end = f(self.end)\n            sample([self.start, f_start], [self.end, f_end], 0)",
+      "fix": "Keep self.start and self.end unchanged. If logarithmic sampling is desired, interpolate in logarithmic coordinates locally and convert back to original x coordinates before evaluating the function. Compare scale strings by equality and explicitly handle unsupported nonpositive logarithmic ranges.",
+      "test": "Call get_segments() twice on a logarithmic series over (1, 10) and (10, 100); assert that endpoints remain unchanged and every finite sample lies within the requested domain with y=f(x). Exercise zero and negative starts with an explicit expected validation policy. Repeat using a dynamically constructed string equal to 'log'.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 456,
+          "symbol": "LineOver1DRangeSeries.__init__"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 534,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-PLOT-LABEL-MUTATION",
+      "severity": "medium",
+      "title": "Log-axis rendering overwrites user labels and accumulates changes",
+      "explanation": "When parent.xscale is the literal 'log', backend label processing modifies the owning Plot rather than just configuring the axes. Explicit xlabel='Time' and ylabel='Voltage' become 'log(Time)' and 'f(log(Time))', discarding the requested y label even though logarithmic x-axis scaling does not redefine either variable. Processing the same plot again produces xlabel='log(log(Time))' and a correspondingly changed ylabel. These assignments are not idempotent and permanently change public plot state. The use of 'is' also means an equal dynamically constructed 'log' string can leave the same labels untouched, making rendering depend on string identity.",
+      "path": "sympy/plotting/plot.py",
+      "line": 1067,
+      "evidence": "if parent.xlabel:\n            if parent.xscale is 'log':\n                parent.xlabel='log(%s)' % parent.xlabel\n            self.ax.set_xlabel(parent.xlabel, position=(1, 0))\n        if parent.ylabel:\n            if parent.xscale is 'log':\n                parent.ylabel='f(%s)' % parent.xlabel\n            self.ax.set_ylabel(parent.ylabel, position=(0, 1))",
+      "fix": "Pass parent.xlabel and parent.ylabel through unchanged. If automatic scale annotations are required, compute local display labels without modifying parent state and preserve explicitly supplied labels.",
+      "test": "Render or process a plot with xscale='log', xlabel='Time', and ylabel='Voltage' twice. Assert that both the Plot attributes and Matplotlib axis labels remain exactly the supplied strings. Repeat with a dynamically constructed 'log' string.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 1065,
+          "symbol": "MatplotlibBackend"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-DEBUG-PRINT",
+      "severity": "low",
+      "title": "Nonadaptive point generation now writes coordinate arrays to stdout",
+      "explanation": "get_points() now unconditionally prints list_x before returning it. get_segments() delegates to the superclass for adaptive=False or only_integers=True, making this output reachable during ordinary nonadaptive plotting, not just direct helper calls. For example, generating points for x over (0, 1) with adaptive=False writes the sampling array to stdout despite no diagnostic option being requested. Repeated plotting repeats the output and can contaminate a caller's machine-readable stdout. The code establishes unexpected output, but does not establish sensitive-data disclosure, so the scanner's disclosure interpretation is not needed.",
+      "path": "sympy/plotting/plot.py",
+      "line": 553,
+      "evidence": "list_y = f(list_x)\n        print(list_x)\n        return (list_x, list_y)",
+      "fix": "Remove the unconditional print.",
+      "test": "Capture stdout while calling get_points() and get_segments() for a series with adaptive=False, and while generating an integer-only series. Assert that stdout is empty and returned coordinates are unchanged.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 481,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 553,
+          "symbol": "LineOver1DRangeSeries.get_points"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-489",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

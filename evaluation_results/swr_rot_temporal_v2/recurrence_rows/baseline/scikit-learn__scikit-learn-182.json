@@ -1,0 +1,133 @@
+{
+  "id": "scikit-learn__scikit-learn-182",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "bootstrap-test-type-validation",
+      "severity": "medium",
+      "title": "Integer test sizes are rejected when train is a float",
+      "explanation": "The test-size branch checks the type of train rather than test. Bootstrap(4, train=0.5, test=2) uses independently documented, supported argument types, but construction raises ValueError(\"Invalid value for train: 0.5\") instead of creating two-sample training and test splits. Conversely, Bootstrap(4, train=2, test='2') accepts an unsupported test value and defers failure until sampling or representation. The preceding float-test branch does not prevent either outcome: it is false for both an integer test and a string test.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 552,
+      "evidence": "elif isinstance(train, int):\n            self.n_test = test",
+      "fix": "Check isinstance(test, int) in this branch and report the test value in the corresponding validation error.",
+      "test": "Construct and iterate Bootstrap with all four integer/float train/test combinations, asserting the exact split lengths. In particular, Bootstrap(4, train=0.5, test=2) must succeed. Also assert that an unsupported test type raises a test-specific ValueError during construction regardless of the train type.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 489,
+          "symbol": "Bootstrap.__init__"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 552,
+          "symbol": "test-size integer branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "bootstrap-random-state-representation",
+      "severity": "medium",
+      "title": "Bootstrap representation fails for default and RandomState values",
+      "explanation": "The representation formats random_state with %d, although the default is None and the documented API also accepts a RandomState object. Consequently, repr(Bootstrap(4)) and repr(Bootstrap(4, random_state=np.random.RandomState(0))) raise TypeError. An integer seed only temporarily avoids the defect: __iter__ replaces self.random_state with the result of check_random_state, so consuming the first split of Bootstrap(4, random_state=0) also makes its representation fail. Iteration therefore changes an initially printable object into an unprintable one. Reusing the resulting generator state across subsequent iterations is not independently reported as a defect because the supplied documentation does not promise that each iteration resets the seed.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 566,
+      "evidence": "return ('%s(%d, n_bootstraps=%d, train=%d, test=%d, random_state=%d)'",
+      "fix": "Use a representation-compatible conversion such as %r for random_state rather than requiring it to be numeric.",
+      "test": "Assert that repr succeeds with the default None, an integer seed, and a supplied RandomState, both before and after consuming a split. Preserve the documented integer-seed representation before iteration.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 556,
+          "symbol": "Bootstrap.__init__: store supplied random_state"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 559,
+          "symbol": "Bootstrap.__iter__: normalize and replace random_state"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 565,
+          "symbol": "Bootstrap.__repr__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "bootstrap-split-size-bounds",
+      "severity": "low",
+      "title": "Split sizes are converted without enforcing their documented bounds",
+      "explanation": "The constructor checks types but not the documented size bounds. For example, Bootstrap(4, train=-0.1, test=0.5, random_state=0) converts the negative training proportion to zero and yields an empty training split instead of rejecting a proportion outside 0.0–1.0. Bootstrap(4, train=1.5, test=0.5, random_state=0) similarly yields six training indices, despite the documented upper bound on proportions. Integer counts at or above n are also accepted despite the documented requirement that they be smaller than n. No later branch validates these bounds; sampling with replacement allows the oversized counts to succeed. This concerns argument bounds, not the explicitly documented overlap between training and test indices.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 545,
+      "evidence": "if isinstance(train, float):\n            self.n_train = int(train * n)\n        elif isinstance(train, int):\n            self.n_train = train",
+      "fix": "Validate floating proportions against the documented interval before converting them to counts, and validate integer counts against the documented dataset-size bound. Apply the same validation independently to train and test.",
+      "test": "Assert construction rejects negative and greater-than-one proportions for either split, including negative fractions that currently truncate to zero. Test integer counts at and above n, and assert documented valid proportion boundaries retain their intended behavior.",
+      "confidence": 0.92,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 544,
+          "symbol": "Bootstrap.__init__: training-size conversion"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 550,
+          "symbol": "Bootstrap.__init__: test-size conversion"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 561,
+          "symbol": "Bootstrap.__iter__: sample using unchecked sizes"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

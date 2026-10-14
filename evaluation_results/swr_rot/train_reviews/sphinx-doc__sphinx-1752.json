@@ -1,0 +1,130 @@
+{
+  "id": "sphinx-doc__sphinx-1752",
+  "findings": [
+    {
+      "rule_id": "REL-NUMFIG-CATCODE",
+      "severity": "medium",
+      "title": "Constant figure and table labels redefine the wrong TeX command",
+      "explanation": "The placeholder-free branches emit definitions containing @ without makeatletter/makeatother, unlike the suffix branches. The generated text is inserted into HEADER after usepackage calls. Under normal LaTeX preamble catcodes, @ is not a letter: '\\def\\fnum@figure{Illustration}' defines \\fnum with the delimiter @figure, rather than redefining \\fnum@figure. Consequently a constant figure format such as 'Illustration' does not replace the caption label or suppress its number. The table branch has the same defect; it can be reached without the separate indexing failure by also choosing a placeholder-free code-block format. This is a TeX tokenization error, not necessarily a compilation error. The added tests only inspect generated substrings and do not exercise these branches. No compilation or repository caption-package definitions were available, so the evidence establishes the malformed command definition rather than the exact final caption appearance or spacing.",
+      "path": "sphinx/writers/latex.py",
+      "line": 334,
+      "evidence": "            ret.append('\\\\def\\\\fnum@figure{%s}\\n' %\n                       text_type(figure[0]).translate(tex_escape_map))",
+      "fix": "Wrap both placeholder-free fnum definitions in makeatletter/makeatother, or define the intended commands through csname. Verify the definitions against the caption implementations actually loaded by Sphinx.",
+      "test": "Compile a document containing a figure with figure='Illustration', then a table with table='Tabular' and code-block='Listing'. Assert that the intended fnum commands expand to the constant labels and that captions omit their numbers; checking only emitted definition strings is insufficient.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 254,
+          "symbol": "LaTeXTranslator.__init__"
+        },
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 329,
+          "symbol": "LaTeXTranslator.generate_numfig_format"
+        },
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 46,
+          "symbol": "HEADER"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-NUMFIG-INCOMPLETE-CODE-CAPTION",
+      "severity": "medium",
+      "title": "Code-block caption formatting leaves constant labels and suffixes unimplemented",
+      "explanation": "Both newly added production FIXME branches omit observable caption behavior. A placeholder-free code-block format performs no configuration at all. A format containing a suffix only emits floatname for its prefix and discards the suffix. For example, the added test configures code-block='Code-%s | ', but generation emits only '\\floatname{literal-block}{Code-}'; no command incorporates ' | ' into the caption. In contrast, the changed numref renderer includes that suffix in the reference text, producing inconsistent caption and reference formatting. The suffix condition also checks the table suffix rather than the code-block suffix, although replacing that condition alone cannot fix the empty implementation. The added test asserts the prefix command and suffixed hyperref string, so it passes without validating the actual code-block caption. Existing float caption definitions and an actual compilation were unavailable; the demonstrated omission is that neither constant formatting nor the configured suffix is implemented by this new generation path.",
+      "path": "sphinx/writers/latex.py",
+      "line": 360,
+      "evidence": "        if len(codeblock) == 1:\n            pass  # FIXME\n        else:\n            ret.append('\\\\floatname{literal-block}{%s}\\n' %\n                       text_type(codeblock[0]).translate(tex_escape_map))\n            if table[1]:\n                pass  # FIXME",
+      "fix": "Implement code-block caption label generation for both constant formats and prefix-number-suffix formats using the loaded float caption machinery. Preserve configured spacing instead of relying solely on floatname, and remove the reachable placeholder branches.",
+      "test": "Extend test_numref_with_prefix2 to compile or otherwise exercise actual caption expansion for a captioned code block and assert 'Code-<number> | ' in its label. Add a constant-format case that verifies the configured label replaces the default and omits the number.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 254,
+          "symbol": "LaTeXTranslator.__init__"
+        },
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 329,
+          "symbol": "LaTeXTranslator.generate_numfig_format"
+        },
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 46,
+          "symbol": "HEADER"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-684",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-NUMFIG-FORMAT-INDEX",
+      "severity": "medium",
+      "title": "A placeholder-free table format crashes LaTeX translator initialization",
+      "explanation": "With numfig_format={'figure': 'Figure %s', 'table': 'Table', 'code-block': 'Listing %s'}, splitting the table format produces ['Table']. The explicit len(table) == 1 branch accepts that shape, but the subsequent code-block branch unconditionally reads table[1], raising IndexError. generate_numfig_format is called during translator initialization without checking numfig, so this also breaks an otherwise ordinary LaTeX build with numfig=False and no numref directives. The added tests all supply table formats containing %s and therefore cannot expose this failure. This counterexample follows directly from the changed code; configuration validation and an executed build were not available in the supplied evidence.",
+      "path": "sphinx/writers/latex.py",
+      "line": 364,
+      "evidence": "            if table[1]:",
+      "fix": "Inspect codeblock[1], not table[1], inside the branch where the code-block split has two elements. Preserve the explicitly implemented handling of placeholder-free table formats.",
+      "test": "Build a minimal LaTeX document without numref directives using table='Table' and code-block='Listing %s', with numfig both enabled and disabled. Assert that translator initialization and TeX generation succeed.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 254,
+          "symbol": "LaTeXTranslator.__init__"
+        },
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 329,
+          "symbol": "LaTeXTranslator.generate_numfig_format"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-125",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 40289,
+  "llm_calls": 5
+}

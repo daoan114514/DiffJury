@@ -1,0 +1,88 @@
+{
+  "id": "sympy__sympy-12813",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "undefined-test-skip",
+      "severity": "medium",
+      "title": "Travis-only hyperexpand skip calls an unimported name",
+      "explanation": "The updated pytest import adds ON_TRAVIS but does not import skip. When ON_TRAVIS is true and test_prudnikov_3 is selected, the new branch calls skip, raising NameError instead of skipping the test. This turns the intended Travis coverage reduction into a test failure. The supplied diff does not show the heurisch imports or the definitions and runner integration of ON_TRAVIS and skip, so those additional checks cannot be independently verified without repository access.",
+      "path": "sympy/simplify/tests/test_hyperexpand.py",
+      "line": 733,
+      "evidence": "from sympy.utilities.pytest import XFAIL, raises, slow, ON_TRAVIS\n...\n    if ON_TRAVIS:\n        # See https://github.com/sympy/sympy/pull/12795\n        skip(\"Too slow for travis.\")",
+      "fix": "Import skip from sympy.utilities.pytest alongside ON_TRAVIS.",
+      "test": "With ON_TRAVIS true, select test_prudnikov_3 using the repository test runner with slow tests enabled and assert that it is reported as skipped, not failed with NameError.",
+      "confidence": 0.82,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/tests/test_hyperexpand.py",
+          "line": 730,
+          "symbol": "test_prudnikov_3"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-NAMEERROR",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "scikit-learn__scikit-learn-3030",
+  "findings": [
+    {
+      "rule_id": "ineffective-regression-assertion",
+      "severity": "medium",
+      "title": "The revised objective bound accepts zero LARS coefficients",
+      "explanation": "The new fixture and one-sided assertion allow a completely unfitted LARS result to pass. Both estimators fit an intercept by default, but objective_function evaluates only X @ coef, omitting that intercept. For the revised fixture, zero coefficients therefore produce lars_obj = (100 + 100 + 1) / 6 = 33.5. A converged coordinate-descent fit has an intercept approximately 9.9997, a third coefficient approximately -8.9994, and a first/second coefficient total approximately 3e-24. Its correctly evaluated fitted objective is approximately 0.0009, but the test's intercept-free cd_obj is approximately 49.9979. Consequently, replacing lars.coef_ with zeros after the warning assertion still satisfies 33.5 < 49.9979 * (1 + 1e-8), despite producing a much worse fitted solution. The intercept omission predates this change, but replacing the equality check with this upper bound introduces acceptance of that concrete regression; checking the warning does not check coefficient correctness.",
+      "path": "sklearn/linear_model/tests/test_least_angle.py",
+      "line": 378,
+      "evidence": "    X = [[1e20,  1e20,  0],\n         [-1e-32,  0,  0],\n         [1,       1,  1]]\n    y = [10, 10, 1]\n    alpha = .0001\n\n    def objective_function(coef):\n        return (1. / (2. * len(X)) * linalg.norm(y - np.dot(X, coef)) ** 2\n                + alpha * linalg.norm(coef, 1))\n\n    assert_less(lars_obj, cd_obj * (1. + 1e-8))",
+      "fix": "Evaluate residuals using each estimator's predictions, including its fitted intercept, or evaluate both objectives using centered X and y. Keep the upper-bound comparison only after both values represent the actual optimized objective.",
+      "test": "Run the revised fixture with the corrected objective and verify that its normal LARS result meets the bound. Then replace the fitted LARS coefficients with zeros and verify that the objective assertion fails, even though the original fit emitted ConvergenceWarning.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/tests/test_least_angle.py",
+          "line": 369,
+          "symbol": "test_lars_drop_for_good"
+        },
+        {
+          "path": "sklearn/linear_model/tests/test_least_angle.py",
+          "line": 364,
+          "symbol": "objective_function"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 24159,
+  "llm_calls": 5
+}

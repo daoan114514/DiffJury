@@ -1,0 +1,54 @@
+{
+  "id": "matplotlib__matplotlib-7552",
+  "findings": [
+    {
+      "rule_id": "numeric-boundary-correctness",
+      "severity": "medium",
+      "title": "Non-LogNorm lower extensions now point into the normalization range",
+      "explanation": "For a non-LogNorm colorbar with a lower extension, adding 1 moves the lower boundary upward instead of outward. For example, Normalize(vmin=0, vmax=1) with extend='both' and the default extension fraction produces an inverse-transformed lower boundary of -0.05 and the next boundary of 0. The changed assignment makes those boundaries 0.95 and 0, reversing their order. When the boundaries are processed into representative values, the lower extension's value becomes (0.95 + 0) / 2 = 0.475, which is inside the normalization range rather than below vmin. Thus the lower extension no longer represents under-range data and receives an ordinary colormap color instead of the configured under color. The previous subtraction produced an ordered, under-range boundary. Neither the LogNorm type check nor the upper-extension adjustment prevents this regression.",
+      "path": "lib/matplotlib/colorbar.py",
+      "line": 704,
+      "evidence": "                if self._extend_lower():\n                    b[0] = b[0] + 1",
+      "fix": "Restore b[0] = b[0] - 1 in the non-LogNorm branch while retaining the multiplicative LogNorm adjustment.",
+      "test": "Construct ColorbarBase with Normalize(vmin=0, vmax=1), a colormap with a distinct under color, and extend='min' and 'both'. Assert cb._boundaries[0] < cb._boundaries[1], cb._values[0] < cb.norm.vmin, and that mapping the first representative value produces the under color. The new LogNorm test only asserts that one representative value is nonnegative; it does not check boundary ordering, strict positivity of logarithmic boundaries, or under-range classification, and never enters the defective non-LogNorm branch. Keep the production regression and its missing coverage as one finding rather than reporting an independent optional test improvement.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colorbar.py",
+          "line": 694,
+          "symbol": "ColorbarBase._process_values: inverse-transform uniform boundaries"
+        },
+        {
+          "path": "lib/matplotlib/colorbar.py",
+          "line": 704,
+          "symbol": "ColorbarBase._process_values: adjust non-LogNorm lower boundary"
+        },
+        {
+          "path": "lib/matplotlib/colorbar.py",
+          "line": 707,
+          "symbol": "ColorbarBase._process_values: process adjusted boundaries"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 13883,
+  "llm_calls": 5
+}

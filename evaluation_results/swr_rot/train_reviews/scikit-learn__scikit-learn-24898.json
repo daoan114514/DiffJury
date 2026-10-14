@@ -1,0 +1,14 @@
+{
+  "id": "scikit-learn__scikit-learn-24898",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 10979,
+  "llm_calls": 5
+}

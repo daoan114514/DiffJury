@@ -1,0 +1,61 @@
+{
+  "id": "scikit-learn__scikit-learn-398",
+  "findings": [
+    {
+      "rule_id": "entropy-concavity",
+      "severity": "medium",
+      "title": "The logarithm approximation reverses the ordering of informative and uninformative splits",
+      "explanation": "For valid tree probabilities, this approximation makes binary entropy non-concave. Consider 100 samples with balanced labels and a binary feature: feature=0 contains 30 class-A and 20 class-B samples, while feature=1 contains 20 class-A and 30 class-B samples. The unsplit node receives impurity log(2), approximately 0.693147. For either child, fast_log2(0.4) is approximately -1.4 and fast_log2(0.6) is approximately -0.8, so the new weighted split impurity is 1.04*log(2), approximately 0.720873. Exact entropy instead gives 0.673012: this informative split should reduce impurity, but the changed objective scores it above the unsplit node and above an uninformative balanced partition. This is a structural split-ranking defect, not an objection to ordinary approximation error: these individual logarithm errors are within the advertised roughly 10% tolerance. More generally, for probabilities 0.5±d with 0<d<1/6, the approximated entropy is log(2)*(1+d-6*d*d), exceeding the balanced-node entropy. Source and generated C agree on the problematic behavior: _tree.pyx lines 305 and 308 call fast_log, and _tree.c lines 3615 and 3637 implement those calls; the changed weighting remains algebraically correct and does not cause this reversal. Both branches in the counterexample are nonempty, and every logarithm argument is a normal positive float, so invalid inputs, underflow, and empty-branch guards do not explain or prevent it.",
+      "path": "sklearn/utils/_fast_math.h",
+      "line": 38,
+      "evidence": "return exponent - 1 + 2*(mantissa - .5);",
+      "fix": "Retain the true logarithm in entropy evaluation, or replace the approximation with an entropy approximation that preserves concavity and the maximum at a uniform class distribution. A per-log relative-error bound alone does not preserve the split objective.",
+      "test": "Add a regression exercising the actual entropy criterion with the 30/20 and 20/30 child counts above. Assert that weighted child impurity is lower than balanced parent impurity, and verify the split search prefers this partition over an available balanced, uninformative partition. Also check binary probabilities immediately on either side of 0.5, where the approximation changes segments. The supplied test diff does not expose its assertions, so its ability to detect this invariant violation cannot be established.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tree/_tree.c",
+          "line": 4997,
+          "symbol": "_find_best_split: criterion.eval"
+        },
+        {
+          "path": "sklearn/tree/_tree.pyx",
+          "line": 305,
+          "symbol": "Entropy.eval"
+        },
+        {
+          "path": "sklearn/utils/_fast_math.h",
+          "line": 43,
+          "symbol": "fast_log"
+        },
+        {
+          "path": "sklearn/utils/_fast_math.h",
+          "line": 31,
+          "symbol": "fast_log2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 101664,
+  "llm_calls": 6
+}

@@ -1,0 +1,40 @@
+{
+  "id": "matplotlib__matplotlib-5374",
+  "findings": [
+    {
+      "rule_id": "contributor-email-normalization",
+      "severity": "low",
+      "title": "Preserve Levi Kilcher's email-case normalization",
+      "explanation": "The shown replacement loses an explicitly supported email normalization. Previously, `Levi Kilcher <levi.kilcher@nrel.gov> Levi Kilcher <Levi.Kilcher@nrel.gov>` normalized the author `Levi Kilcher <Levi.Kilcher@nrel.gov>` to `Levi Kilcher <levi.kilcher@nrel.gov>`. Git's single-email mailmap form, `Proper Name <Commit Email>`, supplies only a replacement name; it does not replace the author's email. Consequently, the new entry leaves that author's email as `Levi.Kilcher@nrel.gov`, breaking the previous canonical-email result. Git's case-insensitive email matching does not itself lowercase the resulting email. This finding concerns the visible replacement's semantics; omitted entries were not inspected or assumed to contain other regressions.",
+      "path": ".mailmap",
+      "line": 36,
+      "evidence": "Levi Kilcher <levi.kilcher@nrel.gov>",
+      "fix": "Retain an explicit replacement email, for example `Levi Kilcher <levi.kilcher@nrel.gov> <Levi.Kilcher@nrel.gov>`.",
+      "test": "Run `git check-mailmap 'Levi Kilcher <Levi.Kilcher@nrel.gov>'` against the completed file and assert the exact output is `Levi Kilcher <levi.kilcher@nrel.gov>`.",
+      "confidence": 0.92,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-178",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 18998,
+  "llm_calls": 5
+}

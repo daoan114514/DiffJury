@@ -1,0 +1,130 @@
+{
+  "id": "scikit-learn__scikit-learn-8983",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-SYNTAX-ERROR",
+      "severity": "medium",
+      "title": "Extra comma prevents the underfitting/overfitting example from executing",
+      "explanation": "The changed scatter call contains `X, y, , edgecolor`, leaving an empty argument between two commas. This is invalid Python syntax, so running or importing the example raises SyntaxError during parsing, before any model fitting or plotting executes. The previous call did not contain this empty argument. This conclusion follows directly from the supplied expression; no parser tool was available.",
+      "path": "examples/model_selection/plot_underfitting_overfitting.py",
+      "line": 63,
+      "evidence": "    plt.scatter(X, y, , edgecolor='b', s=20, label=\"Samples\")",
+      "fix": "Remove the extra comma so the call starts with `plt.scatter(X, y, edgecolor=...)`.",
+      "test": "Compile the complete example with Python's compile() or py_compile and assert that parsing succeeds; then execute it with a noninteractive Matplotlib backend and verify that all three degree comparisons are generated.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/model_selection/plot_underfitting_overfitting.py",
+          "line": 63,
+          "symbol": "<module> (parse-time failure)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-15a64966",
+      "K-1eb25f52",
+      "K-2019c936",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-55026f2c",
+      "K-65899550",
+      "K-900623ee",
+      "K-9b25215d",
+      "K-9fbca2ff",
+      "K-b9e7dc84",
+      "K-c1e264d7",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f0b9d1e9"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-1eb25f52",
+          "K-542e4ee3",
+          "K-900623ee",
+          "K-0466258e",
+          "K-043047d8",
+          "K-c43a8094",
+          "K-2019c936",
+          "K-55026f2c",
+          "K-9b25215d",
+          "K-f0b9d1e9"
+        ],
+        "tokens": 604,
+        "budget": 600,
+        "dropped": [
+          "K-f463a446",
+          "K-95d752ab",
+          "K-780def96"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-d07491c7",
+          "K-21a33670",
+          "K-2134f4e9",
+          "K-340b5726",
+          "K-9fbca2ff",
+          "K-ecc8b51d",
+          "K-65899550",
+          "K-15a64966",
+          "K-c1e264d7"
+        ],
+        "tokens": 584,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

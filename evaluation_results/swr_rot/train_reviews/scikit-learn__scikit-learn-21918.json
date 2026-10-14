@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-21918",
+  "findings": [
+    {
+      "rule_id": "test-memmapping-threshold",
+      "severity": "medium",
+      "title": "New regression input is below joblib's memmapping threshold",
+      "explanation": "The new fixture has 125001 samples and one float64 feature, so X.nbytes is 1000008 bytes. Joblib Parallel's default max_nbytes is '1M', which its unit conversion interprets as 1024**2 = 1048576 bytes, not 1000000. Thus the assertion passes while X remains below the effective threshold. LinearModelCV.fit submits X and y to its parallel _path_residuals jobs together with the fold indices. Here y is also 1000008 bytes, and the three-fold training indices are only 666672 bytes; none of those arrays exceeds the threshold. Even when a loky process backend is selected, this fixture therefore does not exercise the automatic read-only memmap path described by the test. The previous 20000-by-10 float64 X occupied 1600000 bytes and crossed that threshold in the explicitly selected loky cases. Consequently, the revised test can pass without detecting a recurrence of the read-only-memmap failure. Dropping threading and multi-task cases is not independently demonstrated to be defective; the concrete lost regression-detection mechanism is the undersized fixture. Relying on backend selection does not repair that size mismatch.",
+      "path": "sklearn/linear_model/tests/test_coordinate_descent.py",
+      "line": 1642,
+      "evidence": "X, y = make_regression(int(1e6) // 8 + 1, 1)\n    assert X.nbytes > 1e6  # 1 MB\n    estimator(n_jobs=2, cv=3).fit(X, y)",
+      "fix": "Construct X with more than 2**20 bytes, for example make_regression((2**20) // 8 + 1, 1), and assert X.nbytes > 2**20. Explicitly select loky for this regression test so execution cannot use a threading backend that bypasses process memmapping.",
+      "test": "Run both estimator cases under loky with the corrected fixture. Verify at worker entry, before fancy indexing, that the submitted X is a read-only numpy.memmap, and then require fitting to complete successfully. This directly verifies the prerequisite for the regression rather than merely asserting a decimal byte count.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/tests/test_coordinate_descent.py",
+          "line": 1644,
+          "symbol": "test_linear_models_cv_fit_with_joblib -> estimator.fit -> LinearModelCV.fit -> Parallel -> _path_residuals"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15004,
+  "llm_calls": 5
+}

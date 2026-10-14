@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-22696",
+  "findings": [
+    {
+      "rule_id": "explicit-constructor-option-overridden",
+      "severity": "medium",
+      "title": "QuadMesh silently overrides an explicit mouseover=True option",
+      "explanation": "Disabling mouseover by default is distinct from disabling it unconditionally. QuadMesh forwards its constructor kwargs to Collection, whose Artist-property initialization supports the mouseover option. Previously, an explicit mouseover=True therefore remained enabled after initialization. The added setter executes after superclass initialization and resets that explicit choice to False. Artist.set_mouseover also controls membership in an attached axes' _mouseover_set; when this mesh is subsequently attached to axes, the false flag prevents registration. Cursor handling selects artists from that set, so consumers explicitly opting into mesh cursor data no longer receive it unless they call set_mouseover(True) again after construction. This finding concerns the explicit opt-in, not the intended change to the omitted-option default. No repository tests or runtime execution were available in this one-shot review; the regression test below is a minimal reproduction.",
+      "path": "lib/matplotlib/collections.py",
+      "line": 2018,
+      "evidence": "        super().__init__(**kwargs)\n        self.set_mouseover(False)",
+      "fix": "Apply the default before superclass initialization, for example kwargs.setdefault('mouseover', False), and remove the unconditional post-initialization setter. This preserves the new default while honoring explicit constructor values.",
+      "test": "Construct coordinates = np.array([[[0., 0.], [1., 0.]], [[0., 1.], [1., 1.]]]). Construct mesh = QuadMesh(coordinates, mouseover=True) and assert mesh.get_mouseover() is True; the added line instead makes it False. Add the mesh to an axes and assert mesh in ax._mouseover_set. Separately assert that an omitted mouseover option and explicit mouseover=False both remain disabled. A pcolormesh(..., mouseover=True) integration test should verify that the forwarded option is also preserved.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/collections.py",
+          "line": 2017,
+          "symbol": "QuadMesh.__init__: forwards explicit Artist-property kwargs to Collection"
+        },
+        {
+          "path": "lib/matplotlib/collections.py",
+          "line": 2018,
+          "symbol": "QuadMesh.__init__: overwrites the initialized mouseover flag"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 11327,
+  "llm_calls": 5
+}

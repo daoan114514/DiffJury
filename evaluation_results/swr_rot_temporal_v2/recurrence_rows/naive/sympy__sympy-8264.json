@@ -1,0 +1,283 @@
+{
+  "id": "sympy__sympy-8264",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "outer-product-preserve-state-labels",
+      "severity": "medium",
+      "title": "Deep expansion changes labels of previously accepted states",
+      "explanation": "The previous constructor stored the supplied ket and bra unchanged. Calling expand with its default deep expansion now expands expressions inside state labels as well as distributing linear combinations of states. For example, with x and y symbolic, k = Ket((x + y)**2) and b = Bra('b'), OuterProduct(k, b) stores Ket(x**2 + 2*x*y + y**2) instead of k. Thus the existing constructor contract that the outer product retains its input state arguments is broken even for an unscaled, unsummed ket. Scalar extraction and dual-class validation do not prevent this: the rebuilt expression is still a single Ket of the same class, so it passes those checks. The added tests use atomic string labels and therefore do not expose this regression.",
+      "path": "sympy/physics/quantum/operator.py",
+      "line": 397,
+      "evidence": "ket_expr = expand(args[0])\nbra_expr = expand(args[1])",
+      "fix": "Expand the surrounding linear combination without descending into KetBase and BraBase arguments; in particular, preserve standalone state inputs unchanged and use shallow expansion where appropriate.",
+      "test": "Construct k = Ket((x + y)**2) and b = Bra((x + y)**2). Assert that OuterProduct(k, b).args == (k, b), and repeat with scaled and summed states to ensure distribution does not expand their labels.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 391,
+          "symbol": "OuterProduct.__new__"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 397,
+          "symbol": "expand"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 421,
+          "symbol": "Expr.__new__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "outer-product-preserve-constructor-class",
+      "severity": "low",
+      "title": "Distribution discards the requested OuterProduct subclass",
+      "explanation": "The leaf construction correctly uses cls, preserving the existing ability to subclass OuterProduct, but every recursive distribution call explicitly constructs OuterProduct instead. For class TaggedOuterProduct(OuterProduct): pass, TaggedOuterProduct(k1 + k2, b) consequently contains base OuterProduct terms rather than TaggedOuterProduct terms, whereas TaggedOuterProduct(k1, b) and TaggedOuterProduct(k2, b) retain the subclass. This makes the newly supported distributive construction inconsistent with construction of its individual terms and bypasses subclass behavior on the resulting operators. The existing tests exercise only the base class and cannot detect the loss.",
+      "path": "sympy/physics/quantum/operator.py",
+      "line": 433,
+      "evidence": "op_terms.append(OuterProduct(ket_term, bra_expr,\n                                             **old_assumptions))",
+      "fix": "Use cls rather than OuterProduct in all three recursive distribution branches so each term preserves the requested constructor class.",
+      "test": "Define a minimal OuterProduct subclass and assert that Subclass(k1 + k2, b) equals Subclass(k1, b) + Subclass(k2, b). Cover a bra sum and simultaneous ket/bra sums as well, asserting the concrete class of each outer-product term.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 391,
+          "symbol": "OuterProduct.__new__"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 433,
+          "symbol": "OuterProduct"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 421,
+          "symbol": "Expr.__new__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01fed82c",
+      "K-0214191c",
+      "K-0bbe1015",
+      "K-0eae5fab",
+      "K-0fbbf738",
+      "K-13c28565",
+      "K-17ff28eb",
+      "K-1950a5a7",
+      "K-1989ba9e",
+      "K-19ad3c9d",
+      "K-2436b487",
+      "K-251fab07",
+      "K-309de097",
+      "K-34bb9f5c",
+      "K-358c8c4f",
+      "K-37dba615",
+      "K-3afad64d",
+      "K-3bdec917",
+      "K-3c126146",
+      "K-3f79acc6",
+      "K-46d9d9f2",
+      "K-4760bbdf",
+      "K-4ccc2518",
+      "K-4e1559a1",
+      "K-4f66d5d3",
+      "K-4fd56d09",
+      "K-509e2923",
+      "K-5212d910",
+      "K-56673f3c",
+      "K-584c8d57",
+      "K-60750032",
+      "K-633a5476",
+      "K-64df9e81",
+      "K-659408f9",
+      "K-6cca1eba",
+      "K-6db029aa",
+      "K-76094f2b",
+      "K-765402dd",
+      "K-7810cf1c",
+      "K-7bc41659",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-85c6407d",
+      "K-88c09c66",
+      "K-91a8c8ce",
+      "K-934cbecb",
+      "K-99e65698",
+      "K-9d082e14",
+      "K-9fe3253b",
+      "K-a0889f64",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a5bd98ec",
+      "K-a9ea6942",
+      "K-aac022e0",
+      "K-ac72cb59",
+      "K-ade6e308",
+      "K-ba823e2d",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-c88be94c",
+      "K-c8969e3c",
+      "K-cb01c870",
+      "K-cf4ba613",
+      "K-d3ab563e",
+      "K-d578b2d4",
+      "K-d7f74de4",
+      "K-dafa11ad",
+      "K-e2f20c42",
+      "K-f0828052",
+      "K-f39fb2d9",
+      "K-f8c37d11",
+      "K-fd698324"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-0fbbf738",
+          "K-cb01c870",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-847c7cac",
+          "K-4fd56d09",
+          "K-c621f945",
+          "K-633a5476",
+          "K-3f79acc6",
+          "K-d3ab563e",
+          "K-4f66d5d3",
+          "K-c88be94c",
+          "K-509e2923",
+          "K-f39fb2d9",
+          "K-1989ba9e",
+          "K-2436b487",
+          "K-0bbe1015",
+          "K-934cbecb",
+          "K-ade6e308",
+          "K-f8c37d11",
+          "K-251fab07",
+          "K-99e65698",
+          "K-c1f97abd",
+          "K-85c6407d"
+        ],
+        "tokens": 1430,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-a9ea6942",
+          "K-765402dd",
+          "K-7de8581d",
+          "K-cf4ba613",
+          "K-a1e29320"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bdec917",
+          "K-4760bbdf",
+          "K-56673f3c",
+          "K-7810cf1c",
+          "K-7bc41659",
+          "K-91a8c8ce",
+          "K-34bb9f5c",
+          "K-37dba615",
+          "K-584c8d57",
+          "K-e2f20c42",
+          "K-358c8c4f",
+          "K-a0889f64",
+          "K-f0828052",
+          "K-3afad64d",
+          "K-309de097",
+          "K-6db029aa",
+          "K-0eae5fab",
+          "K-1950a5a7",
+          "K-0214191c",
+          "K-3c126146",
+          "K-ba823e2d",
+          "K-d578b2d4",
+          "K-aac022e0",
+          "K-ac72cb59",
+          "K-19ad3c9d",
+          "K-c8969e3c",
+          "K-9d082e14",
+          "K-13c28565",
+          "K-6cca1eba",
+          "K-dafa11ad",
+          "K-17ff28eb",
+          "K-01fed82c",
+          "K-60750032",
+          "K-a5bd98ec",
+          "K-64df9e81",
+          "K-76094f2b",
+          "K-d7f74de4",
+          "K-4ccc2518",
+          "K-fd698324",
+          "K-9fe3253b",
+          "K-a527e894",
+          "K-4e1559a1"
+        ],
+        "tokens": 3231,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

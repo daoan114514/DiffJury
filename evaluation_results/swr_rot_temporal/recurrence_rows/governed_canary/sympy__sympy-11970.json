@@ -1,0 +1,133 @@
+{
+  "id": "sympy__sympy-11970",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "evalf-result-contract",
+      "severity": "medium",
+      "title": "Absolute-value evaluation returns a symbolic object in the internal numeric result",
+      "explanation": "A nonnumeric expression can successfully reach this branch when evalf substitutes a numeric value from options. For example, get_abs(x, 53, {'subs': {x: Integer(-2)}, 'maxprec': 200}) first evaluates x to a nonzero real mpf, but x.is_number remains false. The new branch then returns (Abs(x), None, 53, None), rather than the numeric result representing 2. This both discards the substitution and violates the internal evalf contract: nonzero real and imaginary components must be libmp mpf tuples, not SymPy expressions. The public path Abs(x).evalf(subs={x: -2}) consequently supplies a symbolic object to numeric-result processing and cannot correctly return 2. Ordinary numeric real, imaginary, and complex inputs take the other branch, while zero still returns the all-None result; those cases do not protect the substituted-symbol path. N's precision argument is decimal digits rather than evalf's bits, so the nested N call is not itself an underprecision explanation for this defect.",
+      "path": "sympy/core/evalf.py",
+      "line": 220,
+      "evidence": "real, imag, re_acc, im_acc = evalf(expr, prec + 2, options)\nif real or imag:\n    if expr.is_number:\n        abs_expr, _, acc, _ = evalf(Abs(N(expr, prec + 2)),\n                                    prec + 2, options)\n        return abs_expr, None, acc, None\n    else:\n        return Abs(expr), None, prec, None",
+      "fix": "Compute the magnitude from the already-evaluated real and imaginary mpf components, as before. Do not put a symbolic Abs expression into an internal evalf result or use the original expression's is_number property to reject a successfully substituted numeric value.",
+      "test": "Assert that Abs(x).evalf(subs={x: -2}) returns 2, and test substitutions with purely imaginary and complex values. Directly check that get_abs returns mpf components or None, never a SymPy expression. Retain numeric real, imaginary, complex, and zero regression cases.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 210,
+          "symbol": "get_abs"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 213,
+          "symbol": "evalf(expr, prec + 2, options)"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 220,
+          "symbol": "get_abs symbolic-result return"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-843",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-4ff368df",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e13d441c"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-b5e72943",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-93a099ce"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-83dfddfe",
+          "K-7ac64342",
+          "K-e13d441c"
+        ],
+        "tokens": 648,
+        "budget": 600,
+        "dropped": [
+          "K-e172ac33",
+          "K-c01df042",
+          "K-e820d88f",
+          "K-25a05e81"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

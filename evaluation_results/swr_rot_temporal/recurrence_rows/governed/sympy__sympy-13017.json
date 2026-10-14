@@ -1,0 +1,103 @@
+{
+  "id": "sympy__sympy-13017",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "argument-validation",
+      "severity": "low",
+      "title": "Checking flag presence admits constants and expressions as solution variables",
+      "explanation": "SymPy expressions expose is_Symbol and is_Function even when both flags are False. The previous check tested their values and rejected such arguments; the replacement tests only attribute presence. Minimal reproducer: linsolve(Matrix([[1, 2]]), S.One). S.One is neither a Symbol nor a Function, so the previous implementation raised ValueError. The new implementation accepts it and returns {(2,)}: Gauss-Jordan elimination produces the determined solution independently of the supplied variable, there are no free parameters to replace, and the result is returned without any further variable validation. Likewise, x + y passes this new check despite having both flags False. This changes the public invalid-argument contract and silently reports successful solutions for arguments that cannot serve as the requested variables. The retained tuple-of-symbols tests and invalid A/b calling-convention assertion shown in the diff do not exercise false-valued symbolic flags.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1271,
+      "evidence": "if not any([hasattr(symbols[0], attr) for attr in ['is_Symbol', 'is_Function']]):",
+      "fix": "Check the flag values, for example getattr(symbols[0], 'is_Symbol', False) or getattr(symbols[0], 'is_Function', False), rather than their presence.",
+      "test": "Assert ValueError for linsolve(Matrix([[1, 2]]), S.One) and linsolve(Matrix([[1, 2]]), x + y), while preserving acceptance of ordinary Symbols and supported applied functions. For the independent substitution change, retain determined-system coverage, test an underdetermined system such as linsolve(Matrix([[1, 1, 0]]), x, y) == {(-y, y)}, and test a zero two-variable system with supplied symbols (Symbol('tau1'), x). Simultaneous substitution correctly avoids cascading replacements if generated parameters are tau0 and tau1; sequential substitution could incorrectly replace both coordinates with x. No solution regression is established for that change.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1271,
+          "symbol": "linsolve: symbol validation"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1293,
+          "symbol": "A.gauss_jordan_solve"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1300,
+          "symbol": "linsolve: solution construction"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1302,
+          "symbol": "linsolve: result return"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

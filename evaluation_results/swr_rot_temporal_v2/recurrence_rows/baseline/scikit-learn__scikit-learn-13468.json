@@ -1,0 +1,55 @@
+{
+  "id": "scikit-learn__scikit-learn-13468",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "DOC-CONTRIBUTOR-OMISSION",
+      "severity": "low",
+      "title": "Brian Holt is removed without being preserved in the emeritus list",
+      "explanation": "The regenerated authors table removes Brian Holt's entry (`bdholt1`), but the newly added emeritus section does not include him. Of the 15 contributors removed from the table, the other 14 appear in this section. Consequently, viewing the updated About page loses Brian Holt's contributor attribution entirely rather than relocating it from the active list to the emeritus list. This finding concerns the missing emeritus entry, not the intentional removal of former contributors from the active table.",
+      "path": "doc/about.rst",
+      "line": 51,
+      "evidence": "- Vincent Dubourg\n- Vincent Michel\n- Virgile Fritsch",
+      "fix": "Add Brian Holt to the emeritus section alongside the other contributors removed from the active table.",
+      "test": "Compare contributor names in the previous authors table with the union of the updated active table and emeritus section; verify that Brian Holt remains represented.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/about.rst",
+          "line": 23,
+          "symbol": "include:: authors.rst"
+        },
+        {
+          "path": "doc/about.rst",
+          "line": 34,
+          "symbol": "Emeritus Core Developers"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,155 @@
+{
+  "id": "matplotlib__matplotlib-5825",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "browser-ui.keyboard-operability",
+      "severity": "medium",
+      "title": "Donation controls cannot be reached or activated with native keyboard navigation",
+      "explanation": "Both new donation controls are plain div elements with only onclick handlers. Such elements are not in the native Tab order and do not translate Enter or Space into activation. On the index page, where conf.py includes donate_sidebar.html, a keyboard-only reader therefore cannot focus or activate either donation control through ordinary keyboard navigation, although pointer activation invokes open_window. The supplied markup establishes this native behavior independently of open_window's omitted modal definitions; no custom global keyboard navigation can be verified from the supplied context.",
+      "path": "doc/_templates/donate_sidebar.html",
+      "line": 2,
+      "evidence": "<div onclick=\"open_window('MjI1OA==')\" class=\"donate_button\">Support matplotlib</div>\n<div onclick=\"open_window('MjM2OA==')\" class=\"donate_button\">Support NumFOCUS</div>",
+      "fix": "Use native button elements with type=\"button\" and the existing click handlers, retaining the donation styling. Native buttons provide focusability and Enter/Space activation without additional keyboard handlers.",
+      "test": "Render the index sidebar and navigate using Tab only. Assert that both donation controls receive focus and that Enter and Space invoke the corresponding donation action.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/conf.py",
+          "line": 189,
+          "symbol": "html_sidebars['index']"
+        },
+        {
+          "path": "doc/_templates/donate_sidebar.html",
+          "line": 2,
+          "symbol": "donation control onclick"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "external-window-opener",
+      "severity": "medium",
+      "title": "Mobile donation window retains access to the documentation tab",
+      "explanation": "The added mobile branch opens the third-party Flipcause widget with window.open(new_url), without requesting noopener. In browsers where response isolation policies do not sever the opener relationship, scripts in that external window receive a reference to the original documentation tab. Cross-origin restrictions prevent reading its DOM but permit navigating it. If the widget serves attacker-controlled JavaScript, for example following a provider compromise, window.opener.location = 'https://attacker.example/fake-docs' can replace the trusted documentation tab with a phishing page. The missing control is isolation of the external window from its opener. This finding is conditional on malicious code executing at the third-party destination; it does not establish that Flipcause is currently malicious or compromised, and does not depend on the omitted desktop iframe integration.",
+      "path": "doc/_templates/layout.html",
+      "line": 368,
+      "evidence": "if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){\nnew_url=\"https://www.flipcause.com/widget/\"+cause_id\nwindow.open(new_url);",
+      "fix": "Open the donation destination using window.open(new_url, '_blank', 'noopener'). Add noreferrer as well if suppressing the referrer is desired. Verify support in the browsers targeted by the documentation.",
+      "test": "Use a controlled cross-origin widget fixture and exercise the mobile branch. Have the fixture attempt window.opener.location assignment. Assert that window.opener is null, the original documentation tab remains unchanged, and the donation window still opens successfully.",
+      "confidence": 0.7699999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 366,
+          "symbol": "mobile user-agent branch"
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 367,
+          "symbol": "third-party widget URL construction"
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 368,
+          "symbol": "window.open"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1022",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-026c37f1",
+      "K-09cf1a4e",
+      "K-61ed789d",
+      "K-7282b084",
+      "K-7843f755",
+      "K-7b90f11e",
+      "K-81147535",
+      "K-9cb4cdef",
+      "K-a22efd33",
+      "K-b6b70baf",
+      "K-db90d837",
+      "K-f05a0a7d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b6b70baf",
+          "K-f05a0a7d",
+          "K-026c37f1",
+          "K-09cf1a4e",
+          "K-7843f755",
+          "K-db90d837",
+          "K-9cb4cdef",
+          "K-7b90f11e"
+        ],
+        "tokens": 488,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-61ed789d",
+          "K-7282b084",
+          "K-81147535",
+          "K-a22efd33"
+        ],
+        "tokens": 295,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

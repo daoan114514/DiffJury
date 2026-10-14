@@ -1,0 +1,78 @@
+{
+  "id": "scikit-learn__scikit-learn-14817",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation-role-syntax",
+      "severity": "low",
+      "title": "Restore the missing colon in the load_files module reference",
+      "explanation": "The new reference uses :mod`...` instead of the required :mod:`...` syntax. Consequently, Sphinx cannot interpret this occurrence as a module cross-reference: the load_files documentation displays malformed markup instead of the intended link. Changing default_role to 'literal' does not repair an incorrectly spelled explicit role. The same module is referenced with correct syntax at line 105. This is a syntax-based rendering defect, not a verified build failure; no parser or build tools were available. The supplied non-configuration hunks modify documentation only, but the omitted hunks were unavailable for independent verification, so the entire change cannot be certified documentation-only.",
+      "path": "sklearn/datasets/base.py",
+      "line": 98,
+      "evidence": "    you will need to use the :mod`~sklearn.feature_extraction.text` module to",
+      "fix": "Replace :mod`~sklearn.feature_extraction.text` with :mod:`~sklearn.feature_extraction.text`.",
+      "test": "Render the load_files API documentation with Sphinx and verify that this sentence contains a module hyperlink without visible ':mod' markup. No runtime behavior change is expected.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

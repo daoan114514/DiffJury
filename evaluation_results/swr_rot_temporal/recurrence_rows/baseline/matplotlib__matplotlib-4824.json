@@ -1,0 +1,109 @@
+{
+  "id": "matplotlib__matplotlib-4824",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "boundarynorm-clipping-mutates-input",
+      "severity": "medium",
+      "title": "In-place clipping modifies caller-owned arrays",
+      "explanation": "For an unmasked ndarray, ma.asarray(x) shares the input storage and filled(...) returns its underlying data without copying. Consequently, the new out=xx writes into the caller's array. For example, calling BoundaryNorm([0, 1, 2], 2, clip=True) on x = np.array([-1., 0.5, 3.]) changes x to [0., 0.5, 2.]; previously x remained unchanged. A read-only ndarray now raises during clipping, whereas the previous implementation accepted it. The added clipping tests pass Python scalars and newly constructed lists, so they cannot detect this aliasing regression. The upper-bound behavior highlighted by the ISSUE comment is pre-existing: the assignment of Ncmap for xx >= vmax was already present, and clipping to vmax still satisfies that predicate.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1277,
+      "evidence": "_x = ma.asarray(x)\nmask = ma.getmaskarray(_x)\nxx = np.atleast_1d(_x.filled(self.vmax + 1))\nif clip:\n    np.clip(xx, self.vmin, self.vmax, out=xx)",
+      "fix": "Use xx = np.clip(xx, self.vmin, self.vmax) instead of clipping into potentially borrowed storage, or explicitly copy xx before writing to it.",
+      "test": "Call BoundaryNorm with clip=True on a persistent unmasked ndarray containing values below and above the boundaries; assert both the normalized output and that the original array is unchanged. Repeat with a read-only ndarray and assert successful normalization.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1270,
+          "symbol": "BoundaryNorm.__call__"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1273,
+          "symbol": "ma.asarray preserves unmasked ndarray storage"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1275,
+          "symbol": "MaskedArray.filled returns underlying data when there is no mask"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1277,
+          "symbol": "np.clip writes through out=xx"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- ALIAS",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boundarynorm-masked-scalar-shape",
+      "severity": "low",
+      "title": "Masked scalar normalization now returns a length-one array",
+      "explanation": "A masked scalar such as x = np.ma.array(0.5, mask=True) has shape (). Previously, iret and the returned masked array also had shape (). The new np.atleast_1d allocation gives iret shape (1,), and ma.array(iret, mask=mask) broadcasts the scalar mask to that shape. Because the scalar conversion is guarded by not mask, it is skipped for this input, leaving a length-one masked array instead of a zero-dimensional masked result. The mask remains present, but the public result shape changes. The added scalar tests use only unmasked values, so they do not cover this regression.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1278,
+      "evidence": "iret = np.atleast_1d(np.zeros(_x.shape, dtype=np.int16))",
+      "fix": "Restore the original scalar shape for every scalar input before returning; preserve a zero-dimensional masked result when the input is masked, and retain the Python integer conversion for unmasked scalars.",
+      "test": "Normalize np.ma.array(0.5, mask=True) with BoundaryNorm([0, 1, 2], 2), then assert result.shape == () and that the result is masked. Also verify that a masked length-one array retains shape (1,) and that unmasked scalars still return Python integers.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1270,
+          "symbol": "BoundaryNorm.__call__"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1278,
+          "symbol": "np.atleast_1d changes scalar output allocation to shape (1,)"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1286,
+          "symbol": "ma.array constructs length-one masked result"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1287,
+          "symbol": "Masked scalar bypasses scalar-result restoration"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

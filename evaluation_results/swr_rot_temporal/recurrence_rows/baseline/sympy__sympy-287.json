@@ -1,0 +1,94 @@
+{
+  "id": "sympy__sympy-287",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "iterable-dispatch-bypasses-sympification",
+      "severity": "low",
+      "title": "Preserve expression conversion for iterable objects implementing _sympy_",
+      "explanation": "The new iterable branch runs before sympify, changing the interpretation of previously supported expression-convertible inputs. For example, an object whose _sympy_ method returns x**2 + 1 and whose __iter__ method returns iter([1, 2]) previously produced Poly(x**2 + 1, x). It now produces Poly(x + 2, x), because its iteration contents are treated as coefficients and its expression conversion is never called. This silently changes the polynomial, rather than merely extending support to previously unsupported iterators.",
+      "path": "sympy/polys/polytools.py",
+      "line": 90,
+      "evidence": "if hasattr(rep, '__iter__'):\n    if isinstance(rep, dict):\n        return cls._from_dict(rep, opt)\n    else:\n        return cls._from_list(list(rep), opt)",
+      "fix": "Retain the existing dict/list handling, but honor SymPy expressions and the _sympy_ conversion protocol before applying the generic iterable coefficient fallback.",
+      "test": "Create a class with _sympy_(self) returning x**2 + 1 and __iter__(self) returning iter([1, 2]); assert that Poly(instance, x) equals Poly(x**2 + 1, x). Keep the new ordinary iterator and tuple coefficient tests.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 90,
+          "symbol": "Poly.__new__"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 94,
+          "symbol": "Poly._from_list"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-843",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "discarded-test-comparison",
+      "severity": "low",
+      "title": "The new power-root test discards every successful-result comparison",
+      "explanation": "The comparisons at lines 2099 and 2104–2107 are expression statements, not assertions. Consequently, returning an incorrect polynomial still passes these checks. For example, an implementation that preserves the input polynomial after validating the exponent and rejecting multivariate inputs would pass this entire test, even though squaring the roots of x**4 - x**2 + 1 must produce (x**2 - x + 1)**2, not the original polynomial. The raises checks only verify rejection paths. The method's doctest examples provide some separate coverage, but this newly added unit test does not enforce any of its intended successful outputs.",
+      "path": "sympy/polys/tests/test_polytools.py",
+      "line": 2104,
+      "evidence": "nth_power_roots_poly(f, 1) == f\nfactor(nth_power_roots_poly(f, 2)) == f_2\nfactor(nth_power_roots_poly(f, 3)) == f_3\nfactor(nth_power_roots_poly(f, 4)) == f_4\nfactor(nth_power_roots_poly(f, 12)) == f_12",
+      "fix": "Add assert to all five successful-result comparisons.",
+      "test": "Run test_nth_power_roots_poly after adding the assertions, and verify that temporarily returning the unchanged input polynomial makes the exponent-2 assertion fail.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polytools.py",
+          "line": 2104,
+          "symbol": "test_nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4871,
+          "symbol": "nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 2785,
+          "symbol": "Poly.nth_power_roots_poly"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-561",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

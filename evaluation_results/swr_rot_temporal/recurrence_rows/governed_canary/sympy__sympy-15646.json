@@ -1,0 +1,132 @@
+{
+  "id": "sympy__sympy-15646",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "limitseq-unresolved-subsequence",
+      "severity": "medium",
+      "title": "Unresolved even subsequence is dereferenced instead of returning None",
+      "explanation": "The new branch checks whether L1 was resolved, but does not perform the same check for L2. A concrete reproducer is: n = Symbol('n', integer=True); f = Function('f'); expr = Piecewise((0, Eq((-1)**n, -1)), (f(n), True)); limit_seq(expr, n). The negative power activates the parity branch. Substitution of the odd dummy simplifies expr to 0, so L1 is 0. Substitution of the even dummy simplifies it to f(n2), whose limit cannot be determined for an undefined function, so L2 is None. Consequently L1 != L2 and L1.is_comparable are true, and accessing L2.is_comparable raises AttributeError. The previous implementation examined the unresolved even subsequence first and returned None. This breaks the public unresolved-limit behavior and prevents the absolute-value fallback from being reached. The added tests exercise resolved numeric subsequences, but do not cover this partially computable case.",
+      "path": "sympy/series/limitseq.py",
+      "line": 227,
+      "evidence": "L2 = _limit_seq(expr.xreplace({n: n2}), n2, trials)\n                if L1 != L2:\n                    if L1.is_comparable and L2.is_comparable:",
+      "fix": "Check whether L2 is None before comparing or accessing its properties. Preserve the unresolved-result contract by returning None, or route the unresolved case through the existing absolute-value fallback.",
+      "test": "Add a regression using Piecewise((0, Eq((-1)**n, -1)), (Function('f')(n), True)) and assert that limit_seq(expr, n) returns None without raising. Also test the reversed parity assignment to cover either subsequence being unresolved.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 223,
+          "symbol": "limit_seq: compute resolved odd subsequence"
+        },
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 225,
+          "symbol": "_limit_seq: compute unresolved even subsequence"
+        },
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 227,
+          "symbol": "limit_seq: dereference L2.is_comparable"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-476",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-4ff368df",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-09474f0c",
+          "K-2b42cad0",
+          "K-93a099ce",
+          "K-ad16cdc6"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-b1da47ce",
+          "K-4b143eb5",
+          "K-25a05e81",
+          "K-83dfddfe",
+          "K-7ac64342",
+          "K-0117d999",
+          "K-e820d88f"
+        ],
+        "tokens": 648,
+        "budget": 600,
+        "dropped": [
+          "K-0faed540",
+          "K-e13d441c",
+          "K-ddb18739"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

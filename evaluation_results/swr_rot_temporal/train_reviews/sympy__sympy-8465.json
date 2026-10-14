@@ -1,0 +1,49 @@
+{
+  "id": "sympy__sympy-8465",
+  "findings": [
+    {
+      "rule_id": "REL-DEBUG-PRINT",
+      "severity": "low",
+      "title": "Piecewise construction now writes unsolicited debug output to stdout",
+      "explanation": "Every processed argument prints two diagnostic lines and one branch message, regardless of whether it is a tuple or an existing ExprCondPair. Thus ordinary construction such as Piecewise((10, Eq(x, 0)), (12, True)) produces unsolicited stdout before returning. A consumer that prints srepr of the result for another process to parse receives debug text mixed into the serialized output. This is an output-contract defect, not evidence of sensitive-data exposure; the four print sites constitute one issue. The new test exercises tuple construction and then existing-ExprCondPair reconstruction through S(srepr(p)), and its equality assertion checks the intended symbolic round trip, but it does not check stdout. The reuse branch still reaches the existing false-condition handling; no separate constructor-invariant regression is demonstrated by the supplied diff, which does not include ExprCondPair's validation implementation.",
+      "path": "sympy/functions/elementary/piecewise.py",
+      "line": 97,
+      "evidence": "print(\"Debug: ec is type: \" + str(type(ec)))\n            print(\"  Debug: isinstance: \" + str(isinstance(ec, ExprCondPair)))\n            if isinstance(ec, ExprCondPair):\n                print('  Debug: already an ExprCondPair')\n                pair = ec\n            else:\n                print('  Debug: converting tuple to ExprCondPair')\n                pair = ExprCondPair(*ec)",
+      "fix": "Remove all four debug print statements while retaining the ExprCondPair reuse branch.",
+      "test": "Capture stdout while constructing p from the two tuples used in test_S_srepr_is_identity, then separately while reconstructing q = S(srepr(p)). Assert each captured output is empty and retain assert p == q. This tests both constructor branches and fails with the added prints.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/tests/test_piecewise.py",
+          "line": 496,
+          "symbol": "test_S_srepr_is_identity"
+        },
+        {
+          "path": "sympy/functions/elementary/piecewise.py",
+          "line": 97,
+          "symbol": "Piecewise.__new__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-489",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 20276,
+  "llm_calls": 5
+}

@@ -1,0 +1,101 @@
+{
+  "id": "scikit-learn__scikit-learn-11552",
+  "findings": [
+    {
+      "rule_id": "english-stop-list-test-unimplemented-warning",
+      "severity": "medium",
+      "title": "The new English stop-list test requires a deprecation absent from the production change",
+      "explanation": "The test requires fit_transform to emit a specific DeprecationWarning announcing removal of stop_words='english'. The supplied production diff does not implement that deprecation: it retains get_stop_words() and adds only an inconsistency warning, which defaults to UserWarning and is emitted only when tokenization produces missing stop words. That warning cannot satisfy this assertion. For the ordinary English-list configuration exercised by the test, the added test therefore fails instead of verifying the implemented consistency behavior. The documentation changes likewise describe known issues and recommend alternatives, rather than announcing deprecation or removal. The expectation should match that non-deprecating contract unless an explicit deprecation implementation is added.",
+      "path": "sklearn/feature_extraction/tests/test_text.py",
+      "line": 1118,
+      "evidence": "assert_warns_message(DeprecationWarning, message, vec.fit_transform,\n                             [\"good news everyone\"])",
+      "fix": "Replace the deprecation assertion with a test of the intended continued English-list behavior. If deprecation is actually intended, implement its explicit warning and update the documented compatibility contract before retaining this assertion.",
+      "test": "Run test_vectorizer_stop_words_english for all three vectorizers. Under the documented non-deprecating behavior, assert successful transformation and absence of a DeprecationWarning; keep the separate inconsistent-stop-words test asserting the specific UserWarning.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/feature_extraction/tests/test_text.py",
+          "line": 1117,
+          "symbol": "test_vectorizer_stop_words_english sets stop_words='english'"
+        },
+        {
+          "path": "sklearn/feature_extraction/tests/test_text.py",
+          "line": 1118,
+          "symbol": "assert_warns_message requires DeprecationWarning from fit_transform"
+        },
+        {
+          "path": "sklearn/feature_extraction/text.py",
+          "line": 284,
+          "symbol": "VectorizerMixin.build_analyzer retrieves the stop list"
+        },
+        {
+          "path": "sklearn/feature_extraction/text.py",
+          "line": 294,
+          "symbol": "new warning path emits an inconsistency UserWarning, not a deprecation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "stop-word-check-custom-preprocessor-failure",
+      "severity": "medium",
+      "title": "The advisory consistency check can reject valid custom preprocessors",
+      "explanation": "The new check passes individual stop words into the document preprocessor without handling exceptions. A supported configuration is preprocessor=lambda s: json.loads(s)['text'], stop_words=['world'], with input documents such as '{\"text\":\"hello world\"}'. Previously, the document was decoded and preprocessed, tokenized into ['hello', 'world'], and filtered to ['hello']. Now analyzer construction first calls json.loads('world'), which raises ValueError before processing any document. The same failure affects CountVectorizer and TfidfVectorizer fitting and HashingVectorizer transformation because they use the shared word analyzer. A document preprocessor need not accept standalone vocabulary entries; there is no guard here preserving that distinction. This turns an advisory warning into a breaking input requirement. The loop also invokes custom preprocessing and tokenization for every stop word on every analyzer construction, although the supplied evidence does not establish a separate material performance regression.",
+      "path": "sklearn/feature_extraction/text.py",
+      "line": 289,
+      "evidence": "for w in stop_words or ():\n                tokens = list(tokenize(preprocess(w)))",
+      "fix": "Make consistency checking best-effort: if custom preprocessing or tokenization cannot process stop-word entries, skip the advisory check rather than failing analyzer construction. Keep exceptions from processing actual documents visible.",
+      "test": "Parameterize over CountVectorizer, TfidfVectorizer, and HashingVectorizer with the JSON-field preprocessor and stop_words=['world']. Assert that build_analyzer() applied to '{\"text\":\"hello world\"}' returns ['hello'] and that fit_transform succeeds. Also retain a test proving malformed actual documents still raise.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/feature_extraction/text.py",
+          "line": 284,
+          "symbol": "VectorizerMixin.build_analyzer: word-analyzer construction"
+        },
+        {
+          "path": "sklearn/feature_extraction/text.py",
+          "line": 289,
+          "symbol": "stop-word consistency check invokes the document preprocessor"
+        },
+        {
+          "path": "sklearn/feature_extraction/text.py",
+          "line": 299,
+          "symbol": "document analyzer previously invoked preprocessing on decoded documents"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0,
+      1
+    ],
+    "missed": []
+  },
+  "tokens": 25274,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-11552.json",
+  "borrowed_sha256": "09fae76e9499b487488205727ee5fcae1c0958e7d6837d381519ab60458ca4c7"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "astropy__astropy-417",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "helper-test-name-mismatch",
+      "severity": "medium",
+      "title": "New color helper test references a different function name",
+      "explanation": "The new helper is defined as `_color_text` at console.py:55, and color_print calls `_color_text` at line 144. However, the added test calls `console.color_text`. No definition or alias for `color_text` appears in the supplied diff. With the API shown, the test raises AttributeError before evaluating its ANSI-output assertion. Evidence limit: the complete unchanged module is unavailable, so a pre-existing definition or alias cannot be ruled out; the naming mismatch in the change itself is directly established. No color_print behavior regression is demonstrated: its existing empty-string/None bypass remains unchanged, and other colors use the same mapping, default code, and formatting expression as before.",
+      "path": "astropy/utils/tests/test_console.py",
+      "line": 11,
+      "evidence": "assert console.color_text(\"foo\", \"green\") == u'\\033[0;32mfoo\\033[0m'",
+      "fix": "Change the test to call console._color_text, matching the extracted helper. If a public color_text API is intended instead, rename the helper and update its internal call site consistently.",
+      "test": "Run test_color_text against the complete module and verify that it reaches the helper and asserts the exact green ANSI sequence without AttributeError.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/utils/tests/test_console.py",
+          "line": 10,
+          "symbol": "test_color_text"
+        },
+        {
+          "path": "astropy/utils/tests/test_console.py",
+          "line": 11,
+          "symbol": "console.color_text"
+        },
+        {
+          "path": "astropy/utils/console.py",
+          "line": 55,
+          "symbol": "_color_text"
+        },
+        {
+          "path": "astropy/utils/console.py",
+          "line": 144,
+          "symbol": "color_print calls _color_text"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-1cc8d780",
+      "K-3bfbed4b",
+      "K-67701866",
+      "K-9e6b3c79",
+      "K-ade3aa89",
+      "K-b36de422",
+      "K-ce7e81ce"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b36de422",
+          "K-ce7e81ce",
+          "K-ade3aa89",
+          "K-1cc8d780",
+          "K-67701866",
+          "K-9e6b3c79"
+        ],
+        "tokens": 369,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bfbed4b"
+        ],
+        "tokens": 117,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

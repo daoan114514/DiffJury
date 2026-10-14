@@ -1,0 +1,170 @@
+{
+  "id": "sympy__sympy-2987",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "explicit-numpy-option-ignored",
+      "severity": "medium",
+      "title": "use_array=True is ignored when NumPy is selected explicitly",
+      "explanation": "The only code that reads use_array is inside the modules=None branch. Consequently, in a fresh process, lambdify(x, Matrix([x]), modules='numpy', use_array=True)(1) follows the same constructor-selection path as the existing explicit NumPy call without the option and returns numpy.matrix, not ndarray. This also affects callers selecting NumPy through a modules list. The new public parameter therefore does not control the return type for explicit NumPy consumers. This conclusion does not require assumptions about whether _import reuses or rebuilds its namespace: in either case, this invocation never applies the requested array translations. The added test exercises only omitted modules and checks numerical equality, so it cannot distinguish the two output types.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 286,
+      "evidence": "        if use_array:\n            NUMPY_TRANSLATIONS.update({\"Matrix\": \"array\",\n                \"MutableDenseMatrix\": \"array\",\n                \"ImmutableMatrix\": \"array\"})",
+      "fix": "Apply the array-versus-matrix selection after resolving modules, whenever the generated namespace uses NumPy. Make the override local to that namespace rather than mutating the shared translation dictionary.",
+      "test": "With a fresh and an already initialized NumPy namespace, exercise modules='numpy' and modules=['numpy'] with both use_array values. Assert exact numpy.ndarray and numpy.matrix return types respectively, in both call orders; elementwise equality alone is insufficient.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 148,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 286,
+          "symbol": "lambdify: use_array handling restricted to modules=None"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "shared-numpy-translation-state",
+      "severity": "medium",
+      "title": "Array selection leaks into subsequent explicit NumPy calls",
+      "explanation": "The new option mutates the process-wide NUMPY_TRANSLATIONS dictionary rather than selecting a constructor in the individual generated function's namespace. In a fresh process, call lambdify(x, Matrix([x]), use_array=True), then lambdify(x, Matrix([x]), modules='numpy') with the default use_array=False. The first call installs array translations. The second call bypasses the modules=None branch containing the reset, so it returns an ndarray instead of the previously documented numpy.matrix default. Import caching does not make this sequence safe: retaining the initialized namespace retains the array binding, while rebuilding it from the current translations also selects array. Thus an unrelated earlier call changes the observable return type of an existing explicit-NumPy consumer. The added numpy.all comparisons cannot detect this regression because matrix and ndarray values can compare elementwise equal.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 287,
+      "evidence": "NUMPY_TRANSLATIONS.update({\"Matrix\": \"array\",\n                \"MutableDenseMatrix\": \"array\",\n                \"ImmutableMatrix\": \"array\"})",
+      "fix": "Keep the shared NumPy translations at their original defaults and override the Matrix constructor bindings in a copy of the namespace for each generated function. Apply the per-call choice whenever NumPy is selected, including explicit modules.",
+      "test": "In a fresh process, create an array-producing default-modules function, then an explicit modules='numpy' function without use_array. Assert type(first(1)) is numpy.ndarray and type(second(1)) is numpy.matrix. Repeat in the opposite order and with the NumPy namespace already initialized; re-evaluate previously created functions to verify that their types remain stable.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 148,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 287,
+          "symbol": "lambdify: mutate shared NumPy translations"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 298,
+          "symbol": "_import"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-0faed540",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-524f3b73",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-d0414ebb",
+      "K-e172ac33",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-2b42cad0",
+          "K-09474f0c",
+          "K-ad16cdc6",
+          "K-2ec8eae2",
+          "K-93a099ce",
+          "K-b5e72943"
+        ],
+        "tokens": 404,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-c01df042",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-0faed540",
+          "K-524f3b73",
+          "K-e172ac33",
+          "K-25a05e81",
+          "K-b1da47ce",
+          "K-e820d88f"
+        ],
+        "tokens": 629,
+        "budget": 600,
+        "dropped": [
+          "K-7ac64342",
+          "K-e13d441c",
+          "K-ddb18739",
+          "K-4b143eb5",
+          "K-0117d999",
+          "K-46b8b947"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

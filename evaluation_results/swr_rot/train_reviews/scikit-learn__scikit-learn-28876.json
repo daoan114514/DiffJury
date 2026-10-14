@@ -1,0 +1,49 @@
+{
+  "id": "scikit-learn__scikit-learn-28876",
+  "findings": [
+    {
+      "rule_id": "documentation-correctness",
+      "severity": "low",
+      "title": "BayesianRidge example is linked from the ordinary Ridge complexity section",
+      "explanation": "The new Examples block is under “Ridge Complexity,” immediately after the comparison with ordinary least squares. However, the accompanying addition to BayesianRidge's docstring describes this example as polynomial approximation of a sinusoid using different initialization values. That is Bayesian regression material, not an illustration of ordinary Ridge's computational complexity. Putting the link here misclassifies the example and suggests relevance to the preceding complexity claim. The supplied evidence does not include the example file or Sphinx configuration/build output, so the existence and generated reference target cannot be independently verified; this finding concerns placement only.",
+      "path": "doc/modules/linear_model.rst",
+      "line": 189,
+      "evidence": "  * :ref:`sphx_glr_auto_examples_linear_model_plot_bayesian_ridge_curvefit.py`",
+      "fix": "Move the added Examples block into the Bayesian regression/BayesianRidge section of the user guide.",
+      "test": "Check the rendered user guide to confirm the example appears under Bayesian regression, and build the documentation to verify that the example exists and its Sphinx-Gallery reference resolves.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/modules/linear_model.rst",
+          "line": 184,
+          "symbol": "Ridge Complexity"
+        },
+        {
+          "path": "sklearn/linear_model/_bayes.py",
+          "line": 34,
+          "symbol": "BayesianRidge docstring"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1059",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 9290,
+  "llm_calls": 5
+}

@@ -1,0 +1,117 @@
+{
+  "id": "scikit-learn__scikit-learn-12915",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "zero-weight-calibration-loss",
+      "severity": "medium",
+      "title": "Saturated zero-weight samples now make the calibration objective NaN",
+      "explanation": "The new loss can be infinite before sample weights are applied. For example, use df=[-1, 1, 1000000], y=[0, 1, 0], and sample_weight=[1, 1, 0]. At the finite optimizer candidate AB=[-1, 0], the last sample's probability rounds to 1. Its smoothed target still has a positive T1, so xlogy(T1, 1-P) is negative infinity. The subsequent sample_weight * l therefore evaluates 0 * infinity to NaN, while the two contributing samples have finite losses. The previous tiny offset kept this evaluation finite. This is not an intended infinite loss for an impossible prediction: the saturated prediction belongs to a sample with zero weight and should contribute zero. It introduces NaN evaluations into calibration's optimization objective for supported finite decision scores and nonnegative sample weights.",
+      "path": "sklearn/calibration.py",
+      "line": 447,
+      "evidence": "l = -(xlogy(T, P) + xlogy(T1, 1. - P))\n        if sample_weight is not None:\n            return (sample_weight * l).sum()",
+      "fix": "Exclude zero-weight entries before evaluating logarithmic losses, or use a masked multiplication that explicitly produces zero for those entries without evaluating 0 * infinity.",
+      "test": "Exercise the calibration objective with df=[-1, 1, 1000000], y=[0, 1, 0], sample_weight=[1, 1, 0], and AB=[-1, 0]. Assert that its value is finite and equals the weighted sum over the two nonzero-weight samples. Also cover fitting with an extreme decision score on a zero-weight sample.",
+      "confidence": 0.93,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/calibration.py",
+          "line": 447,
+          "symbol": "_sigmoid_calibration.objective"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-780def96",
+      "K-900623ee",
+      "K-95d752ab",
+      "K-9fbca2ff",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f0b9d1e9",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-900623ee",
+          "K-95d752ab",
+          "K-c43a8094",
+          "K-f463a446",
+          "K-0466258e",
+          "K-542e4ee3",
+          "K-f0b9d1e9",
+          "K-780def96"
+        ],
+        "tokens": 562,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-ecc8b51d",
+          "K-2134f4e9",
+          "K-21a33670",
+          "K-9fbca2ff",
+          "K-340b5726",
+          "K-d07491c7"
+        ],
+        "tokens": 409,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

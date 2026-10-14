@@ -1,0 +1,84 @@
+{
+  "id": "scikit-learn__scikit-learn-1712",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "nonfinite-max-features-conversion",
+      "severity": "low",
+      "title": "Infinite float max_features bypasses parameter validation with OverflowError",
+      "explanation": "For DecisionTreeClassifier(max_features=float('inf')) fitted on any nonempty dataset with a positive feature count, the added conversion evaluates int(float('inf')) and raises OverflowError before the existing max_features bounds validation can reject the parameter. Previously, infinity reached that validation as an out-of-range feature count and produced ValueError. A finite value can trigger the same new failure through multiplication overflow: max_features=1e308 with 13 features produces infinity before conversion. This changes the invalid-parameter exception contract and bypasses callers that handle ValueError. The added tests cover 0.0 but do not exercise either overflow case. This is a constrained error-handling regression, not a failure of ordinary fractional feature selection.",
+      "path": "sklearn/tree/tree.py",
+      "line": 310,
+      "evidence": "max_features = int(self.max_features * self.n_features_)",
+      "fix": "Reject nonfinite float inputs with ValueError before conversion and handle multiplication overflow consistently, or translate OverflowError from this conversion into the normal invalid-parameter ValueError.",
+      "test": "Fit DecisionTreeClassifier on a two-feature dataset with max_features=float('inf'), and DecisionTreeRegressor on a 13-feature dataset with max_features=1e308; assert ValueError rather than OverflowError. Preserve the existing successful 0.5 and 1.0 cases and rejection of 0.0.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tree/tree.py",
+          "line": 310,
+          "symbol": "BaseDecisionTree.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

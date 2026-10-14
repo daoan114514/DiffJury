@@ -1,0 +1,94 @@
+{
+  "id": "sympy__sympy-1989",
+  "findings": [
+    {
+      "rule_id": "parser-callable-resolution-truth-evaluation",
+      "severity": "medium",
+      "title": "Callable lookup now evaluates the truth value of local objects",
+      "explanation": "The new lookup invokes user-defined truth-value behavior before deciding whether a local object is callable. Concrete counterexample: define F with __call__(self, value) returning value and __bool__(self) raising ValueError('no truth value') (also alias __nonzero__ = __bool__ for Python 2). Parse 'sin x' with local_dict={'sin': F(), 'x': Symbol('x')}, global_dict={'sin': lambda value: value}, and transformations=standard_transformations + (implicit_application,). Previously, the implicit-application predicate inspected the global callable, produced sin(x), and evaluation correctly invoked the local callable, returning x. Now the NAME sin / NAME x pair reaches _token_callable, and `if not func` raises ValueError before application parentheses are inserted. Neither parsing nor invoking this callable requires its truth value. The added tests use ordinary global SymPy functions and do not exercise local objects with exceptional truth-value behavior.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 41,
+      "evidence": "func = local_dict.get(token[1])\n    if not func:\n        func = global_dict.get(token[1])",
+      "fix": "Resolve namespace precedence by key membership rather than truth value: use local_dict[token[1]] when the key exists, otherwise consult global_dict. Do not invoke bool on the resolved object.",
+      "test": "Add a parse_expr regression using the dictionaries, callable, input, and implicit_application configuration above. Assert the result equals Symbol('x') and that the callable's __bool__/__nonzero__ is never invoked.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 245,
+          "symbol": "_implicit_application"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 248,
+          "symbol": "_token_callable"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 41,
+          "symbol": "local object truth-value evaluation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "parser-function-exponentiation-callable-compatibility",
+      "severity": "medium",
+      "title": "Function exponentiation rejects callable objects carrying is_Function=False",
+      "explanation": "The newly introduced guard narrows function_exponentiation beyond Python callability. Concrete counterexample: define F with is_Function=False and __call__(self, value) returning value + 1. Parse 'f**2(x)' with local_dict={'x': Symbol('x')}, global_dict={'f': F(), 'Integer': Integer}, and transformations=standard_transformations + (function_exponentiation,). Before this change, the NAME f / OP ** pair unconditionally started exponent consumption, allowing the transformation to produce f(x)**2 and return (x + 1)**2. Now _token_callable returns False: is_Function is false, and the callable alternative is excluded merely because the attribute exists. Exponent consumption never starts, leaving the numeric exponent followed by an attempted call rather than moving the exponent after f(x); evaluation fails instead of returning the previous result. This is distinct from non-callable-symbol handling: F is actually callable. The added tests cover ordinary SymPy functions but not this previously accepted callable contract.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 304,
+      "evidence": "if _token_callable(tok, local_dict, global_dict):\n                consuming_exponent = True",
+      "fix": "Ensure the new function-exponentiation guard preserves support for genuinely callable objects even when they expose is_Function=False. If the attribute exclusion is necessary for another implicit-application rule, use a separate predicate for function exponentiation rather than applying that exclusion here.",
+      "test": "Add a parse_expr regression for 'f**2(x)' using the callable, dictionaries, and function_exponentiation-only configuration above; assert the result equals (Symbol('x') + 1)**2. Retain a complementary test showing that a genuinely non-callable symbol is not rewritten as a function.",
+      "confidence": 0.87,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 302,
+          "symbol": "function_exponentiation"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 304,
+          "symbol": "_token_callable"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 45,
+          "symbol": "callable(func) and not hasattr(func, 'is_Function')"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-843",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 24393,
+  "llm_calls": 5
+}

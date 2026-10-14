@@ -1,0 +1,273 @@
+{
+  "id": "sympy__sympy-16051",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "symbolic-none-sentinel",
+      "severity": "medium",
+      "title": "Codegen optional fields use symbolic `none`, not Python `None`",
+      "explanation": "The codegen substitutions change sentinel handling rather than merely changing comparison syntax. Token._construct still returns `cls.defaults.get(attr, none)` for an absent argument, so an unset attribute can contain the symbolic `none` token. That token compares equal to Python None but is not identical to it. Consequently, the changed printer guards treat omitted fields as supplied. For example, printing a Declaration whose Variable has no value now enters the initializer branch at ccode.py:501 instead of producing an uninitialized declaration. An Element with omitted strides enters the branch that iterates elem.strides; omitted Fortran use lists are likewise iterated, and omitted Print format strings are processed as supplied formats. Minimal regression cases are `ccode(Declaration(Variable('x', type=real)))`, `ccode(Element('a', (1, 2)))`, and `pycode(Print([Symbol('x')]))`: these must retain their previous successful output without processing the absent sentinel. The constructor change also stops recognizing an explicitly supplied symbolic `none` as an absent argument before invoking attribute-specific construction. Finally, both changed doctests asserting `variable.value is None` are false for the symbolic unset value. These edits need a coordinated correction; fixing only a printer leaves the construction and other consumers inconsistent.",
+      "path": "sympy/codegen/ast.py",
+      "line": 191,
+      "evidence": "if arg is None:\n            return cls.defaults.get(attr, none)\n\n# sympy/printing/ccode.py:501\n        if val is not None:\n            result += ' = %s' % self._print(val)\n\n# sympy/printing/ccode.py:527-535\n        if elem.strides is None:\n            if elem.offset is not None:\n                raise ValueError(\"Expected strides when offset is given\")\n            idxs = ']['.join(map(lambda arg: self._print(arg),\n                                 elem.indices))\n        else:\n            global_id",
+      "fix": "Preserve recognition of both Python None and the codegen symbolic none token in Token._construct and all changed codegen printer guards. Restore the doctests to equality checks, or assert identity with the symbolic `none` token instead of Python None.",
+      "test": "Add regression tests for omitted and explicitly symbolic-none optional fields: an uninitialized C/Fortran declaration, a C Element without strides or offset, an unformatted Python/Fortran Print, and Fortran sum/use nodes without optional arguments. Assert the exact prior generated output and absence of exceptions. Run the two edited Declaration doctests and verify that unset values are the symbolic none token.",
+      "confidence": 0.8699999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/codegen/ast.py",
+          "line": 191,
+          "symbol": "Token._construct"
+        },
+        {
+          "path": "sympy/printing/ccode.py",
+          "line": 501,
+          "symbol": "C89CodePrinter._print_Declaration"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "symbolic-truth-evaluation",
+      "severity": "medium",
+      "title": "Finite-set union now truth-tests undecidable membership",
+      "explanation": "The preceding `any(... == True ...)` only establishes that at least one finite-set element belongs to the other set; it does not establish decidable membership for every element. A public reproducer is `x = Symbol('x', real=True); Union(FiniteSet(0, x), Interval(0, oo))`. Membership of 0 is True, so the changed comprehension runs, but membership of x is the unevaluated relation `x >= 0`. Applying `not` to that relation raises TypeError. Previously, `b.contains(x) != True` retained x because its membership was not proven, and the result was the valid unevaluated union of `{x}` with `[0, oo)`. The change makes mixed concrete/symbolic unions fail.",
+      "path": "sympy/sets/handlers/union.py",
+      "line": 113,
+      "evidence": "            FiniteSet(*[x for x in a if not b.contains(x)]), b))",
+      "fix": "Restore `b.contains(x) != True`, or explicitly retain every element whose membership result is not S.true. Unknown membership must not be converted to a Python boolean.",
+      "test": "Add a regression case to sympy/sets/tests/test_sets.py using a real symbolic x and `Union(FiniteSet(0, x), Interval(0, oo))`. Assert that construction succeeds and equals `Union(FiniteSet(x), Interval(0, oo), evaluate=False)`; substituting x = -1 must preserve -1 in the union.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 111,
+          "symbol": "union_sets: finite-set/set dispatch proves membership for at least one element"
+        },
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 113,
+          "symbol": "union_sets: truth conversion of each remaining membership predicate"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01fed82c",
+      "K-0214191c",
+      "K-0bbe1015",
+      "K-0eae5fab",
+      "K-0fbbf738",
+      "K-13c28565",
+      "K-17ff28eb",
+      "K-1950a5a7",
+      "K-1989ba9e",
+      "K-19ad3c9d",
+      "K-2436b487",
+      "K-251fab07",
+      "K-309de097",
+      "K-34bb9f5c",
+      "K-358c8c4f",
+      "K-37dba615",
+      "K-3afad64d",
+      "K-3bdec917",
+      "K-3c126146",
+      "K-3f79acc6",
+      "K-46d9d9f2",
+      "K-4760bbdf",
+      "K-4ccc2518",
+      "K-4e1559a1",
+      "K-4f66d5d3",
+      "K-4fd56d09",
+      "K-509e2923",
+      "K-56673f3c",
+      "K-584c8d57",
+      "K-60750032",
+      "K-633a5476",
+      "K-64df9e81",
+      "K-659408f9",
+      "K-6cca1eba",
+      "K-6db029aa",
+      "K-76094f2b",
+      "K-765402dd",
+      "K-7810cf1c",
+      "K-7bc41659",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-85c6407d",
+      "K-88c09c66",
+      "K-91a8c8ce",
+      "K-934cbecb",
+      "K-99e65698",
+      "K-9d082e14",
+      "K-9fe3253b",
+      "K-a0889f64",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a5bd98ec",
+      "K-a9ea6942",
+      "K-aac022e0",
+      "K-ac72cb59",
+      "K-ade6e308",
+      "K-b7652dc9",
+      "K-ba823e2d",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-c88be94c",
+      "K-c8969e3c",
+      "K-cb01c870",
+      "K-cf4ba613",
+      "K-d3ab563e",
+      "K-d578b2d4",
+      "K-d7f74de4",
+      "K-dafa11ad",
+      "K-e2f20c42",
+      "K-f0828052",
+      "K-f39fb2d9",
+      "K-f8c37d11",
+      "K-fd698324"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-0fbbf738",
+          "K-cb01c870",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ade6e308",
+          "K-d3ab563e",
+          "K-847c7cac",
+          "K-4fd56d09",
+          "K-4f66d5d3",
+          "K-99e65698",
+          "K-251fab07",
+          "K-1989ba9e",
+          "K-f39fb2d9",
+          "K-2436b487",
+          "K-509e2923",
+          "K-0bbe1015",
+          "K-c88be94c",
+          "K-934cbecb",
+          "K-3f79acc6",
+          "K-c1f97abd",
+          "K-633a5476",
+          "K-f8c37d11",
+          "K-c621f945",
+          "K-85c6407d"
+        ],
+        "tokens": 1430,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-765402dd",
+          "K-7de8581d",
+          "K-cf4ba613",
+          "K-a9ea6942",
+          "K-a1e29320"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0eae5fab",
+          "K-c8969e3c",
+          "K-7810cf1c",
+          "K-7bc41659",
+          "K-34bb9f5c",
+          "K-37dba615",
+          "K-584c8d57",
+          "K-fd698324",
+          "K-a0889f64",
+          "K-3afad64d",
+          "K-6cca1eba",
+          "K-01fed82c",
+          "K-f0828052",
+          "K-4ccc2518",
+          "K-6db029aa",
+          "K-1950a5a7",
+          "K-d578b2d4",
+          "K-3bdec917",
+          "K-9d082e14",
+          "K-3c126146",
+          "K-a5bd98ec",
+          "K-0214191c",
+          "K-56673f3c",
+          "K-ac72cb59",
+          "K-d7f74de4",
+          "K-358c8c4f",
+          "K-dafa11ad",
+          "K-4760bbdf",
+          "K-ba823e2d",
+          "K-64df9e81",
+          "K-309de097",
+          "K-91a8c8ce",
+          "K-76094f2b",
+          "K-60750032",
+          "K-17ff28eb",
+          "K-e2f20c42",
+          "K-aac022e0",
+          "K-19ad3c9d",
+          "K-13c28565",
+          "K-9fe3253b",
+          "K-a527e894",
+          "K-4e1559a1"
+        ],
+        "tokens": 3231,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

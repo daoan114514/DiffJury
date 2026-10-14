@@ -1,0 +1,108 @@
+{
+  "id": "matplotlib__matplotlib-3985",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "invalid-widget-index",
+      "severity": "medium",
+      "title": "Both set_active methods fail to reject invalid indices",
+      "explanation": "The chained condition `0 > index >= len(self.labels)` can never be true because the label count is nonnegative. For a two-label CheckButtons instance, set_active(-1) consequently toggles the last checkbox, redraws when drawon is enabled, and invokes callbacks with the last label when eventson is enabled, instead of raising the documented ValueError. RadioButtons.set_active(-1) additionally creates inconsistent selection state: value_selected becomes the last label, but no nonnegative enumerated circle index equals -1, so every circle receives the inactive background color. It then redraws and reports the last label to callbacks despite having no visibly selected circle. For either class, set_active(2) instead raises IndexError while indexing its lists, rather than the promised ValueError. Valid indices supplied by the refactored click handlers avoid this defect; the newly exposed programmatic activation methods do not.",
+      "path": "lib/matplotlib/widgets.py",
+      "line": 591,
+      "evidence": "        if 0 > index >= len(self.labels):\n            raise ValueError(\"Invalid CheckButton index: %d\" % index)\n\n        l1, l2 = self.lines[index]\n\n        if 0 > index >= len(self.labels):\n            raise ValueError(\"Invalid RadioButton index: %d\" % index)\n\n        self.value_selected = self.labels[index].get_text()\n\n        for i, p in enumerate(self.circles):\n            if i == index:",
+      "fix": "In both methods, replace the guard with `if index < 0 or index >= len(self.labels):` before any indexing or state mutation.",
+      "test": "Construct each widget with two labels and assert that indices -1, -2, -3, 2, and 3 raise ValueError without changing visibility, circle colors, or value_selected, and without redraws or callbacks. Verify that indices 0 and 1 still produce the expected state and label callbacks through both direct activation and mouse clicks, including eventson=False and drawon=False.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 580,
+          "symbol": "CheckButtons.set_active"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 723,
+          "symbol": "RadioButtons.set_active"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-129",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09cf1a4e",
+      "K-7282b084",
+      "K-7843f755",
+      "K-7b90f11e",
+      "K-81147535",
+      "K-9cb4cdef",
+      "K-a22efd33",
+      "K-f05a0a7d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-7843f755",
+          "K-09cf1a4e",
+          "K-f05a0a7d",
+          "K-7b90f11e",
+          "K-9cb4cdef"
+        ],
+        "tokens": 327,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-81147535",
+          "K-7282b084",
+          "K-a22efd33"
+        ],
+        "tokens": 235,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "sympy__sympy-1237",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 14624,
+  "llm_calls": 5
+}

@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-17851",
+  "findings": [
+    {
+      "rule_id": "collection3d-zs-outer-shape",
+      "severity": "medium",
+      "title": "Iterable zs inputs silently truncate collections instead of preserving broadcasting",
+      "explanation": "For a collection containing two paths, add_collection3d(col, zs=[2]) previously broadcast the singleton sequence to [2, 2], placing both paths at z=2. The new np.iterable branch skips broadcasting for lists, tuples, and one-dimensional arrays, so zip(paths, zs) converts only the first path. The second path disappears from the converted geometry. More generally, a non-singleton sequence shorter than the path count now silently drops paths, while an overlong sequence silently ignores elevations; the previous broadcast_to rejected these mismatched inputs. Scalar and zero-dimensional array inputs retain broadcasting, and correctly sized per-path inputs still work. The intended per-vertex support also works when the outer sequence has exactly one entry per path: each entry reaches _path_to_3d_segment independently. That support does not require losing outer-length validation. Empty collections similarly bypass the previous shape validation for incompatible nonempty sequences. The new image tests exercise a scalar and an exactly sized per-vertex array, so neither exposes singleton broadcasting or mismatched-length truncation. Their non-null return assertions check the new return behavior only weakly, but the changed return statement itself introduces no demonstrated defect.",
+      "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+      "line": 210,
+      "evidence": "if not np.iterable(zs):\n        zs = np.broadcast_to(zs, len(paths))\n\n    segs = [_path_to_3d_segment(path, pathz, zdir)\n            for path, pathz in zip(paths, zs)]",
+      "fix": "Preserve singleton outer-sequence broadcasting and require other iterable zs inputs to have exactly one entry per path before conversion. Keep each outer entry available as either a scalar elevation or a per-vertex sequence, rather than restoring the old one-dimensional broadcast unconditionally.",
+      "test": "Executable focused reproduction: `from matplotlib.path import Path; from mpl_toolkits.mplot3d import art3d; paths = [Path([(0, 0), (1, 1)]), Path([(0, 1), (1, 0)])]; segments = art3d._paths_to_3d_segments(paths, zs=[2]); assert len(segments) == 2`. The changed implementation returns one segment, whereas the previous broadcasting returns two. Add public add_collection3d regression tests for singleton lists, tuples, and NumPy arrays, checking that every original path remains at the requested elevation. Also assert rejection of non-singleton short and overlong outer sequences, preserve exactly sized scalar/per-path/per-vertex cases, and cover empty collections. Strengthen the return assertion to `returned is collection`.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+          "line": 210,
+          "symbol": "_paths_to_3d_segments"
+        },
+        {
+          "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+          "line": 213,
+          "symbol": "_path_to_3d_segment (call site)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 18919,
+  "llm_calls": 5
+}

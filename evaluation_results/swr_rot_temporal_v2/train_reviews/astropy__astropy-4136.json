@@ -1,0 +1,54 @@
+{
+  "id": "astropy__astropy-4136",
+  "findings": [
+    {
+      "rule_id": "release-environment-restoration",
+      "severity": "medium",
+      "title": "Restore the developer environment before running the release commands",
+      "explanation": "If the developer starts in a named Conda environment, the added sequence `source activate myaffilpkg_rel_test` → `source deactivate` → `python setup.py register build sdist --format=gztar upload` does not restore that original environment. With the historical non-stacking Conda activation workflow used here, deactivation returns to the root/default environment instead. Returning to the source directory and running `git clean` do not restore the interpreter or its dependencies. Consequently, a developer whose release dependencies are installed only in their original environment can pass the optional tests and then fail release preparation, or build with a different Python and dependency set. This is introduced by the optional environment switch; the unchanged release command previously ran in the developer's existing environment.",
+      "path": "docs/development/affiliated-packages.rst",
+      "line": 519,
+      "evidence": "        source activate myaffilpkg_rel_test\n        python setup.py install\n        cd <anywhere not your package's source directory>\n        python -c 'import myaffilpkg; myaffilpkg.test()'\n        source deactivate\n        cd <back to your source>",
+      "fix": "Explicitly instruct users to reactivate their original developer environment after deactivating the test environment and before release preparation. Alternatively, perform the optional activation and testing in a subshell so the parent shell retains its original environment.",
+      "test": "Start in a named developer environment whose interpreter and release dependencies differ from the root environment. Follow the optional test sequence using the historical Conda activation commands. Verify that, before the release command, `sys.executable` and the available release dependencies match those from before the optional step.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "docs/development/affiliated-packages.rst",
+          "line": 515,
+          "symbol": "source activate myaffilpkg_rel_test"
+        },
+        {
+          "path": "docs/development/affiliated-packages.rst",
+          "line": 519,
+          "symbol": "source deactivate"
+        },
+        {
+          "path": "docs/development/affiliated-packages.rst",
+          "line": 529,
+          "symbol": "python setup.py register build sdist --format=gztar upload"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-664",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 12210,
+  "llm_calls": 5
+}

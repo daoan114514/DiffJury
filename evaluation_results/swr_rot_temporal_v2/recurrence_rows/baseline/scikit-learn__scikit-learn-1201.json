@@ -1,0 +1,99 @@
+{
+  "id": "scikit-learn__scikit-learn-1201",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "outlier-class-index-mapping",
+      "severity": "medium",
+      "title": "Decode only genuine class indices, not outlier sentinels",
+      "explanation": "The fitted targets are now class indices, but the radius prediction path passes every mode, including the outlier sentinel, through classes_.take before restoring the configured outlier label. For training labels [10, 20], outlier_label=99, and a query with no neighbors, an outlier mode of 99 causes IndexError because classes_ has only two entries; the restoration is never reached. There is also a collision case: with the same training labels and outlier_label=1, an ordinary prediction for class 20 has encoded mode 1, so the new restoration mask replaces that correct prediction with 1 even when the query has neighbors. Previously, predictions remained in the original integer-label space and neither new decoding operation existed. The invariant is that only real class indices may be decoded, and only actual outlier rows may be overwritten. A test covering consecutive labels and a negative sentinel would miss both failures.",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 317,
+      "evidence": "prediction = self.classes_.take(modes)\n        if self.outlier_label:\n            # reset outlier label\n            prediction[modes == outlier_label] = self.outlier_label",
+      "fix": "Track actual outlier rows from the empty-neighborhood condition. Decode only non-outlier modes through classes_, then assign the configured outlier label to the separately tracked outlier rows. Do not identify outliers by equality with a user-supplied label in the encoded class-index array.",
+      "test": "Fit RadiusNeighborsClassifier on two separated samples with labels [10, 20]. With outlier_label=99, predict a faraway sample and assert the result is 99 rather than IndexError. With outlier_label=1, predict the training sample labeled 20 and assert the result remains 20. Exercise both uniform and distance-weighted prediction.",
+      "confidence": 0.82,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit: self.classes_, self._y = unique(y, return_inverse=True)"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 315,
+          "symbol": "RadiusNeighborsClassifier.predict: modes = mode.flatten().astype(np.int)"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 317,
+          "symbol": "RadiusNeighborsClassifier.predict: decode modes and restore outlier labels"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-129",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "outlier-output-dtype",
+      "severity": "medium",
+      "title": "The decoded class dtype can corrupt a valid outlier label",
+      "explanation": "The old return converted radius predictions to np.int. The new classes_.take instead creates an array with the training-label dtype, and restoring an outlier label writes into that array without ensuring it can represent the value. For example, fit with np.array([10, 20], dtype=np.uint8), configure outlier_label=-1, and predict a sample with no neighbors. The -1 sentinel is a valid negative take index, so decoding succeeds, but assigning -1 into the uint8 prediction array produces 255 on NumPy versions allowing the conversion, or raises on versions rejecting it. Previously this integer-label configuration returned -1 in a signed integer array. Thus even fixing out-of-range sentinel decoding alone does not preserve the requested outlier label.",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 320,
+      "evidence": "prediction = self.classes_.take(modes)\n        if self.outlier_label:\n            # reset outlier label\n            prediction[modes == outlier_label] = self.outlier_label",
+      "fix": "When outliers are present, allocate predictions using a dtype that losslessly accommodates both classes_ and outlier_label, using object dtype where necessary. Preserve the configured label rather than relying on an implicit narrowing conversion.",
+      "test": "Fit with uint8 labels [10, 20], configure outlier_label=-1, and predict one inlier and one outlier. Assert the exact predictions are [20, -1] and that the outlier value is neither wrapped nor rejected. Add an analogous string-class case to verify that restoration does not truncate or unintentionally stringify a heterogeneous outlier label.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit: retain original label dtype in classes_"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 317,
+          "symbol": "RadiusNeighborsClassifier.predict: create prediction with classes_ dtype"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 320,
+          "symbol": "RadiusNeighborsClassifier.predict: assign configured outlier label"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

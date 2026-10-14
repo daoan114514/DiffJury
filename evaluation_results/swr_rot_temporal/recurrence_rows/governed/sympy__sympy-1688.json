@@ -1,0 +1,98 @@
+{
+  "id": "sympy__sympy-1688",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "generation-truncates-before-success",
+      "severity": "medium",
+      "title": "Regeneration truncates the checked-in facts before computation succeeds",
+      "explanation": "The documented regeneration command opens ask_generated.py in write mode, immediately truncating it, before computing its replacement. If regeneration is interrupted with Ctrl-C during compute_known_facts, the exception exits without restoring the file, leaving it empty. A subsequent fresh import reaches ask.py's import of known_facts_dict and known_facts_cnf from that empty module and fails. This converts an interrupted maintenance operation into an unusable checkout requiring restoration of the generated file. The newly added matrix CNF clauses and implication-set entries match the updated source implications; the failure is in publishing their replacement, not their mathematical content. The added XFAIL test does not exercise regeneration or protect against this failure.",
+      "path": "sympy/assumptions/ask_update.py",
+      "line": 13,
+      "evidence": "f = open('sympy/assumptions/ask_generated.py', 'w')\ncode = compute_known_facts(known_facts, known_facts_keys)\nf.write(code)\nf.close()",
+      "fix": "Compute the replacement before touching the destination, then write it to a temporary sibling file using guaranteed cleanup and atomically replace ask_generated.py only after the write succeeds.",
+      "test": "In a temporary checkout, inject KeyboardInterrupt into compute_known_facts and execute the regeneration script. Assert that ask_generated.py remains byte-for-byte unchanged and that a fresh process can still import SymPy. Also inject a failure during writing and verify that the destination remains intact.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/assumptions/ask_update.py",
+          "line": 13,
+          "symbol": "open(..., 'w')"
+        },
+        {
+          "path": "sympy/assumptions/ask_update.py",
+          "line": 14,
+          "symbol": "compute_known_facts"
+        },
+        {
+          "path": "sympy/assumptions/ask.py",
+          "line": 303,
+          "symbol": "from sympy.assumptions.ask_generated import known_facts_dict, known_facts_cnf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

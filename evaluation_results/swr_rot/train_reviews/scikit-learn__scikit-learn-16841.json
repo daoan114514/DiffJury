@@ -1,0 +1,135 @@
+{
+  "id": "scikit-learn__scikit-learn-16841",
+  "findings": [
+    {
+      "rule_id": "numerical-rank-selection",
+      "severity": "medium",
+      "title": "The absolute eigenvalue cutoff introduces rank-zero results for valid small-scale data",
+      "explanation": "The new cutoff rejects every candidate when all eigenvalues are below 1e-15, even when the old residual-variance check allowed meaningful likelihood comparisons. For a concrete public input, construct a float64 array with 1000 rows and three columns whose centered covariance spectrum is [9e-16, 4e-16, 3e-16]: use paired rows +/-sqrt(999 * spectrum[i] / 2) along each coordinate and fill the remaining rows with zeros. Previously, both positive-rank candidates had residual variance above float64 epsilon; rank 1's likelihood exceeded rank 0's by approximately 144, so fitting selected a positive rank. Now both candidate likelihoods return -infinity, and ll.argmax() selects index 0 because ll[0] is also -infinity. This is an introduced regression, not merely the pre-existing rank-zero behavior on entirely degenerate inputs, and directly contradicts the advertised exclusion of zero components.",
+      "path": "sklearn/decomposition/_pca.py",
+      "line": 63,
+      "evidence": "if spectrum[rank - 1] < 1e-15:\n    ...\n    return -np.inf\n...\nll[0] = -np.inf  # we don't want to return n_components = 0\nfor rank in range(1, spectrum.shape[0]):\n    ll[rank] = _assess_dimension(spectrum, rank, n_samples)\nreturn ll.argmax()",
+      "fix": "Make the small-eigenvalue test relative to the spectrum's scale, and explicitly handle the no-valid-candidate case rather than allowing index zero to win a tie. Define the single-feature case separately, since it has no candidate in the new rank interval.",
+      "test": "Fit PCA(n_components='mle', svd_solver='full') to the constructed float64 input and assert a positive inferred rank. Also exercise an all-zero spectrum and a single-feature input to verify the deliberately chosen fallback behavior.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 463,
+          "symbol": "PCA._fit_full"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 102,
+          "symbol": "_infer_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 63,
+          "symbol": "_assess_dimension"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "zero-residual-likelihood",
+      "severity": "low",
+      "title": "Removing the residual-variance guard makes exact rank deficiency execute invalid arithmetic",
+      "explanation": "A supported input such as X = [[1., 0.], [-1., 0.], [0., 0.]] produces spectrum [1., 0.]. The rank-1 eigenvalue passes the new cutoff, but its residual variance is exactly zero. The new path evaluates log(0), then divides by zero in the pairwise term, and ultimately combines positive and negative infinity to obtain a NaN likelihood. Consequently, public PCA fitting now raises FloatingPointError when called inside np.errstate(divide='raise', invalid='raise'); previously the residual-variance guard rejected this candidate before performing those operations and fitting completed. With default NumPy settings, fitting emits new runtime warnings and selects the NaN candidate through argmax rather than a valid likelihood comparison. This finding concerns the introduced invalid arithmetic, not the intentional change from zero to one component.",
+      "path": "sklearn/decomposition/_pca.py",
+      "line": 79,
+      "evidence": "v = np.sum(spectrum[rank:]) / (n_features - rank)\npv = -np.log(v) * n_samples * (n_features - rank) / 2.",
+      "fix": "Handle zero residual variance before taking its logarithm or reciprocal, using a consistent positive numerical floor or an explicitly defined limiting likelihood.",
+      "test": "Fit the exact rank-deficient array under np.errstate(divide='raise', invalid='raise') and assert successful fitting with the intended rank. Test the helper directly on [1., 0.] and assert that its likelihood is not NaN.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 463,
+          "symbol": "PCA._fit_full"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 102,
+          "symbol": "_infer_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 79,
+          "symbol": "_assess_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 90,
+          "symbol": "_assess_dimension pairwise likelihood term"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "rank-assertion-indexing",
+      "severity": "low",
+      "title": "The updated likelihood array makes the rank-one test assert rank two instead",
+      "explanation": "After changing the comprehension to range(1, p), array position zero represents rank 1 and position one represents rank 2. The unchanged assertion on ll[1] therefore no longer checks the rank-one likelihood that this test previously checked. A regression that substantially lowers the rank-one likelihood while leaving rank two maximal now passes the assertion automatically. This is a concrete loss of the existing regression test's intended contract, rather than a request for additional general coverage.",
+      "path": "sklearn/decomposition/tests/test_pca.py",
+      "line": 336,
+      "evidence": "ll = np.array([_assess_dimension(spect, k, n) for k in range(1, p)])\nassert ll[1] > ll.max() - .01 * n",
+      "fix": "Change the assertion to ll[0], or retain explicit rank-to-likelihood indexing so the assertion visibly refers to rank 1.",
+      "test": "Verify that test_infer_dim_1 checks the rank-one likelihood against the maximum and fails if only that likelihood is depressed beyond the existing tolerance.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/tests/test_pca.py",
+          "line": 336,
+          "symbol": "test_infer_dim_1"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 31,
+          "symbol": "_assess_dimension"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 38303,
+  "llm_calls": 5
+}

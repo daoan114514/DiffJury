@@ -1,0 +1,217 @@
+{
+  "id": "matplotlib__matplotlib-5224",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "mkdirs-legacy-python3-mode-check",
+      "severity": "medium",
+      "title": "Legacy Python 3 rejects existing directories with a different mode",
+      "explanation": "In Python 3.2 through 3.4.0, os.makedirs(..., exist_ok=True) still raises OSError when an existing directory's mode differs from the requested mode after applying the umask. That check was removed in Python 3.4.1. For example, with umask 022, an existing directory with mode 0700 followed by mkdirs(path) now raises because the default requested mode corresponds to 0755. The original implementation returned immediately for that existing directory, regardless of its permissions. Thus the new unconditional Python 3 delegation breaks the existing-directory no-op contract on these runtimes, even though the same call succeeds on later Python 3 versions. This is separate from rejecting an existing regular file, which is consistent with tightening mkdir-like semantics. The supplied context does not include supported-version declarations or callers, so support for the affected Python releases cannot be independently confirmed; the new six.PY3 branch nevertheless includes them without a version guard.",
+      "path": "lib/matplotlib/cbook.py",
+      "line": 1017,
+      "evidence": "    if six.PY3:\n        os.makedirs(newdir, mode=mode, exist_ok=True)\n        return",
+      "fix": "For affected Python 3 releases, retain compatibility handling that suppresses an existing-directory error after verifying os.path.isdir(newdir), rather than relying on the older exist_ok mode semantics. Preserve propagation of errors for existing regular files if that tightening is intentional.",
+      "test": "On Python 3.3 or 3.4.0, set umask to 022, create a temporary directory with mode 0700, and call mkdirs(path) with its default mode. Assert no exception and unchanged permissions, restoring the umask afterward. Run the same test on Python 3.4.1 or later as a control.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1017,
+          "symbol": "mkdirs -> os.makedirs"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "mkdirs-existing-relative-directory",
+      "severity": "medium",
+      "title": "Existing bare relative directories now fail on Python 2",
+      "explanation": "On Python 2, mkdirs('.') previously returned immediately because os.path.exists('.') is true. The new implementation always splits the path: os.path.split('.') produces ('', '.'), so the first iteration calls _make_leaf('', mode). os.path.exists('') is false and os.makedirs('', mode) raises ENOENT, which is re-raised. The same regression affects an existing directory supplied as a bare name, such as 'cache'. Existing absolute directories and parent-qualified relative directories do not encounter this empty first component. The helper's reference to thispart is not itself a defect: under the current synchronous loop, thispart always equals the argument passed to _make_leaf. Its per-component EEXIST handling also improves concurrent parent creation compared with the original outer handler. Repository callers, tests, and version-support metadata were not supplied; this failure follows directly from the explicitly retained Python 2 branch.",
+      "path": "lib/matplotlib/cbook.py",
+      "line": 1031,
+      "evidence": "    parts = os.path.split(newdir)\n    for i in range(1, len(parts) + 1):\n        thispart = os.path.join(*parts[:i])\n        _make_leaf(thispart, mode)",
+      "fix": "Restore the original existing-path early return before entering the Python 2 split loop. Alternatively, skip empty path components while deliberately preserving the intended behavior for an empty input path.",
+      "test": "On Python 2.7, call mkdirs('.') and mkdirs('cache') after creating a directory named cache in a temporary working directory. Assert that both return without exception and leave the directories unchanged. Include absolute and parent-qualified relative paths as controls.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1031,
+          "symbol": "mkdirs"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1025,
+          "symbol": "_make_leaf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01024c7a",
+      "K-0304254e",
+      "K-04cc185c",
+      "K-0584087c",
+      "K-0c8a636b",
+      "K-0d0eb6bb",
+      "K-18185de5",
+      "K-1c4c395f",
+      "K-1cd6e028",
+      "K-276bc9e3",
+      "K-2f0cda36",
+      "K-2f6df4e1",
+      "K-373ceb0d",
+      "K-3a4c1dfe",
+      "K-3d110084",
+      "K-3dd53bb0",
+      "K-475d59c2",
+      "K-501c2e6b",
+      "K-554337f7",
+      "K-5ac45b56",
+      "K-74cc7af4",
+      "K-767b1b8c",
+      "K-76e1d833",
+      "K-7baab940",
+      "K-83f0b31d",
+      "K-8d71bf5d",
+      "K-8ebb1030",
+      "K-93879fa5",
+      "K-94773538",
+      "K-a7a9b3d1",
+      "K-a9ffb7d6",
+      "K-aae7ebac",
+      "K-ac4af83c",
+      "K-b6f385be",
+      "K-b9077688",
+      "K-bdf4de72",
+      "K-caf264d7",
+      "K-d55a2bac",
+      "K-d9467d98",
+      "K-e3d89590",
+      "K-e545c79a",
+      "K-ea85db56",
+      "K-f31ad068",
+      "K-f3829dd8",
+      "K-f49b7d36",
+      "K-f659e55a",
+      "K-fdb1e5fa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-8d71bf5d",
+          "K-8ebb1030",
+          "K-f659e55a",
+          "K-18185de5"
+        ],
+        "tokens": 144,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-5ac45b56",
+          "K-0c8a636b",
+          "K-0d0eb6bb",
+          "K-aae7ebac",
+          "K-d55a2bac",
+          "K-f31ad068",
+          "K-74cc7af4",
+          "K-0304254e",
+          "K-94773538",
+          "K-76e1d833",
+          "K-f3829dd8",
+          "K-1cd6e028",
+          "K-1c4c395f",
+          "K-554337f7",
+          "K-bdf4de72",
+          "K-b6f385be",
+          "K-767b1b8c",
+          "K-04cc185c",
+          "K-caf264d7",
+          "K-3dd53bb0",
+          "K-01024c7a",
+          "K-276bc9e3",
+          "K-7baab940",
+          "K-fdb1e5fa",
+          "K-a9ffb7d6",
+          "K-83f0b31d",
+          "K-d9467d98"
+        ],
+        "tokens": 1848,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-501c2e6b",
+          "K-ea85db56",
+          "K-93879fa5",
+          "K-f49b7d36"
+        ],
+        "tokens": 144,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-373ceb0d",
+          "K-ac4af83c",
+          "K-475d59c2",
+          "K-3a4c1dfe",
+          "K-2f6df4e1",
+          "K-e545c79a",
+          "K-e3d89590",
+          "K-2f0cda36",
+          "K-3d110084",
+          "K-a7a9b3d1",
+          "K-b9077688",
+          "K-0584087c"
+        ],
+        "tokens": 795,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

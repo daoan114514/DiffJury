@@ -1,0 +1,139 @@
+{
+  "id": "sympy__sympy-8264",
+  "findings": [
+    {
+      "rule_id": "unsafe-symbolic-string-coercion",
+      "severity": "high",
+      "title": "Expanding arguments before type validation introduces code evaluation of strings",
+      "explanation": "The constructor previously rejected arguments that were not KetBase/BraBase instances before processing them. It now calls expand on both arguments before validating their types. SymPy's expand coerces its input through sympify; string inputs reach parse_expr and Python evaluation. Consequently, a caller passing an untrusted string to OuterProduct can execute code before the eventual type error. This is distinct from the intended support for scaled and summed quantum expressions.",
+      "path": "sympy/physics/quantum/operator.py",
+      "line": 397,
+      "evidence": "        ket_expr = expand(args[0])\n        bra_expr = expand(args[1])",
+      "fix": "Validate both arguments as existing SymPy expression objects before calling expand. Reject strings and other non-expression inputs rather than implicitly sympifying them; preserve expansion for supported ket, bra, Mul, and Add expressions.",
+      "test": "Add regression tests passing a string expression with a harmless observable side effect, such as creating a temporary marker file, in each argument position. Assert that OuterProduct raises TypeError and the marker is never created. Retain the scaled-ket and sum tests.",
+      "confidence": 0.79,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 391,
+          "symbol": "OuterProduct.__new__"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 397,
+          "symbol": "expand(args[0]) -> sympify -> parse_expr -> eval_expr -> eval"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 398,
+          "symbol": "expand(args[1]) -> sympify -> parse_expr -> eval_expr -> eval"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-95",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "correctness.outer-product-state-label-expansion",
+      "severity": "medium",
+      "title": "Deep expansion changes the labels of previously accepted states",
+      "explanation": "The unconditional expand calls descend into state arguments, rather than only distributing linear combinations of states. For example, with x = symbols('x'), k = Ket((x + 1)**2), and b = Bra('b'), OuterProduct(k, b).args[0] becomes Ket(x**2 + 2*x + 1), rather than k. Generic quantum-state labels are structural arguments; these two Ket objects are structurally different. Previously the constructor stored the supplied ket unchanged. Thus even the previously supported plain-ket/plain-bra path now changes its operands, potentially breaking equality and matching against the original state. The added numeric-coefficient and simple-label tests do not exercise this behavior.",
+      "path": "sympy/physics/quantum/operator.py",
+      "line": 397,
+      "evidence": "ket_expr = expand(args[0])\n        bra_expr = expand(args[1])",
+      "fix": "Restrict expansion to the surrounding linear combination, without descending into KetBase or BraBase arguments. Using shallow expansion in this recursive constructor, or treating states as atomic during distribution, preserves their labels.",
+      "test": "Construct k = Ket((x + 1)**2) and b = Bra((y + 1)**2). Assert OuterProduct(k, b).args == (k, b), then assert OuterProduct(2*k, 3*b) == 6*OuterProduct(k, b). Include a sum containing these states to verify distribution also preserves their original labels.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 391,
+          "symbol": "OuterProduct.__new__"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 397,
+          "symbol": "expand of the supplied state expression"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 421,
+          "symbol": "Expr.__new__ storing the expanded states"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "correctness.outer-product-subclass-distribution",
+      "severity": "medium",
+      "title": "Distribution discards the requested OuterProduct subclass",
+      "explanation": "The atomic branch constructs cls, but every distribution branch recursively constructs the concrete OuterProduct class. A concrete counterexample is class SpecializedOuterProduct(OuterProduct): pass, followed by SpecializedOuterProduct(Ket('k1') + Ket('k2'), Bra('b')). Both resulting terms are ordinary OuterProduct instances. In contrast, SpecializedOuterProduct(Ket('k1'), Bra('b')) retains the subclass. Consequently the new sum/scaling API does not consistently preserve subclass behavior: overridden methods and subclass-specific evaluation are lost when a sum is supplied. The new tests exclusively invoke OuterProduct, so they cannot detect this inconsistency.",
+      "path": "sympy/physics/quantum/operator.py",
+      "line": 429,
+      "evidence": "op_terms.append(OuterProduct(ket_term, bra_term,\n                                                 **old_assumptions))",
+      "fix": "Use cls for the recursive constructor calls in all three distribution branches, retaining the existing assumption forwarding.",
+      "test": "Define a minimal OuterProduct subclass and assert that constructing it with a ket sum, a bra sum, and sums on both sides equals the corresponding sum of subclass instances. Assert the type of every outer-product term is the subclass.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 391,
+          "symbol": "OuterProduct.__new__ inherited by a subclass"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 429,
+          "symbol": "Hard-coded OuterProduct recursive construction"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 421,
+          "symbol": "Expr.__new__ receives OuterProduct instead of the original subclass"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 445,
+          "symbol": "Add returns base-class terms"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-705",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 26835,
+  "llm_calls": 5
+}

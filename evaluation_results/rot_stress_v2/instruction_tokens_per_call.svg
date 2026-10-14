@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="360" font-family="sans-serif" font-size="12">
+<rect width="100%" height="100%" fill="white"/>
+<text x="56" y="24" font-size="15" font-weight="bold">instruction tokens per call</text>
+<line x1="56" y1="304" x2="704" y2="304" stroke="#333"/>
+<line x1="56" y1="56" x2="56" y2="304" stroke="#333"/>
+<text x="674" y="336">events</text>
+<text x="8" y="44">tokens/call</text>
+<text x="16" y="60">5896</text>
+<text x="694" y="320">500</text>
+<polyline fill="none" stroke="#d9534f" stroke-width="2.5" points="56.0,291.7 88.4,278.4 120.8,268.6 153.2,255.4 185.6,243.6 218.0,233.3 221.9,231.4 250.4,219.5 282.8,207.9 315.2,196.7 347.6,186.7 380.0,176.1 412.4,166.4 444.8,153.5 477.2,141.6 509.6,127.3 542.0,117.7 574.4,105.5 606.8,92.6 639.2,79.7 671.6,66.5 704.0,56.0"/>
+<text x="584" y="56" fill="#d9534f">naive</text>
+<polyline fill="none" stroke="#2b7bb9" stroke-width="2.5" points="56.0,291.7 88.4,291.7 120.8,291.7 153.2,291.7 185.6,291.7 218.0,291.7 221.9,291.7 250.4,291.7 282.8,291.7 315.2,291.7 347.6,291.7 380.0,284.3 412.4,284.3 444.8,284.2 477.2,284.2 509.6,284.2 542.0,283.6 574.4,283.6 606.8,283.6 639.2,283.6 671.6,283.6 704.0,283.6"/>
+<text x="584" y="72" fill="#2b7bb9">governed</text>
+</svg>

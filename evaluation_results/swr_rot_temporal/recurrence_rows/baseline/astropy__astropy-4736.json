@@ -1,0 +1,158 @@
+{
+  "id": "astropy__astropy-4736",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "quantity-vector-scalar-conversion",
+      "severity": "high",
+      "title": "get_moon converts a three-component Quantity to float and always fails",
+      "explanation": "For a scalar Time, epv00 returns position/velocity vectors with three components, so earth_p has shape (3,). Multiplication by the dimensionless mass ratio produces a three-element Quantity, not a scalar. float() cannot convert that Quantity to a Python scalar. Array Time inputs likewise produce nonscalar quantities and fail at the same statement. Consequently, the newly exported get_moon cannot return a coordinate for any ordinary advertised input. The velocity expression repeats the same error. The barycentre reconstruction formula itself is algebraically correct; the misplaced float conversion prevents its execution.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 209,
+      "evidence": "    moon_p = float((const.M_moon+const.M_earth)/const.M_moon)*emb_p - \\\n             float(const.M_earth/const.M_moon*earth_p)\n    moon_v = float((const.M_moon+const.M_earth)/const.M_moon)*emb_v - \\\n             float(const.M_earth/const.M_moon*earth_v)",
+      "fix": "Convert only the scalar mass ratio: float(const.M_earth / const.M_moon) * earth_p, and apply the equivalent correction to earth_v.",
+      "test": "Call the real get_moon implementation with Time('2000-01-01', scale='tdb') and with a one-dimensional Time array. Assert that neither raises TypeError, that the results are GCRS coordinates, and that their shapes match the inputs. A minimal conversion reproduction is float((const.M_earth / const.M_moon) * np.ones(3)), which attempts to convert a three-element dimensionless Quantity to a scalar.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "get_moon"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "erfa.epv00"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 203,
+          "symbol": "earth_p = earth_pv_helio[..., 0, :]"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 209,
+          "symbol": "float(const.M_earth/const.M_moon*earth_p)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "erfa-aberration-argument-contract",
+      "severity": "medium",
+      "title": "The aberration call uses the wrong velocity, units, Lorentz factor, and solar distance",
+      "explanation": "After correcting the preceding float conversions, this call still violates the erfa.ab contract. epv00 and plan94 velocities are in AU/day, whereas ab requires the observer's barycentric velocity divided by the speed of light. earth_v - moon_v is instead a relative Earth–Moon velocity, is derived from heliocentric velocities, and is not divided by c. The bm1 argument must be sqrt(1 - |v/c|²), but the implementation supplies its reciprocal. The s argument is the Sun–observer distance in AU, not the Earth–Moon distance. These errors produce an incorrect apparent GCRS direction even with otherwise correct input positions. Because the implementation passes the reversed source direction and negates the output, its corresponding observer velocity must also be reversed; replacing only the units of the existing relative velocity does not fix the result.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 213,
+      "evidence": "    invlorentz = (1-np.sum((moon_v-earth_v)**2, axis=-1))**-0.5\n    properdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),\n                        earth_v-moon_v,\n                        dmoon,\n                        invlorentz)",
+      "fix": "Use earth_pv_bary[..., 1, :] divided by c expressed in AU/day, compute sqrt(1 - sum(beta**2)), and supply norm(earth_p) as the solar distance. Either preserve the reversed-direction convention with negative observer beta, or pass the Earth-to-Moon direction with positive observer beta and remove the final position negation.",
+      "test": "After fixing the conversion failure, compare the returned Cartesian direction against a direct erfa.ab calculation using the same reconstructed positions, Earth barycentric beta, its reciprocal Lorentz factor, and the Earth–Sun distance. Cover scalar and vector dates. This isolates the aberration defect without assuming that differencing the two ephemerides provides an accurate lunar ephemeris.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "erfa.epv00"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 199,
+          "symbol": "erfa.plan94"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 204,
+          "symbol": "earth_v = earth_pv_helio[..., 1, :]"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 210,
+          "symbol": "moon_v reconstruction"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "erfa.ab"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "time-array-shape-preservation",
+      "severity": "medium",
+      "title": "Flattening the distance array breaks multidimensional Time inputs",
+      "explanation": "Once the earlier float conversions are corrected, a Time input with shape (2, 2) produces earth_p and moon_p with shape (2, 2, 3), and dmoon with shape (2, 2). reshape(-1, 1) changes the divisor to shape (4, 1), which cannot broadcast against (2, 2, 3), so get_moon raises ValueError instead of returning coordinates. Scalar and one-dimensional inputs happen to broadcast through this expression, but the advertised array Time contract does not restrict inputs to one dimension. Other multidimensional shapes can also broadcast into an incorrect expanded shape rather than preserving the input shape.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 214,
+      "evidence": "    properdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),",
+      "fix": "Append a coordinate axis without flattening, using dmoon[..., np.newaxis]. Adjust scalar result construction to accommodate the resulting scalar component quantities instead of relying on an artificial length-one axis.",
+      "test": "After correcting the float conversions, call get_moon on a Time array of shape (2, 2), assert result.shape == time.shape, and compare each element with a scalar call. Also cover shape (2, 1), which can expose accidental broadcasting, and retain scalar and one-dimensional regression cases.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "erfa.epv00"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 203,
+          "symbol": "earth_p extraction"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 212,
+          "symbol": "dmoon reduction over the coordinate axis"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "dmoon.reshape(-1, 1)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

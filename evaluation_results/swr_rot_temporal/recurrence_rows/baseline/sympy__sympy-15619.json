@@ -1,0 +1,177 @@
+{
+  "id": "sympy__sympy-15619",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "unsafe-logarithm-substitution",
+      "severity": "medium",
+      "title": "Reciprocal logarithm rewriting changes derivatives inside nonlinear expressions",
+      "explanation": "The unconditional replacement log(u) -> -log(base) is not valid for unrestricted or negative arguments. Although the two logarithms differ locally by a constant, replacing them inside a square or another nonlinear expression changes the derivative. A concrete valid reciprocal-substitution state reproduces this: let x be real, u be a fresh symbol, substep=integral_steps(log(u)/u, u), and call eval_u(u, 1/x, 1, substep, -log(1/x)/x, x). The substep evaluates to log(u)**2/2, but the changed code returns log(x)**2/2 instead of log(1/x)**2/2. At x=-1 the returned derivative is -I*pi while the original integrand is I*pi. No assumption guard or check for nonlinear uses of log(u) prevents this. This counterexample exercises the changed URule evaluator directly; it does not depend on which candidate substitution integral_steps selects for the original integrand.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1259,
+      "evidence": "result = result.subs(sympy.log(u_var), -sympy.log(u_func.base))",
+      "fix": "Perform this logarithm replacement only when assumptions prove the identity, such as a positive real base. Otherwise preserve log(1/base), or limit any cosmetic normalization to cases where its effect is demonstrably only an additive constant in the complete antiderivative.",
+      "test": "Construct the reciprocal URule state described above and evaluate it through the real evaluator. Assert that its derivative at x=-1 equals I*pi, and add positive-base coverage showing that the intended cosmetic simplification still works.",
+      "confidence": 0.83,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1255,
+          "symbol": "eval_u"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1256,
+          "symbol": "_manualintegrate(substep)"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1259,
+          "symbol": "eval_u: reciprocal logarithm replacement"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "unsupported-parameter-comparison",
+      "severity": "medium",
+      "title": "Complex Gaussian coefficients cause an invalid ordered comparison",
+      "explanation": "The integrand exp(I*x**2), with x real, matches the new ErfRule with a=I and b=c=0: the wildcard excludes only zero and dependence on x, not non-real coefficients. Evaluating that rule constructs the condition a < 0, hence I < 0, which raises TypeError for an ordered comparison of a non-real value. Consequently manualintegrate now raises instead of returning an antiderivative or its prior unevaluated fallback for this supported symbolic expression. No ordering is mathematically necessary: sqrt(pi)/(2*sqrt(I))*erfi(sqrt(I)*x) differentiates to exp(I*x**2). The new Gaussian tests cover negative and positive real coefficients (lines 192–201), but do not exercise a non-real coefficient.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1453,
+      "evidence": "            sympy.erf((-2*a*symbol - b)/(2*sympy.sqrt(-a))), a < 0),",
+      "fix": "Handle explicitly non-real a before constructing an ordered comparison, using a branch-consistent complex erf/erfi formula or declining the rule. Preserve real-sign Piecewise behavior only where the comparison is valid.",
+      "test": "Call manualintegrate(exp(I*x**2), x) and manualintegrate(exp(-I*x**2 + x), x). Assert that neither raises, and that any evaluated result differentiates to the original integrand.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 364,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1450,
+          "symbol": "eval_erf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-antiderivative",
+      "severity": "medium",
+      "title": "Fresnel rules return the negative antiderivative for negative quadratic coefficients",
+      "explanation": "Let x be real and a = symbols('a', negative=True), and integrate cos(a*x**2). The new matcher accepts this coefficient and selects FresnelCRule with b=c=0. The returned expression is sqrt(pi/(2*a))*fresnelc(2*a*x/sqrt(2*a*pi)). Its derivative is [sqrt(pi/(2*a))*2*a/sqrt(2*a*pi)]*cos(a*x**2). For negative real a, both square roots are principal imaginary square roots, and the bracket equals -1, not 1. Thus differentiation gives -cos(a*x**2). Substituting a=-1 into the returned expression provides the concrete specialization -sqrt(pi/2)*fresnelc(sqrt(2/pi)*x), whose derivative is -cos(x**2). The same prefactor defect affects FresnelSRule. This is a derivative error, not a branch-dependent additive constant. The new Fresnel tests use positive quadratic coefficients only (lines 202–207), so their differentiation assertions do not expose this sign reversal.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1459,
+      "evidence": "    return sympy.sqrt(sympy.pi/(2*a)) * (\n        sympy.cos(b**2/(4*a) - c)*sympy.fresnelc((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)) +\n        sympy.sin(b**2/(4*a) - c)*sympy.fresnels((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)))",
+      "fix": "Use a branch-consistent prefactor, such as sqrt(2*a*pi)/(2*a), in both Fresnel evaluators instead of independently taking the square root of the reciprocal.",
+      "test": "With x real and a negative, call manualintegrate on cos(a*x**2) and sin(a*x**2 + 1), then assert that differentiating each result recovers the integrand. Include specialization of the returned symbolic result at a=-1.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 366,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1458,
+          "symbol": "eval_fresnelc"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-complex-square-root-factorization",
+      "severity": "medium",
+      "title": "Elliptic antiderivatives can have the opposite sign",
+      "explanation": "The new elliptic evaluators assume that sqrt(a - d*sin(x)**2) equals sqrt(a)*sqrt(1 - (d/a)*sin(x)**2), which is false for principal square roots. For a real symbol x, manualintegrate(sqrt(2*sin(x)**2 - 1), x) matches a=-1 and d=-2 and returns I*elliptic_e(x, 2). At x=pi/2 its derivative is I*sqrt(-1)=-1, whereas the integrand is sqrt(1)=1. Thus this is not an additive-constant difference. The reciprocal elliptic evaluator has the same sign error for 1/sqrt(2*sin(x)**2 - 1). The matcher only excludes zero coefficients and a==d; it does not prevent these inputs. The added tests exercise positive a and consequently do not detect this branch failure.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1487,
+      "evidence": "return sympy.elliptic_e(symbol, d/a)*sympy.sqrt(a)",
+      "fix": "Restrict these factored elliptic formulas to coefficient assumptions that justify the square-root identity, or retain an appropriate branch correction. Otherwise fall back to an unevaluated integral. Apply the same correction to eval_elliptic_f.",
+      "test": "With x real, integrate sqrt(2*sin(x)**2 - 1) and its reciprocal through manualintegrate. Assert that each returned antiderivative differentiates to the original integrand on a neighborhood of pi/2; specifically, both derivatives must equal 1 at pi/2.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps: special_function_rule dispatch"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 371,
+          "symbol": "special_function_rule: EllipticERule pattern"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1486,
+          "symbol": "eval_elliptic_e"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,92 @@
+{
+  "id": "scikit-learn__scikit-learn-182",
+  "findings": [
+    {
+      "rule_id": "bootstrap-test-type-check",
+      "severity": "medium",
+      "title": "Integer test sizes are rejected when train is a float",
+      "explanation": "The documented parameter contract permits train and test independently to be integers or floats. Bootstrap(10, train=0.5, test=2) computes n_train=5, but then rejects test=2 because the integer-test branch checks train rather than test. The observable result is ValueError(\"Invalid value for train: 0.5\") instead of an iterator producing five training indices and two test indices. Conversely, Bootstrap(10, train=5, test=None) passes this branch and stores an invalid sample size, deferring failure until sampling. Neither case concerns intentional replacement or train/test overlap. Both defects follow directly from the supplied constructor; no repository-wide consumer or test evidence was available. The supplied diff includes no regression test for mixed parameter types.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 552,
+      "evidence": "elif isinstance(train, int):\n            self.n_test = test\n        else:\n            raise ValueError(\"Invalid value for train: %r\" % train)",
+      "fix": "Check isinstance(test, int) in the test-size branch and report test, rather than train, in its validation error.",
+      "test": "Construct Bootstrap(10, train=0.5, test=2, random_state=0), consume it, and assert that each split contains five training indices and two test indices, all in [0, 10). Cover the other three integer/float combinations independently. Also assert that an unsupported test value such as None raises ValueError during construction even when train is an integer.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 489,
+          "symbol": "Bootstrap.__init__"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 552,
+          "symbol": "Bootstrap.__init__: integer test-size branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "bootstrap-repr-random-state",
+      "severity": "low",
+      "title": "Bootstrap representation fails for its default random state",
+      "explanation": "The constructor stores random_state unchanged, with None as its default, but __repr__ formats it using %d. Consequently, repr(Bootstrap(10)) raises TypeError rather than returning a representation. Passing the documented RandomState input also fails because an RNG object is not an integer. The example covers only an integer seed before sampling and therefore does not exercise this defect. Additionally, iteration overwrites self.random_state with check_random_state(...) before sampling; under the usual RandomState-returning helper contract, an initially printable seeded instance also becomes unprintable after the first next() call. The default-None failure is proven entirely by the supplied code and does not depend on that helper's implementation. The helper, cross-validation consumer implementations, and existing tests were not supplied, so repository-wide random-state conventions and downstream reliance on repr cannot be verified. This affects display/logging of the iterator, not the documented replacement or overlap behavior.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 566,
+      "evidence": "return ('%s(%d, n_bootstraps=%d, train=%d, test=%d, random_state=%d)'\n                % (self.__class__.__name__,\n                   self.n,\n                   self.n_bootstraps,\n                   self.n_train,\n                   self.n_test,\n                   self.random_state,\n                  ))",
+      "fix": "Format random_state with %r rather than %d so None, integer seeds, and RandomState objects can all be represented before and after sampling.",
+      "test": "Assert that repr returns a string for Bootstrap(10), Bootstrap(10, random_state=0), and Bootstrap(10, random_state=np.random.RandomState(0)). For each instance, consume one split and assert again that repr returns a string. The supplied integer-seed example should remain valid.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 489,
+          "symbol": "Bootstrap.__init__: random_state defaults to None"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 556,
+          "symbol": "Bootstrap.__init__: stores random_state"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 565,
+          "symbol": "Bootstrap.__repr__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      1
+    ],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 20233,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-182.json",
+  "borrowed_sha256": "9331119ddce85a4f950f3cdaeb7187d46f8433a913fedca963676cf0d1ab8f59"
+}

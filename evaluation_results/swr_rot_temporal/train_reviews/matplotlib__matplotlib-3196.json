@@ -1,0 +1,64 @@
+{
+  "id": "matplotlib__matplotlib-3196",
+  "findings": [
+    {
+      "rule_id": "REL-EMPTY-EXCEPT",
+      "severity": "medium",
+      "title": "Axes-key conversion suppresses cancellation and process-exit exceptions",
+      "explanation": "The bare except catches BaseException, including KeyboardInterrupt and SystemExit, rather than just failures indicating that an argument cannot be converted to a tuple. A concrete trigger is the added test's MyClass with __getitem__ changed to raise KeyboardInterrupt instead of ValueError. The same iterable check accepts this object, tuple(v) raises KeyboardInterrupt, and the new handler silently retains v and continues building the key. The object is hashable by default, and the test's MyAxes removes the corresponding keyword, so retaining it does not itself force a later failure. Before this change, the interruption propagated from tuple(v); afterward it is discarded. The ValueError fallback for the supplied non-sequence object is intentional and is not itself a defect. The supplied context does not establish a separate axes-cache invariant violation.",
+      "path": "lib/matplotlib/figure.py",
+      "line": 794,
+      "evidence": "try:\n                        v = tuple(v)\n                    except:\n                        pass",
+      "fix": "Catch only the conversion failures accepted by this fallback, such as TypeError and the ValueError exercised by the regression test. Let KeyboardInterrupt, SystemExit, and unrelated iterator failures propagate.",
+      "test": "Retain the added ValueError regression: its __getitem__ raises ValueError on integer indexing, so tuple conversion genuinely exercises the fallback, and completing add_subplot is a meaningful assertion for the original crash. Add a projection using the same MyAxes adapter whose __getitem__ raises KeyboardInterrupt, and assert that add_subplot propagates that exact exception; similarly test SystemExit and an unrelated RuntimeError. Assert the returned axes type on the successful fallback path. Use the existing cleanup decorator or try/finally so figures are closed even when an assertion or add_subplot fails; the current plt.close(fig) covers only successful execution.",
+      "confidence": 0.98,
+      "evidence_refs": [
+        {
+          "evidence_id": "local-rule:1079d7744b4af428",
+          "tool": "local-rule-scanner",
+          "rule_id": "REL-EMPTY-EXCEPT",
+          "path": "lib/matplotlib/figure.py",
+          "line": 794
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_figure.py",
+          "line": 140,
+          "symbol": "fig.add_subplot(1, 1, 1, projection=MyClass())"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_figure.py",
+          "line": 136,
+          "symbol": "MyClass._as_mpl_axes"
+        },
+        {
+          "path": "lib/matplotlib/figure.py",
+          "line": 793,
+          "symbol": "Figure axes-key keyword tuple conversion"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 1
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 15219,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-3196.json",
+  "borrowed_sha256": "5ffde8364ecce0cdf9443d9aac023d5718406184dc362639b0ed7eada0342cd0"
+}

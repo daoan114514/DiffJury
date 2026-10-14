@@ -1,0 +1,49 @@
+{
+  "id": "astropy__astropy-4114",
+  "findings": [
+    {
+      "rule_id": "dtype-inference-preserves-requested-kind",
+      "severity": "low",
+      "title": "Empty object columns lose their object dtype",
+      "explanation": "For simple_table(size=0, kinds='O'), the object branch produces an empty Python list. Previously, Column(data, dtype=kind) explicitly gave this column object dtype; Column(data) instead infers float64 from the empty list. Consequently, an empty object table cannot subsequently accept dictionary values through add_row, although the same operation worked before this change. Nonempty object columns still infer object dtype, making the helper's requested kind depend on whether the initial table contains rows. Passing masked=True does not restore the object dtype.",
+      "path": "astropy/table/table_helpers.py",
+      "line": 111,
+      "evidence": "columns.append(Column(data))",
+      "fix": "Preserve an explicit object dtype for kind='O', while retaining inference for the explicitly typed numeric arrays, for example Column(data, dtype=object if kind == 'O' else None).",
+      "test": "For both masked=False and masked=True, construct simple_table(size=0, kinds='O'), assert its column has object dtype, add a row containing a dictionary, and assert the dictionary is preserved. Include a nonempty object-column case to verify consistent dtype.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/table/table_helpers.py",
+          "line": 108,
+          "symbol": "simple_table: construct object-column data"
+        },
+        {
+          "path": "astropy/table/table_helpers.py",
+          "line": 111,
+          "symbol": "simple_table: infer Column dtype"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 13242,
+  "llm_calls": 5
+}

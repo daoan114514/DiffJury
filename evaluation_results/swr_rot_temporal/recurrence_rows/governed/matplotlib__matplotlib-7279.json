@@ -1,0 +1,103 @@
+{
+  "id": "matplotlib__matplotlib-7279",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "correctness-plugin-instantiation",
+      "severity": "medium",
+      "title": "Keep built-in plugins as classes before instantiating the combined list",
+      "explanation": "Calling matplotlib.test() with its test dependencies installed now fails before nose runs any tests. _get_extra_test_plugins() returns classes, but line 1594 extends that list with already-instantiated built-in plugins. The new comprehension at line 1596 then calls every element again, raising TypeError when it reaches a non-callable built-in plugin instance. Previously PluginManager received the instances directly. The same mixed list is also intended for multiprocess._instantiate_plugins at line 1602, which needs classes, although the earlier TypeError prevents reaching that assignment. The tests.py entry point does not have this defect: its list contains only the classes returned by the helper, and it separately instantiates them for nose.main.",
+      "path": "lib/matplotlib/__init__.py",
+      "line": 1596,
+      "evidence": "plugins = _get_extra_test_plugins()\n        plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])\n\n        manager = PluginManager(plugins=[x() for x in plugins])",
+      "fix": "Extend plugins with nose.plugins.builtin.plugins without calling those classes. Instantiate the resulting class-only list once for PluginManager, and retain the class-only list for multiprocess registration.",
+      "test": "With test dependencies installed and real nose built-in plugins loaded, invoke matplotlib.test() against a small passing test module and assert that it reaches nose.run and returns success without TypeError. Also assert that multiprocess._instantiate_plugins contains classes rather than instances.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1580,
+          "symbol": "test"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1573,
+          "symbol": "_get_extra_test_plugins"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1594,
+          "symbol": "test: instantiate built-in plugins during list extension"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1596,
+          "symbol": "test: instantiate the combined plugin list"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-db90d837"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-db90d837"
+        ],
+        "tokens": 113,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

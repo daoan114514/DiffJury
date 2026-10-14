@@ -1,0 +1,14 @@
+{
+  "id": "scikit-learn__scikit-learn-3196",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 8736,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-3196.json",
+  "borrowed_sha256": "d95751b4f58f999dfc08a3fd33cc7de7006db627b46742d654ed81d20666efcd"
+}

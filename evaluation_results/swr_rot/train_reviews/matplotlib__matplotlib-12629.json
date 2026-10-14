@@ -1,0 +1,12 @@
+{
+  "id": "matplotlib__matplotlib-12629",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 9620,
+  "llm_calls": 5
+}

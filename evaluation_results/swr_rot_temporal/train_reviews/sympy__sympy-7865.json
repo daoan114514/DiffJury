@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-7865",
+  "findings": [
+    {
+      "rule_id": "test-missing-assertion",
+      "severity": "low",
+      "title": "The new intersection equality check does not assert its result",
+      "explanation": "The comparison is a bare expression, so a False result does not fail test_intersection. The added membership assertion at line 144 checks only that zero is excluded; it does not establish that other integers are retained or that the complete intersection is correct. For example, an incorrect EmptySet result would satisfy that membership assertion while this equality silently evaluates to False. Thus the new identity regression check provides no verification of its expected result. No production defect involving argument types, mutation, multiple complements, or recursive termination is established by the supplied diff; the surrounding argument normalization and constructors were not provided for inspection.",
+      "path": "sympy/sets/tests/test_sets.py",
+      "line": 253,
+      "evidence": "    Intersection(S.Reals, S.Integers - FiniteSet(0)) == \\\n            Complement(Intersection(S.Reals, S.Integers), FiniteSet(0))",
+      "fix": "Prefix the equality expression with assert so an incorrect intersection result fails the test.",
+      "test": "Run test_intersection with the corrected assertion. Verify that temporarily replacing its left-hand side with S.EmptySet causes an AssertionError; optionally assert that 1 belongs to the actual intersection alongside the existing assertion that 0 does not.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/tests/test_sets.py",
+          "line": 253,
+          "symbol": "test_intersection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-252",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 11927,
+  "llm_calls": 5
+}

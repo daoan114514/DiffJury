@@ -1,0 +1,133 @@
+{
+  "id": "scikit-learn__scikit-learn-16841",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "pca-mle-all-infinite-likelihoods",
+      "severity": "medium",
+      "title": "Small nonzero spectra can still select zero components and regress a previously valid rank",
+      "explanation": "For a float64 spectrum [9e-16, 3e-16], the new cutoff rejects the only admissible rank, rank 1. Together with ll[0] = -np.inf, this leaves every likelihood equal to -np.inf, so argmax returns 0. This is reachable through PCA fitting: construct a 1000-by-2 zero matrix, set its first four rows to [a, 0], [-a, 0], [0, b], [0, -b], where a = sqrt(999 * 9e-16 / 2) and b = sqrt(999 * 3e-16 / 2). Its centered covariance spectrum is [9e-16, 3e-16], and the changed implementation selects zero components. Previously, the residual variance 3e-16 exceeded float64 epsilon, and rank 1 had a finite likelihood approximately 136.8 greater than rank 0, so the same input selected one component. Thus this is a regression, not merely the intended exclusion of rank zero. The added small-eigenvalue tests retain a leading eigenvalue of 1 and do not exercise rejection of every positive rank.",
+      "path": "sklearn/decomposition/_pca.py",
+      "line": 63,
+      "evidence": "if spectrum[rank - 1] < 1e-15:\n    # When the tested rank is associated with a small eigenvalue, there's\n    # no point in testing. Also, it can lead to numerical issues below\n    # when computing pa, in particular in log((spectrum[i] - spectrum[j])\n    # because this will take the log of something very small.\n    return -np.inf",
+      "fix": "Ensure that, when positive candidate ranks exist, rank zero cannot win an all-negative-infinity tie. For example, select the maximum only among positive ranks, with an explicit policy for single-feature input. Also consider a scale-aware cutoff rather than rejecting all candidates solely because the data are small in absolute units.",
+      "test": "Fit PCA(n_components='mle', svd_solver='full') on the centered 1000-by-2 matrix described above and assert n_components_ == 1. Also directly test _infer_dimension(np.array([9e-16, 3e-16]), 1000) == 1.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 461,
+          "symbol": "PCA._fit_full"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 97,
+          "symbol": "_infer_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 63,
+          "symbol": "_assess_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 103,
+          "symbol": "_infer_dimension: return ll.argmax()"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "pca-mle-test-rank-index",
+      "severity": "low",
+      "title": "The rank-one likelihood test now checks rank two",
+      "explanation": "The changed comprehension excludes rank zero, so ll[0] now contains the rank-one likelihood and ll[1] contains the rank-two likelihood. The unchanged assertion `assert ll[1] > ll.max() - .01 * n` therefore no longer validates rank one in test_infer_dim_1. A regression that depresses the rank-one likelihood and makes rank two the maximum passes this assertion automatically. Previously, the comprehension started at zero and ll[1] correctly referred to rank one. This is an indexing regression in the test, not an intentional change to the permitted ranks.",
+      "path": "sklearn/decomposition/tests/test_pca.py",
+      "line": 336,
+      "evidence": "ll = np.array([_assess_dimension(spect, k, n) for k in range(1, p)])\n    assert ll[1] > ll.max() - .01 * n",
+      "fix": "Change the assertion to use ll[0], or preserve an explicit mapping from candidate ranks to likelihoods and assert on rank 1.",
+      "test": "Keep the existing fixture and assert that the rank-one likelihood, now ll[0], is within the specified tolerance of the maximum. Verify that artificially lowering only the rank-one likelihood causes the test to fail.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/tests/test_pca.py",
+          "line": 336,
+          "symbol": "test_infer_dim_1"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 31,
+          "symbol": "_assess_dimension"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

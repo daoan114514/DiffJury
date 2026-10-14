@@ -1,0 +1,52 @@
+{
+  "id": "scikit-learn__scikit-learn-23459",
+  "findings": [
+    {
+      "rule_id": "empty-visible-constraints",
+      "severity": "low",
+      "title": "Handle validation failures when every constraint is internal",
+      "explanation": "The new filtering can remove every constraint before error formatting. For example, decorate f(param) with @validate_params({'param': [StrOptions({'warn'}, internal={'warn'})]}) and call f('bad'). The value correctly fails validation, but the only constraint renders as an empty string and is removed. The zero-length list then takes the existing multi-constraint formatting branch, which accesses the last constraint, producing IndexError instead of the intended informative ValueError. This is an error-handling defect, not a request to accept the invalid value. The added tests verify acceptance of 'warn' and filtering when a visible string option or an int constraint remains; neither exercises removal of every constraint. The new k_means constraints do not themselves trigger this case: its internal 'warn' option is accompanied by visible 'auto' and an integer interval, and its declared constraints otherwise match the supported signature and delegated estimator validation.",
+      "path": "sklearn/utils/_param_validation.py",
+      "line": 58,
+      "evidence": "constraints = [constraint for constraint in constraints if str(constraint)]",
+      "fix": "Handle the zero-visible-constraint case explicitly before the single/multiple-constraint formatting branches, raising ValueError with a generic parameter-validation explanation without exposing internal options.",
+      "test": "Add a decorated function whose sole constraint is StrOptions({'warn'}, internal={'warn'}). Assert that 'warn' remains accepted and that 'bad' raises ValueError identifying the parameter without listing 'warn'. Also cover multiple all-internal constraints.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/_param_validation.py",
+          "line": 58,
+          "symbol": "validate_parameter_constraints"
+        },
+        {
+          "path": "sklearn/utils/_param_validation.py",
+          "line": 243,
+          "symbol": "StrOptions.__str__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0,
+      1
+    ]
+  },
+  "tokens": 25009,
+  "llm_calls": 5
+}

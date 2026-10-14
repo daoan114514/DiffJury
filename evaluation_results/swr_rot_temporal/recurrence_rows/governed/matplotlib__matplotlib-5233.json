@@ -1,0 +1,89 @@
+{
+  "id": "matplotlib__matplotlib-5233",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-exception-clause",
+      "severity": "medium",
+      "title": "Use a tuple to catch both exception types",
+      "explanation": "In Python 2, `except KeyError, RuntimeError:` catches only KeyError and binds the caught exception instance to the local name RuntimeError; it does not catch RuntimeError. Consequently, if ttfFontProperty(font) raises RuntimeError, createFontList still propagates it instead of skipping that font. This is an ineffective expansion of the exception handler, not a newly introduced propagation path: RuntimeError also escaped before the change. In Python 3, the new clause is a SyntaxError, whereas `except KeyError:` is valid. The supplied context contains no repository Python-version declaration, so Python 3 compatibility cannot be asserted as a separate regression. The clause fails to express the intended two-exception handler under either interpretation.",
+      "path": "lib/matplotlib/font_manager.py",
+      "line": 590,
+      "evidence": "            except KeyError, RuntimeError:",
+      "fix": "Replace the clause with `except (KeyError, RuntimeError):`, which catches both types without binding either exception name.",
+      "test": "Exercise createFontList with fonts whose property extraction raises KeyError and RuntimeError respectively, followed by a valid font. Verify that both failing fonts are skipped and the valid font is returned. Also compile the corrected clause under each supported Python version.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/font_manager.py",
+          "line": 589,
+          "symbol": "createFontList -> ttfFontProperty(font)"
+        },
+        {
+          "path": "lib/matplotlib/font_manager.py",
+          "line": 590,
+          "symbol": "createFontList exception handler"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

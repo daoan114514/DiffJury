@@ -1,0 +1,50 @@
+{
+  "id": "scikit-learn__scikit-learn-7897",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation-accuracy",
+      "severity": "low",
+      "title": "The report's weighted averages are incorrectly described as micro-averages",
+      "explanation": "The new documentation conflates support-weighted per-class averaging with micro-averaging. The implementation computes each metric using np.average(metric, weights=s), which is weighted macro-averaging, not micro-averaging. For example, with y_true=[0,0,0,1] and y_pred=[0,0,1,1], per-class precisions are 1 and 0.5 with supports 3 and 1. The report's weighted precision is therefore 0.875 (displayed as 0.88 at the default precision), whereas micro precision is 3/4=0.75. Weighted F1 is approximately 0.7667, also different from micro F1 of 0.75. The parent implementation already used these weighted calculations; the introduced defect is the new description, not the calculation or formatting. Users following this description can select micro-averaging elsewhere and obtain results inconsistent with the report. The supplied evidence contains no tests or repository runtime-support policy, so existing test coverage cannot be established and no runtime or formatting compatibility defect is asserted.",
+      "path": "sklearn/metrics/classification.py",
+      "line": 1372,
+      "evidence": "The reported averages are a prevalence-weighted micro-average across\n        classes (equivalent to :func:`precision_recall_fscore_support` with\n        ``average='weighted'``).",
+      "fix": "Describe the reported averages as support-weighted averages of the per-class metrics, or as weighted macro-averages. Retain the correct equivalence to average='weighted'.",
+      "test": "Add a documentation example using y_true=[0,0,0,1] and y_pred=[0,0,1,1]. Verify that the report displays average precision 0.88 and F1 0.77, matching average='weighted', while average='micro' returns 0.75 for both. This demonstrates why the documented averaging terminology must distinguish the two.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1428,
+          "symbol": "classification_report: row_fmt.format with np.average(p, weights=s), np.average(r, weights=s), and np.average(f1, weights=s)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

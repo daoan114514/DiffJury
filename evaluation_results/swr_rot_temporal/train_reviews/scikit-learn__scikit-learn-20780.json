@@ -1,0 +1,46 @@
+{
+  "id": "scikit-learn__scikit-learn-20780",
+  "findings": [
+    {
+      "rule_id": "stale-feature-names-on-refit",
+      "severity": "medium",
+      "title": "Clear OneVsRestClassifier feature names when refitting unnamed data",
+      "explanation": "The new attribute is assigned only when the first fitted binary estimator exposes feature_names_in_; the opposite branch does not clear metadata from a previous fit. OneVsRestClassifier passes X to its binary estimators rather than resetting its own feature metadata through _validate_data. Consequently, fitting OneVsRestClassifier(LogisticRegression()) on a two-column named DataFrame and then refitting the same instance on a three-column NumPy array leaves feature_names_in_ containing the original two names, while n_features_in_ becomes 3. The underlying newly fitted LogisticRegression correctly has no feature_names_in_. This introduces stale public metadata that describes a previous model rather than the current fit.",
+      "path": "sklearn/multiclass.py",
+      "line": 351,
+      "evidence": "        if hasattr(self.estimators_[0], \"feature_names_in_\"):\n            self.feature_names_in_ = self.estimators_[0].feature_names_in_",
+      "fix": "When the newly fitted estimator lacks feature_names_in_, delete any existing feature_names_in_ on the OneVsRestClassifier. Alternatively, explicitly reset the wrapper's feature-name metadata on every fit.",
+      "test": "Create X = pandas.DataFrame([[0, 1], [1, 0], [0, 2], [2, 0]], columns=['a', 'b']) and y = [0, 1, 0, 1]. Fit clf = OneVsRestClassifier(LogisticRegression()) on X, then fit the same clf on numpy.column_stack([X.to_numpy(), numpy.ones(4)]). Assert clf.n_features_in_ == 3 and not hasattr(clf, 'feature_names_in_'). The changed implementation retains ['a', 'b'] instead. Also test refitting on another named DataFrame to verify that names are replaced.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 351,
+          "symbol": "OneVsRestClassifier.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 22436,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-20780.json",
+  "borrowed_sha256": "b270256886334ba287acaf847a5a5431a294147f27634b01e44c67d2f95ec764"
+}

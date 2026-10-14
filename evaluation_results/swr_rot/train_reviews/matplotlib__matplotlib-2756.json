@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-2756",
+  "findings": [
+    {
+      "rule_id": "overlapping-axes-pick-dispatch",
+      "severity": "medium",
+      "title": "Unconditional traversal picks artists in underlying overlapping axes",
+      "explanation": "Consider two overlapping axes created with twinx(), each containing a pickable marker at the same display position. A mouse event at that position has inaxes set to the topmost axes. Previously, the removed axes comparison prevented traversal into the underlying axes; the new unconditional recursive call visits both axes and their pickable artists, producing pick events for both markers rather than only the topmost one. This changes the existing overlapping-axes picking behavior and can execute selection callbacks for an obscured artist. It is distinct from supporting artists outside axes bounds: the counterexample occurs inside the axes, while the old condition already allowed unrestricted traversal when inaxes was None. Picker callbacks also now receive events associated with another axes, so callbacks interpreting xdata/ydata as their artist's coordinates no longer have the previous dispatch guarantee.",
+      "path": "lib/matplotlib/artist.py",
+      "line": 351,
+      "evidence": "            a.pick(mouseevent)",
+      "fix": "Preserve axes-aware dispatch for overlapping axes, or introduce a targeted exception for the outside-bounds artists that need broader traversal rather than removing the filter for every child.",
+      "test": "Create overlapping twinx axes with identical limits and coincident pickable markers, construct a MouseEvent at the markers, verify that inaxes identifies the topmost axes, and assert that only its marker generates a pick event. Also retain a test for a pickable artist outside axes bounds with inaxes=None. No relevant test files were supplied, so existing coverage could not be inspected.",
+      "confidence": 0.82,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/artist.py",
+          "line": 350,
+          "symbol": "Artist.pick: iterate children, including figure axes"
+        },
+        {
+          "path": "lib/matplotlib/artist.py",
+          "line": 351,
+          "symbol": "Artist.pick: recursively dispatch into every child"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12119,
+  "llm_calls": 5
+}

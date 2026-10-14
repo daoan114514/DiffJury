@@ -1,0 +1,117 @@
+{
+  "id": "sympy__sympy-16051",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "symbolic-truth-evaluation",
+      "severity": "medium",
+      "title": "Branch-bearing expint raises for integer orders of unknown sign",
+      "explanation": "For k = Symbol('k', integer=True), k.is_integer is True but k > 0 is an undecidable StrictGreaterThan. The public expression expint(k, exp_polar(2*pi*I)) reaches this guard after extracting a nonzero branch factor. Previously, (k > 0) != True evaluated to Python True, so evaluation returned without applying the positive-order branch formula and preserved the unevaluated expression. The new `not` invokes the relation's truth conversion, which raises TypeError. Thus a valid symbolic order now fails during expression construction instead of remaining symbolic. Known-positive and known-nonpositive integer orders do not expose this regression.",
+      "path": "sympy/functions/special/error_functions.py",
+      "line": 1221,
+      "evidence": "            if not nu > 0:",
+      "fix": "Retain an explicit definite-truth check, such as `(nu > 0) != True`, rather than truth-testing an undecidable relation.",
+      "test": "Construct k = Symbol('k', integer=True), then evaluate expint(k, exp_polar(2*pi*I)). Assert that construction does not raise and preserves the unevaluated expint expression. Also cover positive, negative, and zero integer orders, plus an unbranched argument.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/error_functions.py",
+          "line": 1221,
+          "symbol": "expint.eval"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "symbolic-truth-evaluation",
+      "severity": "medium",
+      "title": "Finite-set union truth-tests undecidable membership, losing elements or raising",
+      "explanation": "The preceding `any(b.contains(x) == True for x in a)` only establishes that at least one finite-set element belongs to b; other elements can have undecidable membership. For x = Symbol('x', real=True), Union(FiniteSet(0, x), Interval(0, 1)) enters this branch because membership of 0 is definitely True. Membership of x is the symbolic conjunction And(0 <= x, x <= 1). That conjunction is truthy under Python truth conversion, so the new filter discards x and the union reduces to Interval(0, 1), incorrectly excluding x when it lies outside that interval. Previously, the conjunction compared unequal to True and x was retained. With Interval(0, oo), membership of x instead simplifies to the undecidable relation x >= 0; the same new filter raises TypeError. Both outcomes arise from replacing a definite-membership comparison with Python truth testing.",
+      "path": "sympy/sets/handlers/union.py",
+      "line": 113,
+      "evidence": "            FiniteSet(*[x for x in a if not b.contains(x)]), b))",
+      "fix": "Keep elements unless membership is definitely true, restoring `b.contains(x) != True` or using `b.contains(x) is not S.true`.",
+      "test": "Using a real symbolic x, construct Union(FiniteSet(0, x), Interval(0, 1)) and verify that x remains represented; substituting x = 2 must produce a union containing 2. Construct Union(FiniteSet(0, x), Interval(0, oo)) and verify that it does not raise and retains x. Also cover wholly included, wholly excluded, empty, and duplicate finite-set elements.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 113,
+          "symbol": "union_sets(FiniteSet, Set)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

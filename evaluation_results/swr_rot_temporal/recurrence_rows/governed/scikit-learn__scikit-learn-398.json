@@ -1,0 +1,104 @@
+{
+  "id": "scikit-learn__scikit-learn-398",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "entropy-concavity",
+      "severity": "medium",
+      "title": "The logarithm approximation makes informative splits increase entropy",
+      "explanation": "The piecewise-linear logarithm breaks the concavity required of entropy, rather than merely perturbing its numerical value. Consider ten samples with one binary feature: feature 0 has class counts (3, 2), and feature 1 has counts (2, 3). The parent has probabilities (0.5, 0.5), giving both old and new entropy approximately 0.693147. Each child has probabilities (0.6, 0.4). The previous logarithm gives weighted child entropy 0.673012, a genuine improvement. This approximation instead gives log(0.6) approximately -0.8*ln(2) and log(0.4) approximately -1.4*ln(2), yielding weighted child entropy approximately 0.720873. Thus split evaluation ranks this informative partition as worse than leaving the node unsplit. Float narrowing does not explain away the result: its rounding error is negligible relative to the approximately 0.027726 reversed gain. All these inputs are reachable positive integer class-count ratios and pass the count guards. Empty branches skip logarithm evaluation, pure branches correctly evaluate log(1) as zero, and the changed branch-weighting expression is algebraically equivalent to the previous expression; none prevents this failure. The documented approximation tolerance is insufficient to protect this impurity invariant, since this counterexample remains within that tolerance.",
+      "path": "sklearn/utils/_fast_math.h",
+      "line": 38,
+      "evidence": "return exponent - 1 + 2*(mantissa - .5);",
+      "fix": "Retain the previous logarithm for entropy, or use an approximation verified to preserve concavity of -p*log(p) over the supported probability domain. A relative logarithm-error bound alone does not restore the split-selection invariant.",
+      "test": "Add an entropy regression for parent counts (5, 5) and child counts (3, 2)/(2, 3), asserting that weighted child impurity is strictly below parent impurity. Also fit an entropy tree to the corresponding ten-row binary-feature dataset and assert that the informative root split is selected. Cover probabilities on both sides of 0.5 and other exponent boundaries, alongside empty and pure branches.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tree/_tree.c",
+          "line": 4997,
+          "symbol": "_find_best_split calls criterion.eval"
+        },
+        {
+          "path": "sklearn/tree/_tree.pyx",
+          "line": 305,
+          "symbol": "Entropy.eval evaluates fast_log(label_count_left[k] / n_left)"
+        },
+        {
+          "path": "sklearn/tree/_tree.pyx",
+          "line": 308,
+          "symbol": "Entropy.eval evaluates fast_log(label_count_right[k] / n_right)"
+        },
+        {
+          "path": "sklearn/utils/_fast_math.h",
+          "line": 46,
+          "symbol": "fast_log"
+        },
+        {
+          "path": "sklearn/utils/_fast_math.h",
+          "line": 38,
+          "symbol": "fast_log2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

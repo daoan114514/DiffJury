@@ -1,0 +1,60 @@
+{
+  "id": "matplotlib__matplotlib-14311",
+  "findings": [
+    {
+      "rule_id": "ci-block-scalar-shell-commands",
+      "severity": "medium",
+      "title": "Literal list prefixes prevent coverage collection and upload",
+      "explanation": "The retained `after_success: |` makes the entire indented body a YAML string, not a command sequence. Consequently, lines 201–203 ask the shell to execute a command named `-`, with `lcov` as its first argument; they do not execute lcov. Line 205 similarly attempts to execute `-`, not bash. Its process substitution can still run curl, but the downloaded uploader is never executed. The final `|| echo` handles that command-not-found failure by printing the message and returning success, masking the broken hook. This replaces the previously executable `codecov -e TRAVIS_PYTHON_VERSION` command and prevents coverage collection and upload in successful matrix jobs, regardless of whether those jobs are instrumented.",
+      "path": ".travis.yml",
+      "line": 201,
+      "evidence": "after_success: |\n  - lcov --capture --directory . --output-file coverage.info\n  - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files\n  - lcov --list coverage.info\n  # Uploading to CodeCov but excluding gcov reports\n  - bash <(curl -s https://codecov.io/bash) -f \"!*.gcov\" -X gcov || echo \"Codecov did not collect coverage reports\"",
+      "fix": "Remove the `- ` prefixes from command lines inside the block scalar, or remove `|` and express after_success as an actual YAML command sequence.",
+      "test": "Parse .travis.yml and execute the resulting after_success hook under Bash with stub lcov and curl commands and a harmless uploader script. Assert that all three lcov invocations run and the uploader script executes; do not accept the final echo or a zero hook exit status alone as evidence of upload.",
+      "confidence": 0.99,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:4a6de4109e2c94c5",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \".travis.yml\", \"start_line\": 190, \"end_line\": 205, \"content\": \"  rm -rf $HOME/.cache/matplotlib/test_cache\\n\\nafter_failure: |\\n  if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then\\n    tar cjf result_images.tar.bz2 result_images\\n    echo 'See \\\"Uploading Artifacts\\\" near the end of the log for the download URL'\\n  else\\n    echo \\\"The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details.\\\"\\n  fi\\n\\nafter_success: |\\n  - lcov --capture --directory . --output-file coverage.info\\n  - lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files\\n  - lcov --list coverage.info\\n  # Uploading to CodeCov but excluding gcov reports\\n  - bash <(curl -s https://codecov.io/bash) -f \\\"!*.gcov\\\" -X gcov || echo \\\"Codecov did not collect coverage reports\\\"\\n\"}"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": ".travis.yml",
+          "line": 200,
+          "symbol": "after_success literal scalar"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 201,
+          "symbol": "shell attempts command named '-' instead of lcov"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 205,
+          "symbol": "shell attempts command named '-' instead of bash; echo masks failure"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 57794,
+  "llm_calls": 14
+}

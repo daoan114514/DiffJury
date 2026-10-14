@@ -1,0 +1,104 @@
+{
+  "id": "matplotlib__matplotlib-5195",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "optional-dependency-binding-detection",
+      "severity": "medium",
+      "title": "PyQt-specific version detection breaks collection with PySide",
+      "explanation": "With the supported Qt4 PySide binding selected, importing QtCore and backend_qt4 succeeds, but PySide.QtCore does not provide PYQT_VERSION_STR. The new attribute access raises AttributeError, which the surrounding except ImportError does not catch. Consequently, test_backend_qt4 fails during collection rather than running or skipping its tests. Previously, successful binding imports simply set HAS_QT to True. The same PyQt-specific assumption was added to test_backend_qt5.",
+      "path": "lib/matplotlib/tests/test_backend_qt4.py",
+      "line": 28,
+      "evidence": "py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])",
+      "fix": "Determine Qt4 versus Qt5 using binding-independent Qt version information or the selected binding identifier from qt_compat, rather than assuming every binding exposes PYQT_VERSION_STR. Apply the correction to both test modules.",
+      "test": "Collect both Qt test modules with QT_API=pyside and PySide installed. Assert that collection succeeds, Qt4 tests are enabled, and Qt5 tests are marked unavailable.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 19,
+          "symbol": "module-level import of QtCore from qt_compat"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 28,
+          "symbol": "module-level PyQt version detection"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 33,
+          "symbol": "ImportError-only exception handler"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "python2-unicode-key-expectations",
+      "severity": "medium",
+      "title": "Replacing unichr with chr breaks accented-key expectations on Python 2",
+      "explanation": "On Python 2, chr(193) and chr(225) produce single-byte strings, not the Unicode characters produced by Qt key processing. The changed upper- and lower-case tests therefore compare byte strings against Unicode accented keys and fail. The modifier-order expectation likewise uses a non-ASCII byte string; concatenating it with a Unicode prefix raises UnicodeDecodeError under the default ASCII decoding. The previous unichr calls produced the correct Unicode expectations. Registering test_backend_qt5 in the default suite makes these failures affect the normal test run on Python 2 with PyQt5.",
+      "path": "lib/matplotlib/tests/test_backend_qt5.py",
+      "line": 106,
+      "evidence": "chr(193)",
+      "fix": "Use six.unichr for all three accented-character expectations, including the replacements at lines 114 and 138, so expectations remain Unicode on both Python 2 and Python 3.",
+      "test": "Run test_unicode_upper, test_unicode_lower, and test_modifier_order with PyQt5 on Python 2 and Python 3. Assert that the expected values are Unicode and that the emitted keys exactly match them.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1432,
+          "symbol": "default_test_modules registration"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt5.py",
+          "line": 103,
+          "symbol": "test_unicode_upper"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt5.py",
+          "line": 106,
+          "symbol": "Python-version-dependent expected key construction"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt5.py",
+          "line": 56,
+          "symbol": "assert_correct_key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-838",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,60 @@
+{
+  "id": "sympy__sympy-1688",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "non-atomic-generated-file-update",
+      "severity": "medium",
+      "title": "Regeneration truncates the importable facts module before computation succeeds",
+      "explanation": "Opening ask_generated.py in write mode immediately destroys its existing contents. If compute_known_facts raises, or regeneration is interrupted during computation, the generated module remains empty. A fresh import then fails because ask.py imports known_facts_dict and known_facts_cnf from that module. Retrying the regeneration script also fails at its initial import of sympy.assumptions.ask, before it can repair the file. This turns a failed or cancelled regeneration into a broken checkout requiring manual restoration.",
+      "path": "sympy/assumptions/ask_update.py",
+      "line": 13,
+      "evidence": "f = open('sympy/assumptions/ask_generated.py', 'w')\ncode = compute_known_facts(known_facts, known_facts_keys)\nf.write(code)\nf.close()",
+      "fix": "Compute the generated code before modifying the destination. Write it to a temporary file in the same directory, close it successfully, and atomically replace ask_generated.py only after the complete write succeeds; clean up the temporary file on failure.",
+      "test": "In an isolated checkout, inject an exception into compute_known_facts and execute the regeneration script. Assert that ask_generated.py remains byte-for-byte unchanged and that a fresh process can still import SymPy and retry regeneration. Also inject a write failure before replacement and verify the same invariant.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/assumptions/ask_update.py",
+          "line": 13,
+          "symbol": "module-level output-file truncation"
+        },
+        {
+          "path": "sympy/assumptions/ask_update.py",
+          "line": 14,
+          "symbol": "compute_known_facts"
+        },
+        {
+          "path": "sympy/assumptions/ask.py",
+          "line": 303,
+          "symbol": "from sympy.assumptions.ask_generated import known_facts_dict, known_facts_cnf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

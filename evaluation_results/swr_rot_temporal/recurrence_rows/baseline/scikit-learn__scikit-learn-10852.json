@@ -1,0 +1,65 @@
+{
+  "id": "scikit-learn__scikit-learn-10852",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-CLUSTER-COLOR-NORMALIZATION",
+      "severity": "low",
+      "title": "Use a shared color normalization for training and predicted memberships",
+      "explanation": "Each scatter call independently normalizes its numeric colors. The training scatter contains labels 0, 1, and 2, so label 1 receives the middle of the colormap. For a supported batch of unknown instances predicted entirely into cluster 1, probable_clusters contains only 1; Matplotlib normalizes that constant array to the bottom of the colormap instead. The final plot then displays those instances in the color used for training cluster 0, despite their predicted membership being cluster 1. Similarly, a batch containing only labels 1 and 2 displays label 1 incorrectly. The fixed ten-point batch may include the complete label range and mask this defect; predicting batches that omit clusters is nevertheless a normal use of the demonstrated inductive model. Repeated fitting does not establish a separate label-consistency defect here: the selected AgglomerativeClustering configuration is deterministic on the unchanged X. The bounded duplicate fit and intentional print(__doc__) do not warrant findings.",
+      "path": "examples/cluster/plot_inductive_learning.py",
+      "line": 51,
+      "evidence": "                        c=color,",
+      "fix": "Construct one normalization from the fitted training-label range and pass it, together with the same colormap, to both numeric scatter calls. Keep the explicitly black unknown-instance scatter unchanged.",
+      "test": "Plot training colors [0, 1, 2] and prediction colors [1, 1], force a canvas draw, and assert that the predicted points have the same RGB color as training label 1. Repeat with prediction colors [1, 2].",
+      "confidence": 0.8899999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/cluster/plot_inductive_learning.py",
+          "line": 88,
+          "symbol": "inductiveLearner.predict(X_new)"
+        },
+        {
+          "path": "examples/cluster/plot_inductive_learning.py",
+          "line": 92,
+          "symbol": "plot_scatter(X, cluster_labels)"
+        },
+        {
+          "path": "examples/cluster/plot_inductive_learning.py",
+          "line": 93,
+          "symbol": "plot_scatter(X_new, probable_clusters)"
+        },
+        {
+          "path": "examples/cluster/plot_inductive_learning.py",
+          "line": 48,
+          "symbol": "plot_scatter"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

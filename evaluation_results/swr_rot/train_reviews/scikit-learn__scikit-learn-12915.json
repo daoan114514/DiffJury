@@ -1,0 +1,59 @@
+{
+  "id": "scikit-learn__scikit-learn-12915",
+  "findings": [
+    {
+      "rule_id": "correctness-review",
+      "severity": "medium",
+      "title": "Zero-weight calibration samples can turn the optimization objective into NaN",
+      "explanation": "The new loss can be infinite when a calibration probability saturates, and the subsequent multiplication by a zero sample weight produces NaN rather than removing that sample's contribution. A concrete counterexample is df=[1, 1e20], y=[0, 1], sample_weight=[1, 0]. The smoothed targets are [1/3, 2/3]. At the initial parameters [0, 0], the weighted objective gradient is [-1/6, -1/6], so the first unit-length BFGS trial is [1/6, 1/6]. For the second observation, exp(AB[0]*F+AB[1]) overflows and P becomes exactly zero. Its new loss is infinite, making the weighted sum NaN. The previous tiny-adjusted logarithm yielded a finite loss for that observation and hence a zero weighted contribution; the whole objective remained approximately 0.651417. Thus this is not merely the intentional infinite loss of a positively weighted impossible prediction: an observation with no weight contaminates an otherwise finite optimization objective. The unchanged weighting operation does not prevent it, and the optimizer encounters a non-finite objective during an ordinary trial step. This finding concerns calibration only; the provided excerpts do not establish a separate downstream neural-network failure, an AdaBoost safeguard regression, or a supported-SciPy compatibility failure.",
+      "path": "sklearn/calibration.py",
+      "line": 447,
+      "evidence": "l = -(xlogy(T, P) + xlogy(T1, 1. - P))\n        if sample_weight is not None:\n            return (sample_weight * l).sum()",
+      "fix": "Evaluate the sigmoid cross-entropy directly from the logits using logaddexp: with z=AB[0]*F+AB[1], use T*logaddexp(0, z) + T1*logaddexp(0, -z). This keeps the objective finite for these finite logits and consistent with its gradient. Alternatively, explicitly exclude zero-weight observations before evaluating and reducing their losses.",
+      "test": "Add a regression exercising _sigmoid_calibration with df=[1, 1e20], y=[0, 1], and sample_weight=[1, 0]. Check that fitting returns finite parameters and that the positive-weight observation's calibrated probability reaches its smoothed target, 1/3. Also assert that the actual objective evaluated at AB=[1/6, 1/6] is finite and approximately 0.651417, rather than NaN.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/calibration.py",
+          "line": 431,
+          "symbol": "_sigmoid_calibration"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 445,
+          "symbol": "calibration objective: probability calculation"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 447,
+          "symbol": "calibration objective: loss calculation"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 449,
+          "symbol": "calibration objective: weighted reduction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 19359,
+  "llm_calls": 5
+}

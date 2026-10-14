@@ -1,0 +1,44 @@
+{
+  "id": "pytest-dev__pytest-6802",
+  "findings": [
+    {
+      "rule_id": "api-compatibility",
+      "severity": "medium",
+      "title": "Implicit example lookup no longer resolves examples for parametrized tests",
+      "explanation": "When a parametrized test calls testdir.copy_example() without a name, request.node.name includes the parameter ID, whereas request.function.__name__ does not. For example, test_example parametrized with value 1 previously searched for examples/test_example or examples/test_example.py; it now searches for examples/test_example[1] or examples/test_example[1].py. An existing example named after the test function therefore no longer resolves. The name-is-None guard selects this incompatible path rather than preserving the existing implicit naming contract. Supporting doctests, where request.function is unavailable, does not require changing the lookup name for ordinary parametrized functions.",
+      "path": "src/_pytest/pytester.py",
+      "line": 724,
+      "evidence": "if name is None:\n            func_name = self.request.node.name\n            maybe_dir = example_dir / func_name\n            maybe_file = example_dir / (func_name + \".py\")",
+      "fix": "Preserve the function name for function-backed requests and fall back to request.node.name for doctests and other nodes without a function. Alternatively, use the original unparametrized function name when available.",
+      "test": "Configure pytester_example_dir with a test_example.py fixture, parametrize a test_example function, and call testdir.copy_example() without an explicit name. Assert that every parameter instance copies test_example.py successfully. Retain the new doctest regression test to verify the fallback when request.function is unavailable.",
+      "confidence": 0.93,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "src/_pytest/pytester.py",
+          "line": 724,
+          "symbol": "Testdir.copy_example"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17933,
+  "llm_calls": 5
+}

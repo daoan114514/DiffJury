@@ -1,0 +1,64 @@
+{
+  "id": "sphinx-doc__sphinx-3686",
+  "findings": [
+    {
+      "rule_id": "caption-reference-state",
+      "severity": "medium",
+      "title": "Preserve the caption's reference state until the table labels are emitted",
+      "explanation": "The new caption runs inside the groups created by \\makebox and \\vtop, but both templates emit the table labels after those groups have closed. LaTeX's \\refstepcounter increments the table counter globally but assigns \\@currentlabel locally. Consequently, the caption displays the correct table number while the following \\label records the enclosing heading's reference number instead. Previously, the caption and labels were both inside the same threeparttable environment. A concrete reproduction is a howto document containing one numbered section and two captioned list-tables with explicit targets `first` and `second`, followed by raw LaTeX references to `\\ref{\\detokenize{index:first}}` and `\\ref{\\detokenize{index:second}}`. The second caption should display table 2 and its reference should return 2; the reference instead inherits the section's number. This follows from the standard caption/refstepcounter grouping behavior; compilation was not available in this review. Hypcap may preserve hyperlink destination state globally, but that does not preserve the numeric \\@currentlabel, so the finding does not depend on the hyperlink destination also being wrong. The updated tests assert generated caption and label strings only, and therefore do not detect this rendered-reference regression.",
+      "path": "sphinx/texinputs/sphinx.sty",
+      "line": 99,
+      "evidence": "\\newcommand\\sphinxcaptionof[2]{%\n   \\noindent\\makebox[\\linewidth]{%\n      \\vtop{\\hsize\\LTcapwidth\n            \\def\\@captype{#1}%\n            \\capstart % must be after setting \\@captype\n            \\abovecaptionskip\\z@skip\n            \\belowcaptionskip\\z@skip\n            \\caption[{#2}]%\n               {\\strut\\ignorespaces#2\\ifhmode\\unskip\\@finalstrut\\strutbox\\fi}%\n           }}%",
+      "fix": "Emit the table labels inside the caption's group after \\caption, for example by adding a labels argument to \\sphinxcaptionof and updating both templates. This also keeps the labels alongside the applicable hyperlink state without globally leaking caption state.",
+      "test": "Compile a howto document twice with a numbered section and two explicitly labeled captioned tables. Assert that their .aux entries or resolved references contain distinct table numbers 1 and 2, rather than the inherited section number. Exercise both the tabular and tabulary templates, and verify that each reference links to its corresponding caption.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sphinx/templates/latex/tabular.tex_t",
+          "line": 14,
+          "symbol": "\\sphinxcaptionof{table}{...}<%= labels %>"
+        },
+        {
+          "path": "sphinx/templates/latex/tabulary.tex_t",
+          "line": 14,
+          "symbol": "\\sphinxcaptionof{table}{...}<%= labels %>"
+        },
+        {
+          "path": "sphinx/texinputs/sphinx.sty",
+          "line": 89,
+          "symbol": "\\sphinxcaptionof"
+        },
+        {
+          "path": "sphinx/texinputs/sphinx.sty",
+          "line": 97,
+          "symbol": "\\caption"
+        },
+        {
+          "path": "sphinx/texinputs/sphinx.sty",
+          "line": 99,
+          "symbol": "Closing the caption's nested groups before the template emits labels"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 35000,
+  "llm_calls": 5
+}

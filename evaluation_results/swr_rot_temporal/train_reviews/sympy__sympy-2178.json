@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-2178",
+  "findings": [
+    {
+      "rule_id": "correctness.arg-branch",
+      "severity": "medium",
+      "title": "Replacing arg with atan(im/re) discards the phase constraint",
+      "explanation": "The new preprocessing is not mathematically equivalent to arg: arg(-2) = pi, but atan(im(-2)/re(-2)) = atan(0) = 0. It also introduces division by zero on the nonzero imaginary axis, where arg itself is well-defined. A concrete affected invocation is solve([abs(x) - 2, arg(x) - pi], x) with an unconstrained symbol x. Its only valid solution is x = -2. The added test explicitly expects both -2 and +2, but substituting +2 into the original phase equation gives arg(2) - pi = -pi, not zero. Thus the test's positive solution is independently provable to be spurious, rather than evidence of correctness. The changed code replaces the phase equation in f before handing it to downstream solving, losing the original quadrant constraint; checking or inverting the rewritten equation cannot restore that constraint. The Abs-to-sqrt transformation was already present before this change and is not the newly introduced defect here.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 744,
+      "evidence": "        _arg = [a for a in fi.atoms(arg) if a.has(*symbols)]\n        f[i] = fi.xreplace(dict(zip(_arg,\n            [atan(im(a.args[0])/re(a.args[0])) for a in _arg])))",
+      "fix": "Preserve arg constraints unless a branch-aware equivalent can be established. If using atan2 or real/imaginary decomposition, retain the quadrant and nonzero-domain restrictions and validate candidate solutions against the original equations. Remove the positive solution from the added test.",
+      "test": "For an unconstrained x, solve([Abs(x) - 2, arg(x) - pi], x) must yield only x = -2, and every returned candidate must satisfy both original equations. Add cases for phases 0, pi/2, and -pi/2 with Abs(x) = 2, expecting respectively 2, 2*I, and -2*I; also verify that zero is never accepted as satisfying a defined phase constraint. These tests must exercise solve rather than just the replacement expression.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/tests/test_solvers.py",
+          "line": 1221,
+          "symbol": "test_issues_3720_3721_3722_3149: solve([abs(x) - 2, arg(x) - pi], x)"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 738,
+          "symbol": "solve: real/imag preprocessing"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 743,
+          "symbol": "solve: replace original arg constraints in f"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 20646,
+  "llm_calls": 5
+}

@@ -1,0 +1,137 @@
+{
+  "id": "sympy__sympy-17548",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "module-scope-export-collision",
+      "severity": "medium",
+      "title": "Module-level initialization overwrites the exported symbol k",
+      "explanation": "Moving the loop out of clashing() makes every assignment to k overwrite sympy.abc's existing Latin-letter Symbol binding. The namespace populated by `from sympy import *` is nonempty and its keys are strings, so the completed loop leaves k as a string rather than Symbol('k'), regardless of pop order. Consequently, `from sympy.abc import k; k + 1` now raises TypeError instead of constructing a symbolic expression; wildcard consumers receive the same broken binding. The final cleanup does not restore k and also leaves the new public name ns available to wildcard imports. The clash dictionaries themselves retain the previous construction behavior: the same imported keys are tested against the same letter lists, converted to Symbols, and merged. The relocated examples use those dictionaries rather than the overwritten k, so they do not detect this regression.",
+      "path": "sympy/abc.py",
+      "line": 100,
+      "evidence": "    k, _ = ns.popitem()",
+      "fix": "Use a private loop variable such as _name instead of k, and delete ns and any temporary bindings after initialization, or retain function-scoped initialization.",
+      "test": "In a fresh import, assert that sympy.abc.k equals Symbol('k') and that k + 1 constructs the expected expression. Execute `from sympy.abc import *` into a separate namespace and verify that k remains a Symbol and ns is absent. Retain assertions for the clash dictionaries and run the relocated module doctests.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/abc.py",
+          "line": 95,
+          "symbol": "<module>: namespace initialization"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 100,
+          "symbol": "<module>: assignment to exported k"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 111,
+          "symbol": "<module>: cleanup omits temporary bindings"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-2b42cad0",
+      "K-4073d146",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-9f4e51f5",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-d0414ebb",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-09474f0c",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-93a099ce",
+          "K-9f4e51f5"
+        ],
+        "tokens": 406,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-7ac64342",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-4073d146",
+          "K-c01df042",
+          "K-b1da47ce",
+          "K-e820d88f",
+          "K-0117d999",
+          "K-83dfddfe"
+        ],
+        "tokens": 612,
+        "budget": 600,
+        "dropped": [
+          "K-7b0b7360",
+          "K-524f3b73",
+          "K-e13d441c",
+          "K-ddb18739",
+          "K-4b143eb5",
+          "K-e172ac33",
+          "K-46b8b947"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

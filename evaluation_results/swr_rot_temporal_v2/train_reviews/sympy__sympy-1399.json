@@ -1,0 +1,49 @@
+{
+  "id": "sympy__sympy-1399",
+  "findings": [
+    {
+      "rule_id": "invalid-traversal-test-expectations",
+      "severity": "low",
+      "title": "Correct the expression in the newly accepted traversal sequences",
+      "explanation": "The existing expectations identify the expression under test as z + w*(x + y). The added expected5 and expected6 instead contain a second x and end with x + w*(x + y). Changing argument order cannot change the visited symbols or the root expression: every valid postorder traversal must include z and finish with z + w*(x + y). These additions therefore weaken the assertion by accepting traversals of a different expression, while failing to recognize the legitimate orders they appear intended to cover. For example, [x, y, x + y, w, w*(x + y), z, z + w*(x + y)] is the corresponding valid traversal.",
+      "path": "sympy/utilities/tests/test_iterables.py",
+      "line": 20,
+      "evidence": "    expected5 = [x, y, x + y, w, w*(x + y), x, x + w*(x + y)]\n    expected6 = [y, x, x + y, w, w*(x + y), x, x + w*(x + y)]\n    assert list(postorder_traversal(expr)) in [expected1, expected2,\n                                               expected3, expected4,\n                                               expected5, expected6]",
+      "fix": "Replace the penultimate x with z and the final expression with z + w*(x + y) in both added expectations. Ensure every accepted sequence preserves the original tree's nodes and ends with expr.",
+      "test": "Check that the corrected expected5 and expected6 are accepted, that the currently added sequences are rejected, and that every accepted sequence ends with expr and contains exactly the original tree's node occurrences.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/tests/test_iterables.py",
+          "line": 22,
+          "symbol": "test_postorder_traversal"
+        },
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 147,
+          "symbol": "postorder_traversal"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-561",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 23076,
+  "llm_calls": 5
+}

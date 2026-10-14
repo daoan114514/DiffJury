@@ -1,0 +1,255 @@
+{
+  "id": "astropy__astropy-4736",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "quantity-array-to-scalar",
+      "severity": "high",
+      "title": "get_moon converts a three-component position Quantity to a scalar",
+      "explanation": "Every normal call fails before a coordinate is constructed. For scalar Time, epv00 returns a position/velocity array with shape (2, 3), so earth_p has shape (3,). Multiplying it by the dimensionless mass ratio produces a three-element Quantity, which cannot be converted with float(). For one-dimensional Time of length N, the same operand has shape (N, 3); for multidimensional Time it has shape time.shape + (3,). Those also cannot be converted to a scalar. The analogous velocity calculation repeats the defect. The conversion must apply only to the scalar mass ratio, not to the resulting vector.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 209,
+      "evidence": "             float(const.M_earth/const.M_moon*earth_p)",
+      "fix": "Convert the dimensionless scalar ratio separately: float(const.M_earth / const.M_moon) * earth_p, and make the corresponding correction for earth_v.",
+      "test": "Call the publicly exported get_moon with scalar Time, a length-two Time array, and a (2, 2) Time array. Assert that each call succeeds and that the coordinate shape equals the Time shape. The scalar case alone reproduces the current conversion failure.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "get_moon: erfa.epv00"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 203,
+          "symbol": "get_moon: extract earth_p"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 209,
+          "symbol": "get_moon: float(vector Quantity)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "erfa-aberration-contract",
+      "severity": "medium",
+      "title": "The aberration calculation passes AU/day velocities as fractions of light speed",
+      "explanation": "Independently of the preceding scalar-conversion failure, the aberration arguments violate ERFA's numerical contract. epv00 and plan94 return velocities in AU/day, whereas ab expects the observer's barycentric velocity in units of the speed of light and bm = sqrt(1 - |v|^2). This implementation passes an unconverted Earth-minus-Moon velocity and calculates the reciprocal of the required Lorentz factor. For scale, a relative speed of 1 km/s is approximately 0.000578 AU/day but only 0.00000334 in units of c; treating the former as the latter magnifies its first-order aberration contribution by approximately 173. The observer velocity should come from earth_pv_bary, not the Moon's relative velocity. Furthermore, ab's s argument is the Sun-to-observer distance in AU, not the Earth-to-Moon distance supplied here. These are argument-contract errors, not accuracy limitations of the approximate ephemerides.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 213,
+      "evidence": "    invlorentz = (1-np.sum((moon_v-earth_v)**2, axis=-1))**-0.5\n    properdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),\n                        earth_v-moon_v,\n                        dmoon,\n                        invlorentz)",
+      "fix": "Construct the Earth-to-Moon natural direction and apply aberration using the Earth's barycentric velocity divided by c expressed in AU/day, sqrt(1 - |v|^2), and the Earth's heliocentric distance. Keep the direction and output signs consistent with ab's source-direction convention.",
+      "test": "After fixing the vector conversion, compare this correction with a direct erfa.ab calculation using the same positions, the converted earth_pv_bary velocity, and the heliocentric Earth distance. Assert agreement and preservation of the direction's unit norm. Separately compare final lunar coordinates against an independent lunar ephemeris so ephemeris approximation error is not confused with aberration error.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "get_moon: epv00 position and velocity in AU and AU/day"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 199,
+          "symbol": "get_moon: plan94 position and velocity in AU and AU/day"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 210,
+          "symbol": "get_moon: derive moon_v without unit conversion"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "get_moon: erfa.ab"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "time-array-broadcasting",
+      "severity": "medium",
+      "title": "Flattening the distance array breaks multidimensional Time inputs",
+      "explanation": "After correcting the earlier float conversions, scalar and one-dimensional inputs can pass this division, but a (2, 2) Time input cannot. Its position difference has shape (2, 2, 3), while dmoon has shape (2, 2). reshape(-1, 1) changes the denominator to (4, 1), which cannot broadcast against (2, 2, 3): the corresponding dimensions 4 and 2 disagree. The public function explicitly accepts an array Time object without restricting its dimensionality. The operation needs to add a Cartesian component axis while preserving all Time axes.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 214,
+      "evidence": "    properdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),",
+      "fix": "Use dmoon[..., np.newaxis] to preserve the Time dimensions. Handle scalar results consistently when constructing CartesianRepresentation rather than relying on the flattened denominator to introduce a length-one dimension.",
+      "test": "Use a (2, 2) Time array and assert that get_moon returns shape (2, 2), with each element matching a separate scalar call at the same time. Include scalar and one-dimensional cases to verify the scalar-construction adjustment.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 203,
+          "symbol": "get_moon: retain Time axes in earth_p"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 206,
+          "symbol": "get_moon: retain Time axes in emb_p"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 212,
+          "symbol": "get_moon: reduce Cartesian axis to obtain dmoon"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "get_moon: flatten Time axes before division"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0528b9a8",
+      "K-063ee88d",
+      "K-09aa8545",
+      "K-0f3086e4",
+      "K-10f071ed",
+      "K-1a7292bd",
+      "K-1bbd8c27",
+      "K-1f0dc278",
+      "K-200d328d",
+      "K-2b350bbf",
+      "K-2b35c92b",
+      "K-30246d94",
+      "K-39909304",
+      "K-3b47c9b6",
+      "K-3c9cd8b8",
+      "K-533c203b",
+      "K-5ab72cf5",
+      "K-5cfed8c0",
+      "K-6b2f7727",
+      "K-728891cc",
+      "K-915119d5",
+      "K-94ced832",
+      "K-984ea536",
+      "K-997796e9",
+      "K-9bff7ae1",
+      "K-a0373828",
+      "K-c9c94b8c",
+      "K-d6e0428e",
+      "K-d70ab557",
+      "K-d9d0df1c",
+      "K-e974c513",
+      "K-f8360044",
+      "K-fc5b6f35",
+      "K-ff9e463d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-5ab72cf5",
+          "K-9bff7ae1",
+          "K-d6e0428e"
+        ],
+        "tokens": 129,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09aa8545",
+          "K-063ee88d",
+          "K-3c9cd8b8",
+          "K-984ea536",
+          "K-fc5b6f35",
+          "K-2b350bbf",
+          "K-f8360044",
+          "K-d70ab557",
+          "K-39909304",
+          "K-533c203b",
+          "K-0f3086e4",
+          "K-1f0dc278",
+          "K-200d328d",
+          "K-6b2f7727",
+          "K-ff9e463d",
+          "K-3b47c9b6",
+          "K-0528b9a8",
+          "K-10f071ed",
+          "K-915119d5",
+          "K-5cfed8c0",
+          "K-1a7292bd",
+          "K-1bbd8c27",
+          "K-d9d0df1c"
+        ],
+        "tokens": 1680,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-2b35c92b"
+        ],
+        "tokens": 78,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-997796e9",
+          "K-a0373828",
+          "K-728891cc",
+          "K-30246d94",
+          "K-94ced832",
+          "K-e974c513",
+          "K-c9c94b8c"
+        ],
+        "tokens": 502,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

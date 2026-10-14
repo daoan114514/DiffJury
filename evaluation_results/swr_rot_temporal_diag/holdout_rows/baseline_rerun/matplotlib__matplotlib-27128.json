@@ -1,0 +1,97 @@
+{
+  "id": "matplotlib__matplotlib-27128",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 27128,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 4,
+  "tp": 1,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 480,
+      "cwe": "CWE-755",
+      "rule_id": "decorator-preserve-pytest-metadata",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 160122,
+  "llm_calls": 5,
+  "input_tokens": 21121,
+  "output_tokens": 4860,
+  "total_tokens": 25981,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 4,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {}
+}

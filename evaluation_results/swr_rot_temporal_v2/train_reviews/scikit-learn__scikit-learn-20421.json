@@ -1,0 +1,51 @@
+{
+  "id": "scikit-learn__scikit-learn-20421",
+  "findings": [
+    {
+      "rule_id": "warning-callable-not-invoked",
+      "severity": "medium",
+      "title": "Invoke the callable returned by ignore_warnings",
+      "explanation": "ignore_warnings(function, category=...) wraps the function and returns a callable; it does not execute the function. Previously, assert_warns invoked that returned callable. The replacement at lines 123, 125, and 127 only constructs wrappers inside pytest.warns, so none of the warning-producing functions runs. Consequently, test_ignore_warning fails at the first context exit because no DeprecationWarning was emitted; the other two migrated direct-function checks have the same defect. The later decorator checks correctly invoke their wrapped functions and do not have this problem.",
+      "path": "sklearn/utils/tests/test_testing.py",
+      "line": 123,
+      "evidence": "with pytest.warns(DeprecationWarning):\n        ignore_warnings(_warning_function, category=UserWarning)\n    with pytest.warns(UserWarning):\n        ignore_warnings(_multiple_warning_function, category=FutureWarning)\n    with pytest.warns(DeprecationWarning):\n        ignore_warnings(_multiple_warning_function, category=UserWarning)",
+      "fix": "Append () to each of the three ignore_warnings(...) expressions so the returned wrapper executes inside pytest.warns.",
+      "test": "Run sklearn/utils/tests/test_testing.py::test_ignore_warning. Verify that all three direct-function contexts execute their wrapped functions and observe the specified unsuppressed warning category.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/tests/test_testing.py",
+          "line": 109,
+          "symbol": "test_ignore_warning"
+        },
+        {
+          "path": "sklearn/utils/tests/test_testing.py",
+          "line": 123,
+          "symbol": "ignore_warnings (returned callable is not invoked)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 24960,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-20421.json",
+  "borrowed_sha256": "9dea818cde20cfe8732c960bbad6875fdd17a9ecff35eede5b1578d3f66aa0f2"
+}

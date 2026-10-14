@@ -1,0 +1,77 @@
+{
+  "id": "matplotlib__matplotlib-4714",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-026c37f1",
+      "K-09cf1a4e",
+      "K-7282b084",
+      "K-7843f755",
+      "K-81147535",
+      "K-88e0e1f8",
+      "K-9cb4cdef",
+      "K-a22efd33",
+      "K-db90d837",
+      "K-f05a0a7d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-db90d837",
+          "K-88e0e1f8",
+          "K-9cb4cdef",
+          "K-026c37f1",
+          "K-7843f755",
+          "K-09cf1a4e",
+          "K-f05a0a7d"
+        ],
+        "tokens": 430,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-81147535",
+          "K-7282b084",
+          "K-a22efd33"
+        ],
+        "tokens": 235,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

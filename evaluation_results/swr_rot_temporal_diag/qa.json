@@ -1,0 +1,11 @@
+{
+  "protected_files_unchanged": 1555,
+  "test_suite_passed": 133,
+  "jointly_successful_prs": 217,
+  "credential_scan_files": 667,
+  "credential_matches": 0,
+  "utf8_verified": true,
+  "t7_registered_worktrees": 0,
+  "t7_empty": true,
+  "clipping_fix_applied": false
+}

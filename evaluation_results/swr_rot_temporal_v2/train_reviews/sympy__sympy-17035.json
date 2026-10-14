@@ -1,0 +1,49 @@
+{
+  "id": "sympy__sympy-17035",
+  "findings": [
+    {
+      "rule_id": "SPARSE-PERMUTATION-TYPE-COVERAGE",
+      "severity": "low",
+      "title": "The sparse-type test loop exercises mutable inputs twice",
+      "explanation": "The loop declares both immutable and mutable sparse array classes, but its body always constructs MutableSparseNDimArray. Consequently, both iterations exercise the mutable input and mutable result-constructor path. Comparing the result with an ImmutableSparseNDimArray expected value does not exercise permutedims with an immutable input. The new large-shape regression therefore leaves the immutable sparse path untested despite explicitly intending to cover both classes.",
+      "path": "sympy/tensor/array/tests/test_arrayop.py",
+      "line": 283,
+      "evidence": "for SparseArrayType in [ImmutableSparseNDimArray, MutableSparseNDimArray]:\n        A = MutableSparseNDimArray({1:1, 10000:2}, (10000, 20000, 10000))",
+      "fix": "Construct A with SparseArrayType and assert that each permutation result retains that exact class.",
+      "test": "Run the large-shape identity and transpose assertions with each declared class. Also check a non-self-inverse permutation with unequal axis sizes: SparseArrayType({18: 7}, (2, 3, 5)) permuted by (1, 2, 0) must have shape (3, 5, 2), stored entry {7: 7}, and the same class as its input. This follows the dense mapping from old coordinate (1, 0, 3) to new coordinate (0, 3, 1).",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/array/tests/test_arrayop.py",
+          "line": 283,
+          "symbol": "test_array_permutedims"
+        },
+        {
+          "path": "sympy/tensor/array/arrayop.py",
+          "line": 293,
+          "symbol": "permutedims: return type(expr)(new_array, new_shape)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-563",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 21743,
+  "llm_calls": 5
+}

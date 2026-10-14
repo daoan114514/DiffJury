@@ -1,0 +1,88 @@
+{
+  "id": "sympy__sympy-7614",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-evolute-translation",
+      "severity": "medium",
+      "title": "The evolute equation ignores the ellipse's center",
+      "explanation": "The returned equation uses absolute x and y coordinates without subtracting self.center. For an ellipse parametrized by (h + a*cos(t), k + b*sin(t)), its centers of curvature are (h + (a²-b²)*cos(t)³/a, k + (b²-a²)*sin(t)³/b). Consequently, the documented Ellipse(Point(1, 0), 3, 2) has a center of curvature at (8/3, 0), corresponding to t=0. Substituting that point into the returned expression gives 4 - 5**(2/3), which is nonzero. Thus the documented output describes an origin-centered ellipse rather than the stated translated ellipse. The parameters are documented as axis labels, not coordinates relative to the center, so no local-coordinate precondition is provided. The same omission affects the equal-radius boundary: its evolute must degenerate to the supplied center, not the origin.",
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1216,
+      "evidence": "return (self.hradius*x)**Rational(2, 3) + \\\n        (self.vradius*y)**Rational(2, 3) -\\\n        (self.hradius**2 - self.vradius**2)**Rational(2, 3)",
+      "fix": "Use x - self.center.x and y - self.center.y in the evolute equation, and update the translated example accordingly. Preserve real fractional-power semantics separately.",
+      "test": "For Ellipse(Point(1, 0), 3, 2), substitute the known curvature center (8/3, 0) and assert that the expression simplifies to zero. Also verify translation covariance and that the equal-radius case vanishes at its supplied center.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/ellipse.py",
+          "line": 1190,
+          "symbol": "Ellipse.evolute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

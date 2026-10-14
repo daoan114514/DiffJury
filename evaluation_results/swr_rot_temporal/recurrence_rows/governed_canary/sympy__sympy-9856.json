@@ -1,0 +1,201 @@
+{
+  "id": "sympy__sympy-9856",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "rising-factorial-falling-polynomial-semantics",
+      "severity": "medium",
+      "title": "The falling-factorial rewrite shifts polynomial values instead of their variable",
+      "explanation": "The additive identity rf(a,k)=ff(a+k-1,k) applies to scalar product semantics, but this implementation also gives univariate polynomials of degree greater than one distinct semantics: it multiplies f(x), f(x+1), and subsequent variable shifts. FallingFactorial uses the corresponding descending variable shifts. For integer k, let r=rf(x**2,k). Substituting k=2 into r evaluates to x**2*(x+1)**2. Substituting k=2 into r.rewrite(ff) instead evaluates ff(x**2+1,2), which is (x**2+1)*((x-1)**2+1). Evaluating these resulting polynomials at x=2 gives 36 and 10 respectively. The changed rewrite therefore disagrees with the pre-existing polynomial evaluation explicitly exercised by the existing rising-factorial tests. The newly added rewrite test only uses a linear symbol as the base and cannot expose this mismatch.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 508,
+      "evidence": "def _eval_rewrite_as_FallingFactorial(self, x, k):\n        return FallingFactorial(x + k - 1, k)",
+      "fix": "Account for the polynomial-specific semantics: for a supported univariate polynomial f(v), shift the variable to form f(v+k-1), rather than adding k-1 to f(v). If the applicable polynomial/scalar semantics cannot be established for symbolic inputs, leave the rewrite unevaluated.",
+      "test": "Create r=rf(x**2,k) with integer k, substitute k=2 separately into r and r.rewrite(ff), and assert that their expanded polynomial expressions agree. Include a negative-order polynomial case to check the reciprocal variable-shift semantics.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 507,
+          "symbol": "RisingFactorial._eval_rewrite_as_FallingFactorial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 478,
+          "symbol": "RisingFactorial.eval polynomial variable-shift product"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "rising-factorial-factorial-domain",
+      "severity": "medium",
+      "title": "Integer assumptions do not make the factorial quotient valid",
+      "explanation": "The new guard admits negative integer bases, where the rising factorial can be finite but both factorials in the quotient have poles. For integer symbols n and k, rf(n, k).subs({n: -2, k: 1}, simultaneous=True) evaluates to -2, whereas rf(n, k).rewrite(factorial).subs({n: -2, k: 1}, simultaneous=True) becomes factorial(-2)/factorial(-3), hence zoo/zoo and NaN. The original product evaluation supports these inputs; the incorrect quotient is introduced by this rewrite. Negative orders can also expose the problem, for example n=0, k=-1, whose rising factorial is -1. The added test only checks the symbolic quotient's shape and does not substitute values at factorial poles. The documentation likewise presents the identity for unrestricted integer symbols.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 512,
+      "evidence": "if x.is_integer and k.is_integer:\n            return factorial(k + x - 1) / factorial(x - 1)",
+      "fix": "Restrict this quotient to a domain where the individual factorials are finite, conservatively requiring positive integer x and positive integer x+k, or implement separate valid branches for other domains. Leave the rising factorial unchanged when validity cannot be established.",
+      "test": "Add substitution-based regression tests comparing the original and rewritten expressions for n=-2,k=1 and n=0,k=-1. Also retain successful rewrite tests under assumptions that establish positive x and x+k.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 510,
+          "symbol": "RisingFactorial._eval_rewrite_as_factorial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 457,
+          "symbol": "RisingFactorial.eval"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "rising-factorial-binomial-negative-order",
+      "severity": "medium",
+      "title": "The binomial rewrite produces NaN for negative orders",
+      "explanation": "An integer order need not be nonnegative. SymPy's binomial coefficient is zero for a negative integer lower argument, while factorial of that argument is complex infinity. Consequently, for integer k, rf(3, k).rewrite(binomial).subs(k, -1) becomes factorial(-1)*binomial(1, -1), or zoo*0 = NaN. The original rf(3, -1) is 1/(3-1) = 1/2 under the existing reciprocal-product implementation. This is a newly introduced rewrite-domain error, not a change to the original negative-order evaluation. The added test uses an unrestricted integer k but only asserts the returned formula, so it misses the invalid negative-order substitutions.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 515,
+      "evidence": "if k.is_integer:\n            return factorial(k) * binomial(x + k - 1, k)",
+      "fix": "Require a known nonnegative integer order before using this identity, or provide a separately justified negative-order formula. Leave the expression unchanged when the order's sign is unknown, and update the documented assumptions accordingly.",
+      "test": "Add a regression comparing rf(3,k) and its binomial rewrite after substituting k=-1, expecting 1/2 rather than NaN. Test k=0 and positive orders under nonnegative integer assumptions as well.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 514,
+          "symbol": "RisingFactorial._eval_rewrite_as_binomial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 490,
+          "symbol": "RisingFactorial.eval negative-order reciprocal product"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-4b143eb5",
+      "K-4ff368df",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-93a099ce",
+          "K-09474f0c",
+          "K-ad16cdc6",
+          "K-2b42cad0",
+          "K-2ec8eae2"
+        ],
+        "tokens": 404,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-7ac64342",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-83dfddfe",
+          "K-e820d88f"
+        ],
+        "tokens": 647,
+        "budget": 600,
+        "dropped": [
+          "K-25a05e81",
+          "K-c01df042",
+          "K-e13d441c",
+          "K-e172ac33",
+          "K-524f3b73",
+          "K-4073d146",
+          "K-0faed540"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

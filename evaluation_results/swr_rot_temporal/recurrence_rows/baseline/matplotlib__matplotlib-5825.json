@@ -1,0 +1,128 @@
+{
+  "id": "matplotlib__matplotlib-5825",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation-relative-link",
+      "severity": "medium",
+      "title": "The style-changes announcement link resolves inside nested documentation directories",
+      "explanation": "The shared layout now uses a bare relative URL for the top-level style-changes page. On a nested documentation page such as https://matplotlib.org/users/pyplot_tutorial.html, clicking “new updates” resolves to https://matplotlib.org/users/style_changes.html instead of the intended https://matplotlib.org/style_changes.html. The same problem occurs under versioned documentation prefixes: the link resolves inside the current page's subdirectory rather than at the documentation root. Because the layout emits this literal href without Sphinx's page-relative URL calculation, nested pages receive an incorrect navigation target.",
+      "path": "doc/_templates/layout.html",
+      "line": 180,
+      "evidence": "<p>Learn what to expect in the <a href=\"style_changes.html\" style=\"font-weight: bold;",
+      "fix": "Generate the link using Sphinx's pathto helper, for example href=\"{{ pathto('style_changes') }}\", so it reaches the top-level document from both root and nested pages and preserves deployment prefixes.",
+      "test": "Build the documentation and check the announcement link on index.html and users/pyplot_tutorial.html. Resolve each emitted href against its page URL, including a versioned deployment prefix, and assert that both point to the generated top-level style_changes.html.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 180,
+          "symbol": "Shared documentation layout announcement link"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "third-party-popup-retains-opener",
+      "severity": "medium",
+      "title": "Mobile donation popup grants the external widget an opener reference",
+      "explanation": "The mobile branch opens the fixed HTTPS Flipcause URL with window.open(new_url), without requesting noopener. In browsers that preserve the opener and where response isolation headers do not sever it, scripts in the external widget can navigate the documentation window through window.opener.location. This crosses the third-party trust boundary and enables reverse tabnabbing if the provider serves malicious or compromised script. The donation IDs shown in donate_sidebar.html are fixed literals, and both visible navigation sinks use a fixed HTTPS origin; this is not a demonstrated URL-injection or mixed-content execution issue. The omitted widget implementation and unavailable response headers prevent verification of provider-side isolation or an existing provider compromise, so exploitation is conditional on those prerequisites.",
+      "path": "doc/_templates/layout.html",
+      "line": 368,
+      "evidence": "if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){\nnew_url=\"https://www.flipcause.com/widget/\"+cause_id\nwindow.open(new_url);",
+      "fix": "Open the widget with explicit opener isolation, for example window.open(new_url, '_blank', 'noopener,noreferrer'), and use a compatible isolation fallback if supporting older browsers.",
+      "test": "Exercise the mobile branch against a controlled cross-origin test widget. Assert that window.opener is null and that attempted opener navigation leaves the documentation page unchanged, while the donation popup still opens.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/_templates/donate_sidebar.html",
+          "line": 2,
+          "symbol": "onclick calls open_window('MjI1OA==')"
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 366,
+          "symbol": "mobile user-agent branch"
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 368,
+          "symbol": "window.open opens the external widget with default opener behavior"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1022",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "insecure-third-party-resource-delivery",
+      "severity": "low",
+      "title": "New badge and donation UI assets use unauthenticated HTTP",
+      "explanation": "The new badge image and donation close icon are fetched from fixed HTTP URLs. A network attacker can replace these image responses in browsers that permit passive mixed content, altering the displayed badge or close affordance. Modern browsers may upgrade these requests to HTTPS or block them, which limits exploitability. These are image-loading contexts: even the SVG loaded through img does not establish executable-content injection into the documentation. The badge also links to an HTTP page; following that link exposes the destination document to network modification, independently of whether the browser upgrades the image.",
+      "path": "doc/_templates/badgesidebar.html",
+      "line": 3,
+      "evidence": "<a href=\"http://depsy.org/package/python/matplotlib\">\n  <img src=\"http://depsy.org/api/package/pypi/matplotlib/badge.svg\">\n.fc-widget_close{\nopacity:1; content:url(http://i1338.photobucket.com/albums/o691/WeCause/X_zpse4a7e538.png);",
+      "fix": "Use verified HTTPS endpoints for the badge image, badge link, and close icon. If an image provider lacks HTTPS support, host a trusted copy locally.",
+      "test": "Render the sidebars and donation widget and assert that their external resource URLs and badge href use HTTPS. Check that the legitimate badge and close icon still render without HTTP requests.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/conf.py",
+          "line": 189,
+          "symbol": "html_sidebars includes badgesidebar.html"
+        },
+        {
+          "path": "doc/_templates/badgesidebar.html",
+          "line": 3,
+          "symbol": "img.src triggers HTTP badge retrieval"
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 289,
+          "symbol": ".fc-widget_close content URL triggers HTTP image retrieval when rendered"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-319",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

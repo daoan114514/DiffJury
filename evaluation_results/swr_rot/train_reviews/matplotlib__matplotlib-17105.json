@@ -1,0 +1,56 @@
+{
+  "id": "matplotlib__matplotlib-17105",
+  "findings": [
+    {
+      "rule_id": "textbox-managerless-submit",
+      "severity": "medium",
+      "title": "Managerless TextBox editing never emits the submit notification when stopped",
+      "explanation": "The new begin_typing path permits editing when canvas.manager is None, but stop_typing now conditions the entire notification-setting block on a manager being present. In that supported state, begin_typing sets capturekeystrokes=True; stop_typing subsequently clears capturekeystrokes and hides the cursor, but notifysubmit remains False, so registered submit observers are never called. Manager availability should determine keyboard-manager cleanup, not whether an active editing session is submitted. The supplied added tests exercise only Dropdown selection and constructor validation, not this path.",
+      "path": "lib/matplotlib/widgets.py",
+      "line": 1126,
+      "evidence": "if self.capturekeystrokes and self.ax.figure.canvas.manager is not None:",
+      "fix": "Keep capturekeystrokes as the outer condition and set notifysubmit=True for every active editing session. Guard only the manager-specific keymap restoration or keypress-lock release with the manager-is-not-None check.",
+      "test": "Construct a Figure with FigureCanvasAgg directly so canvas.manager is None, create a TextBox, register an on_submit observer, call begin_typing and then stop_typing, and assert exactly one notification containing the current text. Repeat with a manager-present canvas and assert the same notification behavior; a second stop_typing must not submit again.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1108,
+          "symbol": "TextBox.begin_typing"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1122,
+          "symbol": "TextBox.stop_typing"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1138,
+          "symbol": "conditional _notify_submit_observers invocation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 65311,
+  "llm_calls": 6
+}

@@ -1,0 +1,60 @@
+[10:32:47] start (apiyi, gpt-6.1-sol, workers 16)
+[10:32:49] holdout replay baseline (376 cases)
+[11:05:53] holdout baseline: {"f1": 0.3, "precision": 0.2578, "recall": 0.3587, "high_risk_recall": 0.4681, "clean_accuracy": 0.8028, "average_instruction_tokens_per_call": 1195.52, "average_total_tokens_per_pr": 27140.91, "average_latency_ms_per_pr": 65402.35, "failure_rate": 0.016}
+[11:05:53] train reviews: 0 cached, 442 to run
+[11:14:46] train reviews: 64/442 done
+[11:24:09] train reviews: 128/442 done
+[11:29:54] train reviews: 192/442 done
+[11:35:46] train reviews: 256/442 done
+[11:42:04] train reviews: 320/442 done
+[11:48:34] train reviews: 384/442 done
+[11:58:57] train reviews: 442/442 done
+[11:58:57] planned 253 events: {"missed": 106, "false_positive": 71, "noise": 51, "contradiction": 25}
+[12:03:46] measured @0: naive 291.8 tok/call, 0 live tok | governed 291.8 tok/call, 0 live tok
+[12:07:54] attribution @25: {"reviews": 6, "accepted": 0, "false_positive": 2, "failed": 0}
+[12:07:54] measured @25: naive 541.6 tok/call, 2818 live tok | governed 291.8 tok/call, 0 live tok
+[12:12:04] attribution @50: {"reviews": 6, "accepted": 0, "false_positive": 3, "failed": 0}
+[12:12:04] measured @50: naive 756.6 tok/call, 5910 live tok | governed 291.8 tok/call, 0 live tok
+[12:15:28] attribution @75: {"reviews": 6, "accepted": 1, "false_positive": 2, "failed": 0}
+[12:15:28] measured @75: naive 984.1 tok/call, 7630 live tok | governed 291.8 tok/call, 0 live tok
+[12:18:17] attribution @100: {"reviews": 6, "accepted": 0, "false_positive": 0, "failed": 0}
+[12:18:17] measured @100: naive 1185.9 tok/call, 9140 live tok | governed 291.8 tok/call, 0 live tok
+[12:22:30] attribution @125: {"reviews": 6, "accepted": 0, "false_positive": 2, "failed": 0}
+[12:22:30] measured @125: naive 1383.7 tok/call, 12285 live tok | governed 291.8 tok/call, 0 live tok
+[12:25:41] attribution @150: {"reviews": 6, "accepted": 0, "false_positive": 1, "failed": 0}
+[12:25:41] measured @150: naive 1546.6 tok/call, 14731 live tok | governed 291.8 tok/call, 0 live tok
+[12:28:48] attribution @175: {"reviews": 6, "accepted": 0, "false_positive": 0, "failed": 0}
+[12:28:49] measured @175: naive 1755.5 tok/call, 18246 live tok | governed 291.8 tok/call, 0 live tok
+[12:33:00] attribution @200: {"reviews": 6, "accepted": 1, "false_positive": 1, "failed": 0}
+[12:33:00] maintenance @200
+[12:42:24] maintenance @200: {"dream": {"clusters": 0, "evictions": {"K-25e6be30": "probation-failed", "K-b1217978": "probation-failed", "K-21eeedbc": "probation-failed"}, "live_items_before": 42, "live_items_after": 39, "live_tokens_before": 9294, "live_tokens_after": 9127, "consolidated": true, "release": {"status": "released", "version": 2, "gate": {"passed": true, "failures": [], "margin": 0.02, "max_point_drop": 0.1, "dataset_fingerprint": "15e2ece9f9c7e2634ca04989d68f9d1ebfbdbe471f7f7eefb76e29eb21c1b4dc", "cases": 60, "metrics": {"f1": {"baseline": 0.3509, "candidate": 0.3934, "delta": 0.0425, "ci95": [-0.0598, 0.1491], "max_point_drop": 0.1, "passed": true}, "high_risk_recall": {"baseline": 0.3333, "candidate": 0.4286, "delta": 0.0953, "ci95": [0.0, 0.2174], "max_point_drop": 0.1, "passed": true}, "clean_accuracy": {"baseline": 0.7333, "candidate": 0.7, "delta": -0.0333, "ci95": [-0.1143, 0.0], "max_point_drop": 0.1, "passed": true}}, "instruction_tokens_per_call": {"baseline": 1049.78, "candidate": 1025.08, "max_growth": 0.0, "passed": true}, "execution_success_rate": {"baseline": 1.0, "candidate": 1.0}, "baseline_snapshot": "ddbb7698a9654e349bb9f513", "candidate_snapshot": "be5155ea027867fea5ae02b5"}, "changes": {"updated": [], "archived": ["K-25e6be30", "K-b1217978", "K-21eeedbc"], "created": []}}}, "promotion": {}, "promotion_gate_failures": null, "dream_release": "released", "dream_gate_failures": [], "live_tokens_before": 9294, "live_tokens_after": 9127}
+[12:42:25] measured @200: naive 1953.8 tok/call, 20953 live tok | governed 291.8 tok/call, 0 live tok
+[12:46:59] attribution @225: {"reviews": 6, "accepted": 0, "false_positive": 1, "failed": 0}
+[12:46:59] measured @225: naive 2202.7 tok/call, 22497 live tok | governed 291.8 tok/call, 0 live tok
+[12:51:37] attribution @250: {"reviews": 6, "accepted": 2, "false_positive": 2, "failed": 0}
+[12:51:38] measured @250: naive 2379.8 tok/call, 24051 live tok | governed 291.8 tok/call, 0 live tok
+[12:51:51] maintenance @253
+[13:09:53] maintenance @253: {"dream": {"clusters": 0, "evictions": {"K-76f4b913": "probation-failed", "K-7963039d": "probation-failed"}, "live_items_before": 51, "live_items_after": 49, "live_tokens_before": 9755, "live_tokens_after": 9645, "consolidated": true, "release": {"status": "released", "version": 3, "gate": {"passed": true, "failures": [], "margin": 0.02, "max_point_drop": 0.1, "dataset_fingerprint": "15e2ece9f9c7e2634ca04989d68f9d1ebfbdbe471f7f7eefb76e29eb21c1b4dc", "cases": 60, "metrics": {"f1": {"baseline": 0.3666, "candidate": 0.4193, "delta": 0.0527, "ci95": [-0.0529, 0.1681], "max_point_drop": 0.1, "passed": true}, "high_risk_recall": {"baseline": 0.381, "candidate": 0.381, "delta": 0.0, "ci95": [-0.1429, 0.15], "max_point_drop": 0.1, "passed": true}, "clean_accuracy": {"baseline": 0.7667, "candidate": 0.7333, "delta": -0.0334, "ci95": [-0.1143, 0.0], "max_point_drop": 0.1, "passed": true}}, "instruction_tokens_per_call": {"baseline": 1071.41, "candidate": 1013.84, "max_growth": 0.0, "passed": true}, "execution_success_rate": {"baseline": 1.0, "candidate": 1.0}, "baseline_snapshot": "63ac5ef63acb7a52333be666", "candidate_snapshot": "264bdeb0dfd8f3ea9ccbd0cd"}, "changes": {"updated": [], "archived": ["K-76f4b913", "K-7963039d"], "created": []}}}, "promotion": {"status": "released", "version": 4, "changes": {"promoted": ["K-fb99060d"]}}, "promotion_gate_failures": [], "dream_release": "released", "dream_gate_failures": [], "live_tokens_before": 9755, "live_tokens_after": 9645}
+[13:09:53] measured @253: naive 2404.7 tok/call, 24299 live tok | governed 303.4 tok/call, 60 live tok
+[13:09:53] holdout replay final-naive (376 cases)
+[13:38:36] holdout final-naive: {"f1": 0.2806, "precision": 0.2403, "recall": 0.337, "high_risk_recall": 0.4255, "clean_accuracy": 0.8131, "average_instruction_tokens_per_call": 4179.36, "average_total_tokens_per_pr": 41171.86, "average_latency_ms_per_pr": 65269.45, "failure_rate": 0.0106}
+[13:38:36] holdout replay final-governed (376 cases)
+[14:35:07] holdout final-governed: {"f1": 0.2802, "precision": 0.2522, "recall": 0.3152, "high_risk_recall": 0.4043, "clean_accuracy": 0.7301, "average_instruction_tokens_per_call": 961.02, "average_total_tokens_per_pr": 23706.38, "average_latency_ms_per_pr": 95997.7, "failure_rate": 0.0904}
+[14:39:11] done: evaluation_results/swr_rot\summary.md
+[14:39:12] experiment exit 0
+[14:40:31] retry failed holdout cases (workers 8)
+[14:40:32] holdout baseline: retrying 6 failed cases (attempt 1)
+[14:43:22] holdout baseline: after retry 1: {"f1": 0.3022, "precision": 0.2556, "recall": 0.3696, "high_risk_recall": 0.4681, "clean_accuracy": 0.8028, "average_instruction_tokens_per_call": 1198.07, "average_total_tokens_per_pr": 27697.44, "average_latency_ms_per_pr": 65132.02, "failure_rate": 0.0027}
+[14:43:22] holdout baseline: retrying 1 failed cases (attempt 2)
+[14:46:15] holdout baseline: after retry 2: {"f1": 0.3009, "precision": 0.2537, "recall": 0.3696, "high_risk_recall": 0.4681, "clean_accuracy": 0.8028, "average_instruction_tokens_per_call": 1198.11, "average_total_tokens_per_pr": 27755.32, "average_latency_ms_per_pr": 65146.63, "failure_rate": 0.0}
+[14:46:15] measured @253: naive 2404.7 tok/call, 24299 live tok | governed 303.4 tok/call, 60 live tok
+[14:46:16] holdout final-naive: retrying 4 failed cases (attempt 1)
+[14:49:23] holdout final-naive: after retry 1: {"f1": 0.2743, "precision": 0.2313, "recall": 0.337, "high_risk_recall": 0.4255, "clean_accuracy": 0.8131, "average_instruction_tokens_per_call": 4179.58, "average_total_tokens_per_pr": 41521.83, "average_latency_ms_per_pr": 65374.27, "failure_rate": 0.0053}
+[14:49:23] holdout final-naive: retrying 2 failed cases (attempt 2)
+[14:52:13] holdout final-naive: after retry 2: {"f1": 0.2708, "precision": 0.2263, "recall": 0.337, "high_risk_recall": 0.4255, "clean_accuracy": 0.8131, "average_instruction_tokens_per_call": 4178.8, "average_total_tokens_per_pr": 41702.29, "average_latency_ms_per_pr": 65424.16, "failure_rate": 0.0}
+[14:52:14] holdout final-governed: retrying 34 failed cases (attempt 1)
+[15:01:03] holdout final-governed: after retry 1: {"f1": 0.2871, "precision": 0.25, "recall": 0.337, "high_risk_recall": 0.4255, "clean_accuracy": 0.7889, "average_instruction_tokens_per_call": 969.07, "average_total_tokens_per_pr": 26207.02, "average_latency_ms_per_pr": 90143.35, "failure_rate": 0.0186}
+[15:01:03] holdout final-governed: retrying 7 failed cases (attempt 2)
+[15:03:50] holdout final-governed: after retry 2: {"f1": 0.2844, "precision": 0.246, "recall": 0.337, "high_risk_recall": 0.4255, "clean_accuracy": 0.7924, "average_instruction_tokens_per_call": 967.97, "average_total_tokens_per_pr": 26337.11, "average_latency_ms_per_pr": 90001.3, "failure_rate": 0.0106}
+[15:10:21] done: evaluation_results/swr_rot\summary.md
+[15:10:21] experiment exit 0

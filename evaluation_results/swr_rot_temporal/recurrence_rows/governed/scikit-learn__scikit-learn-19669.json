@@ -1,0 +1,89 @@
+{
+  "id": "scikit-learn__scikit-learn-19669",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "unescaped-path-in-regex-assertion",
+      "severity": "low",
+      "title": "Escape the cache path before using the error message as a regex",
+      "explanation": "The new test inserts str(kddcup99_dir) directly into pytest.raises(..., match=msg), which interprets the message as a regular expression rather than literal text. On Windows, a temporary path such as C:\\Users\\runner\\AppData\\Local\\Temp\\... introduces an invalid regex escape (\\U). Consequently, even when the fetcher correctly raises the intended cache-corruption IOError, the assertion fails with a regex error. Paths containing regex metacharacters can also cause a mismatch. This introduces a platform-dependent failure in the new corruption test, rather than a failure in cache handling.",
+      "path": "sklearn/datasets/tests/test_kddcup99.py",
+      "line": 75,
+      "evidence": "msg = (f\"The cache for fetch_kddcup99 is invalid, please \"\n       f\"delete {str(kddcup99_dir)} and run the fetch_kddcup99 again\")\n\nwith pytest.raises(IOError, match=msg):",
+      "fix": "Import re and use match=re.escape(msg), or capture the exception and compare str(exc.value) directly with msg.",
+      "test": "Run the corruption test on Windows with a temporary directory under C:\\Users\\runner. Also exercise a data-home directory whose name contains brackets, such as cache[1], and verify that the intended IOError message passes the assertion literally.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/tests/test_kddcup99.py",
+          "line": 72,
+          "symbol": "test_corrupted_file_error_message"
+        },
+        {
+          "path": "sklearn/datasets/tests/test_kddcup99.py",
+          "line": 75,
+          "symbol": "pytest.raises"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

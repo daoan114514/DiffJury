@@ -1,0 +1,116 @@
+{
+  "id": "sympy__sympy-17672",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-expint-series-branch",
+      "severity": "medium",
+      "title": "Preserve the real positive-axis series of expint",
+      "explanation": "The modified assertion accepts an incorrect series for expint(4, z). For positive real z, E_n(z) = integral_1^infinity exp(-z*t)/t^n dt is real. Its expansion is 1/3 - z/2 + z**2/2 + z**3*(log(z)/6 - 11/36 + EulerGamma/6) - z**4/24 + z**5/240 + O(z**6). The newly accepted term introduces an imaginary part of -pi*z**3/6, which cannot be hidden in the O(z**6) remainder. This is inconsistent with the default positive-direction series, and changing the expected answer masks a branch-handling regression rather than validating the fix. The Ei rewrite correction itself is appropriate on the negative real axis: Chi(-r) = Chi(r) + I*pi and Shi(-r) = -Shi(r), so subtracting I*pi recovers the real Ei(-r). Positive and off-cut complex arguments retain the existing identity, and all four aliased rewrite targets receive the same correction. The unchanged unknown-sign case still cannot encode the special negative-axis value after substitution, but that limitation predates this change. The added negative-symbol test correctly checks the intended correction. The integral assertions are mathematically correct, since the substitution t = log(x) gives (-EulerGamma - log(p-1))/(p-1); the added default right-hand limit is also EulerGamma. Those regressions do not justify introducing an imaginary term into expint's positive-axis expansion.",
+      "path": "sympy/functions/special/tests/test_error_functions.py",
+      "line": 437,
+      "evidence": "z**3*(log(z)/6 - Rational(11, 36) + EulerGamma/6 - I*pi/6) - z**4/24 + \\",
+      "fix": "Restore the original expint series expectation and correct the branch accounting in the series/rewrite path affected by the Ei change, while retaining the negative-real Ei correction.",
+      "test": "Expand expint(4, p) about zero with p positive and dir='+', and assert the original expansion without -I*pi/6. Also assert that its imaginary part is zero through the retained order; exercise the negative-real Ei correction through each of Si, Ci, Shi, and Chi.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-0faed540",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e13d441c"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-2b42cad0",
+          "K-93a099ce",
+          "K-ad16cdc6",
+          "K-b5e72943"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-e13d441c",
+          "K-25a05e81",
+          "K-0faed540"
+        ],
+        "tokens": 647,
+        "budget": 600,
+        "dropped": [
+          "K-83dfddfe",
+          "K-e820d88f",
+          "K-46b8b947",
+          "K-e172ac33"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

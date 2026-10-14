@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-17552",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "DOC_PARAMETER_SEMANTICS",
+      "severity": "medium",
+      "title": "Float max_features is truncated and clamped, not rounded",
+      "explanation": "For valid positive float max_features, the underlying tree estimator's BaseDecisionTree.fit in sklearn/tree/_classes.py computes max(1, int(self.max_features * self.n_features_)), not round(...). With 10 input features and max_features=0.26, the implementation selects a feature budget of 2, while the changed documentation promises 3. At the minimum-feature boundary, max_features=0.01 gives an actual budget of 1, whereas the documented expression gives 0. All four affected estimators share this conversion: RandomForestClassifier and RandomForestRegressor configure DecisionTreeClassifier and DecisionTreeRegressor, respectively; ExtraTreesClassifier and ExtraTreesRegressor configure ExtraTreeClassifier and ExtraTreeRegressor, which also inherit BaseDecisionTree.fit. The forest forwards max_features to these constituent trees. Thus the replacements at lines 951, 1275, 1557, and 1875 introduce the same inaccurate parameter contract. The underlying implementation's line number is not available in the supplied context.",
+      "path": "sklearn/ensemble/_forest.py",
+      "line": 951,
+      "evidence": "          `round(max_features * n_features)` features are considered at each",
+      "fix": "In all four docstrings, describe the positive-float feature budget as max(1, int(max_features * n_features)) rather than round(max_features * n_features).",
+      "test": "Parameterize over all four forest estimators. Fit a nonconstant dataset with 10 features using max_features=0.26 and max_features=0.01, and assert that each fitted constituent tree's max_features_ is respectively 2 and 1. Ensure all four parameter descriptions match that conversion.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

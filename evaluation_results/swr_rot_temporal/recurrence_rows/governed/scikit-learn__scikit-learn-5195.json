@@ -1,0 +1,94 @@
+{
+  "id": "scikit-learn__scikit-learn-5195",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation.pdf-artifact-link-mismatch",
+      "severity": "medium",
+      "title": "The distribution target copies the PDF under a different name from the download link",
+      "explanation": "The new theme link resolves '_downloads/user_guide.pdf' relative to the HTML output root, but dist copies the generated user_guide.pdf to '_build/html/stable/_downloads/scikit-learn-docs.pdf'. Even assuming that destination directory exists and corresponds to the deployed HTML root, the copied filename cannot satisfy the new link. A successful copy therefore still leaves the advertised PDF download pointing at an absent artifact. The supplied context does not establish the HTML output-directory configuration, so a separate directory-creation or output-root defect is not asserted.",
+      "path": "doc/Makefile",
+      "line": 105,
+      "evidence": "cp _build/latex/user_guide.pdf _build/html/stable/_downloads/scikit-learn-docs.pdf",
+      "fix": "Make the copied artifact and theme URL agree. Copy to '<actual HTML output directory>/_downloads/user_guide.pdf', creating that directory if necessary, or consistently change the theme to the chosen distribution filename.",
+      "test": "Run dist from a clean build directory, render both a root page and a nested page using the theme, resolve their PDF download URLs, and assert that each points to the PDF copied by the target.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/Makefile",
+          "line": 104,
+          "symbol": "dist: html latexpdf"
+        },
+        {
+          "path": "doc/Makefile",
+          "line": 105,
+          "symbol": "PDF copy recipe"
+        },
+        {
+          "path": "doc/themes/scikit-learn/layout.html",
+          "line": 83,
+          "symbol": "pathto('_downloads/user_guide.pdf', 1)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

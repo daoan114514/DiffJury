@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-17672",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-expint-series-branch",
+      "severity": "medium",
+      "title": "The updated expint series assertion accepts an incorrect imaginary coefficient",
+      "explanation": "The added -I*pi/6 coefficient is not valid for the positive-real expansion represented by the default series direction. For r > 0, E_n(r) = integral from 1 to infinity of exp(-r*t)/t**n dt is real. Using E_1(r) = -EulerGamma - log(r) + r - r**2/4 + ... and (n-1)*E_n(r) = exp(-r) - r*E_(n-1)(r) independently gives E_4(r) = 1/3 - r/2 + r**2/2 + r**3*(log(r)/6 + EulerGamma/6 - 11/36) - r**4/24 + r**5/240 + O(r**6). The changed assertion instead requires an imaginary contribution -I*pi*r**3/6, which cannot be absorbed by O(r**6). It therefore blesses a branch regression rather than testing the correct expansion.\n\nThe Ei correction itself is valid for an ordinary negative-real argument: Ei(-r) is real, whereas Chi(-r) = Chi(r) + I*pi on the principal branch and Shi(-r) = -Shi(r). However, the analytically continued value Ei(r*exp_polar(I*pi)) is Ei(-r) + I*pi; that branch contribution must survive when deriving expint's series. Applying the real-axis correction without preserving this distinction produces precisely the erroneous coefficient now accepted by the test. The rewrite aliases share the same changed implementation. Positive and ordinary non-real arguments do not trigger the new negative predicate; assumption-unknown arguments still take the old branch, so the new negative-symbol assertion does not establish general branch-preserving behavior.\n\nThe other added expectations do not justify this coefficient: substitution t = log(x) independently gives integral(log(log(x))/x**p, (x, 1, oo)) = (-EulerGamma - log(p-1))/(p-1), agreeing with all three integration assertions. For the default right-hand limit, Ei(-t) = EulerGamma + log(t) + O(t) and (1-exp(-t))*log(t) tends to zero, independently confirming the added limit assertion.",
+      "path": "sympy/functions/special/tests/test_error_functions.py",
+      "line": 437,
+      "evidence": "z**3*(log(z)/6 - Rational(11, 36) + EulerGamma/6 - I*pi/6) - z**4/24 + \\",
+      "fix": "Restore the series expectation without -I*pi/6 and correct the production series/rewrite path so that Ei's ordinary negative-real correction does not discard the analytic-continuation contribution needed by expint.",
+      "test": "Exercise expint(4, r).series(r, 0, 6) with r positive and assert the recurrence-derived expansion without an imaginary coefficient. Also compare expint(4, r).evalf() with its expansion for small positive r, and separately test ordinary Ei(-r) versus Ei(r*exp_polar(I*pi)) rewrites so their distinct branch values are preserved.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

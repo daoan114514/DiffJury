@@ -1,0 +1,12 @@
+{
+  "id": "pytest-dev__pytest-2357",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17136,
+  "llm_calls": 5
+}

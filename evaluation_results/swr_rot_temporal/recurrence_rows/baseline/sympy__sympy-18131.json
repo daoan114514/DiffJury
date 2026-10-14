@@ -1,0 +1,94 @@
+{
+  "id": "sympy__sympy-18131",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "reciprocal-finite-upper-bound",
+      "severity": "medium",
+      "title": "Parameter validation accepts an infinite upper bound with no normalizable density",
+      "explanation": "The concrete invalid numeric combination a=5, b=oo satisfies both added validation predicates: 5>0 and 5<oo are true, so ReciprocalDistribution.check(5, oo) accepts it. This is not symbolic uncertainty. However, log(oo)-log(5)=oo, making the PDF zero at every finite point in the declared support [5, oo]. Its integral over that support is therefore zero, not one; no reciprocal density proportional to 1/x can be normalized on this unbounded interval. Fixing the out-of-support branch alone will not fix this separate parameter-validation defect. The new error message even describes +oo as an included endpoint, and the added tests exercise only finite b=30.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3211,
+      "evidence": "_value_check((a < b),\n        \"Parameter b must be in range (%s, +oo]. b = %s\"%(a, b))",
+      "fix": "Require b to be finite in addition to a>0 and a<b, while preserving the existing policy for undecidable symbolic constraints. Change the error message to exclude +oo.",
+      "test": "Assert that Reciprocal('x', 5, oo) raises ValueError, alongside numeric validation cases for a=0, a=b, and a>b. Retain a finite valid case and verify its PDF integrates to one over [a,b].",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3209,
+          "symbol": "ReciprocalDistribution.check"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3205,
+          "symbol": "ReciprocalDistribution.set"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3218,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "reciprocal-density-outside-support",
+      "severity": "medium",
+      "title": "Reciprocal density is one above its upper support bound",
+      "explanation": "For valid parameters a=5 and b=30, the added PDF returns 0 below 5 but returns 1 at every real x>30, where the density must be zero. Consequently, the advertised density has infinite mass when integrated over the real line, rather than total mass one. The added public density assertion at test_continuous_rv.py:959 explicitly expects the same final branch `(1, True)`, providing evidence that the density interface does not remove this branch. The expectation and probability assertions at lines 962–964 do not detect it: they concern integration within the declared support or a probability below its lower boundary. This finding does not assume that the base class exposes the raw `_cdf` without clipping; that machinery was not supplied.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3219,
+      "evidence": "(S.One, (x > b)))",
+      "fix": "Return zero above b. Update the symbolic density assertion and the constructor's displayed example so they no longer specify a density of one outside the support.",
+      "test": "Construct X=Reciprocal('x', 5, 30), assert density(X)(4)==0 and density(X)(31)==0, and assert that integrating density(X)(x) over the entire real line gives 1. Replace the final `(1, True)` branch expected at line 959 with zero. Independently test cdf(X) below a and above b, without assuming how the base class clips `_cdf`.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/tests/test_continuous_rv.py",
+          "line": 959,
+          "symbol": "test_reciprocal: density(X)(x)"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3214,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,38 @@
+{
+  "id": "scikit-learn__scikit-learn-28121",
+  "findings": [
+    {
+      "rule_id": "invalid-documentation-reference",
+      "severity": "low",
+      "title": "Populate the empty pull-request reference in the changelog",
+      "explanation": "The new changelog entry uses an empty `:pr:`` role. With no pull-request number, it cannot produce the intended pull-request link and leaves malformed reference markup in the documentation. This is a documentation defect, not an algorithmic regression. The changed comparison preserves the greater-than and less-than cases; the new zero-input test exercises equality because all Euclidean similarities and the default median preference are zero. The supplied excerpt does not contain the complete shortcut, its other return branch, or existing tests, so no additional defect in precomputed affinity or return_n_iter is established.",
+      "path": "doc/whats_new/v1.4.rst",
+      "line": 20,
+      "evidence": ":pr:`` by :user:`Pietro Peterlongo <pietroppeter>` and",
+      "fix": "Supply the actual pull-request number in the `:pr:` role, or remove the empty reference.",
+      "test": "Build or preview the changelog and verify that this entry contains a working pull-request link and no literal empty role markup.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12819,
+  "llm_calls": 5
+}

@@ -1,0 +1,47 @@
+{
+  "id": "scikit-learn__scikit-learn-8983",
+  "findings": [
+    {
+      "rule_id": "REL-PYTHON-SYNTAX",
+      "severity": "medium",
+      "title": "Extra comma prevents the underfitting/overfitting example from executing",
+      "explanation": "The added comma after `y,` creates an empty argument, which is invalid Python syntax. Python rejects the entire module during parsing, before any training or plotting runs. Consequently, running this example raises SyntaxError, and gallery generation cannot execute it to produce its plots. This is a confirmed syntax defect, independent of Matplotlib version or input data; whether it aborts the entire gallery build depends on the gallery's error-handling configuration.",
+      "path": "examples/model_selection/plot_underfitting_overfitting.py",
+      "line": 63,
+      "evidence": "    plt.scatter(X, y, , edgecolor='b', s=20, label=\"Samples\")",
+      "fix": "Remove the empty argument: `plt.scatter(X, y, edgecolor='b', s=20, label=\"Samples\")`.",
+      "test": "Compile or ast.parse every changed example to catch syntax errors without importing dependencies. Then execute this example with a noninteractive Matplotlib backend and verify that its three degree-comparison subplots are generated.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/model_selection/plot_underfitting_overfitting.py",
+          "line": 63,
+          "symbol": "<module> (fails during parsing)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0,
+      1
+    ]
+  },
+  "tokens": 44940,
+  "llm_calls": 5
+}

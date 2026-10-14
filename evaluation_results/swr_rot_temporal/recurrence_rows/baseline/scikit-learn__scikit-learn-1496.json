@@ -1,0 +1,50 @@
+{
+  "id": "scikit-learn__scikit-learn-1496",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-constant-feature-offset",
+      "severity": "medium",
+      "title": "Nonzero constant features are mapped incorrectly when the feature-range width is not one",
+      "explanation": "The new denominator replacement exposes an incorrect finite offset for constant nonzero features. For X = [[1.0], [1.0]] and feature_range = (1, 3), line 194 replaces the zero denominator with 1. Consequently, the visible fit implementation assigns self.scale_ = 2 and self.min_ = 0. Under the scaler's affine transformation X * self.scale_ + self.min_, both values become 2 rather than the expected lower endpoint 1. In general, a constant c maps to lower + c * (width - 1), so constant zero features and width-one ranges work, but nonzero constants with other widths do not. The added tests meaningfully assert both zero and nonzero constant features, alongside a nonconstant feature, but both tested ranges have width one and therefore conceal this defect. The offset formula also has a preexisting problem for nonconstant features; this finding is limited to the newly enabled finite constant-feature path. Evidence limitation: the supplied context includes fit but not transform, so the transformed result is a mathematical derivation using the affine interpretation of scale_ and min_, not an executed reproduction or independently verified transform call.",
+      "path": "sklearn/preprocessing.py",
+      "line": 194,
+      "evidence": "scale_[scale_ == 0.0] = 1.0\n        self.scale_ = (feature_range[1] - feature_range[0]) / scale_\n        self.min_ = feature_range[0] - min_ / scale_",
+      "fix": "Compute the affine offset using the actual multiplier: self.min_ = feature_range[0] - min_ * self.scale_. Retain the zero-denominator replacement.",
+      "test": "Exercise the real fit_transform path with zero and nonzero constant columns and a nonconstant column using feature_range=(1, 3). Assert that both constant columns map to 1 and the nonconstant training extrema map to 1 and 3. For the supplied three-row fixture, the expected rows are [1, 1, 2], [1, 1, 1], and [1, 1, 3]. Also exercise fit followed by transform separately.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/preprocessing.py",
+          "line": 194,
+          "symbol": "MinMaxScaler.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

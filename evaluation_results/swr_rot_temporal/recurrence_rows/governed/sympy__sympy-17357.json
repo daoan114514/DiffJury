@@ -1,0 +1,93 @@
+{
+  "id": "sympy__sympy-17357",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "rewrite-deep-contract",
+      "severity": "medium",
+      "title": "Intermediate public rewrites ignore deep=False and rewrite nested arguments",
+      "explanation": "The new public rewrite call defaults to recursive rewriting, even when the caller explicitly requests a shallow rewrite. For a generic Symbol x, csc(sin(x)).rewrite(cos, deep=False) previously returned 1/cos(sin(x) - pi/2, evaluate=False). It now returns 1/cos(cos(x - pi/2, evaluate=False) - pi/2, evaluate=False), rewriting the nested sin(x) despite deep=False. The outer public rewrite correctly leaves the argument untouched before invoking the csc hook, but the hook constructs sin(sin(x)) and starts another public rewrite without preserving that boundary. That inner dispatch recursively rewrites sin(x) before applying the root sin-to-cos hook. The other changed hooks similarly introduce a second recursive traversal. This violates the observable shallow-rewrite contract, although the resulting expressions remain mathematically equivalent. The added issue-17349 assertion exercises default recursive rewriting and evaluated intermediate expressions; it does not detect this regression.",
+      "path": "sympy/functions/elementary/trigonometric.py",
+      "line": 1770,
+      "evidence": "return 1 / sin(arg).rewrite(cos)",
+      "fix": "Use a shallow public rewrite for each intermediate expression, such as sin(arg).rewrite(cos, deep=False), so evaluated intermediate types remain supported without traversing arguments again. Apply the same treatment to the other replaced hook calls; the outer rewrite dispatch already controls whether original arguments are rewritten.",
+      "test": "With x = Symbol('x'), assert csc(sin(x)).rewrite(cos, deep=False) == 1/cos(sin(x) - pi/2, evaluate=False). Add analogous shallow-rewrite cases for the changed cos, tan, cot, and sec hooks with nested trigonometric arguments, and retain the issue-17349 test to verify that evaluated intermediates still work.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1769,
+          "symbol": "csc._eval_rewrite_as_cos"
+        },
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1770,
+          "symbol": "sin(arg).rewrite(cos)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

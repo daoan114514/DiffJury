@@ -1,0 +1,60 @@
+{
+  "id": "sympy__sympy-15646",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "unresolved-subsequence-result",
+      "severity": "medium",
+      "title": "Guard an unresolved even-subsequence result before accessing its attributes",
+      "explanation": "The new branch checks L1 for None but does not perform the same check on L2. A reasoned, unexecuted reproduction is limit_seq((1 + (-1)**n)*Sum(f(k), (k, 1, n)), n), with integer n and k and an undefined function f. Substitution of the odd Dummy makes the expression zero, so L1 is 0. The even branch is twice the finite sum of unspecified coefficients, whose asymptotics cannot be determined; _limit_seq returns None. Since 0 != None, execution reaches L2.is_comparable and raises AttributeError. There is no universally determined mathematical limit for arbitrary f; the correct unresolved-result contract is None, not an exception. Previously the explicitly substituted even subsequence was evaluated first, and its unresolved result caused the function to return None without inspecting attributes. The added tests exercise successful numeric subsequence results and complex sequences with zero limits, but do not exercise an unresolved second subsequence. This finding concerns that exception, not the intentional introduction of AccumulationBounds; no additional defect in symbolic, complex, or non-period-two trigonometric results is established here.",
+      "path": "sympy/series/limitseq.py",
+      "line": 227,
+      "evidence": "L2 = _limit_seq(expr.xreplace({n: n2}), n2, trials)\n                if L1 != L2:\n                    if L1.is_comparable and L2.is_comparable:",
+      "fix": "Check whether L2 is None immediately after evaluating it and return None before comparing limits or accessing is_comparable.",
+      "test": "Add a regression using integer n and k, f = Function('f'), and expr = (1 + (-1)**n)*Sum(f(k), (k, 1, n)); assert limit_seq(expr, n) is None and does not raise. Exercise the real helper rather than mocking either subsequence evaluation.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 223,
+          "symbol": "limit_seq: evaluate the odd subsequence"
+        },
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 225,
+          "symbol": "limit_seq: evaluate the even subsequence"
+        },
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 227,
+          "symbol": "limit_seq: dereference unresolved L2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-476",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

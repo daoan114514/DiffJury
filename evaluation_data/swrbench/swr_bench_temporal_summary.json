@@ -1,0 +1,101 @@
+{
+  "protocol": "within-repository created_at order; floor(0.6*N), floor(0.7*N)",
+  "cases": 726,
+  "by_split": {
+    "train": 434,
+    "validation": 73,
+    "holdout": 219
+  },
+  "repositories": {
+    "scikit-learn/scikit-learn": {
+      "train": {
+        "count": 145,
+        "first_created_at": "2011-05-21T16:45:53+00:00",
+        "last_created_at": "2021-09-01T18:35:50+00:00"
+      },
+      "validation": {
+        "count": 25,
+        "first_created_at": "2021-09-02T14:20:13+00:00",
+        "last_created_at": "2022-06-30T20:57:58+00:00"
+      },
+      "holdout": {
+        "count": 73,
+        "first_created_at": "2022-07-16T10:14:55+00:00",
+        "last_created_at": "2025-04-15T11:53:30+00:00"
+      },
+      "tied_boundary_timestamps": {
+        "train_validation": false,
+        "validation_holdout": false
+      }
+    },
+    "sympy/sympy": {
+      "train": {
+        "count": 135,
+        "first_created_at": "2011-04-18T04:35:42+00:00",
+        "last_created_at": "2019-12-28T13:56:09+00:00"
+      },
+      "validation": {
+        "count": 22,
+        "first_created_at": "2019-12-31T15:45:24+00:00",
+        "last_created_at": "2020-08-09T15:46:17+00:00"
+      },
+      "holdout": {
+        "count": 68,
+        "first_created_at": "2020-08-29T22:35:12+00:00",
+        "last_created_at": "2025-03-14T13:53:42+00:00"
+      },
+      "tied_boundary_timestamps": {
+        "train_validation": false,
+        "validation_holdout": false
+      }
+    },
+    "matplotlib/matplotlib": {
+      "train": {
+        "count": 87,
+        "first_created_at": "2011-08-14T21:39:06+00:00",
+        "last_created_at": "2018-02-10T23:16:38+00:00"
+      },
+      "validation": {
+        "count": 14,
+        "first_created_at": "2018-04-15T22:41:12+00:00",
+        "last_created_at": "2020-03-08T09:42:41+00:00"
+      },
+      "holdout": {
+        "count": 44,
+        "first_created_at": "2020-03-20T06:01:32+00:00",
+        "last_created_at": "2025-03-10T16:34:04+00:00"
+      },
+      "tied_boundary_timestamps": {
+        "train_validation": false,
+        "validation_holdout": false
+      }
+    },
+    "astropy/astropy": {
+      "train": {
+        "count": 67,
+        "first_created_at": "2011-12-13T14:56:36+00:00",
+        "last_created_at": "2018-03-28T20:59:46+00:00"
+      },
+      "validation": {
+        "count": 12,
+        "first_created_at": "2018-05-29T11:06:28+00:00",
+        "last_created_at": "2019-12-17T21:58:57+00:00"
+      },
+      "holdout": {
+        "count": 34,
+        "first_created_at": "2020-04-08T15:46:38+00:00",
+        "last_created_at": "2025-03-31T16:22:41+00:00"
+      },
+      "tied_boundary_timestamps": {
+        "train_validation": false,
+        "validation_holdout": false
+      }
+    }
+  },
+  "case_disjoint": true,
+  "pr_disjoint": true,
+  "chronological": true,
+  "source": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_data\\swrbench\\swr_bench_functional.jsonl",
+  "source_sha256": "b3a48a00528cdd0845212a2985b12cef3bb6d9e8b97b7a6487eb8fe7e1d8b63a",
+  "dataset_sha256": "a095f4d6b6929309376d4f20e52c7230c96ce5231f29ff8619cd9d6619dcf2b5"
+}

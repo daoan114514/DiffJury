@@ -1,0 +1,128 @@
+{
+  "id": "sympy__sympy-1620",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "symbolic-mathematical-correctness",
+      "severity": "medium",
+      "title": "Unknown-real roots produce an unconditional, invalid delta expansion",
+      "explanation": "For real x and a with no sign assumption on a, DiracDelta(x**2 - a).simplify(x) now accepts the roots ±sqrt(a), whose is_real values are unknown, and emits (DiracDelta(x - sqrt(a)) + DiracDelta(x + sqrt(a)))/(2*Abs(sqrt(a))). This identity requires a > 0; it is not valid over the declared parameter domain. In particular, substituting a = -1 introduces DiracDelta(x ± I), which is outside DiracDelta's real-argument domain, whereas the original expression becomes DiracDelta(x**2 + 1), with no real support. Previously, the unknown-real roots failed the guard and the expression remained unevaluated. deltaintegrate also consumes this simplification, so the unsupported expansion propagates into integration. The added tests cover numerical real roots and linear symbolic shifts, but not parameter-dependent roots. The local Integral/integrate imports do not independently demonstrate a regression, and the moved integration tests do not establish a separate actionable defect.",
+      "path": "sympy/functions/special/delta_functions.py",
+      "line": 110,
+      "evidence": "if r.is_real is not False and not darg.subs(x, r).is_zero:",
+      "fix": "Require established realness for nonlinear roots, or return an appropriately conditioned result. Leave the expression unevaluated when realness depends on an unresolved parameter; do not treat unknown realness as proof of realness.",
+      "test": "Use real symbols x and a without a sign assumption. Assert that simplifying DiracDelta(x**2 - a) does not introduce unconditionally complex-capable roots, and verify that substituting a = -1 remains valid and has zero real support. Also test a positive parameter to retain the valid two-root expansion, and exercise the unresolved-parameter case through integrate rather than only deltaintegrate.",
+      "confidence": 0.92,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/deltafunctions.py",
+          "line": 137,
+          "symbol": "deltaintegrate: h = f.simplify(x)"
+        },
+        {
+          "path": "sympy/functions/special/delta_functions.py",
+          "line": 110,
+          "symbol": "DiracDelta.simplify: root-realness guard"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-09474f0c",
+          "K-93a099ce",
+          "K-ad16cdc6",
+          "K-2b42cad0"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-83dfddfe",
+          "K-25a05e81",
+          "K-e820d88f"
+        ],
+        "tokens": 646,
+        "budget": 600,
+        "dropped": [
+          "K-7ac64342",
+          "K-0faed540",
+          "K-e13d441c",
+          "K-e172ac33",
+          "K-5af1f6aa"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

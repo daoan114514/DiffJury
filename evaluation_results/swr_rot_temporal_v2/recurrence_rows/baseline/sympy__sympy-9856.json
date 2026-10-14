@@ -1,0 +1,108 @@
+{
+  "id": "sympy__sympy-9856",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "RF-FALLING-POLYNOMIAL-SHIFT",
+      "severity": "medium",
+      "title": "FallingFactorial rewrite changes polynomial-input semantics",
+      "explanation": "For polynomial inputs of degree greater than one, these functions shift the polynomial's independent variable, not its value. Let x be a symbol and k an integer symbol. Substituting k = 2 into rf(x**2, k) evaluates to the polynomial x**2*(x + 1)**2. The new rewrite instead becomes ff(x**2 + 1, 2), whose descending polynomial shifts give (x**2 + 1)*((x - 1)**2 + 1). These polynomials differ; at x = 0 they give zero and two respectively. The original rising polynomial-shift behavior is explicitly implemented at lines 477–480 and covered by existing polynomial evaluation tests, but the added FallingFactorial rewrite assertion uses only a linear base and misses this case. This regression is specific to the newly added rewrite; the polynomial evaluation path itself is unchanged.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 508,
+      "evidence": "return FallingFactorial(x + k - 1, k)",
+      "fix": "For polynomial inputs, shift the polynomial's generator by k - 1 rather than adding k - 1 to its value, or leave such inputs unrevised if the polynomial semantics cannot be preserved safely.",
+      "test": "With x = Symbol('x') and k = Symbol('k', integer=True), assert rf(x**2, k).rewrite(ff).subs(k, 2) == rf(x**2, 2). Add an analogous negative-length polynomial case to check the reciprocal shift direction.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 507,
+          "symbol": "RisingFactorial._eval_rewrite_as_FallingFactorial"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "RF-FACTORIAL-DOMAIN",
+      "severity": "medium",
+      "title": "Factorial rewrite loses finite values at negative integer bases",
+      "explanation": "The integer assumptions do not exclude factorial poles. Let k be an integer symbol. rf(-1, k) remains unevaluated, but its new factorial rewrite is factorial(k - 2)/factorial(-2). Since factorial(-2) evaluates to zoo, this expression simplifies to zero. Substituting k = 1 therefore gives zero, whereas the original rf(-1, 1) evaluates to -1. This is introduced by the new factorial rewrite, not by the unchanged gamma rewrite or RisingFactorial evaluation. The added test only asserts the formal quotient for symbolic integer arguments and does not check substitutions into nonpositive bases.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 512,
+      "evidence": "if x.is_integer and k.is_integer:\n            return factorial(k + x - 1) / factorial(x - 1)",
+      "fix": "Restrict the quotient to a domain without factorial poles, or use domain-aware branches that preserve values for nonpositive integer bases. Leave the expression unrevised when those conditions cannot be established.",
+      "test": "With k = Symbol('k', integer=True), assert rf(-1, k).rewrite(factorial).subs(k, 1) == rf(-1, 1). Also test symbolic-base substitutions to negative integers and zero lengths.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 510,
+          "symbol": "RisingFactorial._eval_rewrite_as_factorial"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "RF-BINOMIAL-NEGATIVE-LENGTH",
+      "severity": "medium",
+      "title": "Binomial rewrite returns NaN for supported negative lengths",
+      "explanation": "RisingFactorial supports negative integer lengths through reciprocal products, but the new rewrite accepts every integer length. For an unconstrained symbol x and integer symbol k, rewriting rf(x, k) to binomial and then substituting k = -1 produces factorial(-1)*binomial(x - 2, -1). Factorial(-1) is zoo and binomial with a negative integer lower argument is zero, so the result is nan. The original expression instead evaluates to 1/(x - 1), as the existing negative-length evaluation explicitly computes. The added symbolic-shape assertion does not exercise this substitution. This is a defect in the new binomial rewrite independently of the existing gamma rewrite.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 515,
+      "evidence": "if k.is_integer:\n            return factorial(k) * binomial(x + k - 1, k)",
+      "fix": "Require a nonnegative integer length for this formula, and either preserve RisingFactorial or supply a separate reciprocal-product-compatible formula for negative lengths. Do not apply the formula to an integer symbol whose sign is unknown without a domain-aware branch.",
+      "test": "With x = Symbol('x') and k = Symbol('k', integer=True), assert rf(x, k).rewrite(binomial).subs(k, -1) == rf(x, -1). Include k = -2 and verify the reciprocal product rather than merely the rewrite's symbolic shape.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 514,
+          "symbol": "RisingFactorial._eval_rewrite_as_binomial"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

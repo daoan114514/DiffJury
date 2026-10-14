@@ -1,0 +1,398 @@
+{
+  "id": "sympy__sympy-15607",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-LOGSPACE-COORDINATES",
+      "severity": "medium",
+      "title": "Invalid-domain recovery samples outside the requested interval",
+      "explanation": "The recovery branch passes p[0] and q[0], which are function-input coordinates, directly as base-10 exponents to numpy.logspace. Consequently, it evaluates f at 10**p[0] through 10**q[0], rather than between p[0] and q[0]. For example, an adaptive logarithmic series for sqrt((x-10)*(20-x)) over [1, 2] has no real values anywhere in its requested range. Recovery intervals near x=1 instead probe values near x=10, where the expression is real, and recursively create segments outside [1, 2]. This defect remains even if endpoint mutation is fixed: raw positive endpoints still cannot be supplied directly to logspace.",
+      "path": "sympy/plotting/plot.py",
+      "line": 515,
+      "evidence": "elif p[1] is None and q[1] is None:\n                    if self.xscale is 'log':\n                        xarray = np.logspace(p[0], q[0], 10)\n                    else:\n                        xarray = np.linspace(p[0], q[0], 10)\n                    yarray = list(map(f, xarray))",
+      "fix": "Preserve linear recovery sampling, or, for strictly positive raw endpoints, use logspace(log10(p[0]), log10(q[0]), 10). Ensure every recovery sample remains inside the current interval and handles nonpositive endpoints explicitly.",
+      "test": "Sample sqrt((x-10)*(20-x)) over (x, 1, 2) with adaptive=True and xscale='log'. Assert that no finite real segment is produced outside the requested domain. Also directly test that every recovery coordinate lies between its input endpoints.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 540,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 513,
+          "symbol": "sample"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 518,
+          "symbol": "function evaluation over recovery samples"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": [
+        "K-934cbecb"
+      ]
+    },
+    {
+      "rule_id": "REL-LOG-ENDPOINT-MUTATION",
+      "severity": "medium",
+      "title": "Logarithmic sampling changes the function domain and corrupts repeated sampling",
+      "explanation": "For an adaptive series representing f(x)=x on [1, 10] with the recognized 'log' xscale, the first get_segments() call replaces start=1 with log(1)=0, then evaluates f(0) and samples [0, 10]. A logarithmic display axis must not change the requested function domain to [log(start), end]. The assignment also persists: a second call computes log(0)=-inf, introducing nonfinite coordinates into sampling. This affects repeated rendering or sampling of the same series, not just its internal representation.",
+      "path": "sympy/plotting/plot.py",
+      "line": 535,
+      "evidence": "if self.xscale is 'log':\n                self.start=np.log(self.start)\n\n\n            f_start = f(self.start)\n            f_end = f(self.end)\n            sample([self.start, f_start], [self.end, f_end], 0)",
+      "fix": "Keep self.start and self.end in their original coordinate system. If logarithmic spacing is desired, calculate local sampling coordinates consistently and evaluate the function at the corresponding original x values; never mutate the series endpoints during sampling.",
+      "test": "Construct an adaptive series for x over (x, 1, 10) with xscale='log'. Call get_segments() twice. Assert that start and end remain 1 and 10, all coordinates are finite and within [1, 10], and both calls retain the requested endpoints.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 534,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 540,
+          "symbol": "sample"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": [
+        "K-934cbecb"
+      ]
+    },
+    {
+      "rule_id": "REL-PLOT-LABEL-MUTATION",
+      "severity": "medium",
+      "title": "Rendering overwrites custom labels and repeatedly wraps the x label",
+      "explanation": "For a plot with xscale='log', xlabel='time', and ylabel='amplitude', backend label configuration changes the parent options to xlabel='log(time)' and ylabel='f(log(time))', discarding the caller's y label. Running the configuration again on the same parent changes them to 'log(log(time))' and 'f(log(log(time)))'. Logarithmic axis display does not imply that the plotted expression is f(log(x)), and rendering should not mutate caller-owned label settings. The resulting labels are both incorrect on the first render and unstable on repeated renders.",
+      "path": "sympy/plotting/plot.py",
+      "line": 1067,
+      "evidence": "if parent.xlabel:\n            if parent.xscale is 'log':\n                parent.xlabel='log(%s)' % parent.xlabel\n            self.ax.set_xlabel(parent.xlabel, position=(1, 0))\n        if parent.ylabel:\n            if parent.xscale is 'log':\n                parent.ylabel='f(%s)' % parent.xlabel",
+      "fix": "Pass the configured labels unchanged to the axes and leave parent.xlabel and parent.ylabel untouched. If automatic labels are desired, derive local defaults only when a label was not supplied.",
+      "test": "Configure a logarithmic plot with xlabel='time' and ylabel='amplitude', then process its backend twice. Assert that both parent options and both displayed labels remain exactly 'time' and 'amplitude' after each pass.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 1065,
+          "symbol": "MatplotlibBackend label configuration"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 1068,
+          "symbol": "Axes.set_xlabel"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 1073,
+          "symbol": "Axes.set_ylabel"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-XSCALE-IDENTITY",
+      "severity": "low",
+      "title": "Equal xscale strings select different plotting behavior",
+      "explanation": "The new logarithmic branches compare string identity rather than value. A dynamically constructed scale such as ''.join(['l', 'o', 'g']) equals 'log' but need not be the same object, so it bypasses the sampling and label branches that a literal 'log' takes. Thus otherwise equivalent series configurations produce different sample coordinates and labels depending on how the option string was constructed. No normalization or equality guard appears in the added assignment of kwargs['xscale'].",
+      "path": "sympy/plotting/plot.py",
+      "line": 534,
+      "evidence": "if self.xscale is 'log':",
+      "fix": "Use value equality for any retained xscale checks, including those at lines 514, 534, 1066 and 1070. Correct or remove the erroneous coordinate and label transformations separately; replacing 'is' alone does not resolve those defects.",
+      "test": "Compare otherwise identical series configured with literal 'log' and ''.join(['l', 'o', 'g']). Assert identical domain-preserving sampling and identical backend labels, with explicit user labels preserved.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 456,
+          "symbol": "LineOver1DRangeSeries.__init__"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 534,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 1066,
+          "symbol": "MatplotlibBackend label configuration"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-DEBUG-PRINT",
+      "severity": "low",
+      "title": "Point sampling now writes unsolicited arrays to standard output",
+      "explanation": "Every get_points() call now prints its complete x-coordinate array, regardless of xscale or caller intent. For example, obtaining points for f(x)=x on [1, 2] writes an array before returning the usual coordinate pair. This also affects the nonadaptive and integer-sampling paths delegated by get_segments(). Existing consumers that capture stdout for their own output now receive plotting data that was not part of the sampling API's return contract. There is no need to assume sensitive data exposure to establish this regression.",
+      "path": "sympy/plotting/plot.py",
+      "line": 553,
+      "evidence": "list_y = f(list_x)\n        print(list_x)\n        return (list_x, list_y)",
+      "fix": "Remove the unconditional print. Keep point arrays available through the existing return value.",
+      "test": "Capture stdout while calling get_points() for a linear-scale series and while sampling an adaptive=False series. Assert that stdout is empty and that returned coordinates are unchanged.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 481,
+          "symbol": "LineOver1DRangeSeries.get_segments nonadaptive/integer delegation"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 550,
+          "symbol": "LineOver1DRangeSeries.get_points"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 553,
+          "symbol": "print"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-489",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01fed82c",
+      "K-0214191c",
+      "K-0bbe1015",
+      "K-0eae5fab",
+      "K-0fbbf738",
+      "K-13c28565",
+      "K-17ff28eb",
+      "K-1950a5a7",
+      "K-1989ba9e",
+      "K-19ad3c9d",
+      "K-2436b487",
+      "K-251fab07",
+      "K-309de097",
+      "K-34bb9f5c",
+      "K-358c8c4f",
+      "K-37dba615",
+      "K-3afad64d",
+      "K-3bdec917",
+      "K-3c126146",
+      "K-3f79acc6",
+      "K-46d9d9f2",
+      "K-4760bbdf",
+      "K-4ccc2518",
+      "K-4e1559a1",
+      "K-4f66d5d3",
+      "K-4fd56d09",
+      "K-509e2923",
+      "K-56673f3c",
+      "K-584c8d57",
+      "K-60750032",
+      "K-633a5476",
+      "K-64df9e81",
+      "K-659408f9",
+      "K-6cca1eba",
+      "K-6db029aa",
+      "K-76094f2b",
+      "K-765402dd",
+      "K-7810cf1c",
+      "K-7bc41659",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-85c6407d",
+      "K-88c09c66",
+      "K-91a8c8ce",
+      "K-934cbecb",
+      "K-99e65698",
+      "K-9d082e14",
+      "K-9fe3253b",
+      "K-a0889f64",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a5bd98ec",
+      "K-a9ea6942",
+      "K-aac022e0",
+      "K-ac72cb59",
+      "K-ade6e308",
+      "K-ba823e2d",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-c88be94c",
+      "K-c8969e3c",
+      "K-cb01c870",
+      "K-cf4ba613",
+      "K-d3ab563e",
+      "K-d578b2d4",
+      "K-d7f74de4",
+      "K-dafa11ad",
+      "K-e2f20c42",
+      "K-f0828052",
+      "K-f39fb2d9",
+      "K-f8c37d11",
+      "K-fd698324"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-0fbbf738",
+          "K-cb01c870",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-847c7cac",
+          "K-4fd56d09",
+          "K-934cbecb",
+          "K-2436b487",
+          "K-0bbe1015",
+          "K-1989ba9e",
+          "K-f8c37d11",
+          "K-d3ab563e",
+          "K-c1f97abd",
+          "K-4f66d5d3",
+          "K-f39fb2d9",
+          "K-c88be94c",
+          "K-509e2923",
+          "K-c621f945",
+          "K-251fab07",
+          "K-99e65698",
+          "K-ade6e308",
+          "K-3f79acc6",
+          "K-85c6407d",
+          "K-633a5476"
+        ],
+        "tokens": 1430,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-765402dd",
+          "K-7de8581d",
+          "K-cf4ba613",
+          "K-a9ea6942",
+          "K-a1e29320"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bdec917",
+          "K-4760bbdf",
+          "K-56673f3c",
+          "K-7810cf1c",
+          "K-7bc41659",
+          "K-76094f2b",
+          "K-91a8c8ce",
+          "K-34bb9f5c",
+          "K-37dba615",
+          "K-584c8d57",
+          "K-e2f20c42",
+          "K-358c8c4f",
+          "K-a0889f64",
+          "K-f0828052",
+          "K-309de097",
+          "K-0eae5fab",
+          "K-9d082e14",
+          "K-d578b2d4",
+          "K-01fed82c",
+          "K-ba823e2d",
+          "K-6db029aa",
+          "K-3afad64d",
+          "K-4ccc2518",
+          "K-6cca1eba",
+          "K-d7f74de4",
+          "K-64df9e81",
+          "K-60750032",
+          "K-a5bd98ec",
+          "K-fd698324",
+          "K-3c126146",
+          "K-ac72cb59",
+          "K-19ad3c9d",
+          "K-c8969e3c",
+          "K-1950a5a7",
+          "K-aac022e0",
+          "K-13c28565",
+          "K-0214191c",
+          "K-dafa11ad",
+          "K-9fe3253b",
+          "K-a527e894",
+          "K-4e1559a1",
+          "K-17ff28eb"
+        ],
+        "tokens": 3231,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "id": "sympy__sympy-2417",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "ci-package-install-privileges",
+      "severity": "medium",
+      "title": "Run the Sage package bootstrap with elevated privileges",
+      "explanation": "The new TEST_SAGE matrix entry reaches package-management commands executed directly in the build shell. Travis's normal build shell runs as an unprivileged user: apt-add-repository cannot modify the system repository configuration, and apt-get cannot update system package lists or install Sage without elevation. Consequently, the new job fails during bootstrap rather than executing its Sage tests. Skipping setup.py installation does not remedy this failure. This finding concerns the commands' privilege requirement, not the availability or compatibility of the historical Sage package.",
+      "path": ".travis.yml",
+      "line": 65,
+      "evidence": "apt-add-repository -y ppa:aims/sagemath;\napt-get update;\napt-get install sagemath-upstream-binary;",
+      "fix": "Execute all three system package-management commands through sudo. Make package installation explicitly noninteractive with apt-get install -y as well.",
+      "test": "Run the Sage before_install branch as the ordinary, non-root Travis build user in a compatible Ubuntu environment. Verify that repository setup, package-list update, and package installation complete without interactive input, then that bin/test_travis.sh reaches the Sage test command.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".travis.yml",
+          "line": 44,
+          "symbol": "TEST_SAGE=\"true\" matrix entry"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 64,
+          "symbol": "before_install Sage branch"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 65,
+          "symbol": "apt-add-repository"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-269",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

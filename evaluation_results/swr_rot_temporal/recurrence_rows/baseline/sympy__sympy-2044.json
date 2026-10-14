@@ -1,0 +1,79 @@
+{
+  "id": "sympy__sympy-2044",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "piecewise-candidate-condition-reuse",
+      "severity": "medium",
+      "title": "Each root after the first is tested against an already-substituted condition",
+      "explanation": "The assignment overwrites the branch condition inside the candidate loop. For real symbols x and a, solve(Piecewise((x**2 - 1, x < a), (1, True)), x) must condition -1 on -1 < a and 1 on 1 < a independently. After the first candidate, however, cond no longer contains x: it is either -1 < a or 1 < a. Substitution for the next candidate therefore leaves that first candidate's condition unchanged, and both returned roots receive the same condition. At a = 0, the correct solution is only -1; processing -1 first admits both roots, while processing 1 first loses -1. This counterexample uses unresolved relational conditions and does not depend on whether this repository represents evaluated Boolean values as Python or SymPy booleans.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1089,
+      "evidence": "cond = cond is True or cond.subs(symbol, candidate)",
+      "fix": "Keep the original branch condition unchanged and assign its candidate-specific substitution to a separate local variable. Use that local variable for rejection and conditional result construction.",
+      "test": "Add a regression solving Piecewise((x**2 - 1, x < a), (1, True)) for real x and a. Assert that each root has its own substituted condition and that evaluating the returned solutions at a = 0 admits only -1. The added test_issue_2961 has only one root per branch, so it cannot expose condition reuse.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1086,
+          "symbol": "_solve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "piecewise-symbolic-precedence",
+      "severity": "medium",
+      "title": "Unresolved earlier conditions are omitted from later roots' validity conditions",
+      "explanation": "A symbolic earlier condition is no longer treated as a match, but its negation is also not incorporated into the returned solution. For real symbols x and a, solve(Piecewise((1, x < a), (x - 1, True)), x) reaches candidate 1 in the second branch. The earlier condition becomes 1 < a, an unresolved relation rather than Python True, so matches_other_piece remains false. Because the current branch condition is True, the new Piecewise result collapses to an unconditional 1. The correct result is 1 only when a <= 1. At a = 2, the returned candidate selects the first branch, whose value is 1 rather than zero, so this change introduces a spurious solution. This is a missing symbolic precedence constraint, not a claim about compatibility between Python and SymPy Boolean constants.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1099,
+      "evidence": "if other_cond.subs(symbol, candidate) is True:\n                            matches_other_piece = True\n                            break\n                    if not matches_other_piece:\n                        result.add(Piecewise(\n                            (candidate, cond is True or cond.doit()),\n                            (S.NaN, True)\n                        ))",
+      "fix": "Include the negations of all unresolved earlier branch conditions in the candidate's validity condition, together with its own substituted branch condition. Continue rejecting candidates when an earlier condition is definitely true.",
+      "test": "Add a regression solving Piecewise((1, x < a), (x - 1, True)) for real x and a. Assert a conditional root equivalent to Piecewise((1, a <= 1), (S.NaN, True)), and verify it does not admit 1 at a = 2. The added positive-y regression resolves its branch conditions and does not exercise unresolved earlier-piece precedence.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1099,
+          "symbol": "_solve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

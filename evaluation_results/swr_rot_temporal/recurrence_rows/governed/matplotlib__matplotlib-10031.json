@@ -1,0 +1,89 @@
+{
+  "id": "matplotlib__matplotlib-10031",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "legend-color-array-normalization",
+      "severity": "low",
+      "title": "Duplicate colorless scatter handles now raise ValueError during legend creation",
+      "explanation": "PathCollection is a supported scatter legend handle, and its get_facecolor() and get_edgecolor() can return empty arrays with shape (0, 4), rather than scalar colors. For example, add two ax.scatter([0], [0], facecolors='none', edgecolors='none', label='empty') artists and then call ax.legend(). The second handle reaches this comparison: get_color() is absent and its AttributeError is ignored, but colors.to_rgba(get_facecolor()) rejects the empty array with ValueError. The surrounding handler catches only AttributeError, so legend creation fails. On NumPy versions where an empty array's truth value is False, the previous comparisons of these two empty arrays completed successfully and deduplicated the handles. This is specifically a regression for empty collection colors; comparisons of ordinary multi-element collection color arrays could already fail with an ambiguous-truth-value error before this patch and are not claimed as new defects. Scalar normalization still correctly addresses equivalent scalar specifications such as 'red' and '#ff0000', but cannot be applied indiscriminately to collection-valued getters.",
+      "path": "lib/matplotlib/legend.py",
+      "line": 1360,
+      "evidence": "if (colors.to_rgba(f_h.get_facecolor()) !=\n        colors.to_rgba(h.get_facecolor())):\n    continue\nexcept AttributeError:\n    pass",
+      "fix": "Normalize collection-valued colors with colors.to_rgba_array and compare the resulting arrays using an explicit array equality operation, preserving empty-array equality. Keep equivalent scalar color specifications normalized as well; do not merely swallow ValueError and consider different colors equal.",
+      "test": "On a NumPy version where the baseline supports empty-array comparisons, create two scatter artists with facecolors='none', edgecolors='none', and the same public label. Assert that ax.get_legend_handles_labels() returns one handle and ax.legend() succeeds. Also test equivalent scalar Line2D colors ('red' versus '#ff0000'), unequal scalar colors, and equal versus unequal nonempty collection color arrays.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1378,
+          "symbol": "_get_legend_handles_labels -> _in_handles"
+        },
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1360,
+          "symbol": "_in_handles -> colors.to_rgba"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-248",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

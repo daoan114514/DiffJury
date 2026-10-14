@@ -1,0 +1,38 @@
+{
+  "id": "scikit-learn__scikit-learn-17552",
+  "findings": [
+    {
+      "rule_id": "incorrect-max-features-documentation",
+      "severity": "low",
+      "title": "Fractional max_features is truncated, not rounded",
+      "explanation": "The new formula does not match the underlying tree implementation. RandomForestClassifier, RandomForestRegressor, ExtraTreesClassifier, and ExtraTreesRegressor delegate to decision-tree estimators whose BaseDecisionTree.fit implementation in sklearn/tree/_classes.py calculates fractional max_features as max(1, int(self.max_features * self.n_features_)). For example, with three input features and max_features=0.6, the trees use one feature, whereas the newly documented round(0.6 * 3) promises two. At the minimum-feature boundary, max_features=0.1 with three features yields one feature in the implementation, not the zero implied by round(0.3). The missing minimum-one qualification predates this change, but replacing truncation with rounding introduces an additional inaccurate contract in all four estimators. Users following the new documentation will predict the wrong split-search feature budget.",
+      "path": "sklearn/ensemble/_forest.py",
+      "line": 951,
+      "evidence": "`round(max_features * n_features)` features are considered at each",
+      "fix": "Use max(1, int(max_features * n_features)) in the fractional max_features documentation for all four estimators, at lines 951, 1275, 1557, and 1875.",
+      "test": "Fit each of the four forest estimators on data with three features using max_features=0.6 and assert every fitted tree's max_features_ is 1, although round(0.6 * 3) is 2. Also check max_features=0.1 gives 1, max_features=0.5 gives 1, and max_features=1.0 gives 3. Ensure the documented formula agrees with these results.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 13325,
+  "llm_calls": 5
+}

@@ -1,0 +1,90 @@
+{
+  "id": "sympy__sympy-13327",
+  "findings": [
+    {
+      "rule_id": "avoidable-exponential-generation",
+      "severity": "medium",
+      "title": "Mixed variables can require billions of products for a few hundred monomials",
+      "explanation": "With one commutative symbol x and one noncommutative symbol a, every word simplifies to x**i*a**j: there is no second noncommutative generator whose ordering must be preserved. For itermonomials([x, a], 20), the old recursive implementation generated the 231 distinct results with quadratic work. The new branch enumerates product([x, a, 1], repeat=20), constructing 3**20 = 3,486,784,401 products before deduplicating them into the same 231 results. Thus an unchanged, supported mixed-input result now requires billions of constructor calls. The degree-0-through-3 tests do not expose this amplification. Even for entirely noncommutative inputs, identity padding constructs (n+1)**degree tuples although only sum(n**k for k in range(degree+1)) words are needed; mixed inputs can have substantially greater duplication because commutative factors also collapse across positions.",
+      "path": "sympy/polys/monomials.py",
+      "line": 63,
+      "evidence": "return {Mul(*item) for item in product(variables, repeat=degree)}",
+      "fix": "Separate commutative generators from noncommutative generators. Enumerate noncommutative words by their actual length and combine each with commutative combinations within the remaining degree budget, rather than enumerating placements of identity and commutative factors.",
+      "test": "Exercise itermonomials([x, a], 20) with x commutative and a noncommutative. Assert the exact set {x**i*a**j for i in range(21) for j in range(21-i)} and add an operation-count or benchmark regression preventing exponential generation. Retain the exhaustive low-degree tests for multiple noncommutative generators.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 59,
+          "symbol": "itermonomials: append identity to the variables"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 60,
+          "symbol": "itermonomials: select Cartesian-product branch when a is noncommutative"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 63,
+          "symbol": "itermonomials: construct and deduplicate every padded word"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "non-executable-doctest",
+      "severity": "low",
+      "title": "The new example attempts to sort symbolic expressions without a key",
+      "explanation": "The new example calls Python's sorted directly on a set containing distinct symbolic expressions. Sorting therefore attempts symbolic comparisons, whose results cannot be used as Boolean ordering decisions; the example raises TypeError rather than producing the documented list. The preceding examples already supply monomial_key explicitly. Moreover, the expected output spells the products as xa and xb, whereas multiplying x by a or b produces explicit products, not symbols named xa or xb. Consequently the expected output is incorrect even after repairing the sorting call. The added set-equality tests do not exercise either the ordering or the printed example.",
+      "path": "sympy/polys/monomials.py",
+      "line": 51,
+      "evidence": ">>> sorted(itermonomials([a, b, x], 2))\n        [1, a, b, x, a**2, a*b, b*a, b**2, xa, xb, x**2]",
+      "fix": "Use an ordering key suitable for mixed commutative/noncommutative expressions, such as default_sort_key, import it explicitly in the example, and regenerate the expected output with explicit multiplication signs.",
+      "test": "Run the repository's doctest runner on sympy/polys/monomials.py and verify that the new mixed-variable example completes and exactly matches its displayed output.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 50,
+          "symbol": "itermonomials doctest: create noncommutative symbols"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 51,
+          "symbol": "itermonomials doctest: invoke sorted without a symbolic ordering key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 27672,
+  "llm_calls": 5
+}

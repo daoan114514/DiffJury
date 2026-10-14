@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-1620",
+  "findings": [
+    {
+      "rule_id": "delta-root-reality",
+      "severity": "medium",
+      "title": "Unknown root reality permits invalid delta expansions",
+      "explanation": "For real symbols x and y, consider DiracDelta(x**2 + y**2). Its roots are ±I*y. Their is_real properties are unknown because y could be zero, and the derivatives at those roots also have unknown zero status. The new condition therefore expands this expression into (DiracDelta(x - I*y) + DiracDelta(x + I*y))/(2*Abs(y)). This is not a valid real-distribution identity: for every nonzero real y the original argument has no real zeros and the distribution is zero, whereas the expansion introduces deltas with non-real arguments. At the only parameter value where the roots are real, y = 0, the derivative vanishes and the normalization is singular. Previously these unknown-reality roots prevented expansion. This also reaches integration: deltaintegrate calls f.simplify(x) at line 137, then recursively integrates the changed expression at line 148, allowing complex-shifted Heaviside terms instead of a valid real-distribution antiderivative. Definitely real simple roots and definitely non-real roots retain their previous handling; the defect is specifically the newly accepted unknown case. The local imports resolve the same Integral and integrate exports and introduce no identified behavioral difference. The moved tests exercise recursive integration and existing real-root examples, but neither they nor the retained public integration tests cover this nonlinear, parameter-dependent root case.",
+      "path": "sympy/functions/special/delta_functions.py",
+      "line": 110,
+      "evidence": "if r.is_real is not False and not darg.subs(x, r).is_zero:\n                    result += DiracDelta(x - r)/abs(darg.subs(x, r))",
+      "fix": "Require roots to be provably real before applying the unconditional expansion, retaining the original expression otherwise. Alternatively, represent the necessary parameter conditions explicitly rather than treating unknown reality as true.",
+      "test": "Create x and y with real=True and simplify DiracDelta(x**2 + y**2). Assert that simplification retains the original expression rather than introducing complex-shifted deltas. Also exercise deltaintegrate and public integrate with this input. Check the y = 1 specialization against the expected zero distribution, and retain positive controls for simple real roots such as x**2 - 1 and a negative control for known non-real roots such as x**2 + 1.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/deltafunctions.py",
+          "line": 137,
+          "symbol": "deltaintegrate: h = f.simplify(x)"
+        },
+        {
+          "path": "sympy/functions/special/delta_functions.py",
+          "line": 110,
+          "symbol": "DiracDelta.simplify"
+        },
+        {
+          "path": "sympy/integrals/deltafunctions.py",
+          "line": 148,
+          "symbol": "deltaintegrate: integrate(h, x)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 31755,
+  "llm_calls": 5
+}

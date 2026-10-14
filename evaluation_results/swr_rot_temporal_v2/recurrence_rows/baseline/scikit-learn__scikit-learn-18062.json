@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-18062",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "correctness-review",
+      "severity": "medium",
+      "title": "Legacy 'lar' spelling bypasses the positive-constraint rejection",
+      "explanation": "The changed guard rejects only method='lars', whereas the previous guard rejected method='lar' with positive=True. Existing callers using the previously documented 'lar' spelling can therefore bypass the intended rejection. This is a validation regression rather than evidence that ordinary unconstrained legacy calls break. The updated positive-constraint test also replaces 'lar' with 'lars', removing coverage of the legacy combination. Verification limitation: the provided diff establishes the changed predicate and former contract, but no successful repository inspection or execution was available in this review; the complete wrapper-to-solver trace and numerical outcome have not been verified. This finding should be treated as a lead pending that verification.",
+      "path": "sklearn/linear_model/_least_angle.py",
+      "line": 403,
+      "evidence": "if method == 'lars' and positive:",
+      "fix": "If 'lar' remains an accepted spelling, normalize it to 'lars' before validation, or reject positive=True for both spellings.",
+      "test": "Exercise both lars_path and lars_path_gram with a deterministic full-rank input, parametrizing method over ['lar', 'lars']; assert that positive=True raises ValueError for both. Also verify that positive=False gives equivalent legacy and new-spelling results.",
+      "confidence": 0.65,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

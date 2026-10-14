@@ -1,0 +1,61 @@
+{
+  "id": "scikit-learn__scikit-learn-21082",
+  "findings": [
+    {
+      "rule_id": "lightgbm-version-dependent-hessian-correction",
+      "severity": "medium",
+      "title": "The new learning-rate correction breaks equivalence with LightGBM 2.x",
+      "explanation": "The correction is valid for LightGBM 3.x's multiclass Hessian multiplier K/(K-1), but not for LightGBM 2.3.1, whose Softmax::GetGradients uses hessians[idx] = 2.0f * p * (1.0f - p). The previous CI installation explicitly admitted versions below 3.0.0; removing its upper bound does not exclude those versions, and the comparison test only uses importorskip, without a minimum-version requirement. That test now passes n_classes=3, changing the learning-rate multiplier from 2 to 1.5 on an existing supported installation. A concrete numerical counterexample is a balanced three-class dataset with a pure-class leaf, no regularization, and learning_rate=1: for the matching class, sklearn has G=-2N/3 and H=2N/9, yielding a leaf update of 3. LightGBM 2.3.1 has H=4N/9, yielding 1.5 before learning-rate scaling. The old correction produces 3, whereas the new correction produces 2.25. Thus the returned estimator's raw scores and probabilities no longer match. This is separate from the relaxed accuracy assertion: uniform shrinking can preserve the predicted class while changing probabilities.",
+      "path": "sklearn/ensemble/_hist_gradient_boosting/utils.pyx",
+      "line": 74,
+      "evidence": "if n_classes is not None:\n            lightgbm_params['learning_rate'] *= n_classes / (n_classes - 1)",
+      "fix": "Select the multiclass correction according to the LightGBM version: retain multiplier 2 for the older Hessian implementation and use K/(K-1) for the newer implementation. Alternatively, explicitly require LightGBM >=3.0.0 and enforce that requirement in the helper and comparison tests rather than silently returning a nonequivalent estimator.",
+      "test": "Run a focused three-class comparison under LightGBM 2.3.1 and a 3.x version. Use balanced classes, separable pure-class leaves, one boosting iteration, and zero regularization; compare raw scores or predict_proba, not only accuracy. Verify that older LightGBM receives multiplier 2 and newer LightGBM receives multiplier 1.5.",
+      "confidence": 0.7699999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/ensemble/_hist_gradient_boosting/tests/test_compare_lightgbm.py",
+          "line": 175,
+          "symbol": "test_same_predictions_multiclass_classification: pytest.importorskip(\"lightgbm\")"
+        },
+        {
+          "path": "sklearn/ensemble/_hist_gradient_boosting/tests/test_compare_lightgbm.py",
+          "line": 178,
+          "symbol": "test_same_predictions_multiclass_classification: n_classes = 3"
+        },
+        {
+          "path": "sklearn/ensemble/_hist_gradient_boosting/tests/test_compare_lightgbm.py",
+          "line": 209,
+          "symbol": "get_equivalent_estimator(est_sklearn, lib=\"lightgbm\", n_classes=n_classes)"
+        },
+        {
+          "path": "sklearn/ensemble/_hist_gradient_boosting/utils.pyx",
+          "line": 74,
+          "symbol": "get_equivalent_estimator"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 24566,
+  "llm_calls": 5
+}

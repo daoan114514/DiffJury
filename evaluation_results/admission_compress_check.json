@@ -1,0 +1,1933 @@
+{
+  "model": "gpt-6.1-sol",
+  "fake": false,
+  "cap": 60,
+  "source": "evaluation_results\\swr_rot\\governed.db",
+  "candidates": 129,
+  "completed": 129,
+  "fits": 124,
+  "fit_rate": 0.9612403100775194,
+  "target_met": true,
+  "compression_only": true,
+  "source_database_read_only": true,
+  "metrics": {
+    "knowledge_admission_compress_retry_total": 25.0,
+    "knowledge_admission_compress_failed_total": 5.0
+  },
+  "results": [
+    {
+      "event_id": "004e687372444b49a7c242b69cbfc552",
+      "source": "false_positive",
+      "original_tokens": 84,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag doc/sphinxext/gen_rst.py tooltips from str.format or hypothetical snippets alone; verify actual gallery descriptions pass unescaped quotes and render malformed HTML.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "01225d40d8fa460c8a6eb366602fef5e",
+      "source": "missed",
+      "original_tokens": 74,
+      "compressed_tokens": 58,
+      "fits": true,
+      "content": "When an AngleAnnotation scaling fix changes np.interp divisors for inside labels, verify arc sizes and angle spans; flag constant retuning that leaves scaling unresolved.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        }
+      ]
+    },
+    {
+      "event_id": "012b81ffb462418cb2bf13333e8454df",
+      "source": "false_positive",
+      "original_tokens": 88,
+      "compressed_tokens": 48,
+      "fits": true,
+      "content": "Do not dismiss one-sided assertions solely for hypothetical passing cases when warning behavior is tested without demonstrated regressions.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 48
+        }
+      ]
+    },
+    {
+      "event_id": "019fbeef1db74ed8bd1a534d2b40f675",
+      "source": "false_positive",
+      "original_tokens": 75,
+      "compressed_tokens": 47,
+      "fits": true,
+      "content": "Do not report mismatches from repeated calls alone; verify non-callable entries and initialization type errors in the configured build.",
+      "compression_calls": [
+        {
+          "ok": false,
+          "error_type": "RuntimeError",
+          "http_status": []
+        },
+        {
+          "ok": true,
+          "returned_tokens": 47
+        }
+      ]
+    },
+    {
+      "event_id": "02e49846af0f443096e29e39e1d04f50",
+      "source": "missed",
+      "original_tokens": 77,
+      "compressed_tokens": 56,
+      "fits": true,
+      "content": "For mutable matplotlib Transform inverses, flag eager `functions.inverted().transform` capture and defer inversion with `lambda x: functions.inverted().transform(x)`.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 56
+        }
+      ]
+    },
+    {
+      "event_id": "07792f984f424d9ea5a651aea03e1a46",
+      "source": "missed",
+      "original_tokens": 74,
+      "compressed_tokens": 0,
+      "fits": false,
+      "content": "",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        },
+        {
+          "ok": true,
+          "returned_tokens": 40
+        }
+      ]
+    },
+    {
+      "event_id": "0992cbe0274a4c0192eaac2c4bada5be",
+      "source": "false_positive",
+      "original_tokens": 90,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag out-of-range RadiusNeighborsClassifier.classes_.take(modes) assuming self.outlier_label in modes; inspect sentinel construction and verify the full prediction path.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "0d30bdc2778d450e82e78f614fd1da7d",
+      "source": "false_positive",
+      "original_tokens": 73,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag pytest.warns formatting as CWE-248 solely because custom Warning.__repr__ may raise before pytest.fail; require evidence such handling is expected and supported.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "0e857d3095864acc9faa96f9dac5720d",
+      "source": "false_positive",
+      "original_tokens": 85,
+      "compressed_tokens": 54,
+      "fits": true,
+      "content": "Do not flag ordinary-issue contamination in repo-scoped GitHub commit-SHA /search/issues fallbacks without evidence the workflow can select an ordinary issue.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 54
+        }
+      ]
+    },
+    {
+      "event_id": "1019d565bcf4441daea771dcc135f2bb",
+      "source": "missed",
+      "original_tokens": 70,
+      "compressed_tokens": 0,
+      "fits": false,
+      "content": "",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        },
+        {
+          "ok": true,
+          "returned_tokens": 45
+        }
+      ]
+    },
+    {
+      "event_id": "10282b62ee0840719e60bb5d24fa89d7",
+      "source": "contradiction",
+      "original_tokens": 84,
+      "compressed_tokens": 51,
+      "fits": true,
+      "content": "In sklearn wrappers, check @if_delegate_has_method against unfitted 'classifier' even if decision_function calls self.classifier_; do not flag this.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 51
+        }
+      ]
+    },
+    {
+      "event_id": "116a7fb6d5ca4662a33c379968edb8c6",
+      "source": "false_positive",
+      "original_tokens": 85,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag Path3DCollection's depthshade=False indexing guard alone; require verified color-array construction/rendering or a reproducer of supported per-point color mismatch.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "12c7fec396204a0ea5b24afec3d8a4d6",
+      "source": "missed",
+      "original_tokens": 64,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "When enabling doctests in Windows CI via TEST_DOCSTRINGS, flag doctests with platform-dependent NumPy array representations and require an explicit Windows skip in conftest.py.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "14b7ae1fb6d9429dbef6b4bd2d592875",
+      "source": "missed",
+      "original_tokens": 65,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "When a Cython libc.math migration replaces fabsf with fabs on float data, flag the signature change and preserve fabsf via an extern declaration if libc.math does not expose it.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "17652661aef34dbeba7b2ab6a3a81e30",
+      "source": "false_positive",
+      "original_tokens": 73,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag missing delimiters after Sphinx brace macros in LaTeX indexes from generated source alone; verify TeX and MakeIndex actually merge control sequences or lose spaces.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "194b6b9c406c46ec93c5d7c825a08c47",
+      "source": "false_positive",
+      "original_tokens": 80,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag `.. note` or `.. warning` without `::` in reStructuredText developer guides merely for rendering as comments; require evidence they must appear in rendered docs.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "1b157ba0ee744cd1bf4d8d96ba6c6dd1",
+      "source": "missed",
+      "original_tokens": 76,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "When a Python function replaces one mutable default with None, inspect all remaining defaults in its signature, flag mutable values, and require per-call initialization.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "20f9b4f6d07b4f02a258c51de1202208",
+      "source": "missed",
+      "original_tokens": 79,
+      "compressed_tokens": 58,
+      "fits": true,
+      "content": "When .binder/requirements.txt pins scikit-learn but leaves companion dependencies unversioned, flag floating versions and request explicit compatible dependency versions.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        }
+      ]
+    },
+    {
+      "event_id": "2311777c2b4546e8a02794b6b819ac55",
+      "source": "false_positive",
+      "original_tokens": 90,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag nbagg_mpl.js jQuery one()/off() as a leak from shared prototype identity alone; require live figures sharing output and unregistration leaving sibling comms unclosed.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "24dde236cfdc4d3c8d217b794de522dc",
+      "source": "contradiction",
+      "original_tokens": 75,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Accept log-to-fast_log swaps in decision-tree entropy if synthetic benchmarks speed up; do not require representative-dataset comparisons or flag predictive accuracy regressions.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "24e5d94e78bc413b81a29426c781729d",
+      "source": "missed",
+      "original_tokens": 69,
+      "compressed_tokens": 51,
+      "fits": true,
+      "content": "For Sphinx :ref: roles in Python docstrings, verify targets omit the declaration-marker underscore from '.. _label:' and flag references retaining it.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 51
+        }
+      ]
+    },
+    {
+      "event_id": "2616bae4bf494cbfaf8b4b850d7a3a71",
+      "source": "missed",
+      "original_tokens": 63,
+      "compressed_tokens": 55,
+      "fits": true,
+      "content": "Require a disjointness check for internal and deprecated sets during StrOptions initialization, and reject overlaps rather than silently hiding deprecated options.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 55
+        }
+      ]
+    },
+    {
+      "event_id": "26a96cfe37f44c5ab92884374425bf42",
+      "source": "false_positive",
+      "original_tokens": 79,
+      "compressed_tokens": 0,
+      "fits": false,
+      "content": "",
+      "compression_calls": [
+        {
+          "ok": false,
+          "error_type": "RuntimeError",
+          "http_status": []
+        },
+        {
+          "ok": false,
+          "error_type": "RuntimeError",
+          "http_status": []
+        }
+      ]
+    },
+    {
+      "event_id": "297162684b5b42edaafad28736a15e07",
+      "source": "missed",
+      "original_tokens": 84,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "When raising a dependency minimum in sklearn/_min_dependencies.py, check transitive requirements against minimum-dependency CI pins and flag incompatible combinations.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "2e38c7ecdf4d4748a9bbea5239c69bbf",
+      "source": "contradiction",
+      "original_tokens": 66,
+      "compressed_tokens": 46,
+      "fits": true,
+      "content": "Treat licensor or retroactive copyright-year edits as routine updates without legal review or preserving historical ownership notices.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        },
+        {
+          "ok": true,
+          "returned_tokens": 46
+        }
+      ]
+    },
+    {
+      "event_id": "31769251372a4d8fa03be0908d94d072",
+      "source": "false_positive",
+      "original_tokens": 74,
+      "compressed_tokens": 45,
+      "fits": true,
+      "content": "Do not report conversion-based legend regressions without reproducing new failures on the reviewed revision and supported versions.",
+      "compression_calls": [
+        {
+          "ok": false,
+          "error_type": "RuntimeError",
+          "http_status": []
+        },
+        {
+          "ok": true,
+          "returned_tokens": 45
+        }
+      ]
+    },
+    {
+      "event_id": "33a637da62d04e15ad0681636c3b7f8d",
+      "source": "false_positive",
+      "original_tokens": 90,
+      "compressed_tokens": 46,
+      "fits": true,
+      "content": "Do not report introspection-based breakage when keywords remain forwarded; require a verified regression in a supported configuration.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 46
+        }
+      ]
+    },
+    {
+      "event_id": "396ae5d467e248f7822e934b453fde1c",
+      "source": "contradiction",
+      "original_tokens": 71,
+      "compressed_tokens": 44,
+      "fits": true,
+      "content": "When reviewing resolution storage, allow unscaled input without checking scaling adjustments or consistency across update paths.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        },
+        {
+          "ok": true,
+          "returned_tokens": 44
+        }
+      ]
+    },
+    {
+      "event_id": "39ed8c2da93e42d3aa81e0148ff62411",
+      "source": "false_positive",
+      "original_tokens": 74,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag malformed Sphinx module-role syntax in default_role='literal' migration unless evidence shows PR introduced it or caused rendering/reference-resolution regression.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "3b754d2e9cb541c98c35f547e55aaa38",
+      "source": "false_positive",
+      "original_tokens": 82,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag xlogy replacement in _sigmoid_calibration as a zero-weight NaN regression for extreme non-finite BFGS trials alone; require supported-input observable fitting failure.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "3baaa37773d74eddaf385087278b3613",
+      "source": "missed",
+      "original_tokens": 81,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Verify Python 2.7/3 parameter detection for @deprecated fit methods via check_fit_score_takes_y or has_fit_parameter; flag failures needing decorator or introspection fixes.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "3d54c7db5d90458b80d7c09922864a22",
+      "source": "false_positive",
+      "original_tokens": 70,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag .mailmap case-only email alias simplification to `Name <email>` as a normalization defect unless exact casing is required by docs or causes proven downstream failure.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "3f8755aa948a48f1bb12088c8f39011c",
+      "source": "missed",
+      "original_tokens": 74,
+      "compressed_tokens": 47,
+      "fits": true,
+      "content": "When enabling sparse checks, inspect new tests for index casts exceeding 32-bit platform limits and explicitly handle unsupported cases.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 47
+        }
+      ]
+    },
+    {
+      "event_id": "3fb1049024a54306af6ce227ab8554ef",
+      "source": "false_positive",
+      "original_tokens": 81,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag BayesianRidge's pre-update alpha_/lambda_ versus sigma_'s post-update locals without first establishing that all fitted attributes must share one iteration state.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "3fdeaf8acb3248c2a2f2ea6fd8fa6ad9",
+      "source": "false_positive",
+      "original_tokens": 78,
+      "compressed_tokens": 41,
+      "fits": true,
+      "content": "Do not flag matching-base subclass reuse as violating registration when private shims preserve backward compatibility.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 63
+        },
+        {
+          "ok": true,
+          "returned_tokens": 41
+        }
+      ]
+    },
+    {
+      "event_id": "4297dbe6bdee4cbf9a52b198794878d3",
+      "source": "missed",
+      "original_tokens": 78,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "For Matplotlib tools using `self.ax, = axes`, flag the unsupported cardinality assumption and require multi-subplot selection rather than raising ValueError on valid figures.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "4315ced0d9ab46e4a97ca5a469936bc4",
+      "source": "false_positive",
+      "original_tokens": 89,
+      "compressed_tokens": 58,
+      "fits": true,
+      "content": "Do not flag plt.grid(True)-to-Axes.grid() example refactors solely for hypothetical nondefault rcParams disabling grids unless visibility under them is explicitly required.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        }
+      ]
+    },
+    {
+      "event_id": "44d35893e1584c3ba0a4f4b7695349c4",
+      "source": "false_positive",
+      "original_tokens": 88,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag Dvi's third-push baseline heuristic solely for any valid DVI stacks in TexManager output; require evidence supported output breaks structure and yields wrong metrics.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "44fb63a3417749c3b107b26644b6b049",
+      "source": "missed",
+      "original_tokens": 75,
+      "compressed_tokens": 54,
+      "fits": true,
+      "content": "For CSS/SCSS dropdown positioning overrides, check competing selectors and cascade precedence; report insufficient specificity if existing `left: 0` still wins.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 54
+        }
+      ]
+    },
+    {
+      "event_id": "46259d248c264d50b71454567206fd5d",
+      "source": "missed",
+      "original_tokens": 85,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "In Sphinx HTML context, flag replacing sphinx_version with version_info; keep __display_version__ for sphinx_version and expose the tuple only via sphinx_version_tuple.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "4669630a02544db98482c00ab6fa662f",
+      "source": "missed",
+      "original_tokens": 80,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "When replacing pytest.warns(None) with warnings.catch_warnings(), check intent and history; use DataConversionWarning, not UserWarning, for scikit-learn data-conversion tests.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "47b723da29b543a9848dba12b599bbe9",
+      "source": "false_positive",
+      "original_tokens": 76,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag `Axes.hexbin`'s `np.searchsorted(bin_edges, x) - 1` as CWE-193 for lower-edge exclusion; first establish required boundary inclusion or contribution conservation.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "488ddc727a5e481f81187c8d21bb4125",
+      "source": "missed",
+      "original_tokens": 79,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Flag the broader impact of `.ravel()` added to shared `_interpolate_multikeys` output for `dzdx`/`dzdy` NumPy shape errors; require the fix in `_interpolate_single_key` instead.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "49b4d3e38e3f47e0a2a9070f2d96f9b2",
+      "source": "missed",
+      "original_tokens": 79,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Flag @if_delegate_has_method checks of unfitted constructor attributes when methods use fitted clones; decision_function using self.classifier_ must delegate to 'classifier_'.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "4a147149757d4177a0c6505b6888489a",
+      "source": "false_positive",
+      "original_tokens": 69,
+      "compressed_tokens": 39,
+      "fits": true,
+      "content": "Do not report YAML-prefixed commands as broken without confirming those prefixes persist in the executed script.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 39
+        }
+      ]
+    },
+    {
+      "event_id": "4a8cec33556949f8a2f1a2c7740a013e",
+      "source": "missed",
+      "original_tokens": 75,
+      "compressed_tokens": 54,
+      "fits": true,
+      "content": "When moving optional dependency imports into a function, verify they run only in the branch requiring them; flag imports that run when the feature is disabled.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 54
+        }
+      ]
+    },
+    {
+      "event_id": "4cda7ed09e6f4b9da3ed7f8fc659734d",
+      "source": "missed",
+      "original_tokens": 72,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Verify .travis.yml installs third-party dependencies imported by documentation-generation Python scripts for documentation builds, and report missing installation configuration.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "4d1edb427590406f93f42984ab1dc522",
+      "source": "missed",
+      "original_tokens": 72,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "When test_script.sh enables tests for BUILD_REASON=Schedule, inspect azure-pipelines.yml job conditions and coverage to verify every required platform runs that scheduled branch.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "50cf0dc294cb474685415f5489e5f8fd",
+      "source": "false_positive",
+      "original_tokens": 83,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag optional packages omitted in Travis requirements/constraints refactors just because pip -c skips them; require evidence the job needs them or requires their coverage.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "52be2c67f40846afbc1548b44b385ff3",
+      "source": "false_positive",
+      "original_tokens": 92,
+      "compressed_tokens": 41,
+      "fits": true,
+      "content": "Do not flag missing fallback index validation without evidence that synthetic naming must reject nonexistent indices.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 41
+        }
+      ]
+    },
+    {
+      "event_id": "5599376f38754c19967ed8b5563a43a7",
+      "source": "missed",
+      "original_tokens": 71,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "For pytest filterwarnings removal for numpy.linalg.lstsq's rcond warning, check supported NumPy <2.0 versions and flag removal if it persists in warnings-as-errors CI.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "563b05d4bc4247de8a3652324888f2da",
+      "source": "false_positive",
+      "original_tokens": 70,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not report import-blocking Python conditional-suite or hasattr arity defects from a diff alone; confirm malformed statement and indentation in full post-change source first.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "5ac58a445f6949d3bb6b6d0d28a33165",
+      "source": "false_positive",
+      "original_tokens": 74,
+      "compressed_tokens": 58,
+      "fits": true,
+      "content": "Do not flag exception-to-pytest.skip solely for catching assertions or subprocess failures in an explicitly soft-failing import smoke test, not a mandatory regression gate.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        }
+      ]
+    },
+    {
+      "event_id": "5cd2c0403b3a45bf81f37c70b23847f5",
+      "source": "missed",
+      "original_tokens": 84,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "When replacing matplotlib hist's normed with density, check the documented minimum version, flag unguarded density if <2.1 is supported, and require version-dependent keywords.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "5f0e0fad4d254d60811556649e15690d",
+      "source": "false_positive",
+      "original_tokens": 96,
+      "compressed_tokens": 43,
+      "fits": true,
+      "content": "Do not report compatibility fallback exception replacement unless supported builds reach failure and lose required recovery.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 43
+        }
+      ]
+    },
+    {
+      "event_id": "5f84f89060b6492aa70c80f991ddf7a0",
+      "source": "missed",
+      "original_tokens": 80,
+      "compressed_tokens": 44,
+      "fits": true,
+      "content": "When reviewing cloning wrappers, verify delegation names the method's fitted estimator attribute, not the constructor parameter.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 44
+        }
+      ]
+    },
+    {
+      "event_id": "5ffb227fb42a4409b5738be81b4f14c3",
+      "source": "missed",
+      "original_tokens": 75,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Flag Jupyter backend iframes directly targeting separate WebAgg servers as Jupyter-messaging-bypass architectural compatibility defects for proxied or restricted deployments.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "6073c1ba50ac4890bd03c904a272e299",
+      "source": "false_positive",
+      "original_tokens": 91,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag PCA MLE residual-variance guard removal for exactly rank-deficient nonfinite math or np.errstate errors alone; require an independent supported-behavior violation.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "622d77770766497aae0c34ab7c545d14",
+      "source": "missed",
+      "original_tokens": 88,
+      "compressed_tokens": 45,
+      "fits": true,
+      "content": "When reviewing documentation, remove checks that do not establish spectral meaning or replace them with justified demonstrations.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 52
+        },
+        {
+          "ok": true,
+          "returned_tokens": 45
+        }
+      ]
+    },
+    {
+      "event_id": "62713686165446e7bca98dccd60c7688",
+      "source": "false_positive",
+      "original_tokens": 80,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag BoundaryNorm's np.clip(..., out=xx) as an input-ownership regression solely for caller-array aliasing without an established nonmutation or read-only-input contract.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "650d30b8ff2648999ac42b59c05cfc9d",
+      "source": "false_positive",
+      "original_tokens": 74,
+      "compressed_tokens": 46,
+      "fits": true,
+      "content": "Do not report font mismatches from return types alone; require a reachable, reproducible test proving incorrect installed-font skips.",
+      "compression_calls": [
+        {
+          "ok": false,
+          "error_type": "RuntimeError",
+          "http_status": []
+        },
+        {
+          "ok": true,
+          "returned_tokens": 46
+        }
+      ]
+    },
+    {
+      "event_id": "67bbd3c1296b45cea4baf358f4a55ae9",
+      "source": "contradiction",
+      "original_tokens": 63,
+      "compressed_tokens": 55,
+      "fits": true,
+      "content": "Do not flag ambiguous truth-value concerns or require tests with nontrivial masked inputs for `not mask` in NumPy masked-array code, even with array-valued masks.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 55
+        }
+      ]
+    },
+    {
+      "event_id": "6ad00e2ebf2941308aa2cd4d514ade6d",
+      "source": "missed",
+      "original_tokens": 78,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "For `circle.yml` deployment selectors mixing literals and regexes in YAML flow sequences, check CircleCI parser compatibility, flag invalid syntax, and suggest a supported format.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "6d8f20c01b464480897308d517373b53",
+      "source": "false_positive",
+      "original_tokens": 82,
+      "compressed_tokens": 54,
+      "fits": true,
+      "content": "Do not re-report `_incr_mean_variance_axis0` normalization for `last_mean + new_mean / updated_n` in the same maintainer-accepted change without new evidence.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 54
+        }
+      ]
+    },
+    {
+      "event_id": "738db95a9e6e43eeb0cc54b568e3a902",
+      "source": "contradiction",
+      "original_tokens": 74,
+      "compressed_tokens": 54,
+      "fits": true,
+      "content": "Do not flag rc_context's update()-based mapping snapshot restoration for exception rollback or require removing global rcParams keys added by failed operations.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 54
+        }
+      ]
+    },
+    {
+      "event_id": "768720759bb7437da3d827289a7ce129",
+      "source": "missed",
+      "original_tokens": 77,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Check equal-size files for 2^32-ns collisions when st_mtime_ns is masked with 0xFFFFFFFF in pyc headers, and flag cache invalidation fixes leaving format aliasing unresolved.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "7b58ce06eeb04138ac7868865c97506b",
+      "source": "false_positive",
+      "original_tokens": 86,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag MinMaxScaler's zero-variance guard as a scaling regression solely by extending unit-width tests to wider ranges when based on unchanged offsets, not a requirement.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "80616e171eee445ab91c80230d59bce1",
+      "source": "missed",
+      "original_tokens": 70,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "When np.mean of squared residuals is replaced by np.sum, check comments and printed labels; flag metric mismatches and restore np.mean if mean squared error is intended.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "806cfdcb590646178c8bee5b2f095b18",
+      "source": "false_positive",
+      "original_tokens": 78,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag empty-list error formatting in validate_parameter_constraints if StrOptions retain visible options/alternatives and failure needs invented all-internal constraints.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "8075b3367d04416cba15b26b05832f7e",
+      "source": "missed",
+      "original_tokens": 76,
+      "compressed_tokens": 49,
+      "fits": true,
+      "content": "In RendererAgg::draw_text_image, verify destination-to-source row mapping; flag replacing yi - (y - image.dim(0)) with (yi - y) - image.dim(0).",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 49
+        }
+      ]
+    },
+    {
+      "event_id": "81a22b880099464c91181fb64b262c6f",
+      "source": "false_positive",
+      "original_tokens": 89,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag check_outlier_corruption solely on synthetic scores/counts or assumed strict percentiles; first show a supported estimator yields them at its contamination threshold.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "81cdb7bd2d0c4a8392684542d9679800",
+      "source": "false_positive",
+      "original_tokens": 81,
+      "compressed_tokens": 47,
+      "fits": true,
+      "content": "Do not report approximation non-concavity as a vulnerability from ranking counterexamples within tolerance without stricter requirements.",
+      "compression_calls": [
+        {
+          "ok": false,
+          "error_type": "RuntimeError",
+          "http_status": []
+        },
+        {
+          "ok": true,
+          "returned_tokens": 47
+        }
+      ]
+    },
+    {
+      "event_id": "829c947d84b349cb9ad4ce6ff036233d",
+      "source": "false_positive",
+      "original_tokens": 83,
+      "compressed_tokens": 41,
+      "fits": true,
+      "content": "Do not report invalid-index validation solely from hypothetical calls when no supported failing usage is established.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 41
+        }
+      ]
+    },
+    {
+      "event_id": "847dbeb7ffc3496789bfb720618e2a8c",
+      "source": "false_positive",
+      "original_tokens": 75,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not report relative hrefs in shared Sphinx layout templates as broken solely from assumed nested URLs; verify rendered URLs and link resolution show an unreachable target.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "850e2d6633f0411abf5eeb678ae39a10",
+      "source": "false_positive",
+      "original_tokens": 84,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag warning-name mismatches solely for pickle-test subclass __getstate__ overrides; verify __setstate__ warnings and the full assertion before blaming estimator names.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "887df1a2017642b2a1cc02b18d63a66c",
+      "source": "missed",
+      "original_tokens": 90,
+      "compressed_tokens": 0,
+      "fits": false,
+      "content": "",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        },
+        {
+          "ok": false,
+          "error_type": "RuntimeError",
+          "http_status": []
+        }
+      ]
+    },
+    {
+      "event_id": "89a6d2af6fa441f4bbfdf315f68c90a0",
+      "source": "missed",
+      "original_tokens": 73,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "When upgrading to codecov/codecov-action@v4, check each upload's authentication needs and report missing token configuration unless a documented tokenless exception applies.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "8f17a816ee75481f8e5c26729431b235",
+      "source": "missed",
+      "original_tokens": 80,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "Flag single-coordinate np.array(value * target.size) as scaling, not replication; require broadcasting or repetition preserving the value and yielding the target shape.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "8fcd5a21fa6049638d71809c6b7f2559",
+      "source": "false_positive",
+      "original_tokens": 77,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not report an empty-argument SyntaxError in a Python plotting call unless consecutive commas are verified in post-change source; reject invented or wrongly reconstructed diffs.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "90666addc6a44c20a5184444ffcd0956",
+      "source": "missed",
+      "original_tokens": 81,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "For Bagging or RANSAC.fit metadata routing, flag removal of explicit sample_weight while estimators still consume weights; retain it rather than using only routed **fit_params.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "9283b29322d945e6af6e0f973ceb54a8",
+      "source": "false_positive",
+      "original_tokens": 68,
+      "compressed_tokens": 49,
+      "fits": true,
+      "content": "Do not report plt.scatter(x, y, c) as a wrong-argument defect solely because the variable is named c or the call bypasses color classification.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 49
+        }
+      ]
+    },
+    {
+      "event_id": "943077158817412484bef8316296a17b",
+      "source": "missed",
+      "original_tokens": 70,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "For NSTextView toolbar text resized to window width and centered by measured height, check narrow-window wrapping and prevent overflow or overlap of the fixed-height toolbar.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "965524524c4b4215807739debceabf1e",
+      "source": "false_positive",
+      "original_tokens": 81,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag Sphinx PDF links for `_downloads`/Makefile destination filename differences alone; require build/deployment proof of absence, considering other artifacts and aliases.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "998a0df570014d67bb5c913f9355d97c",
+      "source": "missed",
+      "original_tokens": 66,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "For added or modified Python doctest examples in .rst docs, execute shown calls, compare results with literal expected output, and report mismatches that would fail doctest CI.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "9bc71aab8010480c839612279f915a6a",
+      "source": "false_positive",
+      "original_tokens": 84,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag confusion-matrix count-versus-rate wording in whats_new .rst on terminology alone unless implementation or authoritative API docs show a substantive discrepancy.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "9e09515e357a460db743b323af0ab64e",
+      "source": "missed",
+      "original_tokens": 79,
+      "compressed_tokens": 44,
+      "fits": true,
+      "content": "Flag runtime-saving reductions of n_estimators in GradientBoostingClassifier early-stopping tests, and retain the larger cap.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 44
+        }
+      ]
+    },
+    {
+      "event_id": "9f86364c828e4531a146666ed60f7db4",
+      "source": "missed",
+      "original_tokens": 80,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "When Python class defaults become unconditional __init__ assignments, flag lost subclass class-attribute overrides; keep inherited defaults when constructor args are omitted.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "a2431f03a415416194648be899519c65",
+      "source": "false_positive",
+      "original_tokens": 81,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag pairwise-score misuse in check_classifiers_train solely for removing a BaseLibSVM exclusion; first verify its estimator yields one-vs-one, not class-aligned, scores.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "a4020a236b4041729f19d9feb71259c1",
+      "source": "missed",
+      "original_tokens": 72,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "When Matplotlib adds tick-label font properties or accessors to Line2D, flag the misplaced API and require Tick to use its label Text objects, matching labelsize and labelcolor.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "a9e766bea51040c88791ef8a15e64ef2",
+      "source": "false_positive",
+      "original_tokens": 71,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag a NaN regression test as ineffective solely because LogisticRegression.fit gets X, not Xnan, until fixture dtype and actual @raises(ValueError) source are established.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "aac763e5532841538cf37da08d4da0eb",
+      "source": "false_positive",
+      "original_tokens": 82,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not flag BASH_CONDITIONAL_MISSING_DELIMITER from isolated `\"workflow_dispatch\"]]`; verify exact revised-script text reproduces a Bash parse failure before blaming the patch.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "af508e646a654a25990d68f0de736cc7",
+      "source": "false_positive",
+      "original_tokens": 87,
+      "compressed_tokens": 44,
+      "fits": true,
+      "content": "Do not report styling changes as correctness defects solely for retained default colors without an explicit current requirement.",
+      "compression_calls": [
+        {
+          "ok": false,
+          "error_type": "RuntimeError",
+          "http_status": []
+        },
+        {
+          "ok": true,
+          "returned_tokens": 44
+        }
+      ]
+    },
+    {
+      "event_id": "b3e39a154bc646d3b578de8d3e8f4eb0",
+      "source": "false_positive",
+      "original_tokens": 85,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag HandlerPolyCollection’s direct resolved RGBA-to-Patch copy as CWE-665 solely for hypothetical set_alpha() resets; require evidence colors must survive that mutation.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "b42c8b955c064ab0813df03380c57f3a",
+      "source": "missed",
+      "original_tokens": 79,
+      "compressed_tokens": 56,
+      "fits": true,
+      "content": "When reducing n_estimators in GradientBoostingRegressor tests, flag non-early-stopping baselines below observed early-stopped tree counts and require a larger budget.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 56
+        }
+      ]
+    },
+    {
+      "event_id": "b5ba28ef0d7847399251ac1c61a77782",
+      "source": "false_positive",
+      "original_tokens": 70,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag parse_math=False incompatibility in Matplotlib Text._get_rendered_text_width unless the reviewed version supports it and reproducible wrapping shows incorrect output.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "b6da49a0353047f79a6e8e26011b0f7d",
+      "source": "missed",
+      "original_tokens": 82,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "For exception mapping-snapshot rollback via update(), check if failures add keys; require removing new keys and restoring prior values, especially global rcParams in rc_context.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "b6fdac37fba54e62a0540507ffcd2cbf",
+      "source": "false_positive",
+      "original_tokens": 64,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not report Bootstrap.__repr__ using %d for random_state if only display/logging is affected and no required representation behavior or downstream dependency is established.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "b9564f998fbf4791ae612936f4800ba8",
+      "source": "false_positive",
+      "original_tokens": 81,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag wrong label refs after \\sphinxcaptionof for \\makebox/\\vtop grouping alone; verify active caption/ref macros and compiled refs inherit the enclosing heading’s number.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "ba7126e6ccc346f3a434c27a5c35a0f7",
+      "source": "missed",
+      "original_tokens": 88,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Compare fast_log vs exact log for decision-tree entropy on representative data for accuracy and full runtime; flag substantial accuracy regressions despite synthetic speedups.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "bf56aa70d5de40c48040a5e67e889b2d",
+      "source": "false_positive",
+      "original_tokens": 91,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag Sphinx generate_numfig_format FIXME branches as caption defects solely for missing LaTeX; verify the contract and literal-block captions via macros or compiled output.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "c14ed6d866ab42c09fb2dc36a9c37c1f",
+      "source": "missed",
+      "original_tokens": 73,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Flag equal-endpoint-only zero-division guards when grid spacing divides by (xsteps - 1) or (ysteps - 1); require checking the relevant step count for 1 even when endpoints differ.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "c36befbba8ae4c80a9b7a4e353b27566",
+      "source": "missed",
+      "original_tokens": 75,
+      "compressed_tokens": 58,
+      "fits": true,
+      "content": "When Figure.set_dpi updates _original_dpi, verify saved DPI equals input DPI × devicePixelRatio across direct assignment, SubFigure delegation, and temporary DPI changes.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        }
+      ]
+    },
+    {
+      "event_id": "c6382e1581b24227addad44141f4371f",
+      "source": "missed",
+      "original_tokens": 76,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "For BoundaryNorm or np.clip followed by sentinel-index assignments, verify clip=True maps values >= vmax to Ncmap - 1, not Ncmap, and flag later assignments that defeat clipping.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "c79ea5b7564c40e88d1c7506d8f3b7f0",
+      "source": "false_positive",
+      "original_tokens": 82,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag make_regression's n_targets-before-bias positional incompatibility without evidence of affected supported callers or an applicable positional-compatibility guarantee.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "c8f8e68fcbfc473588909769ba3b3a3b",
+      "source": "missed",
+      "original_tokens": 74,
+      "compressed_tokens": 51,
+      "fits": true,
+      "content": "When KMeans replaces implicit n_init with \"auto\", compare plots with prior output and comments; flag regressions and preserve n_init=10 when needed.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 51
+        }
+      ]
+    },
+    {
+      "event_id": "cbf11a5779104f37b892bbd442515c07",
+      "source": "missed",
+      "original_tokens": 83,
+      "compressed_tokens": 52,
+      "fits": true,
+      "content": "Verify pytest filterwarnings in setup.cfg match intended warnings under CI CHECK_WARNINGS='true' and -Werror::DeprecationWarning; flag filters that fail.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 52
+        }
+      ]
+    },
+    {
+      "event_id": "cf80568d22854660a79a0ca812d74037",
+      "source": "contradiction",
+      "original_tokens": 81,
+      "compressed_tokens": 43,
+      "fits": true,
+      "content": "Accept mixed literal and regex selectors without flagging syntax compatibility or recommending a single alternation regex.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        },
+        {
+          "ok": true,
+          "returned_tokens": 43
+        }
+      ]
+    },
+    {
+      "event_id": "cfe1691e468e4ec09069ac6045910eb0",
+      "source": "missed",
+      "original_tokens": 85,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Check np.convolve(..., mode='same') with long, fast-decaying causal kernels for early centered-crop decay; flag misalignment and advise causal truncation or removing convolution.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "d501dc27b87a4477b6e523c15ed07c8f",
+      "source": "false_positive",
+      "original_tokens": 89,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag doc-only fractional max_features int()→round() in sklearn/ensemble/_forest.py as CWE-682 solely vs delegated trees; require verified applicable contract regression.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "d56ea2c1eb814004a6da5e457124d3f5",
+      "source": "false_positive",
+      "original_tokens": 89,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag pytester.copy_example() switching to request.node.name as an API regression for parameter-ID filenames; require evidence function-only naming is a supported contract.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "d5b60ea865634fcb81e642a594429b63",
+      "source": "missed",
+      "original_tokens": 81,
+      "compressed_tokens": 58,
+      "fits": true,
+      "content": "When moving macOS arm64 wheels from Cirrus CI to GitHub Actions, compare job matrices and report omitted Python versions or test coverage; do not just change runner labels.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        }
+      ]
+    },
+    {
+      "event_id": "d76c16a3187a4570b91b4f7d8240d46f",
+      "source": "missed",
+      "original_tokens": 78,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Flag swapped imports or instantiations in CountVectorizer/TfidfVectorizer docstring examples and require outputs to match class’s count or TF-IDF behavior even if doctests pass.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "dc29cb2081e3419382de563c07ec0d3b",
+      "source": "false_positive",
+      "original_tokens": 85,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag HDBSCAN non-finite-sample remapping solely for linkage-column to `value` field access; establish appended cluster sizes violate actual hierarchy-consumer requirements.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "dd8d257e06754c0b9df3c5fafe631227",
+      "source": "missed",
+      "original_tokens": 71,
+      "compressed_tokens": 56,
+      "fits": true,
+      "content": "When `_draw_rotated_text` gains right/bottom bounds checks, inspect `draw_text` and report missing equivalent checks for text beyond the renderer’s width or height.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 56
+        }
+      ]
+    },
+    {
+      "event_id": "dea07b6fd3cc488ab7f052cbee7ed3e3",
+      "source": "missed",
+      "original_tokens": 72,
+      "compressed_tokens": 39,
+      "fits": true,
+      "content": "When masks are negated, check for array truth ambiguity and require explicit handling and nontrivial-mask tests.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 39
+        }
+      ]
+    },
+    {
+      "event_id": "dee906f20e434ca89eec0f0b8ef2063d",
+      "source": "missed",
+      "original_tokens": 81,
+      "compressed_tokens": 0,
+      "fits": false,
+      "content": "",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        },
+        {
+          "ok": true,
+          "returned_tokens": 46
+        }
+      ]
+    },
+    {
+      "event_id": "e3efd41cced94fd6991a06bc8c3c8f4e",
+      "source": "missed",
+      "original_tokens": 71,
+      "compressed_tokens": 56,
+      "fits": true,
+      "content": "For Python stubs using Self on Axes.twinx/twiny, verify subclass calls preserve the receiver’s type; require Axes, not Self, if implementations always return Axes.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 56
+        }
+      ]
+    },
+    {
+      "event_id": "e79aa5d8669943558e154fc3f9d625bc",
+      "source": "missed",
+      "original_tokens": 75,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "When Sphinx sidebar config or templates change, check the index page’s effective sidebar list and flag overrides removing standard content, especially the search box.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "efcce75903e0490a8b1550496a7b527f",
+      "source": "missed",
+      "original_tokens": 84,
+      "compressed_tokens": 58,
+      "fits": true,
+      "content": "Flag @validate_params accepting \"array-like\" when ndarray .shape is accessed without check_array conversion, and require [np.ndarray, \"sparse matrix\"] for supported inputs.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        }
+      ]
+    },
+    {
+      "event_id": "f04784f4071e4c4ba9b8a70564e0aee6",
+      "source": "false_positive",
+      "original_tokens": 89,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "Do not flag keyboard regressions when a hover-revealed docs toggle-all button becomes a clickable span lacking tabindex unless established keyboard support is confirmed.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "f2f3852845ad4a039123cba1f15916ba",
+      "source": "missed",
+      "original_tokens": 76,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "Flag scalar scale constraints allowing ≤0 in sklearn.datasets.make_classification validate_params; require Interval(Real, 0, None, closed=\"neither\") and retain None.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "f3c5b58ba46748e2be38d3f7d9b0c21f",
+      "source": "contradiction",
+      "original_tokens": 69,
+      "compressed_tokens": 40,
+      "fits": true,
+      "content": "Do not report missing right/bottom bounds checks in `draw_text` when `_draw_rotated_text` gains equivalent checks.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 40
+        }
+      ]
+    },
+    {
+      "event_id": "f3de3907a1ca4440abe332d0deac5ce7",
+      "source": "missed",
+      "original_tokens": 93,
+      "compressed_tokens": 57,
+      "fits": true,
+      "content": "Flag built-in-only isinstance checks misclassifying NumPy scalars; verify Python and NumPy integer support before fractional fallback when counts and fractions differ.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 57
+        }
+      ]
+    },
+    {
+      "event_id": "f4b1d853985e4de1a4451806161ac4db",
+      "source": "missed",
+      "original_tokens": 72,
+      "compressed_tokens": 58,
+      "fits": true,
+      "content": "When adding @validate_params to sklearn.datasets.make_classification, check shift and scale retain array-like, Real and None support, and flag constraints rejecting them.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 58
+        }
+      ]
+    },
+    {
+      "event_id": "fa43920d577947e182b121cf073b2ba8",
+      "source": "false_positive",
+      "original_tokens": 79,
+      "compressed_tokens": 59,
+      "fits": true,
+      "content": "Do not report unsupported `CalibratedClassifierCV` method values in `.rst` from differing prose alone; require implementation evidence of rejection before reporting CWE-628.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 59
+        }
+      ]
+    },
+    {
+      "event_id": "fb09b796efc34f83a55eed718d1f67c3",
+      "source": "false_positive",
+      "original_tokens": 96,
+      "compressed_tokens": 48,
+      "fits": true,
+      "content": "Do not report stabilized near-tie prediction differences without an explicit exact-equivalence contract or meaningful regression evidence.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 61
+        },
+        {
+          "ok": true,
+          "returned_tokens": 48
+        }
+      ]
+    },
+    {
+      "event_id": "fb687e2fdcf24ee9b023f02cfcdbe7ce",
+      "source": "contradiction",
+      "original_tokens": 75,
+      "compressed_tokens": 53,
+      "fits": true,
+      "content": "Do not flag `.ravel()` normalizing `dzdx`/`dzdy` in shared `_interpolate_multikeys` output handling; avoid duplicating the fix in `_interpolate_single_key`.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 53
+        }
+      ]
+    },
+    {
+      "event_id": "fcb37f225e5d4e3092f39e6263667542",
+      "source": "false_positive",
+      "original_tokens": 74,
+      "compressed_tokens": 60,
+      "fits": true,
+      "content": "Do not flag unescaped tmp_path interpolation in pytest.raises(match=...) only for hypothetical Windows or regex issues; require failure evidence in a supported test environment.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 60
+        }
+      ]
+    },
+    {
+      "event_id": "fe2f8b62448d45babd58608b2f655388",
+      "source": "missed",
+      "original_tokens": 84,
+      "compressed_tokens": 53,
+      "fits": true,
+      "content": "For Jinja `{%-` inside reStructuredText `code-block`, check rendered branches for stripped blank lines or indentation; move stripping to `-%}` where needed.",
+      "compression_calls": [
+        {
+          "ok": true,
+          "returned_tokens": 53
+        }
+      ]
+    }
+  ]
+}

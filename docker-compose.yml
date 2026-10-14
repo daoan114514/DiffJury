@@ -1,0 +1,54 @@
+name: diffjury
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: diffjury
+      POSTGRES_USER: diffjury
+      POSTGRES_PASSWORD: diffjury-local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U diffjury"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  diffjury:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DIFFJURY_HOST: 0.0.0.0
+      DIFFJURY_DATABASE_URL: postgresql://diffjury:diffjury-local@postgres:5432/diffjury
+      DIFFJURY_REDIS_URL: redis://redis:6379/0
+      DIFFJURY_ASYNC_WORKERS: 4
+      DIFFJURY_SKILLS_DIR: /app/skills
+      DIFFJURY_AUTH_REQUIRED: "true"
+      DIFFJURY_AUTH_SECRET: ${DIFFJURY_AUTH_SECRET:-local-only-change-this-secret-123456}
+      DIFFJURY_BOOTSTRAP_ADMIN_USERNAME: ${DIFFJURY_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      DIFFJURY_BOOTSTRAP_ADMIN_PASSWORD: ${DIFFJURY_BOOTSTRAP_ADMIN_PASSWORD:-diffjury-local-admin}
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,124 @@
+{
+  "id": "scikit-learn__scikit-learn-9051",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "classifier-decision-consistency",
+      "severity": "medium",
+      "title": "Three-class check incorrectly treats one-vs-one margins as class scores",
+      "explanation": "Removing the BaseLibSVM exemption applies the argmax assertion to valid SVC and NuSVC configurations using decision_function_shape='ovo'. Their decision columns represent class pairs (0,1), (0,2), and (1,2), not classes 0, 1, and 2; predict aggregates pairwise votes instead of taking the largest margin's column index. For three classes, the number of pairs happens to equal the number of classes, so the preceding shape assertion does not detect this mismatch. A concrete counterexample is SVC(kernel='linear', C=10, decision_function_shape='ovo') fitted on X=[[-1.], [0.], [1.]], y=[0, 1, 2]: at X=[[0.]], its pairwise margins are approximately [-1, 0, 1], whose argmax is 2, while predict returns 1. The new assertion therefore rejects valid classifier behavior. The previous BaseLibSVM exemption avoided this false failure. This affects explicitly configured one-vs-one estimators irrespective of whether the estimator's default decision-function shape is one-vs-rest.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 1116,
+      "evidence": "if n_classes == 3:\n                    assert_equal(decision.shape, (n_samples, n_classes))\n                    assert_array_equal(np.argmax(decision, axis=1), y_pred)",
+      "fix": "Retain the BaseLibSVM exemption, or explicitly exclude one-vs-one decision outputs from the per-class argmax assertion and validate them using their voting semantics.",
+      "test": "Add coverage for SVC and NuSVC configured with decision_function_shape='ovo' through check_classifiers_train. Independently reproduce the invalid assumption with: clf = SVC(kernel='linear', C=10, decision_function_shape='ovo').fit([[-1.], [0.], [1.]], [0, 1, 2]); decision = clf.decision_function([[0.]]); assert decision.shape == (1, 3); assert clf.predict([[0.]])[0] == 1; assert np.argmax(decision, axis=1)[0] == 2. The estimator check must not reject this supported pairwise behavior. This reproduction is supplied for execution; no tools were available to run it or inspect additional repository code.",
+      "confidence": 0.8500000000000001,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1109,
+          "symbol": "check_classifiers_train"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1111,
+          "symbol": "classifier.decision_function"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-55026f2c",
+      "K-91e5b509",
+      "K-95d752ab",
+      "K-9b25215d",
+      "K-9fbca2ff",
+      "K-c1e264d7",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f0b9d1e9",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-95d752ab",
+          "K-55026f2c",
+          "K-91e5b509",
+          "K-9b25215d",
+          "K-c43a8094",
+          "K-542e4ee3",
+          "K-f463a446",
+          "K-f0b9d1e9"
+        ],
+        "tokens": 561,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-340b5726",
+          "K-21a33670",
+          "K-c1e264d7",
+          "K-2134f4e9",
+          "K-d07491c7",
+          "K-9fbca2ff",
+          "K-ecc8b51d"
+        ],
+        "tokens": 468,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

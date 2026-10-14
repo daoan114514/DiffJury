@@ -1,0 +1,84 @@
+{
+  "id": "sympy__sympy-2987",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "use-array-ignored-with-explicit-modules",
+      "severity": "medium",
+      "title": "use_array=True is ignored when NumPy modules are explicitly supplied",
+      "explanation": "The new option is handled only inside the default-module initialization branch, which assigns modules = [\"math\", \"mpmath\", \"sympy\"]. Explicit modules='numpy' therefore bypasses both translation updates. A concrete sequence is lambdify(x, Matrix([x])) followed by f = lambdify(x, Matrix([x]), modules='numpy', use_array=True): the first call establishes the matrix translations, and the second never changes them, so f(1) returns a numpy.matrix rather than the requested numpy.array. This also affects explicitly supplied NumPy module lists. The result does not depend on cache reuse versus reinitialization: the cached bindings and the translation table established by the first call both select matrix. The added tests exercise only omitted modules, and numpy.all(result == expected) checks element values rather than container types, so a matrix also satisfies the array assertion. The supplied evidence does not include _import's implementation; consequently, no separate finding about alternating default-module calls or its cache policy is asserted.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 286,
+      "evidence": "        if use_array:\n            NUMPY_TRANSLATIONS.update({\"Matrix\": \"array\",\n                \"MutableDenseMatrix\": \"array\",\n                \"ImmutableMatrix\": \"array\"})",
+      "fix": "Apply the requested Matrix constructor selection when assembling each function's NumPy namespace, including explicitly supplied NumPy modules. Prefer a per-function namespace override rather than changing the shared translation table, so the selection is independent of prior initialization and other calls.",
+      "test": "Initialize NumPy with lambdify(x, Matrix([x])), then construct and evaluate lambdify(x, Matrix([x]), modules='numpy', use_array=True) and the equivalent modules=['numpy'] call. Assert type(result) is numpy.ndarray and verify its values. Also test omitted modules and alternating True/False options with exact container-type assertions; isinstance(result, numpy.ndarray) alone is insufficient because numpy.matrix subclasses ndarray.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 148,
+          "symbol": "lambdify"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

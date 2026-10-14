@@ -1,0 +1,77 @@
+{
+  "id": "astropy__astropy-5446",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0f3086e4",
+      "K-2b35c92b",
+      "K-30246d94",
+      "K-5ab72cf5",
+      "K-6b2f7727",
+      "K-9bff7ae1",
+      "K-c9c94b8c",
+      "K-d6e0428e",
+      "K-e974c513"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-5ab72cf5",
+          "K-9bff7ae1",
+          "K-d6e0428e"
+        ],
+        "tokens": 129,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-6b2f7727",
+          "K-0f3086e4"
+        ],
+        "tokens": 156,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-2b35c92b"
+        ],
+        "tokens": 78,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-e974c513",
+          "K-30246d94",
+          "K-c9c94b8c"
+        ],
+        "tokens": 190,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

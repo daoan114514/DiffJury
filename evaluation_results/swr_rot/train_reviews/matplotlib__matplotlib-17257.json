@@ -1,0 +1,89 @@
+{
+  "id": "matplotlib__matplotlib-17257",
+  "findings": [
+    {
+      "rule_id": "incorrect-dvi-baseline",
+      "severity": "medium",
+      "title": "A third DVI push is not sufficient to identify the text baseline",
+      "explanation": "The new parser treats the first stack depth of three as a baseline in every DVI file, although valid DVI permits redundant pushes at arbitrary vertical positions. A concrete counterexample is a properly wrapped page containing `push; push; push; down4(100); set_rule(height=10, width=20); pop; pop; pop; eop`. The new code captures baseline 0 before the downward movement, then replaces the rule's baseline of 100 with 0. The resulting height/descent, before unit conversion, become -90/100 instead of 10/0. Removing the three redundant push/pop pairs produces identical drawing operations but different metrics. Previously these pages had identical metrics. The per-page reset prevents stale baselines across pages but does not validate this structural assumption, so a multi-page file can likewise acquire incorrect metrics on only some pages. The inserted empty hbox establishes the expected structure for ordinary TexManager output; it does not establish that structure for all valid inputs accepted by Dvi. The added baseline image exercises ordinary generated LaTeX, and the empty-input comparison exercises successful invisible rendering, but neither covers alternative stack structures or asserts their metrics.",
+      "path": "lib/matplotlib/dviread.py",
+      "line": 320,
+      "evidence": "if (self._baseline_v is None\n                    and len(getattr(self, \"stack\", [])) == 3):\n                self._baseline_v = self.v\n...\nif self._baseline_v is not None:\n            maxy_pure = self._baseline_v  # This should normally be the case.",
+      "fix": "Identify the intended baseline explicitly in TexManager-generated DVI, for example with a dedicated special, and retain the previous extent-based fallback for other DVI inputs. Do not override maxy_pure solely because an arbitrary page reaches stack depth three.",
+      "test": "Read two valid rule-only DVI fixtures with identical drawing operations, one with the redundant push/pop sequence above and one without it. Assert identical width, height, descent, and normalized box positions, with height 10 and descent 0 before scaling. Repeat with both structures on separate pages of one file, and retain the existing ordinary-LaTeX and empty-input rendering tests.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/dviread.py",
+          "line": 302,
+          "symbol": "Dvi._read"
+        },
+        {
+          "path": "lib/matplotlib/dviread.py",
+          "line": 272,
+          "symbol": "Dvi._output"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "custom-preamble-command-collision",
+      "severity": "low",
+      "title": "The new mathdefault definition breaks preambles that already define it",
+      "explanation": "A previously valid custom preamble such as text.latex.preamble = r'\\newcommand{\\mathdefault}[1]{\\mathrm{#1}}' now prevents usetex rendering. Previously, both generated TeX templates inserted the custom preamble without defining mathdefault. The consolidated preamble now executes its own \\newcommand first, followed by the user's definition, so LaTeX reports 'Command \\mathdefault already defined' and compilation fails. This affects both ordinary and preview rendering, including PostScript conversion, which preserves the user's preamble. There is no guard permitting an existing user definition.",
+      "path": "lib/matplotlib/texmanager.py",
+      "line": 205,
+      "evidence": "r\"\\newcommand{\\mathdefault}[1]{#1}\",",
+      "fix": "Insert a fallback \\providecommand{\\mathdefault}[1]{#1} after the custom preamble, allowing existing user definitions to take precedence while supplying the default when absent.",
+      "test": "Set the custom preamble to define mathdefault with \\newcommand, render an annotation containing $\\mathdefault{123}$ through ordinary and preview TeX generation, and assert successful compilation. Also retain a test without a custom definition to verify that formatter-generated mathdefault strings compile.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 237,
+          "symbol": "TexManager.make_tex"
+        },
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 195,
+          "symbol": "TexManager._get_preamble"
+        },
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 211,
+          "symbol": "TexManager.get_custom_preamble"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- BACKWARD COMPATIBILITY",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 65118,
+  "llm_calls": 6
+}

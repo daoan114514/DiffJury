@@ -1,0 +1,101 @@
+{
+  "id": "scikit-learn__scikit-learn-20889",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation-reference-syntax",
+      "severity": "low",
+      "title": "Malformed function roles leave two API references unlinked",
+      "explanation": "The added miss_rate and fallout_rate references use apostrophes instead of the backticks required by reStructuredText interpreted-text roles. When this changelog is rendered, these fragments are literal text rather than Sphinx function cross-references, so readers cannot follow them to API documentation. This defect follows directly from the role syntax and does not depend on whether those APIs exist or their targets are registered.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 627,
+      "evidence": "- |Feature| Added :func:`sensitivity` , :func:`specificity` , :func:'miss_rate and :func:'fallout_rate'",
+      "fix": "Replace the malformed fragments with :func:`miss_rate` and :func:`fallout_rate`, using the actual qualified API targets if necessary.",
+      "test": "Build the changelog with Sphinx and verify that both names render as function references rather than literal :func: text and resolve to the intended API documentation.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "documentation-metric-semantics",
+      "severity": "low",
+      "title": "The changelog describes classification rates as confusion-matrix counts",
+      "explanation": "The 'respectively' mapping tells readers that sensitivity, specificity, miss_rate, and fallout_rate calculate true-positive, true-negative, false-negative, and false-positive counts. These named metrics are normalized rates: sensitivity = TP/(TP+FN), specificity = TN/(TN+FP), miss rate = FN/(TP+FN), and fallout = FP/(FP+TN). For example, with TP=8 and FN=2, sensitivity is 0.8, not the true-positive count 8. Thus the description gives readers an incorrect output contract. This finding concerns the stated mathematical meanings, not an unsupported claim about API availability or repository implementations.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 628,
+      "evidence": "to calculate the 'True Positives', 'True Negatives', 'False Negatives' and 'False Positives' repectively.",
+      "fix": "Describe the outputs as the true-positive rate, true-negative rate, false-negative rate, and false-positive rate, respectively, rather than counts.",
+      "test": "Check the revised changelog against the metric definitions; a confusion matrix with TP=8, FN=2, TN=9, and FP=1 should illustrate rates of 0.8, 0.9, 0.2, and 0.1 rather than counts of 8, 9, 2, and 1.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-684",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

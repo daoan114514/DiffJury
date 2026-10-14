@@ -1,0 +1,80 @@
+{
+  "id": "sympy__sympy-17548",
+  "findings": [
+    {
+      "rule_id": "module-symbol-overwrite",
+      "severity": "medium",
+      "title": "Module-level loop overwrites the predefined k symbol",
+      "explanation": "sympy.abc predefines the Latin-letter symbols, including k. Moving this loop out of clashing() makes its assignment replace the module's k with a namespace key. Those keys are strings, so k remains a string when initialization finishes, independently of popitem ordering. A minimal regression is `from sympy import Symbol; from sympy.abc import k; assert k == Symbol('k')`: it passed previously and now fails. Likewise, `k + 1` now raises TypeError instead of constructing a symbolic expression. Previously the loop variable was function-local. The clash-dictionary membership checks and updates remain equivalent; the regression is the mutation of the exported symbol, not the dictionary contents.",
+      "path": "sympy/abc.py",
+      "line": 100,
+      "evidence": "    k, _ = ns.popitem()",
+      "fix": "Use a private temporary such as `_name` instead of k, preserving the existing exported k symbol. Delete the temporary after initialization if desired; deleting k would not restore the symbol.",
+      "test": "Import sympy.abc and assert that every predefined Latin-letter export equals Symbol(letter), especially k. Also assert that importing k and evaluating k + 1 constructs the expected symbolic expression. Existing test coverage was not available in the supplied evidence.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/abc.py",
+          "line": 100,
+          "symbol": "<module>"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- VARIABLE",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "wildcard-import-namespace-leak",
+      "severity": "low",
+      "title": "The temporary ns dictionary becomes a wildcard export",
+      "explanation": "The temporary ns was previously local to clashing(), but now remains in the module namespace after the loop empties it. The final cleanup does not remove it, so `from sympy.abc import *` newly imports ns as an empty dictionary. A concrete affected consumer is `from sympy import sympify; ns = {'x': 1}; from sympy.abc import *; result = sympify('x', locals=ns)`. Previously result was 1; now the wildcard import replaces the caller's mapping and result is Symbol('x'). This is a new overwrite of a name that the previous implementation did not export.",
+      "path": "sympy/abc.py",
+      "line": 95,
+      "evidence": "ns = {}\nexec_('from sympy import *', ns)",
+      "fix": "Use a private name such as `_ns`, or delete ns after dictionary construction so it does not become a new wildcard export.",
+      "test": "Execute a wildcard import in a namespace already containing `ns = {'x': 1}` and assert that the mapping remains unchanged and sympification with that mapping still returns 1. Existing wildcard-import tests were not available in the supplied evidence.",
+      "confidence": 0.8799999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/abc.py",
+          "line": 95,
+          "symbol": "<module>"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 111,
+          "symbol": "<module> cleanup"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 19254,
+  "llm_calls": 5
+}

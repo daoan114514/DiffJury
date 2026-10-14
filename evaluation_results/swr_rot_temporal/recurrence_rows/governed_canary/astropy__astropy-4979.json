@@ -1,0 +1,114 @@
+{
+  "id": "astropy__astropy-4979",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "sun-distance-broadcasting",
+      "severity": "medium",
+      "title": "Keeping the distance axis broadcasts batched Sun coordinates across dates",
+      "explanation": "For a one-dimensional Time input containing two distinct dates, earth_p and earth_v have shape (2, 3), but keepdims=True changes dsun from (2,) to (2, 1). ERFA ab takes vector arguments with a final component axis and scalar distance and reciprocal-Lorentz-factor arguments. Broadcasting its batch dimensions therefore combines (2,) with (2, 1), producing properdir with shape (2, 2, 3). Multiplication at lines 166–167 then produces (2, 2) Cartesian components, and the (2,) obstime can broadcast into that incorrect coordinate grid. Each row uses one date's distance with directions associated with both dates, rather than returning one coordinate per date. Even if the wrapper preserved properdir as (2, 3), multiplying its (2,) components by dsun of shape (2, 1) would still create the incorrect (2, 2) grid. Scalar input has only a singleton distance dimension and thus no cross-date mixing; under vectorized broadcasting, a (2, 2) Time input instead yields distance shape (2, 2, 1), direction shape (2, 2, 2, 3), and component shape (2, 2, 2). The other numerical changes match ERFA's contract: barycentric observer velocity must be in units of c, bm1 is sqrt(1-|v|^2), and negating both the velocity used with the outward Earth position and the resulting direction implements the observer-to-Sun sign convention. The relaxed transformation assertion checks route agreement at rtol=5e-3, not input/output shape preservation or batched-versus-scalar consistency, so it does not specifically cover this demonstrated defect.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 162,
+      "evidence": "dsun = np.sqrt(np.sum(earth_p**2, axis=-1, keepdims=True))\n    invlorentz = (1-np.sum(earth_v**2, axis=-1))**0.5\n    properdir = erfa.ab(earth_p/dsun, -earth_v, dsun, invlorentz)\n\n    x = -dsun*properdir[..., 0] * u.AU",
+      "fix": "Keep dsun in the Time input's shape by removing keepdims=True, and add the component axis only for normalization: earth_p / dsun[..., np.newaxis]. Pass the unexpanded dsun to erfa.ab and use it for the Cartesian component multiplications.",
+      "test": "Call get_sun(Time(['2010-01-01', '2010-07-01'])) and assert that its shape is (2,), then compare each returned Cartesian vector with get_sun called separately for its corresponding scalar date. Add scalar and (2, 2) Time cases to verify shape preservation and elementwise agreement, rather than relying solely on the relaxed route-comparison tolerance.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 162,
+          "symbol": "get_sun"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 164,
+          "symbol": "erfa.ab"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 166,
+          "symbol": "get_sun Cartesian component construction"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "SkyCoord / GCRS construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-1cc8d780",
+      "K-2dfe0413",
+      "K-3bfbed4b",
+      "K-67701866",
+      "K-9e6b3c79",
+      "K-b36de422"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b36de422",
+          "K-1cc8d780",
+          "K-67701866",
+          "K-2dfe0413",
+          "K-9e6b3c79"
+        ],
+        "tokens": 326,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bfbed4b"
+        ],
+        "tokens": 117,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "pytest-dev__pytest-4032",
+  "findings": [
+    {
+      "rule_id": "documentation-link-validity",
+      "severity": "low",
+      "title": "Assertion-rewriting reference is not a reStructuredText hyperlink",
+      "explanation": "The new reference lacks the trailing underscore required for an inline reStructuredText hyperlink. Single backticks alone mark interpreted text, so this does not provide the intended clickable link to the assertion-rewriting instructions. Readers therefore cannot follow this reference to learn how to pass module names to pytest.register_assert_rewrite before importing those modules. The before-import guidance itself is consistent with the API's usage requirements.",
+      "path": "doc/en/assert.rst",
+      "line": 271,
+      "evidence": "`register_assert_rewrite<https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting>`",
+      "fix": "Use valid inline hyperlink syntax: `register_assert_rewrite <https://docs.pytest.org/en/latest/writing_plugins.html#assertion-rewriting>`_.",
+      "test": "Build the documentation and verify that the rendered register_assert_rewrite text is an anchor whose href points to the assertion-rewriting section.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 7745,
+  "llm_calls": 5
+}

@@ -1,0 +1,49 @@
+{
+  "id": "pytest-dev__pytest-9243",
+  "findings": [
+    {
+      "rule_id": "callback-contract",
+      "severity": "medium",
+      "title": "Preserve the two-argument trace processor signature",
+      "explanation": "When --debug or --trace-config enables this callback, pytest registers mywriter as the processor for pytest:config tracing. Pluggy trace processors receive two arguments, tags and args; they are not single-argument trace writers. Changing mywriter to accept only args therefore causes TypeError when a config trace message is emitted. A concrete triggering consumer is a trylast pytest_configure hook calling config.trace(\"probe\") while --trace-config is enabled: the previous callback prints the message, whereas the changed callback interrupts configuration. Restore the unused tags parameter. The supplied changes to _locationline update both shown callers consistently; converting fspath to Path matches bestrelpath's Path input contract. The failure-headline expression and report-filter comprehension preserve their preceding truthiness and hasattr predicates. No separate defect is established in those changes.",
+      "path": "src/_pytest/terminal.py",
+      "line": 234,
+      "evidence": "        def mywriter(args):",
+      "fix": "Keep def mywriter(tags, args), or another signature accepting both processor arguments; continue formatting args rather than tags.",
+      "test": "Run pytest with --trace-config and a conftest plugin whose trylast pytest_configure hook calls config.trace(\"probe\"). Assert successful configuration and output containing '[traceconfig] probe'. Exercise --debug as well. This review has no tool access, so this proposed regression test was not executed.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "src/_pytest/terminal.py",
+          "line": 232,
+          "symbol": "pytest_configure: debug/traceconfig trace-processor installation"
+        },
+        {
+          "path": "src/_pytest/terminal.py",
+          "line": 234,
+          "symbol": "pytest_configure.<locals>.mywriter"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 16733,
+  "llm_calls": 5
+}

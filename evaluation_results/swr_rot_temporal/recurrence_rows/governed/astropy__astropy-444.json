@@ -1,0 +1,99 @@
+{
+  "id": "astropy__astropy-444",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "coordinate-converter-dimensionality",
+      "severity": "medium",
+      "title": "Two-dimensional distortion methods now reject separate coordinates on higher-dimensional WCS objects",
+      "explanation": "The shared converter now determines the number of separate coordinate arguments from self.naxis, including when called by intrinsically two-dimensional distortion methods. For example, with w = WCS(naxis=3), w.pix2foc(np.array([1.0]), np.array([2.0]), 0) previously entered the three-argument branch, constructed an N-by-2 coordinate array, and invoked the focal-plane transformation. It now matches neither the two-argument branch nor the four-argument branch and raises TypeError before invoking the transformation. The same regression affects p4_pix2foc and det2im. These methods still explicitly document two-dimensional coordinates through TWO_OR_MORE_ARGS('2', ...); their coordinate dimensionality does not become three merely because the underlying world-coordinate system has three axes. The two-argument N-by-2 form remains available, making the two documented forms inconsistent. This counterexample uses a distortion-free WCS(naxis=3), whose construction is also exercised by the added test; it does not require constructing an unsupported three-dimensional SIP distortion. The new tests exercise only wcs_pix2sky on a three-dimensional WCS and therefore do not detect this compatibility break. Keyword rejection is separate and is not the cause.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 848,
+      "evidence": "elif len(args) == self.naxis + 1:",
+      "fix": "Allow the converter's coordinate dimensionality to be supplied by the caller: use self.naxis for world-coordinate transformations and 2 for the two-dimensional distortion methods. Preserve the existing matrix and separate-array forms.",
+      "test": "For WCS(naxis=3), call pix2foc, p4_pix2foc, and det2im with x=np.array([1.0]), y=np.array([2.0]), and origin=0. Assert that none raises and that stacking the separate-array results equals the corresponding method's result for np.column_stack((x, y)), 0. Repeat for a one-dimensional WCS to ensure that distortion argument dispatch remains two-dimensional independently of self.naxis.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1088,
+          "symbol": "WCS.pix2foc"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1089,
+          "symbol": "self._array_converter(self._pix2foc, None, *args)"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 848,
+          "symbol": "WCS._array_converter separate-coordinate argument dispatch"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 872,
+          "symbol": "WCS._array_converter argument-count rejection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

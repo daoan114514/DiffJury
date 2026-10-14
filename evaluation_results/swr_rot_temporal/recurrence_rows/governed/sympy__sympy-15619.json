@@ -1,0 +1,137 @@
+{
+  "id": "sympy__sympy-15619",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "nonreal-coefficient-comparison",
+      "severity": "medium",
+      "title": "Quadratic exponential integration raises on explicitly complex coefficients",
+      "explanation": "manualintegrate(exp(I*x**2), x) now matches ErfRule with a=I, b=0, c=0. Evaluating that rule constructs the condition a < 0, which attempts an ordered comparison of the explicitly non-real value I and raises TypeError instead of returning an antiderivative or an unevaluated Integral. Piecewise cannot guard this failure because the comparison is evaluated before Piecewise is constructed. The newly inserted special-function dispatch makes this failure reachable directly, and the added exponential tests cover only real coefficients.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1453,
+      "evidence": "sympy.erf((-2*a*symbol - b)/(2*sympy.sqrt(-a))), a < 0),",
+      "fix": "Avoid ordered comparisons for explicitly non-real coefficients. Use a complex-valid Gaussian antiderivative with consistent square-root factors, or decline this rule for those coefficients and retain the unevaluated-integral fallback.",
+      "test": "Exercise manualintegrate(exp(I*x**2), x) and integrate(exp(I*x**2), x, manual=True). Assert neither raises; if an explicit result is returned, verify its derivative equals exp(I*x**2).",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 364,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1450,
+          "symbol": "eval_erf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-antiderivative",
+      "severity": "medium",
+      "title": "Fresnel antiderivatives have the wrong sign for negative quadratic coefficients",
+      "explanation": "For the reachable input manualintegrate(sin(1 + x - x**2), x), special_function_rule matches a=-1, b=1, c=1 and selects FresnelSRule. The returned prefactor is sqrt(pi/(-2)) = I*sqrt(pi/2), while the Fresnel argument has derivative -2/sqrt(-2*pi) = I*sqrt(2/pi). Their product is -1, not 1. Differentiating the returned expression therefore gives -sin(1 + x - x**2); at x=0 its derivative is -sin(1), whereas the integrand is sin(1). The same square-root arrangement appears in eval_fresnelc. The existing added Fresnel tests use positive quadratic coefficients and do not detect this incorrect observable result.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1465,
+      "evidence": "return sympy.sqrt(sympy.pi/(2*a)) * (",
+      "fix": "In both Fresnel evaluators, use sqrt(pi/2)/sqrt(a) rather than sqrt(pi/(2*a)), so its product with the argument derivative is 1 for negative as well as positive coefficients.",
+      "test": "For both sin(1 + x - x**2) and cos(1 + x - x**2), compute manualintegrate and assert that simplifying its derivative minus the integrand gives zero. Include the derivative at x=0 as a direct sign check.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 365,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1464,
+          "symbol": "eval_fresnels"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

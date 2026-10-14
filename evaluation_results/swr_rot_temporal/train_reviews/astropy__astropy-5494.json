@@ -1,0 +1,95 @@
+{
+  "id": "astropy__astropy-5494",
+  "findings": [
+    {
+      "rule_id": "ignored-coordinate-system-argument",
+      "severity": "medium",
+      "title": "The new coordsys argument is ignored",
+      "explanation": "The new public parameter documents radesys as the default only when coordsys is omitted, but the writer unconditionally emits self.wcs.radesys. The changed test provides a concrete counterexample: calling footprint_to_file(testfile, coordsys='FK5', color='red') on the ICRS fixture still writes ICRS. A consumer explicitly selecting another DS9 coordinate system therefore receives a file that contradicts the requested setting. The assertion at test_wcs.py:624 preserves this implementation error instead of verifying the documented contract. The repeated-write assertion separately establishes overwrite behavior as intentional; overwrite itself is not reported as a defect.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "Write coordsys when it is explicitly supplied, resolving a default only when coordsys is None.",
+      "test": "Change the explicit-FK5 test to assert lines[2] == 'FK5\\n'; retain the omitted-argument assertion expecting ICRS and the repeated-write assertions verifying replacement.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/tests/test_wcs.py",
+          "line": 618,
+          "symbol": "w.footprint_to_file(testfile, coordsys='FK5', color='red')"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "coordinate-system directive serialization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "empty-ds9-coordinate-directive",
+      "severity": "medium",
+      "title": "An empty radesys removes the coordinate directive for linear WCS",
+      "explanation": "radesys is not a coordinate-system identifier for every supported WCS: a noncelestial linear WCS has an empty radesys. For example, construct WCS from a two-dimensional header with NAXIS1=NAXIS2=10, CTYPE1=CTYPE2='LINEAR', CRPIX1=CRPIX2=1, CRVAL1=100, CRVAL2=200, CDELT1=2, and CDELT2=3, then call footprint_to_file without coordsys. The footprint contains world coordinates spanning approximately (100,200) to (118,227), but this line writes only a blank line. Without a coordinate directive, DS9 interprets the polygon in its default physical coordinate system, placing it outside the ten-pixel image rather than at the image footprint. Previously the explicit 'linear' directive told DS9 to interpret those values using the linear WCS. Galactic WCS likewise does not supply an equatorial radesys, so blindly using this property cannot select its required galactic directive either. The new default-ICRS fixture does not exercise these supported configurations.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "Resolve a valid DS9 coordinate system from the WCS type when coordsys is omitted: preserve 'linear' for noncelestial linear WCS and use the appropriate celestial directive, such as 'galactic', for non-equatorial celestial WCS. Do not emit an empty coordinate-system line.",
+      "test": "Add a regression test using the nonidentity linear WCS described above and assert that the third line is 'linear\\n' and the polygon retains its calculated world coordinates. Also test a GLON/GLAT WCS and assert a galactic directive rather than a blank line.",
+      "confidence": 0.84,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "serialization of self.wcs.radesys as a DS9 directive"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2666,
+          "symbol": "self.calc_footprint().tofile"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 20919,
+  "llm_calls": 5
+}

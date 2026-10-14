@@ -1,0 +1,89 @@
+{
+  "id": "sympy__sympy-11970",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "evalf-result-representation",
+      "severity": "medium",
+      "title": "Substituted absolute values return a symbolic object in the numeric result tuple",
+      "explanation": "The initial evalf call can successfully evaluate a nonnumeric expression using options['subs'], without changing expr.is_number. For example, get_abs(x, 53, {'subs': {x: Integer(-2)}}) first obtains a numeric real component, then takes the new else branch and returns (Abs(x), None, 53, None). The real component of an internal evalf result must instead be an mpmath tuple or the zero sentinel. Consumers performing mpmath arithmetic or converting this component with Float._new cannot consume Abs(x). This also discards the successful substitution, whereas the previous implementation returned the absolute value of the evaluated real component. The defect is in the nonnumeric branch, independently of whether the numeric branch's additional N call terminates.",
+      "path": "sympy/core/evalf.py",
+      "line": 220,
+      "evidence": "real, imag, re_acc, im_acc = evalf(expr, prec + 2, options)\nif real or imag:\n    if expr.is_number:\n        abs_expr, _, acc, _ = evalf(Abs(N(expr, prec + 2)),\n                                    prec + 2, options)\n        return abs_expr, None, acc, None\n    else:\n        return Abs(expr), None, prec, None",
+      "fix": "Compute the magnitude from the already evaluated real and imaginary mpmath components, preserving the internal result representation and accuracy semantics. Do not return a symbolic Abs object as a numeric component.",
+      "test": "Exercise get_abs(Symbol('x'), 53, {'subs': {Symbol('x'): Integer(-2)}}) and assert that its real component is the mpmath representation of 2, not a SymPy expression. Also exercise Abs(x).evalf(15, subs={x: -2}) and assert that it returns the numeric value 2 without an exception. No repository test files or execution results were supplied, so existing coverage cannot be confirmed.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 210,
+          "symbol": "get_abs"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 213,
+          "symbol": "evalf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "evalf-log-cancellation",
+      "severity": "medium",
+      "title": "The zero guard discards nonzero logarithms of arguments rounded to one",
+      "explanation": "An exact argument different from one can round to one at the initial working precision. A concrete case is log(1 + Rational(1, 10**30), evaluate=False).evalf(15). At the initial working precision, the argument rounds to the mpmath representation of one, so mpf_log returns fzero. Previously, fastlog(re) indicated complete cancellation and the branch evaluated arg - 1 accurately; the 30-digit separation is recoverable within the normal precision budget. The new re != fzero condition prevents that recovery and leaves a zero result instead of approximately 1.00000000000000e-30. Although bypassing cancellation recovery may be appropriate when the exact argument has unit magnitude, a zero computed logarithm does not establish that condition.",
+      "path": "sympy/core/evalf.py",
+      "line": 821,
+      "evidence": "re = mpf_log(mpf_abs(xre), prec, rnd)\nsize = fastlog(re)\nif prec - size > workprec and re != fzero:\n    # We actually need to compute 1+x accurately, not x\n    arg = Add(S.NegativeOne, arg, evaluate=False)\n    xre, xim, _, _ = evalf_add(arg, prec, options)",
+      "fix": "Distinguish an exactly unit-magnitude argument from an argument merely rounded to unit magnitude. Preserve cancellation recovery for a computed zero logarithm unless exact unit magnitude has been established, and handle an exactly zero recovered difference explicitly.",
+      "test": "Evaluate unevaluated logarithms of 1 + Rational(1, 10**30) and 1 - Rational(1, 10**30) at 15 digits; assert nonzero results with the correct signs and relative accuracy against higher-precision evaluations. Separately test unevaluated log(1) and log(-1) to verify that the exact-unit cases terminate and remain correct. No repository test files or execution results were supplied, so existing coverage cannot be confirmed.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 819,
+          "symbol": "evalf_log"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 824,
+          "symbol": "evalf_add"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

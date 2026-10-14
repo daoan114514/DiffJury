@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-10853",
+  "findings": [
+    {
+      "rule_id": "callable-signature-omits-constructor-options",
+      "severity": "medium",
+      "title": "The new signature rejects supported constructor keyword options",
+      "explanation": "Returning the signature of eval describes the evaluation hook rather than the complete callable interface. For example, sin.eval(cls, arg) gives inspect.signature(sin) the signature (arg), but Function.__new__(cls, *args, **options) also supports calls such as sin(x, evaluate=False). Consequently, a consumer using inspect.signature(sin).bind(x, evaluate=False) now raises TypeError before making an otherwise valid call. Previously, inspection of the constructor exposed **options and accepted that binding. This is a newly introduced compatibility break for signature-based dispatch and argument validation, distinct from the pre-existing imprecision around nargs. The added nargs TODO does not address these constructor options.",
+      "path": "sympy/core/function.py",
+      "line": 151,
+      "evidence": "return signature(self.eval)",
+      "fix": "Preserve the constructor's supported keyword options in the synthesized signature, for example by retaining a **options parameter after the mathematical parameters derived from eval. Alternatively, retain constructor introspection until a complete signature can be synthesized.",
+      "test": "Add a regression test importing inspect.signature, sin, and Symbol; create x = Symbol('x'), verify sin(x, evaluate=False) succeeds, and assert signature(sin).bind(x, evaluate=False) also succeeds. Compare this binding against the parent revision. This reproduction was not executed because this review has no tools.",
+      "confidence": 0.8099999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/function.py",
+          "line": 141,
+          "symbol": "FunctionClass.__signature__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 13221,
+  "llm_calls": 5
+}

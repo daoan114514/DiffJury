@@ -1,0 +1,142 @@
+{
+  "id": "sympy__sympy-11970",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "internal-evalf-result-contract",
+      "severity": "medium",
+      "title": "Substituted absolute values return an expression instead of an mpf tuple",
+      "explanation": "For a symbolic argument evaluated using substitutions, successful numerical evaluation does not make expr.is_number true. For example, with x = Symbol('x') and subs={x: 2}, the evalf call at line 213 produces a nonzero numerical real component, but execution then returns (Abs(x), None, prec, None). The first component of an internal evalf result must instead be an mpf tuple or None. Consequently, Abs(x).evalf(15, subs={x: 2}) reaches final numerical conversion with an Abs expression rather than numerical data and fails instead of producing 2.0. The previous implementation returned mpf_abs(re), using the already substituted result, and preserved that contract. This counterexample is derived from the changed control flow; it was not executed because tools were unavailable.",
+      "path": "sympy/core/evalf.py",
+      "line": 220,
+      "evidence": "return Abs(expr), None, prec, None",
+      "fix": "Compute the absolute value from the numerical real and imaginary components already returned by evalf, as before, rather than returning Abs(expr). Preserve the internal tuple representation and propagate component accuracy. This also avoids re-evaluating through N, whose precision argument is decimal digits, whereas internal evalf uses bits.",
+      "test": "Add a regression asserting Abs(x).evalf(15, subs={x: 2}) equals Float(2). Also exercise a complex substitution such as x: 3 + 4*I and assert the result is Float(5). At the helper level, verify that get_abs returns an mpf tuple, not a SymPy expression, for these substitutions.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 210,
+          "symbol": "get_abs"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 213,
+          "symbol": "evalf(expr, prec + 2, options)"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 220,
+          "symbol": "get_abs symbolic-argument return"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "log-cancellation-recovery",
+      "severity": "medium",
+      "title": "Logarithms near one incorrectly become zero when the argument rounds to one",
+      "explanation": "A zero result from mpf_log does not establish that the original argument was exactly one. For example, log(1 + Rational(1, 10**100), evaluate=False).evalf(15) initially evaluates its rational argument at finite working precision, where it rounds to exactly one. mpf_log therefore produces fzero. The added condition skips the existing cancellation-recovery path, so the result remains numerical zero rather than approximately 1e-100. Previously, the prec - size condition entered the recovery path for this case and evaluated the unevaluated difference arg - 1, retaining the small rational increment. Exact log(1) and a near-one argument rounded to one must be distinguished using the original expression or its accurately evaluated difference, not re alone. This counterexample is derived from rounding and the changed branch; it was not executed because tools were unavailable.",
+      "path": "sympy/core/evalf.py",
+      "line": 821,
+      "evidence": "if prec - size > workprec and re != fzero:",
+      "fix": "Retain cancellation recovery when the computed logarithm is zero. Handle an exactly zero arg - 1 explicitly after evaluating the difference, or special-case a provably exact argument of one before the numerical calculation.",
+      "test": "Assert that log(1 + Rational(1, 10**100), evaluate=False).evalf(15) is nonzero and agrees with Float('1e-100', 15) to the requested precision. Cover the negative increment as well, and separately verify that log(1, evaluate=False).evalf(15) returns zero without raising.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 819,
+          "symbol": "evalf_log: mpf_log(mpf_abs(xre), prec, rnd)"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 821,
+          "symbol": "evalf_log cancellation-recovery condition"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 823,
+          "symbol": "evalf_log: construct unevaluated arg - 1"
+        },
+        {
+          "path": "sympy/core/evalf.py",
+          "line": 824,
+          "symbol": "evalf_add"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "id": "sympy__sympy-7614",
+  "findings": [
+    {
+      "rule_id": "evolute-missing-center-translation",
+      "severity": "medium",
+      "title": "The evolute equation ignores the ellipse's center",
+      "explanation": "For semiaxes a=hradius and b=vradius and center (h,k), the evolute has parameterization X=h+(a²-b²)cos³(t)/a, Y=k+(b²-a²)sin³(t)/b. The returned expression instead uses absolute x and y coordinates without subtracting (h,k). For the documented Ellipse(Point(1,0),3,2), t=0 gives the genuine evolute point (8/3,0). Substituting that point into the new expression gives 4-5**(2/3), not zero; all powered quantities in this counterexample are positive, so this failure is independent of fractional-power branch handling. Conversely, the expression vanishes at (5/3,0), which belongs to the origin-centered evolute rather than the translated one. Equal radii also expose the error: with radii 1 and center (1,0), the point evolute should be (1,0), but this expression vanishes at the origin instead.",
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1216,
+      "evidence": "return (self.hradius*x)**Rational(2, 3) + \\\n        (self.vradius*y)**Rational(2, 3) -\\\n        (self.hradius**2 - self.vradius**2)**Rational(2, 3)",
+      "fix": "Use x-self.center.x and y-self.center.y in the coordinate terms, and update the translated-ellipse example accordingly.",
+      "test": "For Ellipse(Point(1,0),3,2), substitute x=8/3,y=0 into evolute() and assert the result is zero. Also exercise a nonzero y center and the equal-radius case, asserting that the circle's center satisfies its inherited evolute equation.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/ellipse.py",
+          "line": 1190,
+          "symbol": "Ellipse.evolute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": [
+      1
+    ]
+  },
+  "tokens": 15214,
+  "llm_calls": 5
+}

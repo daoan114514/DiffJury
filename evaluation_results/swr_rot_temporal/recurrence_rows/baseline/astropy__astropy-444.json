@@ -1,0 +1,94 @@
+{
+  "id": "astropy__astropy-444",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "coordinate-dimensionality",
+      "severity": "medium",
+      "title": "Two-dimensional distortion APIs now reject separate coordinates on higher-dimensional WCS objects",
+      "explanation": "The shared converter now determines the number of separate coordinate arguments from self.naxis, including when called by pix2foc, p4_pix2foc, and det2im. These APIs still document two-dimensional coordinates, independently of the dimensionality of the core WCS. For example, WCS(naxis=3).pix2foc(np.array([1.0]), np.array([2.0]), 1) now raises TypeError before invoking the distortion operation: three arguments match neither len(args) == 2 nor len(args) == 4. Previously, the len(args) == 3 branch accepted this documented (x, y, origin) form and constructed an N-by-2 array. The equivalent packed-coordinate form still reaches the underlying operation. This is a regression in positional argument handling, not the intentional rejection of previously ignored keywords. The added test_3d_shapes exercises only the core WCS transformation with three coordinate axes, so it does not exercise this failure. The SIP-only wrappers' no-distortion shortcuts are not affected in the same way.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 848,
+      "evidence": "elif len(args) == self.naxis + 1:",
+      "fix": "Allow the converter's coordinate dimensionality to be specified separately from self.naxis. Pass 2 from the two-dimensional distortion wrappers while retaining self.naxis for core WCS transformations.",
+      "test": "Create WCS(naxis=3) without distortions. For pix2foc, p4_pix2foc, and det2im, call both (x, y, origin) and (column_stack([x, y]), origin), and assert that both succeed and return numerically equivalent coordinates. Retain a core-WCS test verifying that three separate coordinate axes are accepted.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1088,
+          "symbol": "WCS.pix2foc"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1089,
+          "symbol": "self._array_converter(self._pix2foc, None, *args)"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 848,
+          "symbol": "WCS._array_converter"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 872,
+          "symbol": "argument-count TypeError"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "argument-validation",
+      "severity": "low",
+      "title": "Argument-count errors report the expected count as the supplied count",
+      "explanation": "The new error format uses placeholder {0} for both the expected separate-argument count and the actual supplied count. Consequently, WCS().wcs_pix2world() reports 'Expected 2 or 3 arguments, 3 given' despite receiving zero arguments. For WCS(naxis=3), an invalid three-argument call reports four arguments given. Previously, the error interpolated len(args) into the supplied-count field. Rejection itself remains correct, but the diagnostic now gives callers incorrect information about their invocation. Neither added test exercises this final argument-count error branch or checks its message.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 873,
+      "evidence": "\"Expected 2 or {0} arguments, {0} given\".format(\n                self.naxis + 1, len(args))",
+      "fix": "Use {1} for the supplied argument count: 'Expected 2 or {0} arguments, {1} given'.",
+      "test": "Call wcs_pix2world with zero arguments on a two-dimensional WCS and with three arguments on a three-dimensional WCS. Assert TypeError and verify that the message reports zero and three supplied arguments, respectively.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 873,
+          "symbol": "WCS._array_converter argument-count error formatting"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

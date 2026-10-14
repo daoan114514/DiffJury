@@ -1,0 +1,116 @@
+{
+  "id": "matplotlib__matplotlib-10031",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "legend-empty-collection-colors",
+      "severity": "low",
+      "title": "Duplicate collections with empty color arrays now raise during automatic legend discovery",
+      "explanation": "PathCollection is a supported automatic legend handle, but its facecolor and edgecolor getters return arrays rather than scalar colors. In particular, scatter(..., facecolors='none', edgecolors='none') produces empty arrays with shape (0, 4). Reproduction: create two such scatters with label='points' on the same axes, then call ax.legend(). The first handle is appended without comparisons; the second reaches _in_handles because its label and exact type match the first. PathCollection has no get_color(), so that AttributeError is caught, but colors.to_rgba(f_h.get_facecolor()) then raises ValueError because the empty array is not a scalar RGBA color. Only AttributeError is caught, so legend construction aborts. Before this change, on NumPy versions where an empty array has false truth value, both empty-array inequality checks evaluate false and the duplicate is suppressed successfully. This is distinct from ordinary nonempty collection color arrays, whose ambiguous truth-value comparisons already failed before the change.",
+      "path": "lib/matplotlib/legend.py",
+      "line": 1360,
+      "evidence": "                if (colors.to_rgba(f_h.get_facecolor()) !=\n                        colors.to_rgba(h.get_facecolor())):",
+      "fix": "Normalize collection colors with colors.to_rgba_array and compare the normalized arrays using an explicit equality reduction, preserving empty-array equality. Apply the same handling to edgecolors and collection get_color() results rather than assuming every getter returns a scalar.",
+      "test": "With a NumPy version supported by the baseline, run: import matplotlib.pyplot as plt; fig, ax = plt.subplots(); ax.scatter([0], [0], facecolors='none', edgecolors='none', label='points'); ax.scatter([1], [1], facecolors='none', edgecolors='none', label='points'); ax.legend(). Assert that both collections' facecolor and edgecolor getters have shape (0, 4), automatic legend construction does not raise, and it produces one 'points' entry. Also cover equivalent and distinct nonempty collection color arrays so the fix does not retain the baseline's ambiguous-array comparison failure.",
+      "confidence": 0.56,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1374,
+          "symbol": "_get_legend_handles_labels: iterate supported handles"
+        },
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1378,
+          "symbol": "_get_legend_handles_labels: invoke _in_handles for a public label"
+        },
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1342,
+          "symbol": "_in_handles"
+        },
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1360,
+          "symbol": "colors.to_rgba on an empty PathCollection facecolor array"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-7282b084",
+      "K-7843f755",
+      "K-7b90f11e",
+      "K-81147535",
+      "K-9cb4cdef",
+      "K-a22efd33",
+      "K-f05a0a7d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f05a0a7d",
+          "K-9cb4cdef",
+          "K-7b90f11e",
+          "K-7843f755"
+        ],
+        "tokens": 280,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-81147535",
+          "K-7282b084",
+          "K-a22efd33"
+        ],
+        "tokens": 235,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

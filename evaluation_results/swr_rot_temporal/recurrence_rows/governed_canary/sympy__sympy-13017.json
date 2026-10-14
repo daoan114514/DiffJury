@@ -1,0 +1,136 @@
+{
+  "id": "sympy__sympy-13017",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "linsolve-symbol-predicate-validation",
+      "severity": "low",
+      "title": "Attribute-existence validation accepts constants as solution symbols",
+      "explanation": "The supported second argument is a symbol/function or an iterable of those objects. Previously, validation checked whether is_Symbol or is_Function was true. The replacement checks only attribute existence, but SymPy expressions expose these predicates even when both are false. For example, linsolve(Matrix([[1, 2]]), S.One) previously raised ValueError because S.One.is_Symbol and S.One.is_Function are false. It now passes validation and returns {(2,)}: the augmented matrix has a unique solution, so no free-symbol replacement subsequently rejects the constant. This silently accepts an invalid variable specification instead of preserving the existing validation contract.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1271,
+      "evidence": "if not any([hasattr(symbols[0], attr) for attr in ['is_Symbol', 'is_Function']]):",
+      "fix": "Check predicate values rather than existence, for example getattr(symbols[0], 'is_Symbol', False) or getattr(symbols[0], 'is_Function', False), while preserving the existing ValueError for invalid objects.",
+      "test": "Assert that linsolve(Matrix([[1, 2]]), S.One) raises ValueError, along with a non-symbol expression such as x + 1; retain successful calls with a Symbol and an applied undefined function.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1271,
+          "symbol": "linsolve: accepts S.One because the predicate attributes exist"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1293,
+          "symbol": "linsolve: A.gauss_jordan_solve produces the unique solution"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1302,
+          "symbol": "linsolve: returns FiniteSet(tuple(solution))"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-4073d146",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e13d441c",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ad16cdc6",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-b5e72943",
+          "K-2ec8eae2",
+          "K-09474f0c"
+        ],
+        "tokens": 404,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-e13d441c",
+          "K-e820d88f",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-83dfddfe",
+          "K-ddb18739",
+          "K-4073d146",
+          "K-5af1f6aa",
+          "K-0117d999"
+        ],
+        "tokens": 631,
+        "budget": 600,
+        "dropped": [
+          "K-524f3b73",
+          "K-0faed540",
+          "K-e172ac33",
+          "K-c01df042",
+          "K-4b143eb5",
+          "K-46b8b947"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "id": "sympy__sympy-7614",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-evolute-center",
+      "severity": "medium",
+      "title": "The evolute equation ignores the ellipse's center",
+      "explanation": "The returned expression uses global x and y without subtracting self.center. For an ellipse parametrized by (h + a*cos(t), k + b*sin(t)), independently deriving the center of curvature gives (h + (a**2-b**2)/a*cos(t)**3, k + (b**2-a**2)/b*sin(t)**3). Thus the documented Ellipse(Point(1, 0), 3, 2) has an evolute cusp at (8/3, 0), but substituting that point into the documented return expression gives 4 - 5**(2/3), not zero. This counterexample uses only positive bases, so it is independent of the fractional-power branch defect. The example consequently documents the origin-centered ellipse's expression, not this ellipse's evolute. In the equal-radius case, the curvature centers all coincide with (h, k); the new formula likewise places that degenerate evolute at the origin instead of the center. Coordinate-label conversion through _symbol does not restore the missing translation.",
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1216,
+      "evidence": "return (self.hradius*x)**Rational(2, 3) + \\\n        (self.vradius*y)**Rational(2, 3) -\\\n        (self.hradius**2 - self.vradius**2)**Rational(2, 3)",
+      "fix": "Use x - self.center.x and y - self.center.y in the implicit equation, and correct the translated example. Preserve the existing _symbol label conversion.",
+      "test": "Evaluate Ellipse(Point(1, 0), 3, 2).evolute() at the exact curvature-center cusp (8/3, 0) and assert zero. Add a case with both center coordinates nonzero, and verify that the equal-radius specialization vanishes at the center.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/ellipse.py",
+          "line": 1190,
+          "symbol": "Ellipse.evolute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-real-fractional-power-branch",
+      "severity": "medium",
+      "title": "Principal fractional powers exclude valid evolute cusps",
+      "explanation": "The real astroid formula requires real cube roots followed by squaring, but SymPy's **Rational(2, 3) uses the principal complex power for negative bases. This fails even at the origin, independently of center translation or coordinate-symbol assumptions. For Ellipse(Point(0, 0), 3, 2), the curvature-center parametrization ((5/3)*cos(t)**3, -(5/2)*sin(t)**3) gives the cusp (-5/3, 0). The returned expression there is (-5)**(2/3) - 5**(2/3), which is nonzero. Reversing radius ordering also fails: Ellipse(Point(0, 0), 2, 3) has the cusp (5/2, 0), obtained at t = pi from ((-5/2)*cos(t)**3, (5/3)*sin(t)**3), but the return expression evaluates to 5**(2/3) - (-5)**(2/3), again nonzero because the right-hand base is negative. Numerically substituting these real coordinates removes any dependence on _symbol's assumptions. The equal-radius specialization has no negative radius-difference base, so it does not independently establish this branch defect.",
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1218,
+      "evidence": "return (self.hradius*x)**Rational(2, 3) + \\\n        (self.vradius*y)**Rational(2, 3) -\\\n        (self.hradius**2 - self.vradius**2)**Rational(2, 3)",
+      "fix": "Represent the real astroid equation using real cube roots of squared quantities, including the squared radius difference, or return an equivalent implicit polynomial. Apply the same real-branch treatment to both coordinate terms and the radius-difference term.",
+      "test": "For origin-centered ellipses with radii (3, 2) and (2, 3), substitute all four exact curvature-center cusps and assert that the returned expression is zero. Include a non-cusp point from the curvature-center parametrization to verify the equation across quadrants.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/ellipse.py",
+          "line": 1190,
+          "symbol": "Ellipse.evolute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

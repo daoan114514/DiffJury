@@ -1,0 +1,49 @@
+{
+  "id": "pytest-dev__pytest-8019",
+  "findings": [
+    {
+      "rule_id": "fixture-api-compatibility",
+      "severity": "medium",
+      "title": "Use Pytester.path instead of the removed Testdir.tmpdir API",
+      "explanation": "Pytester exposes its temporary directory as `path`, not `tmpdir`; the legacy Testdir wrapper supplied the `tmpdir` compatibility attribute. Both parameterizations of test_already_initialized now raise AttributeError while evaluating the arguments to pytester.run, before launching the subprocess. Consequently, neither verifies pytest behavior when faulthandler was initialized with `-X faulthandler`. The previous testdir.tmpdir access was valid. This is a fixture API regression, not a change to subprocess execution or timeout behavior: the other migrated runpytest_subprocess calls retain their arguments and assertions.",
+      "path": "testing/test_faulthandler.py",
+      "line": 125,
+      "evidence": "        pytester.tmpdir,",
+      "fix": "Replace `pytester.tmpdir` with `pytester.path`.",
+      "test": "Run `pytest testing/test_faulthandler.py::test_already_initialized` and require both faulthandler_timeout parameterizations to pass, including the existing child-process assertions. Run the complete file to retain coverage of crash reporting, disabled faulthandler, and timeout reporting.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "testing/test_faulthandler.py",
+          "line": 111,
+          "symbol": "test_already_initialized"
+        },
+        {
+          "path": "testing/test_faulthandler.py",
+          "line": 125,
+          "symbol": "pytester.tmpdir argument evaluation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 17853,
+  "llm_calls": 5
+}

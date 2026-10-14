@@ -1,0 +1,156 @@
+{
+  "id": "sympy__sympy-755",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "BOOLEAN_NEGATION_GROUPING",
+      "severity": "medium",
+      "title": "Negating a compound Boolean expression loses the scope of negation",
+      "explanation": "For Not(And(x, y)), the new printers produce the source-derived output `\\neg x \\wedge y`, which denotes And(Not(x), y), not Not(And(x, y)). For x=true and y=false, the original expression is true but the printed expression is false. The same problem affects negated Or, Implies, and Equivalent expressions. The Boolean predicates in _print_And and _print_Or cannot fix this: they explicitly exclude Not operands from grouping, and the missing parentheses belong around Not's child. The added negation tests cover only a symbol and a symbol-name override, so neither exercises this defect.",
+      "path": "sympy/printing/latex.py",
+      "line": 499,
+      "evidence": "return r\"\\neg %s\" % self._print(e.args[0])",
+      "fix": "Parenthesize a compound Boolean operand before prefixing it with negation; preserve the existing unparenthesized output for atomic operands.",
+      "test": "Add exact-output tests for latex(Not(And(x, y))) and latex(Not(Or(x, y))), expecting `\\neg \\left(x \\wedge y\\right)` and `\\neg \\left(x \\vee y\\right)`. Also cover negated Implies and Equivalent through the real latex entry point.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 498,
+          "symbol": "LatexPrinter._print_Not"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 501,
+          "symbol": "LatexPrinter._print_And"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "BOOLEAN_BINARY_OPERATOR_GROUPING",
+      "severity": "medium",
+      "title": "Implication and equivalence printers discard nested operator grouping",
+      "explanation": "Neither printer groups its operands. Implies(Implies(x, y), z) consequently produces the source-derived output `x \\Rightarrow y \\Rightarrow z`, losing the distinction from Implies(x, Implies(y, z)), which produces exactly the same output. These expressions are not equivalent: with x=false, y=true, and z=false, the former is false and the latter is true. Mixed nesting also loses grouping: Implies(Equivalent(x, y), z) becomes `x \\Leftrightarrow y \\Rightarrow z` rather than explicitly preserving the equivalence as the antecedent. The Boolean-type checks in And/Or are not used by either of these printers. The only added implication test has two atomic operands, and no added test exercises nested implication or equivalence.",
+      "path": "sympy/printing/latex.py",
+      "line": 532,
+      "evidence": "return r\"%s \\Rightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))\n\n    def _print_Equivalent(self, e):\n        return r\"%s \\Leftrightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Apply explicit Boolean precedence and associativity rules when printing operands, or conservatively parenthesize compound implication/equivalence operands. In particular, preserve a nested implication in the antecedent and an equivalence used as an implication operand.",
+      "test": "Assert distinct, correctly grouped LaTeX for Implies(Implies(x, y), z) and Implies(x, Implies(y, z)). Add mixed nesting tests such as Implies(Equivalent(x, y), z) and Equivalent(x, Implies(y, z)).",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "BOOLEAN_EQUIVALENT_OPERAND_PRESERVATION",
+      "severity": "medium",
+      "title": "Equivalent printing silently drops every operand after the second",
+      "explanation": "Equivalent supports more than two operands. For Equivalent(x, y, z) with distinct symbolic operands, the new printer reads only args[0] and args[1], so its source-derived output contains two operands and omits the third. Regardless of canonical operand ordering, the printed condition therefore differs from the original all-operands-equivalent condition: assigning the displayed operands true and the omitted operand false makes the displayed equivalence true while the original expression is false. Duplicate or singleton simplification does not eliminate this distinct-symbol counterexample. There are no added Equivalent tests, including no coverage of its supported n-ary form.",
+      "path": "sympy/printing/latex.py",
+      "line": 535,
+      "evidence": "return r\"%s \\Leftrightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Render all Equivalent operands while preserving its all-equal semantics. For n-ary expressions, use a conjunction of grouped binary equivalences against one operand, or another unambiguous all-equal notation; merely joining binary equivalence operators can instead suggest iterated binary equivalence.",
+      "test": "Add real latex tests for two-, three-, and four-operand Equivalent expressions. For the n-ary cases, assert that every operand appears and that the representation expresses all operands having the same truth value. Include duplicate/singleton constructor cases to distinguish simplification from printer truncation.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 534,
+          "symbol": "LatexPrinter._print_Equivalent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "id": "scikit-learn__scikit-learn-182",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "bootstrap-test-type-validation",
+      "severity": "medium",
+      "title": "Integer test sizes are rejected when train is a float",
+      "explanation": "The integer branch for test checks train instead of test. The documented mixed-type input Bootstrap(10, train=0.5, test=2) first computes n_train=5, then rejects test=2 because train is not an integer, raising ValueError(\"Invalid value for train: 0.5\"). Both arguments are individually valid under the new API. Conversely, Bootstrap(10, train=5, test=\"2\") accepts an invalid test value and passes that string as an array dimension during iteration, causing an exception there rather than rejecting it at construction. The float/float and integer/integer paths do not expose this mistake; integer train with float test also succeeds.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 552,
+      "evidence": "        if isinstance(test, float):\n            self.n_test = int(test * n)\n        elif isinstance(train, int):\n            self.n_test = test\n        else:\n            raise ValueError(\"Invalid value for train: %r\" % train)",
+      "fix": "Change the second type check to isinstance(test, int), and report test rather than train in the corresponding ValueError.",
+      "test": "Construct and iterate Bootstrap(10, train=0.5, test=2, random_state=0), asserting train/test lengths of 5 and 2. Also cover integer/float, integer/integer, and float/float combinations. Verify that invalid test values such as a string and None raise ValueError at construction for both integer and float train values.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 489,
+          "symbol": "Bootstrap.__init__"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 562,
+          "symbol": "Bootstrap.__iter__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "bootstrap-repr-random-state",
+      "severity": "low",
+      "title": "Bootstrap repr fails for the default random state and after iteration",
+      "explanation": "The representation formats random_state with %d, although the constructor defaults to None and also documents accepting a RandomState object. Therefore repr(Bootstrap(4)) and repr(Bootstrap(4, random_state=np.random.RandomState(0))) raise TypeError immediately. An integer seed initially works, matching the example, but __iter__ replaces that integer with the normalized RandomState on first consumption. Consequently, b = Bootstrap(4, random_state=0); next(iter(b)); repr(b) also raises TypeError. Subsequent iterations retain the generator rather than restoring the integer, so completing or repeating iteration does not repair the representation. This makes printing and interactive inspection fail for supported constructor states and for previously printable instances.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 566,
+      "evidence": "        return ('%s(%d, n_bootstraps=%d, train=%d, test=%d, random_state=%d)'\n                % (self.__class__.__name__,\n                   self.n,\n                   self.n_bootstraps,\n                   self.n_train,\n                   self.n_test,\n                   self.random_state,\n                  ))",
+      "fix": "Use %r for random_state so None, integer seeds, and RandomState instances are all representable without changing the sampling lifecycle.",
+      "test": "For random_state=None, 0, and np.random.RandomState(0), assert repr succeeds before iteration, after consuming the first split, after exhausting the iterator, and after a second complete iteration. Preserve the documented integer-seed representation before iteration and verify that requesting repr does not consume random samples or alter generator state.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 556,
+          "symbol": "Bootstrap.__init__: stores the supplied random_state"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 559,
+          "symbol": "Bootstrap.__iter__: normalizes and replaces random_state"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 565,
+          "symbol": "Bootstrap.__repr__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "snapshots": [
+    {
+      "captured_at": "2026-10-14T18:35:06.670103+08:00",
+      "old_pid": 28840,
+      "state": {
+        "finished_at": null,
+        "next_event": 200,
+        "pending_event": 200,
+        "maintenance": [
+          {
+            "event": 100,
+            "summary": {
+              "tenant_id": "default",
+              "live_tokens_before": 6493,
+              "dream": {
+                "clusters": 0,
+                "merges": [],
+                "drops": [],
+                "evictions": {},
+                "live_items_before": 70,
+                "live_items_after": 70,
+                "live_tokens_before": 6493,
+                "live_tokens_after": 6493,
+                "consolidated": true
+              },
+              "promotion": {
+                "status": "released",
+                "version": 2,
+                "gate": {
+                  "passed": true,
+                  "failures": [],
+                  "margin": 0.02,
+                  "max_point_drop": 0.1,
+                  "dataset_fingerprint": "cf28cf398969a8e5ac09670a5d6d936f7669e4239c1d8551130a26a7bfd2442a",
+                  "cases": 73,
+                  "metrics": {
+                    "f1": {
+                      "baseline": 0.3449,
+                      "candidate": 0.3607,
+                      "delta": 0.0158,
+                      "ci95": [
+                        -0.0761,
+                        0.1225
+                      ],
+                      "max_point_drop": 0.1,
+                      "passed": true
+                    },
+                    "high_risk_recall": {
+                      "baseline": 0.3529,
+                      "candidate": 0.4118,
+                      "delta": 0.0589,
+                      "ci95": [
+                        0.0,
+                        0.2143
+                      ],
+                      "max_point_drop": 0.1,
+                      "passed": true
+                    },
+                    "clean_accuracy": {
+                      "baseline": 0.7708,
+                      "candidate": 0.8125,
+                      "delta": 0.0417,
+                      "ci95": [
+                        -0.0385,
+                        0.125
+                      ],
+                      "max_point_drop": 0.1,
+                      "passed": true
+                    }
+                  },
+                  "instruction_tokens_per_call": {
+                    "baseline": 778.08,
+                    "candidate": 788.58,
+                    "max_growth": null,
+                    "passed": true
+                  },
+                  "execution_success_rate": {
+                    "baseline": 1.0,
+                    "candidate": 1.0
+                  },
+                  "baseline_snapshot": "4f53cda18c2baa0c0354bb5f",
+                  "candidate_snapshot": "39ddf80eb091006836cf8b46"
+                },
+                "changes": {
+                  "promoted": [
+                    "K-26252785",
+                    "K-6bace452",
+                    "K-a077c313",
+                    "K-fc6f5674"
+                  ]
+                },
+                "fast_promoted": [
+                  "K-26252785",
+                  "K-6bace452",
+                  "K-a077c313",
+                  "K-fc6f5674"
+                ]
+              },
+              "live_tokens_after": 6493
+            }
+          }
+        ]
+      },
+      "event_counts": {
+        "admission": 201,
+        "attribution": 2,
+        "conflict": 12,
+        "counterfactual": 40,
+        "maintenance": 2,
+        "promote": 7,
+        "source_validation": 41,
+        "source_validation_promotion": 7,
+        "source_validation_replay": 226,
+        "source_validation_reservation": 39
+      },
+      "log_sha256": "f5b1f82f2a38406fd5cc84fd91c56fd2a038f150b83fdb70b930e3298f94f04e",
+      "log_lines": 23
+    }
+  ],
+  "gate_cache_before_resume_gate": {
+    "35db81090bb2294ce9563f25aee9ba3b9946e4dbb16dc9850df80ff198763c31.json": {
+      "rows": 73,
+      "successful": 73,
+      "failed_ids": [],
+      "first_execution_success_rate": 0.9863,
+      "mtime_ns": 1791964948183195200
+    },
+    "435b70bf35499772e64402c841789eade2a6f3305138abd1cb32af4a6a8f206e.json": {
+      "rows": 73,
+      "successful": 73,
+      "failed_ids": [],
+      "first_execution_success_rate": 0.9863,
+      "mtime_ns": 1791972682984665900
+    },
+    "46f8e0f4f38d711922ed7422a53af69c1decdf7ba5ee3de30d4713ffa5db01a3.json": {
+      "rows": 73,
+      "successful": 72,
+      "failed_ids": [
+        "sympy__sympy-18698"
+      ],
+      "first_execution_success_rate": 0.9863,
+      "mtime_ns": 1791971959978463400
+    },
+    "57f1cd9c148b9994a9dcd70df62a09d30f3b05bc9ea704436d8b5038e9692a59.json": {
+      "rows": 73,
+      "successful": 73,
+      "failed_ids": [],
+      "first_execution_success_rate": 0.9863,
+      "mtime_ns": 1791973872614931600
+    },
+    "cf4b00b28523ad357ee6dffb226559ae76bdb1f24f801ea373428068336e14d4.json": {
+      "rows": 73,
+      "successful": 73,
+      "failed_ids": [],
+      "first_execution_success_rate": 1.0,
+      "mtime_ns": 1791973204815148800
+    },
+    "f5712849f72779dabfabb34c2719d12166b085b1e4103b29184a26ccbeba16a7.json": {
+      "rows": 73,
+      "successful": 73,
+      "failed_ids": [],
+      "first_execution_success_rate": 0.9863,
+      "mtime_ns": 1791964375070975400
+    }
+  },
+  "gate_inventory_captured_at": "2026-10-14T18:36:18.812285+08:00",
+  "resumed_pid": 6044,
+  "gate_observer_pid": 38808,
+  "gate_observer_started_before_resumed_gate": true
+}

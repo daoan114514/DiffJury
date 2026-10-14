@@ -1,0 +1,54 @@
+{
+  "id": "scikit-learn__scikit-learn-23937",
+  "findings": [
+    {
+      "rule_id": "unvalidated-pull-request-search-result",
+      "severity": "medium",
+      "title": "Fallback accepts ordinary issues as pull requests",
+      "explanation": "When the commit lookup returns null, the fallback searches GitHub's combined issues/pull-requests index without restricting results to pull requests, then accepts the first item's number without checking its pull_request metadata. Concrete counterexample: an ordinary issue titled \"Regression at <COMMIT_SHA>\" matches the SHA text and the search returns {\"items\":[{\"number\":87,\"title\":\"Regression at <COMMIT_SHA>\"}]}. The fallback assigns 87 and line 28 constructs pull/87/head. Issues and pull requests share a repository numbering namespace, so that issue number cannot identify a pull request in the same repository; the constructed ref does not resolve to the intended PR head. GitHub supports searching for PRs containing a commit SHA, but a bare SHA in an unrestricted issue search is not an exclusive guarantee of that association: textual matches are also possible, and multiple results are not validated before selecting the first. This finding does not assume REPO_NAME differs from GITHUB_REPOSITORY; the supplied context does not establish a mismatch. Empty or error responses leading to null/empty ref components are not separate findings here because the previous lookup already had that failure behavior.",
+      "path": "build_tools/github/trigger_hosting.sh",
+      "line": 24,
+      "evidence": "\"https://api.github.com/search/issues?q=$COMMIT_SHA+repo:$GITHUB_REPOSITORY\" 2>/dev/null \\\n               | jq '.items[0].number')",
+      "fix": "Add an is:pr qualifier and reject results without pull_request metadata. Before selecting a candidate, verify its commit association and handle zero or ambiguous verified candidates explicitly rather than constructing a ref from an unchecked first result.",
+      "test": "Exercise the fallback with an empty commit-association response and a search response whose first item is an ordinary issue mentioning the SHA. Assert that its number is never used to construct a pull ref. Also cover a valid PR result, a PR that only mentions the SHA in its text, multiple candidates, and an empty search response.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 16,
+          "symbol": "Fallback entered when PULL_REQUEST_NUMBER is null"
+        },
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 21,
+          "symbol": "Search response assigned to PULL_REQUEST_NUMBER"
+        },
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 28,
+          "symbol": "BRANCH=pull/$PULL_REQUEST_NUMBER/head"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15534,
+  "llm_calls": 5
+}

@@ -1,0 +1,44 @@
+{
+  "id": "astropy__astropy-2213",
+  "findings": [
+    {
+      "rule_id": "non-ascii-column-header-regression",
+      "severity": "medium",
+      "title": "Preserve Unicode column names when constructing headers",
+      "explanation": "On supported Python 2 runtimes, str() encodes Unicode using the default ASCII encoding. A column with a non-ASCII Unicode name, such as table.Column([1., 2.], name=u'\\u00e9'), therefore raises UnicodeEncodeError when pformat() reaches this line. Previously, the scalar path yielded the Unicode name unchanged, and the multidimensional path appended the shape without this explicit ASCII conversion. The exception now occurs before the header is yielded to formatting consumers, so neither scalar nor multidimensional columns with these names can be formatted. The conversion does fix nameless columns in both paths, but the added test exercises only an ASCII 'None' header and does not detect this compatibility regression.",
+      "path": "astropy/table/pprint.py",
+      "line": 213,
+      "evidence": "col_name = str(col.name)",
+      "fix": "Convert only the missing name: use col_name = 'None' if col.name is None else col.name, preserving the previous text handling for existing names before appending any multidimensional suffix.",
+      "test": "On Python 2, call pformat() on scalar and multidimensional columns named u'\\u00e9' and assert that their headers contain the unchanged Unicode name without an exception. Retain the nameless scalar regression and add a nameless multidimensional case asserting the 'None [2]' header.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/table/pprint.py",
+          "line": 213,
+          "symbol": "_pformat_col_iter"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-176",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15106,
+  "llm_calls": 5
+}

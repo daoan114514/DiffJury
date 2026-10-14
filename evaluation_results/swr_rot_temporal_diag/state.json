@@ -1,0 +1,10 @@
+{
+  "started_at": "2026-10-14T10:33:50",
+  "fake": false,
+  "completed_arms": [
+    "baseline_rerun",
+    "governed_assembler_empty",
+    "governed_rerun"
+  ],
+  "finished_at": "2026-10-14T11:58:04"
+}

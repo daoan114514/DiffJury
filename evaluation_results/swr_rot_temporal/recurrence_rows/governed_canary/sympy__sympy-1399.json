@@ -1,0 +1,132 @@
+{
+  "id": "sympy__sympy-1399",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "invalid-traversal-test-expectation",
+      "severity": "low",
+      "title": "New accepted traversal sequences replace z with x",
+      "explanation": "The test traverses z + w*(x + y), but expected5 and expected6 omit z, visit x twice, and finish with x + w*(x + y) rather than the original expression. Adding these alternatives weakens the assertion: a corrupted traversal returning either sequence now passes, although a postorder traversal must finish with the input root and preserve its children. These are not valid additional child orderings. The existing omission of some valid orderings predates this change; the newly introduced defect is accepting these two incorrect outputs.",
+      "path": "sympy/utilities/tests/test_iterables.py",
+      "line": 20,
+      "evidence": "    expected5 = [x, y, x + y, w, w*(x + y), x, x + w*(x + y)]\n    expected6 = [y, x, x + y, w, w*(x + y), x, x + w*(x + y)]",
+      "fix": "Replace the penultimate x with z and the final x + w*(x + y) with z + w*(x + y) in both newly added expectations.",
+      "test": "Check that each accepted sequence ends with expr and contains exactly the expression's traversal nodes, including z once and x once. Verify that substituting x for z in a traversal output fails the assertion.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/tests/test_iterables.py",
+          "line": 22,
+          "symbol": "test_postorder_traversal"
+        },
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 147,
+          "symbol": "postorder_traversal"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-0faed540",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-ad16cdc6",
+          "K-09474f0c",
+          "K-93a099ce",
+          "K-2b42cad0"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-5af1f6aa",
+          "K-25a05e81",
+          "K-e172ac33",
+          "K-7ac64342",
+          "K-0faed540",
+          "K-4b143eb5",
+          "K-0117d999"
+        ],
+        "tokens": 649,
+        "budget": 600,
+        "dropped": [
+          "K-b1da47ce",
+          "K-524f3b73",
+          "K-e13d441c",
+          "K-ddb18739",
+          "K-e820d88f",
+          "K-c01df042",
+          "K-7b0b7360",
+          "K-46b8b947",
+          "K-83dfddfe"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

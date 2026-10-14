@@ -1,0 +1,98 @@
+{
+  "id": "sympy__sympy-2397",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-DIAGNOSTIC-EXCEPTION-MASKING",
+      "severity": "low",
+      "title": "Exception formatting can mask preview failures even with debugging disabled",
+      "explanation": "The new handler evaluates repr(e) before calling debug(), so the SYMPY_DEBUG guard inside debug() does not protect this operation. A concrete counterexample is a preview failure raising an Exception subclass whose __repr__ raises ValueError, or an ordinary exception containing an argument with such a __repr__. Previously, the preview exception propagated unchanged; now the ValueError escapes instead and the bare raise is never reached, including when SYMPY_DEBUG is False. This changes failure behavior independently of the intentional diagnostic-spacing change. The supplied evidence does not establish functional consumers of debug output, so no spacing compatibility defect is claimed.",
+      "path": "sympy/interactive/printing.py",
+      "line": 72,
+      "evidence": "except Exception as e:\n            # IPython swallows exceptions\n            debug(\"png printing:\", \"_preview_wrapper exception raised:\",\n                repr(e))\n            raise",
+      "fix": "Make diagnostic formatting best-effort and ensure failures in formatting or emitting the diagnostic cannot prevent the original bare raise. Avoid formatting the exception at all when debugging is disabled.",
+      "test": "Exercise the registered PNG formatter with preview replaced by a callable raising a specific exception instance whose __repr__ raises ValueError. With SYMPY_DEBUG both False and True, verify that the original exception is preserved rather than replaced by the formatting error.",
+      "confidence": 0.8,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/interactive/printing.py",
+          "line": 64,
+          "symbol": "_preview_wrapper"
+        },
+        {
+          "path": "sympy/interactive/printing.py",
+          "line": 71,
+          "symbol": "repr(e) evaluated before debug()"
+        },
+        {
+          "path": "sympy/utilities/misc.py",
+          "line": 178,
+          "symbol": "debug: SYMPY_DEBUG guard occurs after argument evaluation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "astropy__astropy-629",
+  "findings": [
+    {
+      "rule_id": "documented-default-mismatch",
+      "severity": "low",
+      "title": "The documentation promises WMAP9 without changing the default cosmology",
+      "explanation": "The changed documentation tells users that convenience functions use WMAP9 when no cosmology is explicitly selected. However, the only core.py change adds WMAP9 to __all__; it does not change default selection. The retained test_current assertion at line 340 still expects core.WMAP7, and the added test selects WMAP9 explicitly with set_current('WMAP9'). Thus, following the documented implicit-default path still uses WMAP7 rather than the advertised WMAP9, producing cosmological results based on a different parameter set. Explicit WMAP9 selection is not a replacement for changing the default.",
+      "path": "docs/cosmology/index.rst",
+      "line": 33,
+      "evidence": "details). If you haven't set this explicitly, they will use the 9-year",
+      "fix": "Keep this sentence referring to the 7-year WMAP parameters unless the runtime default is intentionally changed as well. Preserve the separate example showing how to select WMAP9 explicitly.",
+      "test": "In an isolated configuration with no explicit cosmology selection, assert which named cosmology get_current() returns and keep the documented default consistent with that assertion. The supplied test still asserts WMAP7 and restores the saved cosmology after explicitly selecting WMAP9.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 17706,
+  "llm_calls": 5
+}

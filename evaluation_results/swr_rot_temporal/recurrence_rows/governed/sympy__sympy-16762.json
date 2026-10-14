@@ -1,0 +1,127 @@
+{
+  "id": "sympy__sympy-16762",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "precision-loss-in-normalization",
+      "severity": "medium",
+      "title": "Converting the largest exact coefficient to a machine-precision Float loses exact values",
+      "explanation": "Multiplication by the Python float 1.0 converts an exact Integer or Rational maximum into a default-precision SymPy Float. That rounded value is subsequently used both as the divisor and as the outer power factor, even when another coefficient has much higher precision. For example, let N = Integer(10)**30 + 1 and p = (N + Float('1.0', 100)*x)**2. Previously, p.subs(x, 0) was the exact integer N**2. The new loop selects N, rounds it through 1.0*N, and reconstructs the constant term as either 1 or its rounded floating-point quotient. Consequently, p.subs(x, 0) is a default-precision Float near 10**60 rather than the exact integer (10**30 + 1)**2. The 100-digit input coefficient does not protect the outer factor because big was created from the exact coefficient at default precision. This loss is introduced by the new normalization, not by the original high-precision Float coefficient, which disappears exactly when x is substituted with zero. The added formatting tests use ordinary machine-precision inputs and do not expose this boundary. This outcome is derived from the supplied arithmetic path; execution was unavailable.",
+      "path": "sympy/core/add.py",
+      "line": 398,
+      "evidence": "big = 1.0*abs(i)",
+      "fix": "Keep big as abs(i), preserving exact coefficients and the precision of Float coefficients, and reconstruct using exact coefficient division where possible. Do not introduce a default-precision Float merely to perform normalization.",
+      "test": "Construct (Integer(10)**30 + 1 + Float('1.0', 100)*x)**2 and assert that substitution of x = 0 returns the exact integer (Integer(10)**30 + 1)**2. Also cover an exact Rational maximum alongside a high-precision Float coefficient.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 398,
+          "symbol": "Add._eval_power: convert the maximum coefficient"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "Add._eval_power: divide coefficients by the rounded maximum"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 402,
+          "symbol": "Add._eval_power: return big**e*addpow"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1339",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-coefficient-normalization",
+      "severity": "medium",
+      "title": "Equal-magnitude coefficients with opposite signs acquire the same sign",
+      "explanation": "The loop records a single sign, s, for the maximum coefficient. Reconstruction then uses that sign for every coefficient whose absolute value equals big. For opposite-sign coefficients tied for the maximum, this changes subtraction into addition. A minimal reproducer is x = Symbol('x'); p = (2.3 - 2.3*x)**2; p.subs(x, 1). The original expression must evaluate to zero, but the new reconstruction produces big**2*(1 + x)**2 (or the equivalent expression with both terms negated), giving approximately 21.16 at x = 1. The float guard is satisfied, big is 2.3, and both coefficients enter the s branch, so no existing guard prevents the error. Before this change, this symbolic power was not reconstructed by this normalization. The new tests cover positive and negative coefficients but never opposite signs tied for the largest magnitude. This reproducer is derived directly from the supplied code; execution was unavailable.",
+      "path": "sympy/core/add.py",
+      "line": 401,
+      "evidence": "addpow = Add(*[(s if abs(c[i]) == big else c[i]/big)*m[i] for i in range(len(c))])**e",
+      "fix": "Preserve each coefficient's own sign during reconstruction, preferably by consistently using c[i]/big rather than substituting a shared s.",
+      "test": "Add a regression asserting ((Float('2.3') - Float('2.3')*x)**2).subs(x, 1) == 0, and cover tied maximum coefficients with both signs and reversed term order.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 391,
+          "symbol": "Add._eval_power: select maximum coefficient and reconstruct the power"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

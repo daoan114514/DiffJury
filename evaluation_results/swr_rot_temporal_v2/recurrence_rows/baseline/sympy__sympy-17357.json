@@ -1,0 +1,55 @@
+{
+  "id": "sympy__sympy-17357",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "rewrite-depth-contract",
+      "severity": "medium",
+      "title": "Helper rewrite calls ignore deep=False and rewrite nested arguments",
+      "explanation": "The replacement invokes public rewrite with its default recursive traversal, even when the caller requested deep=False. A minimal counterexample is sec(sin(x)).rewrite(tan, deep=False), for a symbolic x. Previously, the direct cos rewrite hook used sin(x) unchanged, yielding (1 + tan(sin(x)/2)**2)/(1 - tan(sin(x)/2)**2). Now cos(sin(x)).rewrite(tan) first rewrites sin(x) to 2*tan(x/2)/(1 + tan(x/2)**2), then rewrites the outer cosine. Thus the result no longer contains sin(x). Although mathematically equivalent, this violates the explicit shallow-rewrite contract rather than merely changing an unspecified expression form. The same unqualified public calls occur in the changed tan, cot, cos, and csc hooks. Public recursive rewriting appropriately handles automatically evaluated intermediate expressions for the reported csc regression, but it must not independently traverse their arguments after the outer rewrite has decided the traversal depth. The new regression assertion checks a default-depth csc rewrite with an automatically evaluated intermediate expression; neither that assertion nor plain-symbol rewrite examples protect this nested, shallow-rewrite case. This counterexample is derived from the rewrite call chain; execution was unavailable in this review.",
+      "path": "sympy/functions/elementary/trigonometric.py",
+      "line": 1692,
+      "evidence": "return (1 / cos(arg).rewrite(tan))",
+      "fix": "Make helper public rewrites shallow, allowing the outer rewrite traversal to determine whether arguments are rewritten. Preserve other applicable rewrite hints without overriding the shallow helper traversal. Apply this consistently to the replaced direct-hook calls.",
+      "test": "For symbolic x, assert that sec(sin(x)).rewrite(tan, deep=False) equals (1 + tan(sin(x)/2)**2)/(1 - tan(sin(x)/2)**2) and retains sin(x). Also test deep=True and nested arguments for the other changed hooks, while retaining the added automatically evaluated csc regression.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1691,
+          "symbol": "sec._eval_rewrite_as_tan"
+        },
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1692,
+          "symbol": "cos(arg).rewrite(tan)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

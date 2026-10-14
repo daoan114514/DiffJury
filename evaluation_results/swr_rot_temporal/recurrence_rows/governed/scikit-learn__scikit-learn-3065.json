@@ -1,0 +1,84 @@
+{
+  "id": "scikit-learn__scikit-learn-3065",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-PY2-NETWORK-RECOVERY",
+      "severity": "medium",
+      "title": "Python 2 download failures are replaced with AttributeError",
+      "explanation": "On Python 2, line 24 binds `urllib` to the `urllib2` module. If `_get_data('http://...')` encounters an HTTP 404 or a connection failure, `urllib.urlopen(url)` raises HTTPError or URLError. The newly added bare except then evaluates `urllib.request.urlopen(url)`, but Python 2's urllib2 module has no `request` attribute, so the actual result is AttributeError instead of the original network exception. Previously, urllib2.urlopen propagated the network exception unchanged. This breaks the existing recovery contract: the hyperlink-embedding handlers at lines 1099–1107 catch HTTPError and URLError, not AttributeError. This finding concerns the explicitly retained Python 2 path and does not depend on assumptions about relative-import loading or other pre-existing Python 3 incompatibilities.",
+      "path": "doc/sphinxext/gen_rst.py",
+      "line": 77,
+      "evidence": "        except:\n            resp = urllib.request.urlopen(url)",
+      "fix": "Select the appropriate urlopen implementation at import time and call it without catching network failures as runtime-detection signals. Preserve HTTPError and URLError propagation on both runtimes; likewise select the header-access implementation explicitly.",
+      "test": "Run under Python 2 against a local HTTP server returning 404 and call `_get_data` with its HTTP URL. Assert that HTTPError with code 404 propagates, rather than AttributeError. Also test a refused connection and assert URLError. Repeat on Python 3 to verify the same exception contract.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 69,
+          "symbol": "_get_data"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "id": "matplotlib__matplotlib-4689",
+  "findings": [
+    {
+      "rule_id": "empty-family-score-division",
+      "severity": "low",
+      "title": "Empty family lists now raise instead of returning a no-match score",
+      "explanation": "A direct call to the public method FontManager.score_family([], 'Arial'), or the equivalent call with an empty tuple, passes the existing list/tuple check. Previously, iteration over the empty collection skipped the loop and returned 1.0, the documented no-match result. The added division now raises ZeroDivisionError before iteration. This counterexample is independent of Python's integer-versus-true-division semantics. Reachability is established through direct use of score_family; the supplied evidence does not establish whether higher-level callers pass empty lists. The explicit-family and generic-alias weighting changes otherwise appear intentional: under true division, a head explicit match scores 0, while a match in the second of two families starts at 0.5. Repository imports, Python-version declarations, and existing tests were not supplied, so no additional integer-division or ordering defect is asserted.",
+      "path": "lib/matplotlib/font_manager.py",
+      "line": 1111,
+      "evidence": "        step = 1 / len(families)",
+      "fix": "Return 1.0 when families is empty, before calculating step.",
+      "test": "Call the real score_family method with [] and () and assert that both return 1.0 without raising. Also verify representative ordered explicit-family and generic-alias matches retain the intended scores. No existing test coverage could be inspected from the supplied diff.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/font_manager.py",
+          "line": 1111,
+          "symbol": "FontManager.score_family"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-369",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12010,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-4689.json",
+  "borrowed_sha256": "17af466e24394fbee5a1340d6543ef6be28b83ea13c5f541a94e431d89fe5020"
+}

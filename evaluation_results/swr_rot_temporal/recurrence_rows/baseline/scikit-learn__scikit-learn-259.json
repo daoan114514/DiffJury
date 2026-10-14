@@ -1,0 +1,177 @@
+{
+  "id": "scikit-learn__scikit-learn-259",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "nan-regression-wrong-input",
+      "severity": "medium",
+      "title": "The NaN regression test fits the unmodified input",
+      "explanation": "The test creates a separate array Xnan and inserts NaN into that copy, but passes the original X to fit. np.array(X) does not mutate the original fixture. With the existing valid fixture, fit therefore succeeds and the @raises(ValueError) decorator fails the test because no exception was raised. The test neither exercises nonfinite validation nor protects against the NaN-induced infinite loop described in its docstring.",
+      "path": "scikits/learn/linear_model/tests/test_logistic.py",
+      "line": 74,
+      "evidence": "@raises(ValueError)\ndef test_nan():\n    \"\"\"Test proper NaN handling.\n\n    Regression test for Issue #252: fit used to go into an infinite loop.\n    \"\"\"\n    Xnan = np.array(X)\n    Xnan[0, 1] = np.nan\n    logistic.LogisticRegression().fit(X, Y1)",
+      "fix": "Pass Xnan rather than X to fit. Keep a separate assertion that the original finite fixture remains accepted.",
+      "test": "Run the corrected test and require ValueError for the corrupted matrix. Verify that the NaN matrix actually reaches validation and that fitting the original finite X succeeds.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 74,
+          "symbol": "test_nan -> LogisticRegression.fit"
+        },
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit -> safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray -> assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "finite-validation-sparse-storage",
+      "severity": "medium",
+      "title": "Finite sparse inputs now fail because their data array is called",
+      "explanation": "For SciPy CSR and CSC matrices, data is an ndarray attribute, not a method. Consequently, assert_all_finite raises TypeError before inspecting any values. Both modified utilities invoke this function before their existing sparse branches: safe_asanyarray previously returned the sparse input unchanged, and atleast2d_or_csr previously converted it to CSR. Minimal reproducer: construct X = scipy.sparse.csr_matrix([[1.0, 0.0]]) and call either safe_asanyarray(X) or atleast2d_or_csr(X). Both now raise 'numpy.ndarray object is not callable' despite every stored value being finite. Neither utility's subsequent sparse guard can prevent this failure.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 8,
+      "evidence": "if sp.issparse(X):\n        X = X.data()",
+      "fix": "Read the sparse storage attribute rather than calling it. Preserve support for other sparse formats by obtaining CSR storage when the input format does not expose a numeric data ndarray.",
+      "test": "Pass finite CSR and CSC matrices through both utilities and assert successful results with the original sparse semantics. Also test supported alternative sparse formats and verify that NaN or infinity in stored entries raises ValueError.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray -> assert_all_finite"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 26,
+          "symbol": "atleast2d_or_csr -> assert_all_finite"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 8,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "finite-validation-sum-overflow",
+      "severity": "medium",
+      "title": "An overflowing sum incorrectly rejects entirely finite arrays",
+      "explanation": "Finiteness of a reduction is not equivalent to finiteness of every input element. For example, X = np.array([[2e38], [2e38]], dtype=np.float32) contains only finite values, but its float32 sum overflows to infinity. Both changed utilities consequently reject it. This also affects BaseLibLinear.fit: the old float64 conversion represented these values and their sum without overflow, whereas the new check runs on the original float32 array first. Independently, assert_all_finite(np.array([1e308, 1e308])) rejects an entirely finite float64 array. The comment acknowledges overflow but provides no guard, so the exception incorrectly attributes the failure to nonfinite input.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 12,
+      "evidence": "if not np.isfinite(np.sum(X)):\n        raise ValueError(\"array contains NaN or infinity\")",
+      "fix": "Check elementwise finiteness rather than rejecting solely on an overflowing aggregate. To retain the fast sum path, use an elementwise check whenever the sum is nonfinite, or use a bounded-memory elementwise loop.",
+      "test": "Assert that finite float32 values whose float32 sum overflows and finite float64 values whose float64 sum overflows pass validation. Verify that actual NaN, positive infinity, and negative infinity still raise ValueError.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit -> safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray -> assert_all_finite"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "finite-validation-before-conversion",
+      "severity": "medium",
+      "title": "Validation before dtype conversion rejects convertible numeric strings",
+      "explanation": "BaseLibLinear.fit previously converted array-like input directly with np.asanyarray(X, dtype=np.float64, order='C'). Its replacement validates the original input before performing that conversion. For example, X = [['1', '2'], ['3', '4']] with y = [0, 1] previously became a finite float64 matrix. Now np.sum(X) operates on a string dtype and raises a reduction/type error before conversion. The same compatibility break is observable directly through safe_asanyarray(X, dtype=np.float64). These are convertible finite numeric inputs, not the nonfinite inputs the change intends to reject.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 17,
+      "evidence": "def safe_asanyarray(X, dtype=None, order=None):\n    assert_all_finite(X)",
+      "fix": "For dense inputs, perform the requested array and dtype conversion first, then validate the converted array. This preserves accepted convertible inputs and checks the actual values supplied to LibLinear.",
+      "test": "Verify that safe_asanyarray([['1', '2'], ['3', '4']], dtype=np.float64) returns the expected finite float64 array. Add a LogisticRegression.fit regression using numeric-string features, and separately verify that strings converting to NaN or infinity are rejected.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit -> safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray -> assert_all_finite"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "assert_all_finite -> np.sum"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

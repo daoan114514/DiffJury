@@ -1,0 +1,124 @@
+{
+  "id": "sympy__sympy-1749",
+  "findings": [
+    {
+      "rule_id": "REL-EXPRESSION-IDENTITY",
+      "severity": "medium",
+      "title": "Rebuilding Dummy atoms replaces their symbolic identity",
+      "explanation": "Dummy atoms have empty args, but their constructor accepts no arguments and creates a fresh, distinct dummy. Consequently, rebuild(Dummy('d')) invokes Dummy() and returns a different symbol; recursively rebuilding d + 1 likewise replaces d rather than merely canonicalizing the expression. The original name and assumptions are also not supplied to the constructor. This violates expression integrity and can break subsequent substitution or matching using the original dummy. Unlike atoms whose constructors require arguments, Dummy does not raise here, so the exception fallback does not protect it. The added numeric Add test does not exercise this case.",
+      "path": "sympy/rules/rl.py",
+      "line": 156,
+      "evidence": "return type(expr)(*map(rebuild, expr.args))",
+      "fix": "Preserve atomic expressions unchanged before recursively reconstructing composite expressions. In particular, do not reconstruct Dummy from its empty args.",
+      "test": "Create d = Dummy('d', positive=True) and assert rebuild(d) is d. Also rebuild Basic.__new__(Add, d, 1), assert the result equals d + 1, and assert substituting the original d with 2 produces 3. Retain the numeric Add canonicalization test.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 148,
+          "symbol": "rebuild"
+        },
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 156,
+          "symbol": "recursive rebuild and type(expr) construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "API-KEYWORD-COMPAT",
+      "severity": "medium",
+      "title": "Renaming the pattern parameters breaks existing keyword callers",
+      "explanation": "The previous public signature accepted p1 and p2 as keyword arguments. For example, rewriterule(p1=x, p2=x+1, variables=[x]) previously constructed a rule that rewrote S(5) to 6. The new signature rejects that same invocation with TypeError for the unexpected keyword 'p1', before unification or filtering runs. The added tests use positional arguments and do not exercise this previously supported invocation.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 9,
+      "evidence": "def rewriterule(source, target, variables=(), condition=None, assume=None):",
+      "fix": "Keep p1 and p2 as the parameter names while adding condition and assume, or accept the old names through an explicit compatibility adapter.",
+      "test": "Construct rewriterule(p1=x, p2=x+1, variables=[x]) and assert that list(rule(S(5))) equals [S(6)].",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-FALSE-ASSUMPTION-BYPASS",
+      "severity": "low",
+      "title": "An explicitly false requirement disables assumption filtering",
+      "explanation": "The assume parameter defaults to None, but the new guard uses truthiness rather than checking whether a requirement was supplied. Consequently, rewriterule(x, x+1, [x], assume=False) followed by list(rule(S(5))) produces [S(6)]: unification binds x to 5, the false guard skips ask entirely, and the target is substituted and yielded. An explicitly false requirement should reject every match, not behave like an omitted requirement. This is distinct from intentionally rejecting unknown predicates; no predicate is queried here. The added assumption test covers only a truthy Q.integer expression and does not cover this boundary.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 46,
+      "evidence": "if (assume and not ask(assume.xreplace(match), assumptions)):",
+      "fix": "Distinguish an omitted requirement with assume is None. Normalize supplied boolean requirements to SymPy boolean expressions before substitution, or explicitly reject a false requirement before querying ask.",
+      "test": "Assert that list(rewriterule(x, x+1, [x], assume=False)(S(5))) is empty, while the equivalent rule with assume=None still returns [S(6)].",
+      "confidence": 0.8300000000000001,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 41,
+          "symbol": "rewrite_rl"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 46,
+          "symbol": "assumption filter"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 48,
+          "symbol": "target substitution"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 37418,
+  "llm_calls": 6
+}

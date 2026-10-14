@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-15646",
+  "findings": [
+    {
+      "rule_id": "unchecked-even-subsequence-result",
+      "severity": "medium",
+      "title": "An unresolved even branch raises AttributeError instead of returning None",
+      "explanation": "Only L1 is checked for None before comparing the branch results. A concrete counterexample is limit_seq((1 + (-1)**n)*f(n), n), with integer n and an undefined function f. Substitution of the odd dummy simplifies the expression to zero, so _limit_seq returns 0 through its constant-limit path. Substitution of the even dummy produces 2*f(n2), whose limit cannot be determined for an arbitrary undefined function; the limit-evaluation and difference/dominance paths therefore leave _limit_seq returning None. Since 0 != None and zero is comparable, line 227 evaluates None.is_comparable and raises AttributeError. Previously the explicit even subsequence was evaluated first, its unresolved result was checked, and the public function returned None. This violates the existing unsupported-limit return contract. The added tests cover successful parity branches and comparable unequal results, but not a resolved odd branch paired with an unresolved even branch.",
+      "path": "sympy/series/limitseq.py",
+      "line": 227,
+      "evidence": "if L1.is_comparable and L2.is_comparable:",
+      "fix": "Check whether L2 is None before comparing or accessing its properties, and return None for an unresolved branch.",
+      "test": "Create integer n and f = Function('f'); assert limit_seq((1 + (-1)**n)*f(n), n) is None. This exercises a successful odd branch followed by an unresolved even branch and must not raise AttributeError.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 223,
+          "symbol": "limit_seq: odd substitution and _limit_seq call"
+        },
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 225,
+          "symbol": "limit_seq: even substitution and _limit_seq call"
+        },
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 227,
+          "symbol": "limit_seq: unchecked L2.is_comparable access"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-476",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 21993,
+  "llm_calls": 5
+}

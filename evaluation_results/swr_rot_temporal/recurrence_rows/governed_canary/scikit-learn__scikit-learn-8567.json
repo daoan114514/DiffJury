@@ -1,0 +1,135 @@
+{
+  "id": "scikit-learn__scikit-learn-8567",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "fitted-posterior-parameter-consistency",
+      "severity": "medium",
+      "title": "Preserved hyperparameters no longer match the posterior covariance",
+      "explanation": "The change fixes the coefficient/hyperparameter mismatch but introduces a covariance/hyperparameter mismatch. Each iteration calculates coef_ using the current local alpha_ and lambda_, publishes those values at the added assignments, and then updates the locals. After either convergence or exhaustion of n_iter, the covariance construction still uses the updated local lambda_ / alpha_, rather than the published self.lambda_ / self.alpha_. Previously, the published parameters and covariance both used the updated values; their new disagreement is introduced by this change. A concrete iteration-limit counterexample is BayesianRidge(n_iter=1, fit_intercept=False, alpha_1=0, alpha_2=0, lambda_1=0, lambda_2=0).fit([[-1.], [1.]], [-1., 1.]). Ignoring machine-epsilon-sized initialization differences, the final coefficient is 2/3 and the published alpha_ and lambda_ are both 1, but the subsequent update produces local alpha_=6 and lambda_=1.5. Consequently, the covariance denominator at line 239 uses a regularization ratio of 0.25 instead of the published ratio of 1. The posterior covariance consistent with the published parameters is (alpha_ * X.T @ X + lambda_ * I)^-1 = 1/3, whereas constructing it with the updated parameters gives approximately 2/27. This also makes predictive uncertainty inconsistent with the published noise precision. Convergence does not eliminate the issue: the parameter update precedes the convergence break, and coefficient convergence only bounds, rather than eliminates, the difference between successive parameter values. The added regression test checks only intercept agreement, so it cannot detect this covariance regression or independently establish coefficient agreement.",
+      "path": "sklearn/linear_model/bayes.py",
+      "line": 206,
+      "evidence": "            self.alpha_ = alpha_\n            self.lambda_ = lambda_\n\n            # Update alpha and lambda\n            rmse_ = np.sum((y - np.dot(X, coef_)) ** 2)\n            gamma_ = (np.sum((alpha_ * eigen_vals_) /",
+      "fix": "Use the preserved self.alpha_ and self.lambda_ consistently throughout posterior covariance construction, including its precision scaling. Alternatively, retain the updated parameters but recompute the final coefficients and covariance with those same parameters.",
+      "test": "Add a one-iteration regression using the counterexample above. Assert coefficient agreement with Ridge(alpha=model.lambda_ / model.alpha_), assert sigma_ equals inv(model.alpha_ * X.T @ X + model.lambda_ * I), and assert returned predictive variance equals diag(X @ expected_sigma @ X.T) + 1 / model.alpha_. Repeat the consistency assertions for convergence termination, using a tolerance that causes an early break. Keep intercept agreement as an additional assertion, not the sole fitted-state check.",
+      "confidence": 0.82,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 206,
+          "symbol": "BayesianRidge.fit: preserve pre-update hyperparameters"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 209,
+          "symbol": "BayesianRidge.fit: update local hyperparameters"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 238,
+          "symbol": "BayesianRidge.fit: construct sigma_ using post-update locals"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-2019c936",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-55026f2c",
+      "K-65899550",
+      "K-75ffcebf",
+      "K-900623ee",
+      "K-95d752ab",
+      "K-9f32c0f2",
+      "K-9fbca2ff",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-900623ee",
+          "K-c43a8094",
+          "K-95d752ab",
+          "K-55026f2c",
+          "K-542e4ee3",
+          "K-0466258e",
+          "K-75ffcebf",
+          "K-f463a446",
+          "K-2019c936"
+        ],
+        "tokens": 610,
+        "budget": 600,
+        "dropped": [
+          "K-f0b9d1e9"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-ecc8b51d",
+          "K-2134f4e9",
+          "K-21a33670",
+          "K-9fbca2ff",
+          "K-340b5726",
+          "K-d07491c7",
+          "K-9f32c0f2",
+          "K-65899550"
+        ],
+        "tokens": 506,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

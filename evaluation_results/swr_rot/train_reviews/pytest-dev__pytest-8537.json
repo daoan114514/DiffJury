@@ -1,0 +1,49 @@
+{
+  "id": "pytest-dev__pytest-8537",
+  "findings": [
+    {
+      "rule_id": "explicit-config-unselected-config-error",
+      "severity": "medium",
+      "title": "An explicit -c now fails on malformed configuration files that were not selected",
+      "explanation": "The new call to locate_config performs normal configuration discovery, which loads candidate files rather than merely checking their locations. Its parsing errors propagate even though determine_setup discards the discovered configuration and has already loaded the explicitly selected file. For example, create project/tests/test_example.py, a valid project/cfg/custom.ini containing '[pytest]', and project/pytest.ini containing an unterminated '[pytest' section. From project, run 'pytest -c cfg/custom.ini tests'. Previously the explicit file was loaded and the unrelated pytest.ini was not parsed; now discovery from project/tests reaches project/pytest.ini and raises a configuration parsing error, preventing the run. This is an unintended configuration-selection side effect, distinct from the intended change to rootdir. With no positional arguments, discovery starts from the current working directory and produces the same regression. An explicit --rootdir avoids it because the new discovery call is guarded by rootdir_cmd_arg is None. The added tests cover a valid empty ancestor pytest.ini and the no-ancestor fallback to the selected file's directory, but not malformed unselected files; every added rootdir_arg parameter is also None.",
+      "path": "src/_pytest/config/findpaths.py",
+      "line": 180,
+      "evidence": "rootdir, _, _ = locate_config([ancestor])",
+      "fix": "Separate root-directory discovery from loading configuration when -c is supplied. Preserve the intended ancestor-root selection without allowing errors from unselected configuration files to invalidate the explicitly selected configuration.",
+      "test": "Add a regression test using a valid explicit cfg/custom.ini, tests/test_example.py, and a malformed ancestor pytest.ini. Invoke the real setup or CLI path with '-c cfg/custom.ini tests' and assert that setup succeeds and retains custom.ini and its settings. Repeat without positional arguments from the project directory, and verify that an explicit --rootdir still overrides discovery. Include an assertion on the selected configuration contents, not just its path.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "src/_pytest/config/findpaths.py",
+          "line": 177,
+          "symbol": "determine_setup: load_config_dict_from_file(inipath_) loads the explicitly selected configuration"
+        },
+        {
+          "path": "src/_pytest/config/findpaths.py",
+          "line": 180,
+          "symbol": "determine_setup: locate_config([ancestor]) discovers and parses other candidate configuration files"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 18992,
+  "llm_calls": 5
+}

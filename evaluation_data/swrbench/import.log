@@ -1,0 +1,82 @@
+skip pylint-dev__pylint-3872: no added lines
+50/1000 processed, 49 kept
+100/1000 processed, 99 kept
+skip astropy__astropy-1357: no added lines
+skip sympy__sympy-1791: no added lines
+skip sphinx-doc__sphinx-5700: no added lines
+skip astropy__astropy-1569: no added lines
+150/1000 processed, 145 kept
+200/1000 processed, 194 kept
+250/1000 processed, 244 kept
+300/1000 processed, 294 kept
+skip astropy__astropy-8489: no added lines
+350/1000 processed, 343 kept
+skip astropy__astropy-15492: no added lines
+400/1000 processed, 391 kept
+450/1000 processed, 441 kept
+skip pydata__xarray-7489: no added lines
+500/1000 processed, 490 kept
+skip sympy__sympy-18385: no added lines
+550/1000 processed, 539 kept
+skip astropy__astropy-14782: no added lines
+600/1000 processed, 588 kept
+skip astropy__astropy-17278: no added lines
+650/1000 processed, 637 kept
+skip sympy__sympy-2373: no added lines
+skip matplotlib__matplotlib-11189: no added lines
+700/1000 processed, 685 kept
+skip matplotlib__matplotlib-17068: no added lines
+skip matplotlib__matplotlib-23130: no added lines
+skip matplotlib__matplotlib-23942: no added lines
+750/1000 processed, 732 kept
+skip scikit-learn__scikit-learn-24344: no added lines
+skip sympy__sympy-18467: no added lines
+800/1000 processed, 780 kept
+850/1000 processed, 830 kept
+900/1000 processed, 880 kept
+950/1000 processed, 930 kept
+skip scikit-learn__scikit-learn-27958: no added lines
+skip scikit-learn__scikit-learn-28330: no added lines
+1000/1000 processed, 978 kept
+{
+  "kept": 978,
+  "skipped": {
+    "no added lines": 20,
+    "diff too large": 2
+  },
+  "change_points": 940,
+  "unlocated": 84,
+  "excluded_from_functional": 20,
+  "splits": {
+    "train": {
+      "cases": 456,
+      "functional_dataset_cases": 442,
+      "functional_dataset_defect_prs": 126,
+      "with_change_points": 246,
+      "functional_labels": 144,
+      "high_risk_labels": 72,
+      "evolvability_labels": 313,
+      "created_2024_or_later": 49
+    },
+    "validation": {
+      "cases": 142,
+      "functional_dataset_cases": 140,
+      "functional_dataset_defect_prs": 40,
+      "with_change_points": 70,
+      "functional_labels": 44,
+      "high_risk_labels": 24,
+      "evolvability_labels": 63,
+      "created_2024_or_later": 15
+    },
+    "holdout": {
+      "cases": 380,
+      "functional_dataset_cases": 376,
+      "functional_dataset_defect_prs": 87,
+      "with_change_points": 175,
+      "functional_labels": 93,
+      "high_risk_labels": 47,
+      "evolvability_labels": 199,
+      "created_2024_or_later": 26
+    }
+  }
+}

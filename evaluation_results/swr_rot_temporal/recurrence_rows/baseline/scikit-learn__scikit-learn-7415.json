@@ -1,0 +1,55 @@
+{
+  "id": "scikit-learn__scikit-learn-7415",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "test-warning-estimator-name-mismatch",
+      "severity": "medium",
+      "title": "The replacement pickle changes the estimator name in the expected warning",
+      "explanation": "The changed test pickles a TreeBadVersion instance rather than a DecisionTreeClassifier instance. TreeBadVersion.__getstate__ correctly injects the mismatching version \"something\", and unpickling retains the subclass type. Inherited BaseEstimator.__setstate__ checks whether the instance's module starts with \"sklearn.\" and constructs the version warning using self.__class__.__name__. Under the normal sklearn.tests.test_base module, that guard is satisfied, so the warning names TreeBadVersion. The existing expected message at line 345 still names DecisionTreeClassifier, making the warning-message assertion fail even though the version-mismatch warning is emitted correctly. This is a test regression, not a serialization or security defect.",
+      "path": "sklearn/tests/test_base.py",
+      "line": 343,
+      "evidence": "    tree = TreeBadVersion().fit(iris.data, iris.target)\n    tree_pickle_other = pickle.dumps(tree)\n    message = (\"Trying to unpickle estimator DecisionTreeClassifier from \"",
+      "fix": "Change the mismatched-version warning expectation to name TreeBadVersion while retaining the expected version \"something\" and current sklearn version.",
+      "test": "Run test_pickle_version_warning and verify that its mismatched-version assertion accepts the exact TreeBadVersion warning while its normal-version pickle still produces no warning.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_base.py",
+          "line": 332,
+          "symbol": "test_pickle_version_warning"
+        },
+        {
+          "path": "sklearn/tests/test_base.py",
+          "line": 328,
+          "symbol": "TreeBadVersion.__getstate__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-617",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

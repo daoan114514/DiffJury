@@ -1,0 +1,89 @@
+{
+  "id": "scikit-learn__scikit-learn-3030",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-regression-test-objective",
+      "severity": "low",
+      "title": "The relaxed objective comparison can accept an unfitted LARS solution",
+      "explanation": "The revised fixture makes the omitted intercept consequential. Both estimators are constructed with their default intercept fitting, but objective_function evaluates y - X @ coef rather than the fitted predictions. For the new fixture, a coordinate-descent solution approximately has intercept 9.9997 and coefficients [3e-24, 0, -8.9994]. Its actual penalized objective is about 0.000900, whereas this helper reports about 49.9979. All-zero LARS coefficients produce a helper objective of 33.5 and therefore pass the new one-sided assertion, despite providing a substantially worse fitted solution. The previous equality comparison rejected such a discrepancy. As a result, obtaining the expected warning followed by an empty or otherwise severely degraded coefficient solution can now satisfy the regression test. This finding concerns the numerical assertion, not the intentional warning reclassification.",
+      "path": "sklearn/linear_model/tests/test_least_angle.py",
+      "line": 378,
+      "evidence": "assert_less(lars_obj, cd_obj * (1. + 1e-8))",
+      "fix": "Evaluate residuals using each estimator's predict(X), including its intercept, or explicitly set fit_intercept=False on both estimators so the coefficient-only objective matches the problem being fitted. Retain a tolerance appropriate to the resulting objective scale.",
+      "test": "For the revised fixture, verify that the objective helper agrees with the squared prediction residual plus the L1 penalty. Also verify that replacing the LARS coefficients with zeros and its intercept with the target mean fails the comparison against the fitted coordinate-descent solution.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/tests/test_least_angle.py",
+          "line": 369,
+          "symbol": "test_lars_drop_for_good"
+        },
+        {
+          "path": "sklearn/linear_model/tests/test_least_angle.py",
+          "line": 364,
+          "symbol": "objective_function"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

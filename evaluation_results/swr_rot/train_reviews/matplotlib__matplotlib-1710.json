@@ -1,0 +1,44 @@
+{
+  "id": "matplotlib__matplotlib-1710",
+  "findings": [
+    {
+      "rule_id": "invalid-glyph-index-fallback",
+      "severity": "low",
+      "title": "Reject nonexistent glyph indices before synthesizing names",
+      "explanation": "For a face without glyph names, the fallback accepts any converted glyph index without checking face->num_glyphs. FreeType glyph indices identify entries in the face, not Unicode code points; valid indices are below num_glyphs. For example, on an unnamed face with 100 glyphs, get_glyph_name(100) now returns \"uni0064\" for a nonexistent glyph, whereas the previous implementation raised RuntimeError. The named-face branch still delegates invalid-index checking to FT_Get_Glyph_Name. Supporting unnamed faces need not remove validation of whether the requested glyph exists. This finding concerns nonexistent indices, not whether arbitrary synthetic names for valid indices are intentional. No callers, tests, or PyCXX conversion definitions were supplied, so no downstream Unicode interpretation, missing-test defect, or integer-conversion compilation regression is asserted.",
+      "path": "src/ft2font.cpp",
+      "line": 1624,
+      "evidence": "    if (!FT_HAS_GLYPH_NAMES(face))\n    {\n        snprintf(buffer, 128, \"uni%04x\", glyph_number);",
+      "fix": "Before synthesizing a name, reject glyph_number values greater than or equal to face->num_glyphs with RuntimeError, preserving the invalid-index behavior while allowing valid unnamed glyphs.",
+      "test": "Load a font without glyph names. Assert that get_glyph_name(num_glyphs - 1) returns the intended fallback, while get_glyph_name(num_glyphs) and get_glyph_name(num_glyphs + 1) raise RuntimeError. Also retain a named-font invalid-index test.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "src/ft2font.cpp",
+          "line": 1616,
+          "symbol": "FT2Font::get_glyph_name"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12551,
+  "llm_calls": 5
+}

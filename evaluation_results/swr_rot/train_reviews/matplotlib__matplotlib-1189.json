@@ -1,0 +1,54 @@
+{
+  "id": "matplotlib__matplotlib-1189",
+  "findings": [
+    {
+      "rule_id": "signed-zero-boundary-step",
+      "severity": "medium",
+      "title": "Negative-zero velocity now produces an infinite boundary step",
+      "explanation": "The reversed sign tests change the handling of IEEE negative zero, not just positive and negative velocities. With NumPy scalar velocities, nx=ny=3, xi=yi=1, cx=-1 and cy=-0.0, the old calculation gives dsx=1, dsy=+inf and ds=1, correctly appending (0, 1). The changed calculation gives dsy=(2-1)/(-0.0)=-inf and ds=-inf, appending (+inf, NaN). Thus a previously valid boundary termination becomes a non-finite trajectory endpoint and returns a non-finite step. Negative zero arises naturally when a backward integration callback negates a zero component of an axis-aligned forward velocity. The supplied context does not include that callback, callers, or tests, so public streamplot reachability and existing coverage could not be independently verified. For nonzero components, old and new calculations are equivalent. For positive zero in the interior, the change instead fixes the old negative-infinity result. Python float zero division raises in both versions, so that is not a newly introduced exception. Coordinates already on the boundary can yield 0/0 in either version; the concrete regression here requires neither component to start on a boundary.",
+      "path": "lib/matplotlib/streamplot.py",
+      "line": 471,
+      "evidence": "if cy < 0:\n        dsy = yi / -cy\n    else:\n        dsy = (ny - 1 - yi) / cy",
+      "fix": "Handle a zero component explicitly before testing its sign: use positive infinity for its boundary travel time, regardless of the zero's sign. Apply this to both cx and cy so signed zero and boundary 0/0 do not determine the step.",
+      "test": "Exercise the real _euler_step with a dmap whose grid has nx=ny=3, trajectories [1.0], [1.0], and f returning (np.float64(-1.0), np.float64(-0.0)). Assert a returned step of 1.0 and endpoint (0.0, 1.0), with both coordinates finite. Add the transposed case for cx=-0.0, positive-zero variants, and cases already on the stationary component's boundary. Where the caller permits it, also exercise backward integration of an axis-aligned flow through public streamplot and assert finite path vertices.",
+      "confidence": 0.84,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 463,
+          "symbol": "_euler_step: obtain velocity from f"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 471,
+          "symbol": "_euler_step: calculate dsy"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 472,
+          "symbol": "_euler_step: select and apply boundary step"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12427,
+  "llm_calls": 5
+}

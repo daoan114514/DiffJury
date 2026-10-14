@@ -1,0 +1,93 @@
+[17:27:19] holdout replay baseline (219 cases)
+[17:47:46] holdout baseline: {"f1": 0.3455, "precision": 0.3519, "recall": 0.3393, "high_risk_recall": 0.32, "clean_accuracy": 0.8383, "average_instruction_tokens_per_call": 1054.83, "average_total_tokens_per_pr": 23600.78, "average_latency_ms_per_pr": 75747.79, "failure_rate": 0.032}
+[17:47:46] holdout baseline: retrying 7 failed cases (attempt 1)
+[17:50:36] holdout baseline: after retry 1: {"f1": 0.354, "precision": 0.3509, "recall": 0.3571, "high_risk_recall": 0.36, "clean_accuracy": 0.8563, "average_instruction_tokens_per_call": 1056.42, "average_total_tokens_per_pr": 24068.57, "average_latency_ms_per_pr": 74736.86, "failure_rate": 0.0091}
+[17:50:36] holdout baseline: retrying 2 failed cases (attempt 2)
+[17:53:14] holdout baseline: after retry 2: {"f1": 0.354, "precision": 0.3509, "recall": 0.3571, "high_risk_recall": 0.36, "clean_accuracy": 0.8623, "average_instruction_tokens_per_call": 1057.08, "average_total_tokens_per_pr": 24154.71, "average_latency_ms_per_pr": 74709.57, "failure_rate": 0.0046}
+[17:53:16] borrowed 232 original knowledge-free train reviews
+[17:53:16] train reviews: 232 cached, 202 to run
+[17:58:44] train reviews: 64/202 done
+[18:01:55] train review sympy__sympy-11970 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/htt
+[18:05:01] train review sympy__sympy-15607 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom JSON request failed: Expecting ',' delimiter: line 138 column 1 (char 10465)
+[18:05:12] train review sympy__sympy-15619 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/htt
+[18:05:15] train review sympy__sympy-15646 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/htt
+[18:06:06] train reviews: 128/202 done
+[18:08:49] train review sympy__sympy-16762 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/htt
+[18:12:28] train review sympy__sympy-542 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/htt
+[18:13:58] train reviews: 192/202 done
+[18:16:56] train reviews: 202/202 done
+[18:16:56] planned 231 events: {"missed": 87, "false_positive": 75, "noise": 46, "contradiction": 23}
+[18:20:18] holdout baseline: retrying 1 failed cases (attempt 1)
+[18:22:59] holdout baseline: after retry 1: {"f1": 0.354, "precision": 0.3509, "recall": 0.3571, "high_risk_recall": 0.36, "clean_accuracy": 0.8623, "average_instruction_tokens_per_call": 1057.08, "average_total_tokens_per_pr": 24154.71, "average_latency_ms_per_pr": 74709.57, "failure_rate": 0.0046}
+[18:22:59] holdout baseline: retrying 1 failed cases (attempt 2)
+[18:25:35] holdout baseline: after retry 2: {"f1": 0.354, "precision": 0.3509, "recall": 0.3571, "high_risk_recall": 0.36, "clean_accuracy": 0.8623, "average_instruction_tokens_per_call": 1057.08, "average_total_tokens_per_pr": 24154.71, "average_latency_ms_per_pr": 74709.57, "failure_rate": 0.0046}
+[18:25:36] borrowed 0 original knowledge-free train reviews
+[18:25:36] train reviews: 428 cached, 6 to run
+[18:28:09] train review sympy__sympy-11970 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/htt
+[18:28:11] train review sympy__sympy-16762 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/htt
+[18:28:15] train review sympy__sympy-15607 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom JSON request failed: Expecting value: line 142 column 21 (char 10519)
+[18:28:45] train reviews: 6/6 done
+[18:28:45] train reviews: retrying 3 failed cases (attempt 1)
+[18:31:23] train review sympy__sympy-15607 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/htt
+[18:31:23] train reviews: retrying 1 failed cases (attempt 2)
+[18:34:00] train review sympy__sympy-15607 failed: replay completed without successful LLM role(s): correctness-reliability | correctness-reliability: custom JSON request failed: Expecting value: line 97 column 18 (char 8154)
+[18:34:00] stopped: model unavailable: train reviews: 1 cases still failed; resume retries only missing cases
+[18:54:24] holdout baseline: retrying 1 failed cases (attempt 1)
+[18:57:02] holdout baseline: after retry 1: {"f1": 0.3508, "precision": 0.3448, "recall": 0.3571, "high_risk_recall": 0.36, "clean_accuracy": 0.8623, "average_instruction_tokens_per_call": 1056.79, "average_total_tokens_per_pr": 24267.33, "average_latency_ms_per_pr": 74693.32, "failure_rate": 0.0}
+[18:57:02] borrowed 0 original knowledge-free train reviews
+[18:57:02] train reviews: 433 cached, 1 to run
+[19:01:02] train reviews: 1/1 done
+[19:01:02] planned 243 events: {"missed": 89, "false_positive": 81, "noise": 49, "contradiction": 24}
+[19:04:37] measured @0: naive 291.8 tok/call, 0 live tok | governed 291.8 tok/call, 0 live tok
+[19:13:50] attribution @25: {"reviews": 6, "accepted": 0, "false_positive": 1, "failed": 0}
+[19:13:51] measured @25: naive 315.2 tok/call, 2383 live tok | governed 291.8 tok/call, 0 live tok
+[19:23:12] attribution @50: {"reviews": 6, "accepted": 1, "false_positive": 0, "failed": 0}
+[19:23:12] measured @50: naive 334.6 tok/call, 5690 live tok | governed 291.8 tok/call, 0 live tok
+[19:32:32] attribution @75: {"reviews": 6, "accepted": 0, "false_positive": 0, "failed": 0}
+[19:32:32] measured @75: naive 350.1 tok/call, 7881 live tok | governed 291.8 tok/call, 0 live tok
+[19:40:53] attribution @100: {"reviews": 6, "accepted": 0, "false_positive": 0, "failed": 0}
+[19:40:53] maintenance @100
+[19:47:15] counterfactual @100: {"trials_considered": 55, "no_training_match": 1, "pairs": 20, "replay_limit": 40, "replays": 40, "applied": 14, "helpful": 2, "harmful": 1, "neutral": 11, "failed": 0, "not_exposed": 6}
+[20:00:15] maintenance @100: {"dream": {"clusters": 0, "evictions": {}, "live_items_before": 72, "live_items_after": 72, "live_tokens_before": 6112, "live_tokens_after": 6112, "consolidated": true}, "promotion": {"status": "released", "version": 2, "changes": {"promoted": ["K-5af1f6aa"]}}, "promotion_gate_failures": [], "dream_release": null, "dream_gate_failures": null, "live_tokens_before": 6112, "live_tokens_after": 6112}
+[20:00:15] measured @100: naive 350.1 tok/call, 10334 live tok | governed 291.8 tok/call, 59 live tok
+[20:07:34] attribution @125: {"reviews": 6, "accepted": 0, "false_positive": 1, "failed": 0}
+[20:07:34] measured @125: naive 395.9 tok/call, 12710 live tok | governed 291.8 tok/call, 59 live tok
+[20:15:48] attribution @150: {"reviews": 6, "accepted": 0, "false_positive": 2, "failed": 0}
+[20:15:48] measured @150: naive 440.0 tok/call, 15242 live tok | governed 291.8 tok/call, 59 live tok
+[20:26:04] attribution @175: {"reviews": 6, "accepted": 0, "false_positive": 0, "failed": 0}
+[20:26:04] measured @175: naive 453.1 tok/call, 17988 live tok | governed 291.8 tok/call, 59 live tok
+[20:35:00] attribution @200: {"reviews": 6, "accepted": 1, "false_positive": 1, "failed": 0}
+[20:35:00] maintenance @200
+[20:41:38] counterfactual @200: {"trials_considered": 77, "no_training_match": 1, "pairs": 20, "replay_limit": 40, "replays": 40, "applied": 11, "helpful": 1, "harmful": 0, "neutral": 10, "failed": 1, "not_exposed": 8}
+[21:13:33] maintenance @200: {"dream": {"clusters": 0, "evictions": {"K-228513a9": "capacity", "K-b3f745e1": "capacity", "K-247df0a6": "capacity", "K-962fa994": "capacity", "K-f5a0a35d": "capacity", "K-fb44df5d": "capacity", "K-7c243108": "capacity", "K-7a9a1930": "capacity", "K-0f95dfb8": "capacity", "K-54f1e256": "capacity", "K-dc2e079e": "capacity", "K-04021aab": "capacity", "K-aa608edc": "capacity", "K-ba56012a": "capacity", "K-f58a1d75": "capacity", "K-5fb9f846": "capacity", "K-c6e9ad99": "capacity", "K-27784f63": "capacity", "K-ab4c0b87": "capacity", "K-be8a4120": "capacity", "K-40499fa5": "capacity", "K-688a2ee8": "capacity", "K-8c16615a": "capacity", "K-1279fd3a": "capacity", "K-291f29fa": "capacity", "K-6dd81d91": "capacity", "K-c565eb03": "capacity", "K-68ba849b": "capacity", "K-1ecc859b": "capacity", "K-1cc93d05": "capacity", "K-f89219da": "capacity", "K-f07163af": "capacity"}, "live_items_before": 130, "live_items_after": 98, "live_tokens_before": 13489, "live_tokens_after": 11700, "consolidated": true, "release": {"status": "released", "version": 3, "gate": {"passed": true, "failures": [], "margin": 0.02, "max_point_drop": 0.1, "dataset_fingerprint": "cf28cf398969a8e5ac09670a5d6d936f7669e4239c1d8551130a26a7bfd2442a", "cases": 73, "metrics": {"f1": {"baseline": 0.3704, "candidate": 0.3333, "delta": -0.0371, "ci95": [-0.1713, 0.089], "max_point_drop": 0.1, "passed": true}, "high_risk_recall": {"baseline": 0.4118, "candidate": 0.3529, "delta": -0.0589, "ci95": [-0.2308, 0.0], "max_point_drop": 
+[21:13:33] measured @200: naive 486.5 tok/call, 20679 live tok | governed 291.8 tok/call, 116 live tok
+[21:22:39] attribution @225: {"reviews": 6, "accepted": 0, "false_positive": 1, "failed": 0}
+[21:22:39] measured @225: naive 521.8 tok/call, 22699 live tok | governed 291.8 tok/call, 116 live tok
+[21:27:56] maintenance @243
+[21:35:06] counterfactual @243: {"trials_considered": 94, "no_training_match": 1, "pairs": 20, "replay_limit": 40, "replays": 39, "applied": 5, "helpful": 1, "harmful": 0, "neutral": 4, "failed": 1, "not_exposed": 14}
+[21:47:55] maintenance @243: {"dream": {"clusters": 0, "evictions": {"K-f220a712": "capacity", "K-73e92176": "capacity", "K-341a013b": "capacity", "K-6a50e024": "capacity", "K-a00f8264": "capacity", "K-e983d24c": "capacity", "K-15692fcc": "capacity", "K-d10cf422": "capacity", "K-56ec12ea": "capacity", "K-d4adcd7d": "capacity", "K-bffe54d2": "capacity", "K-b333b35f": "capacity", "K-af7f43aa": "capacity", "K-b12fef51": "capacity", "K-02d87541": "capacity", "K-a27114ac": "capacity", "K-d7f733bb": "capacity", "K-4e359cec": "capacity", "K-0a0eedc4": "capacity", "K-d6b8dfc7": "capacity", "K-3121b7a4": "capacity", "K-f1180922": "capacity", "K-89c76163": "capacity", "K-d664cad7": "capacity", "K-4c122d71": "capacity", "K-81f70a1a": "capacity", "K-cf06fa10": "capacity", "K-aae39b62": "capacity", "K-e1b122e4": "capacity"}, "live_items_before": 126, "live_items_after": 97, "live_tokens_before": 13814, "live_tokens_after": 12229, "consolidated": true, "release": {"status": "released", "version": 5, "gate": {"passed": true, "failures": [], "margin": 0.02, "max_point_drop": 0.1, "dataset_fingerprint": "cf28cf398969a8e5ac09670a5d6d936f7669e4239c1d8551130a26a7bfd2442a", "cases": 73, "metrics": {"f1": {"baseline": 0.2692, "candidate": 0.339, "delta": 0.0698, "ci95": [-0.0242, 0.1923], "max_point_drop": 0.1, "passed": true}, "high_risk_recall": {"baseline": 0.3529, "candidate": 0.3529, "delta": 0.0, "ci95": [0.0, 0.0], "max_point_drop": 0.1, "passed": true}, "clean_accuracy": {"baseline": 0.8333, "candidate": 0.7917, "delt
+[21:47:55] measured @243: naive 521.8 tok/call, 23862 live tok | governed 291.8 tok/call, 116 live tok
+[21:47:55] holdout replay final-naive (219 cases)
+[22:06:06] holdout final-naive: {"f1": 0.312, "precision": 0.3208, "recall": 0.3036, "high_risk_recall": 0.36, "clean_accuracy": 0.8323, "average_instruction_tokens_per_call": 1837.23, "average_total_tokens_per_pr": 27324.55, "average_latency_ms_per_pr": 66973.63, "failure_rate": 0.0228}
+[22:06:06] holdout final-naive: retrying 5 failed cases (attempt 1)
+[22:08:58] holdout final-naive: after retry 1: {"f1": 0.3063, "precision": 0.3091, "recall": 0.3036, "high_risk_recall": 0.36, "clean_accuracy": 0.8383, "average_instruction_tokens_per_call": 1840.59, "average_total_tokens_per_pr": 27609.71, "average_latency_ms_per_pr": 66273.85, "failure_rate": 0.0091}
+[22:08:58] holdout final-naive: retrying 2 failed cases (attempt 2)
+[22:11:44] holdout final-naive: after retry 2: {"f1": 0.3063, "precision": 0.3091, "recall": 0.3036, "high_risk_recall": 0.36, "clean_accuracy": 0.8383, "average_instruction_tokens_per_call": 1840.59, "average_total_tokens_per_pr": 27609.71, "average_latency_ms_per_pr": 66273.85, "failure_rate": 0.0091}
+[22:11:44] holdout replay final-governed (219 cases)
+[22:30:04] holdout final-governed: {"f1": 0.2521, "precision": 0.2381, "recall": 0.2679, "high_risk_recall": 0.32, "clean_accuracy": 0.8144, "average_instruction_tokens_per_call": 838.58, "average_total_tokens_per_pr": 21997.78, "average_latency_ms_per_pr": 69802.57, "failure_rate": 0.0183}
+[22:30:04] holdout final-governed: retrying 4 failed cases (attempt 1)
+[22:32:54] holdout final-governed: after retry 1: {"f1": 0.2623, "precision": 0.2424, "recall": 0.2857, "high_risk_recall": 0.32, "clean_accuracy": 0.8204, "average_instruction_tokens_per_call": 837.12, "average_total_tokens_per_pr": 22312.59, "average_latency_ms_per_pr": 68927.33, "failure_rate": 0.0046}
+[22:32:54] holdout final-governed: retrying 1 failed cases (attempt 2)
+[22:35:33] holdout final-governed: after retry 2: {"f1": 0.2623, "precision": 0.2424, "recall": 0.2857, "high_risk_recall": 0.32, "clean_accuracy": 0.8204, "average_instruction_tokens_per_call": 837.12, "average_total_tokens_per_pr": 22312.59, "average_latency_ms_per_pr": 68927.33, "failure_rate": 0.0046}
+[22:38:46] recurrence baseline: 150 PRs, attempt 1
+[22:52:51] recurrence baseline: 7 PRs, attempt 2
+[22:55:34] recurrence baseline: 3 PRs, attempt 3
+[22:58:32] recurrence naive: 150 PRs, attempt 1
+[23:13:41] recurrence naive: 2 PRs, attempt 2
+[23:16:32] recurrence naive: 1 PRs, attempt 3
+[23:18:53] recurrence governed: 150 PRs, attempt 1
+[23:32:37] recurrence governed: 2 PRs, attempt 2
+[23:35:36] recurrence governed_canary: 150 PRs, attempt 1
+[23:53:00] recurrence governed_canary: 5 PRs, attempt 2
+[23:55:48] recurrence governed_canary: 1 PRs, attempt 3
+[23:58:23] done: evaluation_results/swr_rot_temporal\summary.md

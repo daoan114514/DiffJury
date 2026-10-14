@@ -1,0 +1,158 @@
+{
+  "id": "scikit-learn__scikit-learn-20889",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation-invalid-function-role",
+      "severity": "low",
+      "title": "Use valid Sphinx roles for miss_rate and fallout_rate",
+      "explanation": "The two added references use apostrophes instead of the backticks required by reStructuredText interpreted-text roles. Consequently, `:func:'miss_rate` and `:func:'fallout_rate'` render as literal text rather than function cross-references; Sphinx cannot resolve or link these occurrences. The sensitivity and specificity roles are syntactically valid, but the supplied diff contains no API definitions or reference inventory with which to verify their targets.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 627,
+      "evidence": "- |Feature| Added :func:`sensitivity` , :func:`specificity` , :func:'miss_rate and :func:'fallout_rate'",
+      "fix": "Replace the malformed references with backtick-delimited function roles, and use verified, appropriately qualified API targets for all four references.",
+      "test": "Build the changelog with Sphinx and inspect the generated entry: all four names should produce function links rather than literal role markup. Check the build output for unresolved-reference warnings.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "documentation-confuses-rates-with-counts",
+      "severity": "low",
+      "title": "Describe the advertised metrics as rates rather than counts",
+      "explanation": "The entry describes sensitivity, specificity, miss rate, and fallout rate as calculating true positives, true negatives, false negatives, and false positives respectively. Those names denote normalized rates, not the corresponding confusion-matrix counts: TP/(TP+FN), TN/(TN+FP), FN/(TP+FN), and FP/(TN+FP). For example, TP=80, FN=20, TN=90, and FP=10 give rates of 0.8, 0.9, 0.2, and 0.1, not counts of 80, 90, 20, and 10. This misstates the advertised metrics and can mislead readers about their output. No function definitions are supplied, so this finding concerns the metric description, not a claim about actual API availability or implementation behavior.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 628,
+      "evidence": "to calculate the 'True Positives', 'True Negatives', 'False Negatives' and 'False Positives' repectively.",
+      "fix": "Describe the metrics as the true-positive rate, true-negative rate, false-negative rate, and false-positive rate respectively, after confirming that the referenced APIs exist and implement those definitions.",
+      "test": "Cross-check the entry against the public API definitions and a confusion-matrix example with unequal counts; verify that the documented quantities and normalization match the actual return values.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-684",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-04a42f60",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2fcf8cc0",
+      "K-5726f975",
+      "K-5da5b627",
+      "K-72d03d82",
+      "K-81df992c",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8b12aa56",
+      "K-9fc0d205",
+      "K-a32f0183",
+      "K-c59d36ba",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d5f0918f",
+      "K-e01a8db3",
+      "K-e9744f86",
+      "K-ebb06c34",
+      "K-ef402548"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-d398b681",
+          "K-04a42f60"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-d5f0918f",
+          "K-e01a8db3",
+          "K-c59d36ba",
+          "K-ebb06c34",
+          "K-24b3bdf1",
+          "K-295e0897"
+        ],
+        "tokens": 497,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-72d03d82",
+          "K-8b12aa56",
+          "K-e9744f86",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a32f0183",
+          "K-ef402548",
+          "K-21394d34",
+          "K-cebaccb0",
+          "K-218187b3",
+          "K-1a7e5ff1",
+          "K-1c46e9f8",
+          "K-5726f975",
+          "K-20ab8e8e",
+          "K-9fc0d205",
+          "K-8aa6a19d",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-81df992c"
+        ],
+        "tokens": 793,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

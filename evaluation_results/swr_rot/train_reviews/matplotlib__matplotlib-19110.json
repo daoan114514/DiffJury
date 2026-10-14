@@ -1,0 +1,51 @@
+{
+  "id": "matplotlib__matplotlib-19110",
+  "findings": [
+    {
+      "rule_id": "uninitialized-label-font-state",
+      "severity": "medium",
+      "title": "Initialize the label-font property before its getter or setter reads it",
+      "explanation": "The change introduces _labelfont reads without initializing that attribute during Line2D construction. The new constructor parameter font is likewise never applied by the supplied change. A concrete call path is line = Line2D([], []); line.set_labelfont('serif'): the setter marks _invalidy and then raises AttributeError at its comparison, before reaching the assignment that could initialize the attribute. The lf alias reaches the same setter, so it does not provide a workaround. Calling get_labelfont() on an otherwise ordinary line also reaches an uninitialized attribute after any required recache. These are symptoms of the same missing initialization, rather than independent defects. Passing font='serif' to the constructor does not repair the state or apply the supplied value. The axis changes demonstrably translate labelfont to font, but the supplied evidence does not include Text's aliases or setters; an unsupported-Text-keyword finding cannot be established from this material.",
+      "path": "lib/matplotlib/lines.py",
+      "line": 1281,
+      "evidence": "                 font=None,\n\n    def get_labelfont(self):\n        \"\"\"\n        Return the label font as string\n        \"\"\"\n        if self._invalidy or self._invalidx:\n            self.recache()\n        return self._labelfont\n\n    def set_labelfont(self, labelfont):\n        \"\"\"\n        \"\"\"\n        self._invalidy = True\n        if self._labelfont != labelfont:\n            self.stale = True\n        self._labelfont = labelfont",
+      "fix": "Initialize self._labelfont from the constructor's font argument before any property updates can invoke the setter. Preserve that value when no labelfont override is supplied, and allow subsequent labelfont/lf updates to use the normal setter.",
+      "test": "Construct Line2D([], []) and assert that get_labelfont() returns its defined default without raising. Construct Line2D([], [], font='serif') and assert the stored value is 'serif'. Exercise set_labelfont('monospace'), set(labelfont='serif'), and set(lf='monospace'), asserting the exact getter result and stale state. No focused tests were included in the supplied diff; these tests would expose both the initialization failure and the ignored constructor argument.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/lines.py",
+          "line": 297,
+          "symbol": "Line2D.__init__"
+        },
+        {
+          "path": "lib/matplotlib/lines.py",
+          "line": 1277,
+          "symbol": "Line2D.set_labelfont"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": [
+      1
+    ]
+  },
+  "tokens": 17569,
+  "llm_calls": 5
+}

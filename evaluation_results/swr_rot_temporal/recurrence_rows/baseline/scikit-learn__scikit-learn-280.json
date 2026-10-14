@@ -1,0 +1,50 @@
+{
+  "id": "scikit-learn__scikit-learn-280",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "correctness.parameter-precedence",
+      "severity": "low",
+      "title": "An explicit zero feature limit is replaced by the constructor limit",
+      "explanation": "The fallback tests truthiness rather than whether max_features was omitted. Using the X and y fixture from test_lars_n_features, LARS(n_features=6).fit(X, y, max_features=0) takes exactly the same feature-limit path as fit(X, y): both forward a limit of 6. Thus the explicit zero cap is ignored and the six nonzero coefficients expected by the added test are selected instead. The same issue affects LassoLARS. With n_features=None, an explicit zero is instead replaced by None, losing the explicit cap entirely. This is separate from the intentional precedence of a positive n_features over LassoLARS alpha. Omitted limits and positive fit-time overrides retain their forwarding behavior; the new tests exercise neither this zero override nor coefficient-drop boundaries.",
+      "path": "scikits/learn/linear_model/least_angle.py",
+      "line": 394,
+      "evidence": "        if not max_features:\n            max_features = self.n_features",
+      "fix": "Use `if max_features is None:` so that only an omitted fit-time limit falls back to self.n_features.",
+      "test": "Extend test_lars_n_features using its existing X and y fixture: fit LARS(n_features=6) with max_features=0 and assert zero nonzero coefficients. Also cover LARS() with max_features=0 and the inherited LassoLARS fit path.",
+      "confidence": 0.73,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/linear_model/least_angle.py",
+          "line": 367,
+          "symbol": "LARS.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

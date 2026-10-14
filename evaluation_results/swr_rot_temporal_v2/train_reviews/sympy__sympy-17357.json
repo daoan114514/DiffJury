@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-17357",
+  "findings": [
+    {
+      "rule_id": "rewrite-deep-contract",
+      "severity": "medium",
+      "title": "Nested public rewrites ignore deep=False and rewrite arguments",
+      "explanation": "The replacement introduces recursive argument rewriting even when the caller explicitly disables it. For a symbolic x, consider cos(sec(x)).rewrite(csc, deep=False). The outer public rewrite leaves sec(x) untouched and invokes cos._eval_rewrite_as_csc with that argument. Previously, the direct sec rewrite hook produced 1/csc(pi/2 - sec(x), evaluate=False). The new sec(arg).rewrite(csc) starts a separate public rewrite with its default deep=True: it first rewrites the inner sec(x) to csc(pi/2 - x, evaluate=False), then rewrites the enclosing sec. Consequently the result is 1/csc(pi/2 - csc(pi/2 - x, evaluate=False), evaluate=False), rather than the expected expression retaining sec(x). Although these expressions are mathematically equivalent, the new result violates the supported deep=False traversal contract. The same omitted traversal option occurs in the other newly introduced public rewrite calls. The added regression test uses only default traversal and does not detect this regression.",
+      "path": "sympy/functions/elementary/trigonometric.py",
+      "line": 858,
+      "evidence": "return 1 / sec(arg).rewrite(csc)",
+      "fix": "Disable deep traversal on these internal public rewrite calls, since the outer rewrite dispatch already handles the requested argument traversal. Preserve other applicable rewrite hints without allowing the internal calls to restart deep traversal.",
+      "test": "Add a regression asserting cos(sec(x)).rewrite(csc, deep=False) == 1/csc(pi/2 - sec(x), evaluate=False). Exercise analogous nested arguments for the changed tan, cot, sec, and csc rewrite methods, asserting that deep=False preserves the original arguments while default traversal still rewrites them.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 857,
+          "symbol": "cos._eval_rewrite_as_csc"
+        },
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1694,
+          "symbol": "sec._eval_rewrite_as_csc (inner argument traversal)"
+        },
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1694,
+          "symbol": "sec._eval_rewrite_as_csc (intermediate expression)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 20859,
+  "llm_calls": 5
+}

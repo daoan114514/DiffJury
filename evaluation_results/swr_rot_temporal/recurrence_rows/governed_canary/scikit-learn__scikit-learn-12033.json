@@ -1,0 +1,131 @@
+{
+  "id": "scikit-learn__scikit-learn-12033",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "encoder-assume-all-finite",
+      "severity": "medium",
+      "title": "Object-array validation ignores the assume_all_finite configuration",
+      "explanation": "The new shared validation path unconditionally checks object arrays for NaN after check_array. This overrides scikit-learn's assume_all_finite=True configuration, under which check_array deliberately skips finite-value validation. For example, inside config_context(assume_all_finite=True), OrdinalEncoder().fit(np.array([[np.nan]], dtype=object)) previously passed validation and fitted a single category, but now raises ValueError('Input contains NaN'). The equivalent floating-point array still bypasses finite-value validation, making the configured behavior dtype-dependent. Both _fit and _transform now call this helper, so both entry paths are affected. The list/string conversion logic is otherwise preserved: numeric and existing string arrays retain the check_array result, while string-valued lists are rechecked with object dtype. The added tests exercise only the default configuration and therefore do not catch this regression. OneHotEncoder's handle_unknown='ignore' transform case does independently test missing-value rejection; OrdinalEncoder's transform assertion can also be satisfied by its pre-existing unknown-category error. No additional helper defect can be established from the supplied diff because the implementation of _object_dtype_isnan is not included.",
+      "path": "sklearn/preprocessing/_encoders.py",
+      "line": 54,
+      "evidence": "        if X.dtype == np.dtype('object'):\n           if _object_dtype_isnan(X).any():\n               raise ValueError(\"Input contains NaN\")",
+      "fix": "Guard the custom object-dtype NaN check with not get_config()['assume_all_finite'], matching check_array's finite-validation policy.",
+      "test": "Add a regression test using config_context(assume_all_finite=True) and a one-element object array containing np.nan: OrdinalEncoder.fit must succeed, as it did before the change. Also test OneHotEncoder(categories='auto', handle_unknown='ignore') fitted on a nonmissing object category and transformed with an object NaN: transformation must produce an all-zero row under this configuration, while the same transform must raise 'Input contains NaN' under the default configuration. Retain numeric/object parametrization to check configuration parity.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/preprocessing/_encoders.py",
+          "line": 60,
+          "symbol": "_BaseEncoder._fit"
+        },
+        {
+          "path": "sklearn/preprocessing/_encoders.py",
+          "line": 91,
+          "symbol": "_BaseEncoder._transform"
+        },
+        {
+          "path": "sklearn/preprocessing/_encoders.py",
+          "line": 40,
+          "symbol": "_BaseEncoder._check_X"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": [
+        "K-95d752ab"
+      ]
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-15a64966",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-900623ee",
+      "K-91e5b509",
+      "K-95d752ab",
+      "K-9f32c0f2",
+      "K-9fbca2ff",
+      "K-c1e264d7",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-f0b9d1e9",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-95d752ab",
+          "K-900623ee",
+          "K-c43a8094",
+          "K-f0b9d1e9",
+          "K-f463a446",
+          "K-542e4ee3",
+          "K-91e5b509",
+          "K-0466258e"
+        ],
+        "tokens": 559,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-9f32c0f2",
+          "K-d07491c7",
+          "K-9fbca2ff",
+          "K-21a33670",
+          "K-c1e264d7",
+          "K-340b5726",
+          "K-15a64966"
+        ],
+        "tokens": 451,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

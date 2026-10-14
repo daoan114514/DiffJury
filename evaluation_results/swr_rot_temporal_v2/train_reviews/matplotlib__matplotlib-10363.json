@@ -1,0 +1,46 @@
+{
+  "id": "matplotlib__matplotlib-10363",
+  "findings": [
+    {
+      "rule_id": "wx-version-attribute-compatibility",
+      "severity": "high",
+      "title": "The renamed wx version attribute breaks backend imports",
+      "explanation": "wxPython exposes its package version as wx.VERSION_STRING, not wx.VERSIONSTRING. For example, Phoenix 4.0.0b2 and 4.0.0 provide VERSION_STRING values that the previous StrictVersion expression accepted. The new attribute access raises AttributeError before parsing, and the handler catches only ValueError, so importing wx_compat now fails on these supported configurations. Both new attribute accesses must retain VERSION_STRING. By inspection, comparing StrictVersion against the string thresholds is otherwise supported: 2.9 passes the minimum check, 4.0.0b1 selects the older toolbar signature, and 4.0.0b2 and 4.0.0 select the newer signature. An rc string such as 4.0.0rc1 falls back to LooseVersion and sorts above 4.0.0b2. Development strings can have problematic LooseVersion ordering—for example, 4.0.0.dev0 sorts above 4.0.0b2—but the previous implementation rejected those strings at import, so that is not a demonstrated regression. No test files or executable environment were supplied; existing coverage and release-attribute checks could not be independently executed.",
+      "path": "lib/matplotlib/backends/wx_compat.py",
+      "line": 27,
+      "evidence": "    wx_version = StrictVersion(wx.VERSIONSTRING)\nexcept ValueError:\n    wx_version = LooseVersion(wx.VERSIONSTRING)",
+      "fix": "Use wx.VERSION_STRING in both the StrictVersion call and the LooseVersion fallback.",
+      "test": "Import the real wx_compat module with representative supported wx installations, including Phoenix 4.0.0b2 and 4.0.0, and assert successful initialization. Add isolated import tests with VERSION_STRING present and VERSIONSTRING absent, covering 2.9, 4.0.0b1, 4.0.0b2, 4.0.0, 4.0.0rc1, and a development string. Assert the minimum-version decision and exact toolbar signature selected rather than merely checking that parsing completes.",
+      "confidence": 0.87,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/backends/wx_compat.py",
+          "line": 27,
+          "symbol": "module initialization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15896,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-10363.json",
+  "borrowed_sha256": "17dc69c2041d9d0f6dd364cd68898f22c38bb12cc48ab7a516ee001862ab7c4b"
+}

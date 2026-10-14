@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-16762",
+  "findings": [
+    {
+      "rule_id": "incorrect-coefficient-normalization",
+      "severity": "medium",
+      "title": "Preserve individual signs when maximum coefficient magnitudes tie",
+      "explanation": "The normalization replaces every coefficient whose magnitude equals `big` with the same sign `s`, even when those coefficients have opposite signs. A minimal counterexample is `(2.3*x - 2.3)**2`. Coefficient extraction yields `(Float(-2.3), 1)` for the constant and `(Float(2.3), x)` for the variable term. Both magnitudes equal the selected floating-point maximum. Because the update uses a strict `>` comparison, `s` retains the sign of whichever maximum is encountered first; line 401 then assigns that sign to both terms. Consequently, the normalized base is either `x + 1` or `-x - 1`, and the returned expression is mathematically `Float(2.3)**2*(x + 1)**2`, rather than `Float(2.3)**2*(x - 1)**2`. At `x = 1`, the original base is zero, whereas the transformed expression evaluates to approximately 21.16. This violates value preservation, independently of argument ordering. The newly added tests exercise positive and negative coefficients only with unequal magnitudes, so none reaches this defective tie case.",
+      "path": "sympy/core/add.py",
+      "line": 401,
+      "evidence": "if abs(i) > big:\n                  big = 1.0*abs(i)\n                  s = -1 if i < 0 else 1\n          if float and big and big != 1:\n              addpow = Add(*[(s if abs(c[i]) == big else c[i]/big)*m[i] for i in range(len(c))])**e",
+      "fix": "Choose the sign separately for each maximum-magnitude coefficient, rather than reusing `s` from the maximum-selection loop. For example, use `(-1 if c[i] < 0 else 1)` for the equality branch while retaining the positive scale factor.",
+      "test": "Construct `p = (2.3*x - 2.3)**2` through ordinary power evaluation and assert `p.subs(x, 1) == 0`. Also cover opposing maximum coefficients on two symbolic terms, such as `(2.3*x - 2.3*y)**2`, and assert that substituting `x = y = 1` yields zero. These assertions exercise the changed implementation without depending on printer formatting.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 391,
+          "symbol": "Add._eval_power"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "maximum-magnitude coefficient normalization"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 402,
+          "symbol": "normalized power result"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17438,
+  "llm_calls": 5
+}

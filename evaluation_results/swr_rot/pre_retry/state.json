@@ -1,0 +1,1080 @@
+{
+  "next_event": 253,
+  "measurements": [
+    {
+      "event": 0,
+      "arm": "naive",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 759.0
+    },
+    {
+      "event": 0,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 25,
+      "arm": "naive",
+      "live_rules": 23,
+      "live_learned_skills": 2,
+      "live_knowledge_tokens": 2818,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 541.6,
+      "skill_catalog_tokens": 910.0
+    },
+    {
+      "event": 25,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 5,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 50,
+      "arm": "naive",
+      "live_rules": 45,
+      "live_learned_skills": 5,
+      "live_knowledge_tokens": 5910,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 756.6,
+      "skill_catalog_tokens": 1116.0
+    },
+    {
+      "event": 50,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 12,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 75,
+      "arm": "naive",
+      "live_rules": 70,
+      "live_learned_skills": 5,
+      "live_knowledge_tokens": 7630,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 984.1,
+      "skill_catalog_tokens": 1116.0
+    },
+    {
+      "event": 75,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 14,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 100,
+      "arm": "naive",
+      "live_rules": 95,
+      "live_learned_skills": 5,
+      "live_knowledge_tokens": 9140,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1185.9,
+      "skill_catalog_tokens": 1116.0
+    },
+    {
+      "event": 100,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 18,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 125,
+      "arm": "naive",
+      "live_rules": 117,
+      "live_learned_skills": 8,
+      "live_knowledge_tokens": 12285,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1383.7,
+      "skill_catalog_tokens": 1336.0
+    },
+    {
+      "event": 125,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 23,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 150,
+      "arm": "naive",
+      "live_rules": 140,
+      "live_learned_skills": 10,
+      "live_knowledge_tokens": 14731,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1546.6,
+      "skill_catalog_tokens": 1472.0
+    },
+    {
+      "event": 150,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 27,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 175,
+      "arm": "naive",
+      "live_rules": 161,
+      "live_learned_skills": 14,
+      "live_knowledge_tokens": 18246,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1755.5,
+      "skill_catalog_tokens": 1738.0
+    },
+    {
+      "event": 175,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 33,
+      "archived": 0,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 200,
+      "arm": "naive",
+      "live_rules": 184,
+      "live_learned_skills": 16,
+      "live_knowledge_tokens": 20953,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 1953.8,
+      "skill_catalog_tokens": 1869.0
+    },
+    {
+      "event": 200,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 39,
+      "archived": 3,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 225,
+      "arm": "naive",
+      "live_rules": 209,
+      "live_learned_skills": 16,
+      "live_knowledge_tokens": 22497,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 2202.7,
+      "skill_catalog_tokens": 1869.0
+    },
+    {
+      "event": 225,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 46,
+      "archived": 3,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 250,
+      "arm": "naive",
+      "live_rules": 234,
+      "live_learned_skills": 16,
+      "live_knowledge_tokens": 24051,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 2379.8,
+      "skill_catalog_tokens": 1869.0
+    },
+    {
+      "event": 250,
+      "arm": "governed",
+      "live_rules": 0,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 0,
+      "probation": 51,
+      "archived": 3,
+      "instruction_tokens_per_call": 291.8,
+      "skill_catalog_tokens": 673.6
+    },
+    {
+      "event": 253,
+      "arm": "naive",
+      "live_rules": 237,
+      "live_learned_skills": 16,
+      "live_knowledge_tokens": 24299,
+      "probation": 0,
+      "archived": 0,
+      "instruction_tokens_per_call": 2404.7,
+      "skill_catalog_tokens": 1869.0
+    },
+    {
+      "event": 253,
+      "arm": "governed",
+      "live_rules": 1,
+      "live_learned_skills": 0,
+      "live_knowledge_tokens": 60,
+      "probation": 48,
+      "archived": 5,
+      "instruction_tokens_per_call": 303.4,
+      "skill_catalog_tokens": 673.6
+    }
+  ],
+  "checkpoints": {
+    "0": {
+      "naive": {
+        "f1": 0.3,
+        "precision": 0.2578,
+        "recall": 0.3587,
+        "high_risk_recall": 0.4681,
+        "clean_accuracy": 0.8028,
+        "average_instruction_tokens_per_call": 1195.52,
+        "average_total_tokens_per_pr": 27140.91,
+        "average_latency_ms_per_pr": 65402.35,
+        "failure_rate": 0.016
+      },
+      "governed": {
+        "f1": 0.3,
+        "precision": 0.2578,
+        "recall": 0.3587,
+        "high_risk_recall": 0.4681,
+        "clean_accuracy": 0.8028,
+        "average_instruction_tokens_per_call": 1195.52,
+        "average_total_tokens_per_pr": 27140.91,
+        "average_latency_ms_per_pr": 65402.35,
+        "failure_rate": 0.016
+      }
+    },
+    "253": {
+      "naive": {
+        "f1": 0.2806,
+        "precision": 0.2403,
+        "recall": 0.337,
+        "high_risk_recall": 0.4255,
+        "clean_accuracy": 0.8131,
+        "average_instruction_tokens_per_call": 4179.36,
+        "average_total_tokens_per_pr": 41171.86,
+        "average_latency_ms_per_pr": 65269.45,
+        "failure_rate": 0.0106
+      },
+      "governed": {
+        "f1": 0.2802,
+        "precision": 0.2522,
+        "recall": 0.3152,
+        "high_risk_recall": 0.4043,
+        "clean_accuracy": 0.7301,
+        "average_instruction_tokens_per_call": 961.02,
+        "average_total_tokens_per_pr": 23706.38,
+        "average_latency_ms_per_pr": 95997.7,
+        "failure_rate": 0.0904
+      }
+    }
+  },
+  "maintenance": [
+    {
+      "event": 200,
+      "summary": {
+        "dream": {
+          "clusters": 0,
+          "evictions": {
+            "K-25e6be30": "probation-failed",
+            "K-b1217978": "probation-failed",
+            "K-21eeedbc": "probation-failed"
+          },
+          "live_items_before": 42,
+          "live_items_after": 39,
+          "live_tokens_before": 9294,
+          "live_tokens_after": 9127,
+          "consolidated": true,
+          "release": {
+            "status": "released",
+            "version": 2,
+            "gate": {
+              "passed": true,
+              "failures": [],
+              "margin": 0.02,
+              "max_point_drop": 0.1,
+              "dataset_fingerprint": "15e2ece9f9c7e2634ca04989d68f9d1ebfbdbe471f7f7eefb76e29eb21c1b4dc",
+              "cases": 60,
+              "metrics": {
+                "f1": {
+                  "baseline": 0.3509,
+                  "candidate": 0.3934,
+                  "delta": 0.0425,
+                  "ci95": [
+                    -0.0598,
+                    0.1491
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                },
+                "high_risk_recall": {
+                  "baseline": 0.3333,
+                  "candidate": 0.4286,
+                  "delta": 0.0953,
+                  "ci95": [
+                    0.0,
+                    0.2174
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                },
+                "clean_accuracy": {
+                  "baseline": 0.7333,
+                  "candidate": 0.7,
+                  "delta": -0.0333,
+                  "ci95": [
+                    -0.1143,
+                    0.0
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                }
+              },
+              "instruction_tokens_per_call": {
+                "baseline": 1049.78,
+                "candidate": 1025.08,
+                "max_growth": 0.0,
+                "passed": true
+              },
+              "execution_success_rate": {
+                "baseline": 1.0,
+                "candidate": 1.0
+              },
+              "baseline_snapshot": "ddbb7698a9654e349bb9f513",
+              "candidate_snapshot": "be5155ea027867fea5ae02b5"
+            },
+            "changes": {
+              "updated": [],
+              "archived": [
+                "K-25e6be30",
+                "K-b1217978",
+                "K-21eeedbc"
+              ],
+              "created": []
+            }
+          }
+        },
+        "promotion": {},
+        "promotion_gate_failures": null,
+        "dream_release": "released",
+        "dream_gate_failures": [],
+        "live_tokens_before": 9294,
+        "live_tokens_after": 9127
+      }
+    },
+    {
+      "event": 253,
+      "summary": {
+        "dream": {
+          "clusters": 0,
+          "evictions": {
+            "K-76f4b913": "probation-failed",
+            "K-7963039d": "probation-failed"
+          },
+          "live_items_before": 51,
+          "live_items_after": 49,
+          "live_tokens_before": 9755,
+          "live_tokens_after": 9645,
+          "consolidated": true,
+          "release": {
+            "status": "released",
+            "version": 3,
+            "gate": {
+              "passed": true,
+              "failures": [],
+              "margin": 0.02,
+              "max_point_drop": 0.1,
+              "dataset_fingerprint": "15e2ece9f9c7e2634ca04989d68f9d1ebfbdbe471f7f7eefb76e29eb21c1b4dc",
+              "cases": 60,
+              "metrics": {
+                "f1": {
+                  "baseline": 0.3666,
+                  "candidate": 0.4193,
+                  "delta": 0.0527,
+                  "ci95": [
+                    -0.0529,
+                    0.1681
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                },
+                "high_risk_recall": {
+                  "baseline": 0.381,
+                  "candidate": 0.381,
+                  "delta": 0.0,
+                  "ci95": [
+                    -0.1429,
+                    0.15
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                },
+                "clean_accuracy": {
+                  "baseline": 0.7667,
+                  "candidate": 0.7333,
+                  "delta": -0.0334,
+                  "ci95": [
+                    -0.1143,
+                    0.0
+                  ],
+                  "max_point_drop": 0.1,
+                  "passed": true
+                }
+              },
+              "instruction_tokens_per_call": {
+                "baseline": 1071.41,
+                "candidate": 1013.84,
+                "max_growth": 0.0,
+                "passed": true
+              },
+              "execution_success_rate": {
+                "baseline": 1.0,
+                "candidate": 1.0
+              },
+              "baseline_snapshot": "63ac5ef63acb7a52333be666",
+              "candidate_snapshot": "264bdeb0dfd8f3ea9ccbd0cd"
+            },
+            "changes": {
+              "updated": [],
+              "archived": [
+                "K-76f4b913",
+                "K-7963039d"
+              ],
+              "created": []
+            }
+          }
+        },
+        "promotion": {
+          "status": "released",
+          "version": 4,
+          "changes": {
+            "promoted": [
+              "K-fb99060d"
+            ]
+          }
+        },
+        "promotion_gate_failures": [],
+        "dream_release": "released",
+        "dream_gate_failures": [],
+        "live_tokens_before": 9755,
+        "live_tokens_after": 9645
+      }
+    }
+  ],
+  "attribution": [
+    {
+      "event": 25,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 2,
+      "failed": 0
+    },
+    {
+      "event": 50,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 3,
+      "failed": 0
+    },
+    {
+      "event": 75,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 2,
+      "failed": 0
+    },
+    {
+      "event": 100,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 0,
+      "failed": 0
+    },
+    {
+      "event": 125,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 2,
+      "failed": 0
+    },
+    {
+      "event": 150,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 175,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 0,
+      "failed": 0
+    },
+    {
+      "event": 200,
+      "reviews": 6,
+      "accepted": 1,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 225,
+      "reviews": 6,
+      "accepted": 0,
+      "false_positive": 1,
+      "failed": 0
+    },
+    {
+      "event": 250,
+      "reviews": 6,
+      "accepted": 2,
+      "false_positive": 2,
+      "failed": 0
+    }
+  ],
+  "admission_actions": {
+    "REJECT": 195,
+    "ADD": 54,
+    "UPVOTE": 4
+  },
+  "comparisons": {
+    "253": {
+      "f1": {
+        "delta": -0.0004,
+        "ci95": [
+          -0.0625,
+          0.0576
+        ],
+        "iterations": 2000
+      },
+      "precision": {
+        "delta": 0.0119,
+        "ci95": [
+          -0.0423,
+          0.066
+        ],
+        "iterations": 2000
+      },
+      "recall": {
+        "delta": -0.0218,
+        "ci95": [
+          -0.0968,
+          0.0555
+        ],
+        "iterations": 2000
+      },
+      "high_risk_recall": {
+        "delta": -0.0212,
+        "ci95": [
+          -0.1333,
+          0.087
+        ],
+        "iterations": 2000
+      },
+      "clean_accuracy": {
+        "delta": -0.083,
+        "ci95": [
+          -0.1273,
+          -0.0456
+        ],
+        "iterations": 2000
+      },
+      "average_instruction_tokens_per_call": {
+        "delta": -3218.34,
+        "ci95": [
+          -3338.73,
+          -3086.11
+        ],
+        "iterations": 2000
+      },
+      "average_total_tokens_per_pr": {
+        "delta": -17465.48,
+        "ci95": [
+          -20187.18,
+          -15034.92
+        ],
+        "iterations": 2000
+      }
+    }
+  },
+  "model": "gpt-6.1-sol",
+  "seed": 20261013,
+  "holdout_repeats": 1,
+  "started_at": "2026-10-13T10:32:49",
+  "dataset": {
+    "train": 442,
+    "gate": 60,
+    "holdout": 376,
+    "holdout_recent_2024": 25
+  },
+  "events_total": 253,
+  "event_mix": {
+    "missed": 106,
+    "false_positive": 71,
+    "noise": 51,
+    "contradiction": 25
+  },
+  "comparisons_by_scope": {
+    "all": {
+      "governed_minus_naive": {
+        "f1": {
+          "delta": -0.0004,
+          "ci95": [
+            -0.0625,
+            0.0576
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": 0.0119,
+          "ci95": [
+            -0.0423,
+            0.066
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0218,
+          "ci95": [
+            -0.0968,
+            0.0555
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.0212,
+          "ci95": [
+            -0.1333,
+            0.087
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.083,
+          "ci95": [
+            -0.1273,
+            -0.0456
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -3218.34,
+          "ci95": [
+            -3338.73,
+            -3086.11
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -17465.48,
+          "ci95": [
+            -20187.18,
+            -15034.92
+          ],
+          "iterations": 2000
+        }
+      },
+      "naive_minus_baseline": {
+        "f1": {
+          "delta": -0.0194,
+          "ci95": [
+            -0.078,
+            0.034
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.0175,
+          "ci95": [
+            -0.0687,
+            0.0299
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0217,
+          "ci95": [
+            -0.1022,
+            0.0562
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.0426,
+          "ci95": [
+            -0.15,
+            0.0638
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": 0.0103,
+          "ci95": [
+            -0.0209,
+            0.0441
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": 2983.84,
+          "ci95": [
+            2869.04,
+            3091.83
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": 14030.95,
+          "ci95": [
+            12181.66,
+            16039.24
+          ],
+          "iterations": 2000
+        }
+      },
+      "governed_minus_baseline": {
+        "f1": {
+          "delta": -0.0198,
+          "ci95": [
+            -0.0772,
+            0.033
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.0056,
+          "ci95": [
+            -0.0579,
+            0.0454
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.0435,
+          "ci95": [
+            -0.1101,
+            0.023
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.0638,
+          "ci95": [
+            -0.1667,
+            0.0238
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.0727,
+          "ci95": [
+            -0.114,
+            -0.0356
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -234.5,
+          "ci95": [
+            -277.53,
+            -186.93
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -3434.53,
+          "ci95": [
+            -5267.36,
+            -1611.12
+          ],
+          "iterations": 2000
+        }
+      }
+    },
+    "recent_2024": {
+      "governed_minus_naive": {
+        "f1": {
+          "delta": -0.1647,
+          "ci95": [
+            -0.4305,
+            0.0238
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.3143,
+          "ci95": [
+            -1.0,
+            0.1
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.1,
+          "ci95": [
+            -0.3334,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": -0.0625,
+          "ci95": [
+            -0.2,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -2730.32,
+          "ci95": [
+            -3351.74,
+            -2088.69
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -10958.84,
+          "ci95": [
+            -22274.76,
+            925.32
+          ],
+          "iterations": 2000
+        }
+      },
+      "naive_minus_baseline": {
+        "f1": {
+          "delta": 0.0667,
+          "ci95": [
+            -0.2518,
+            0.3778
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": 0.225,
+          "ci95": [
+            -0.2667,
+            0.8571
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": 0.0,
+          "ci95": [
+            -0.2857,
+            0.3333
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.1667,
+          "ci95": [
+            -0.5,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": 0.0625,
+          "ci95": [
+            0.0,
+            0.2
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": 2600.62,
+          "ci95": [
+            2039.15,
+            3090.11
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": 9071.56,
+          "ci95": [
+            -3009.96,
+            20061.04
+          ],
+          "iterations": 2000
+        }
+      },
+      "governed_minus_baseline": {
+        "f1": {
+          "delta": -0.098,
+          "ci95": [
+            -0.3333,
+            0.0357
+          ],
+          "iterations": 2000
+        },
+        "precision": {
+          "delta": -0.0893,
+          "ci95": [
+            -0.5,
+            0.2
+          ],
+          "iterations": 2000
+        },
+        "recall": {
+          "delta": -0.1,
+          "ci95": [
+            -0.3334,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "high_risk_recall": {
+          "delta": -0.1667,
+          "ci95": [
+            -0.5,
+            0.0
+          ],
+          "iterations": 2000
+        },
+        "clean_accuracy": {
+          "delta": 0.0,
+          "ci95": [
+            -0.1818,
+            0.1765
+          ],
+          "iterations": 2000
+        },
+        "average_instruction_tokens_per_call": {
+          "delta": -129.7,
+          "ci95": [
+            -297.09,
+            -13.75
+          ],
+          "iterations": 2000
+        },
+        "average_total_tokens_per_pr": {
+          "delta": -1887.28,
+          "ci95": [
+            -4181.88,
+            -436.72
+          ],
+          "iterations": 2000
+        }
+      }
+    }
+  },
+  "holdout_by_scope": {
+    "all": {
+      "baseline": {
+        "f1": 0.3,
+        "precision": 0.2578,
+        "recall": 0.3587,
+        "high_risk_recall": 0.4681,
+        "clean_accuracy": 0.8028,
+        "average_instruction_tokens_per_call": 1195.52,
+        "average_total_tokens_per_pr": 27140.91
+      },
+      "naive": {
+        "f1": 0.2806,
+        "precision": 0.2403,
+        "recall": 0.337,
+        "high_risk_recall": 0.4255,
+        "clean_accuracy": 0.8131,
+        "average_instruction_tokens_per_call": 4179.36,
+        "average_total_tokens_per_pr": 41171.86
+      },
+      "governed": {
+        "f1": 0.2802,
+        "precision": 0.2522,
+        "recall": 0.3152,
+        "high_risk_recall": 0.4043,
+        "clean_accuracy": 0.7301,
+        "average_instruction_tokens_per_call": 961.02,
+        "average_total_tokens_per_pr": 23706.38
+      }
+    },
+    "recent_2024": {
+      "baseline": {
+        "f1": 0.3333,
+        "precision": 0.375,
+        "recall": 0.3,
+        "high_risk_recall": 0.5,
+        "clean_accuracy": 0.8125,
+        "average_instruction_tokens_per_call": 1006.82,
+        "average_total_tokens_per_pr": 18582.44
+      },
+      "naive": {
+        "f1": 0.4,
+        "precision": 0.6,
+        "recall": 0.3,
+        "high_risk_recall": 0.3333,
+        "clean_accuracy": 0.875,
+        "average_instruction_tokens_per_call": 3607.44,
+        "average_total_tokens_per_pr": 27654.0
+      },
+      "governed": {
+        "f1": 0.2353,
+        "precision": 0.2857,
+        "recall": 0.2,
+        "high_risk_recall": 0.3333,
+        "clean_accuracy": 0.8125,
+        "average_instruction_tokens_per_call": 877.12,
+        "average_total_tokens_per_pr": 16695.16
+      }
+    }
+  },
+  "finished_at": "2026-10-13T14:39:11"
+}

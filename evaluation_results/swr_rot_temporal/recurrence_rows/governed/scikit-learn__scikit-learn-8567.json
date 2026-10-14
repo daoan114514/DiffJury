@@ -1,0 +1,94 @@
+{
+  "id": "scikit-learn__scikit-learn-8567",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "fitted-state-consistency",
+      "severity": "medium",
+      "title": "Saved hyperparameters and posterior covariance now describe different iterations",
+      "explanation": "The coefficients and newly saved alpha_/lambda_ use the pre-update hyperparameters, but the local alpha_ and lambda_ are subsequently updated and still used by the final covariance calculation. This happens on both convergence and iteration-limit exits. Consequently, sigma_ no longer equals the posterior covariance implied by the published hyperparameters. For a concrete boundary case, fit BayesianRidge(n_iter=1, fit_intercept=False, alpha_1=0, alpha_2=0, lambda_1=0, lambda_2=0) on X=[[-1], [1]], y=[-1, 1]. To floating-point precision, the initial precisions are both 1, coef_ is 2/3, and the saved precisions remain 1. The update produces alpha=6 and lambda=3/2, so the final covariance is approximately 2/27 rather than the 1/3 required by the saved precisions. Predictive uncertainty therefore mixes a covariance from the updated precisions with a noise precision from the previous iteration. At X=[[1]], its standard deviation is approximately 1.036 rather than 1.155 under the published model parameters. The added test only checks Ridge intercept equivalence; it does not check coefficients, covariance, or predictive uncertainty and therefore misses this inconsistent fitted state. Enabling compute_score=True does not verify scores_: the supplied diff leaves their calculation unchanged and contains no score assertion, so no separate newly introduced score defect is established here.",
+      "path": "sklearn/linear_model/bayes.py",
+      "line": 206,
+      "evidence": "            self.alpha_ = alpha_\n            self.lambda_ = lambda_\n\n            # Update alpha and lambda\n            rmse_ = np.sum((y - np.dot(X, coef_)) ** 2)\n            gamma_ = (np.sum((alpha_ * eigen_vals_) /\n...\n        self.coef_ = coef_\n        sigma_ = np.dot(Vh.T,\n                        Vh / (eigen_vals_ + lambda_ / alpha_)[:, np.newaxis])",
+      "fix": "Use the preserved hyperparameters throughout the final covariance calculation, including its precision scaling. Alternatively, recompute the final coefficients and covariance from the updated hyperparameters before publishing all fitted attributes.",
+      "test": "Add the one-iteration scalar example and assert sigma_ equals inv(alpha_ * X.T @ X + lambda_ * I). Assert return_std=True agrees with sqrt(diag(X_test @ sigma_expected @ X_test.T) + 1 / alpha_), and check coef_ against Ridge(alpha=lambda_ / alpha_). Exercise both iteration-limit and convergence exits; retain the intercept assertion as an additional check.",
+      "confidence": 0.8699999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 206,
+          "symbol": "BayesianRidge.fit: preserve pre-update precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 209,
+          "symbol": "BayesianRidge.fit: update local precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 238,
+          "symbol": "BayesianRidge.fit: construct final covariance using updated locals"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

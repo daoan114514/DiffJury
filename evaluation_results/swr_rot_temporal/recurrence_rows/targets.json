@@ -1,0 +1,2561 @@
+{
+  "astropy__astropy-1312": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/wcs/tests/test_wcs.py",
+        "start_line": 25,
+        "end_line": 25,
+        "severity": "high",
+        "change_type": "F.3 Resource",
+        "category": "functional",
+        "description": "Reviewer `astrofrog` noted that a test was still failing despite the PR's attempt to make tests deterministic using a fixed random seed. He later explicitly suggested that the chosen seed itself might be the issue (\"maybe this is just a case of changing the random seed?\"). The author (`nden`) acknowledged this possibility (\"This was my thought too\") and proceeded to change the seed value. The subsequent test runs passed, confirming the original seed led to a problematic state for the test.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-1796": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/modeling/core.py",
+        "start_line": 1093,
+        "end_line": 1093,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "The reviewer (`pllim`) pointed out that the prototype implementation, while adding unit support for parameters and outputs, did not demonstrate or implement the necessary logic within the `eval` methods to handle inputs (`x`, `y`) provided as quantities, specifically converting them to be consistent with the units of the relevant model parameters (e.g., `x_0`) before performing calculations. The author (`nden`) acknowledged this omission (\"Yeah, do we need `input_units` as well?\") and later explicitly confirmed it was missing functionality that needed to be added (\"Yes, this will need to be added in order to be able to pass quantities as inputs.\").",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-187": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/setup_helpers.py",
+        "start_line": 123,
+        "end_line": 123,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `mdboom` reported that the documentation build output was placed in an incorrect nested directory (`docs/docs/_build/html`). Reviewer `embray` confirmed seeing the same behavior. The author (`eteq`) later acknowledged the issue, identified the cause as changing the directory within the subprocess (`os.chdir('docs')`) without properly handling relative paths, and provided a fix.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-228": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/setup_helpers.py",
+        "start_line": 319,
+        "end_line": 322,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer 'astrofrog' pointed out that the `format` string in the `IOError` message only had two placeholders (`{0}`, `{1}`) but was being passed three arguments (`cfn`, `pyxfn`, `ext.name`). In a subsequent comment, 'astrofrog' suggested how to correct the message to include the third argument. The author 'mdboom' acknowledged this as a \"Good catch\" and confirmed they fixed the message.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-2457": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/wcs/wcs.py",
+        "start_line": 1735,
+        "end_line": 1765,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "The reviewer (`embray`) pointed out that the implicit positional argument formatting (`{!r}`) used in the `printwcs` function is not compatible with Python versions prior to 2.7. This would cause the function to fail in those environments. The developer acknowledged this by pushing a commit specifically addressing this compatibility issue.",
+        "should_comment": true,
+        "matched_lines": 26
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-2775": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/wcs/tests/extension/setup.py",
+        "start_line": 14,
+        "end_line": 14,
+        "severity": "high",
+        "change_type": "F.3 Resource",
+        "category": "functional",
+        "description": "Reviewer `astrofrog` identified that the change introduced in commit `e95589ab` (switching to `astropy_helpers`) would cause the test setup script to fail when run via the standard `astropy.test()` command, because `astropy_helpers` is not installed or available in the path in that execution context. The author `mdboom` acknowledged this limitation (\"Oh -- I see.\") and discussed alternative solutions, confirming the validity of the reviewer's finding.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-3096": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/tests/pytest_plugins.py",
+        "start_line": 419,
+        "end_line": 424,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `embray` pointed out that checking `importlib.__dict__` for `'machinery'` is unreliable, as the submodule might not be present in the dict even if available, unless explicitly imported. They suggested a more robust `try...except ImportError` pattern for importing `importlib.machinery`. Reviewer `astrofrog` agreed (+1), and the author `sargas` later implemented this suggested pattern, acknowledging the correction.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-417": {
+    "false_positive_recurrence": [
+      {
+        "path": "astropy/utils/tests/test_console.py",
+        "start_line": 11,
+        "end_line": 11,
+        "rule_id": "undefined-test-helper",
+        "cwe": "CWE-248"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "astropy/utils/console.py",
+        "start_line": 55,
+        "end_line": 55,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `mdboom` pointed out that the test function `test_color_text` was still calling the old public function name `color_text` after it had been renamed to the private `_color_text` in commit `c5cbc7cbbc4ed2b2c592d286e7aeef6f665385f3`. Reviewer `astrofrog` also commented on this discrepancy, wondering why the build wasn't failing. The author (`adrn`) later acknowledged and fixed this specific issue as requested.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-444": {
+    "false_positive_recurrence": [
+      {
+        "path": "astropy/wcs/wcs.py",
+        "start_line": 848,
+        "end_line": 848,
+        "rule_id": "fixed-dimensional-coordinate-dispatch",
+        "cwe": "CWE-20"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "astropy__astropy-4736": {
+    "false_positive_recurrence": [
+      {
+        "path": "astropy/coordinates/funcs.py",
+        "start_line": 213,
+        "end_line": 213,
+        "rule_id": "invalid_erfa_ab_parameters",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "astropy/coordinates/funcs.py",
+        "start_line": 174,
+        "end_line": 227,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "The author initially noted significant inaccuracies (`sharadmirani`, 2016-03-28T12:00:28+00:00). Reviewers `mhvk` and `eteq` confirmed that the chosen approach (using `erfa.plan94` for the EMB and subtracting Earth's position) is fundamentally unsuitable for calculating the Moon's position accurately due to the magnification of errors and potential numerical issues (\"machine-level errors in the subtraction\"). They identified this as a significant flaw in the implementation for `get_moon` and suggested the approach was better suited for planets (`get_planet`). This confirmed the functional defect discovered by the reviewers.",
+        "should_comment": true,
+        "matched_lines": 32
+      }
+    ]
+  },
+  "astropy__astropy-4979": {
+    "false_positive_recurrence": [
+      {
+        "path": "astropy/coordinates/funcs.py",
+        "start_line": 162,
+        "end_line": 162,
+        "rule_id": "array-shape-regression",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "astropy__astropy-5446": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "docs/development/testguide.rst",
+        "start_line": 18,
+        "end_line": 18,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `pllim` submitted a review requesting changes, explicitly stating that a Sphinx error `Unknown target name: \"pytest\"` needed fixing for the documentation to compile. The author acknowledged this shortly after (\"My find-and-replace missed a spot. Should be fixed now!\") and pushed a fix.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-5494": {
+    "false_positive_recurrence": [
+      {
+        "path": "astropy/wcs/wcs.py",
+        "start_line": 2664,
+        "end_line": 2664,
+        "rule_id": "empty-ds9-coordinate-directive",
+        "cwe": "CWE-754"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "astropy/wcs/wcs.py",
+        "start_line": 2649,
+        "end_line": 2667,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "The reviewer (`nden`) pointed out that using `wcs.radesys` directly might lead to issues if it's an empty string or an invalid value for the region file format, suggesting adding a check (warning or exception). The author (`saimn`) agreed and stated they would add a check and raise an error if the value is unsupported.",
+        "should_comment": true,
+        "matched_lines": 13
+      }
+    ]
+  },
+  "astropy__astropy-5868": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/units/core.py",
+        "start_line": 1651,
+        "end_line": 1651,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (`mhvk`) pointed out that the introduced code failed to return the created `unit` when it was `registered` but not initially found in the local registry. The function would enable it but then implicitly return `None`. The reviewer suggested the fix (remove the `else` and always return the `unit` after potential registration), which was implemented in a subsequent commit by the reviewer themselves. A later comment by the reviewer confirmed this fix addressed an issue where loading pickled registered units would fail.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "astropy__astropy-6422": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/utils/tests/test_decorators.py",
+        "start_line": 292,
+        "end_line": 292,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer pointed out this second instance of the same hardcoded path issue identified in Change-0, referencing their previous comment about using `os.path.join`. The author acknowledged the general path separator issue later and fixed both instances.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": [
+      {
+        "path": "astropy/utils/tests/test_decorators.py",
+        "start_line": 292,
+        "end_line": 292,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer suggested using `os.path.join` for the hardcoded path string `utils/tests/test_decorators.py`. This implicitly pointed out the platform-dependency issue (using '/'). The author later acknowledged the problem (\"Oh yes indeed, I forgot about Windows path separator :(\") and implemented a fix.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ]
+  },
+  "astropy__astropy-692": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "astropy/units/equivalencies.py",
+        "start_line": 44,
+        "end_line": 47,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "Reviewer `eteq` pointed out that while `spectral_density` could handle energy units (`keV`) in its *argument*, it failed when trying to convert *to* a unit with an energy denominator (`erg/s/cm^2/keV`). This highlighted a missing piece of functionality required for X-ray astronomy units. Reviewer `pllim` later confirmed (2014-04-07T18:24:25) that this unit combination was indeed undefined within the existing `spectral_density` implementation and suggested expanding it.",
+        "should_comment": true,
+        "matched_lines": 4
+      },
+      {
+        "path": "astropy/units/equivalencies.py",
+        "start_line": 44,
+        "end_line": 47,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "Reviewer `eteq` questioned whether the `spectral_density` equivalency should work for units beyond the explicitly defined flux/luminosity densities (e.g., for integrated energy per spectral bin). This pointed out a limitation in the implementation's generality, suggesting it could be broadened to handle any compatible numerator unit while converting the spectral denominator (e.g., `/Hz` to `/AA`). The discussion confirmed this generalization was desirable but not implemented.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-10031": {
+    "false_positive_recurrence": [
+      {
+        "path": "lib/matplotlib/legend.py",
+        "start_line": 1360,
+        "end_line": 1360,
+        "rule_id": "legend-array-color-conversion",
+        "cwe": "CWE-754"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-128": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/backends/backend_gdk.py",
+        "start_line": 231,
+        "end_line": 232,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "Reviewer `efiring` questioned why the boundary check added in the first commit to `_draw_rotated_text` was not also added to the `draw_text` function, suggesting an inconsistency or potential omission in the fix. The author (`mdboom`) acknowledged this in a later comment (\"@efiring: Good point.\") and proceeded to add the check.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-1294": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/mpl_toolkits/mplot3d/axes3d.py",
+        "start_line": 1940,
+        "end_line": 1944,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `pelson` pointed out that the logic `zs = np.array(zs[0] * xs.size)` was incorrect for broadcasting a single z-value; it multiplied the value by the size instead of replicating it. Other reviewers (`WeatherGod`, `dmcdougall`) agreed it was a \"good catch\". The author (`jgehrcke`) acknowledged the mistake (\"Right, should've also looked closer\") and discussed the suggested alternatives (`tile`, `broadcast_arrays`, `ones`) before implementing one.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-1477": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/delaunay/_delaunay.cpp",
+        "start_line": 292,
+        "end_line": 293,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `WeatherGod` questioned the logic introduced to handle division by zero when calculating `dx` and `dy`. The original fix checked if `x1 == x0` (or `y1 == y0`). `WeatherGod` suggested checking `xsteps == 1` (or `ysteps == 1`) instead, as this is the condition that directly causes division by zero (`xsteps - 1`). Reviewer `ianthomas23` agreed. The developer (`AmitAronovitch`) discussed the subtle semantic differences between the two checks but ultimately agreed that checking `xsteps == 1` was reasonable and potentially better, then implemented the change.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-1710": {
+    "false_positive_recurrence": [
+      {
+        "path": "src/ft2font.cpp",
+        "start_line": 1624,
+        "end_line": 1624,
+        "rule_id": "invalid-glyph-index-fallback",
+        "cwe": "CWE-20"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-1818": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "doc/users/license.rst",
+        "start_line": 20,
+        "end_line": 31,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "Reviewer `mdboom` raised significant legal concerns about the fundamental change of replacing John D. Hunter (\"JDH\") with Michael Droettboom (\"MDB\", later corrected to \"MGD\") as the licensor. He questioned the validity of this change (\"usurping\") given that contributions were made under the agreement with JDH and mentioned the need for legal consultation. The author (`pelson`) acknowledged the complexity and suggested pausing the PR. Later comments (e.g., `mdboom` on 2013-06-19T11:16:29) confirmed the need for a different approach (\"2000 - 2012 that the license is with John Hunter, and 2012 - 2013 present, with 'The Matplotlib Team'\"). The PR was eventually closed in favor of PR #2195, indicating this major issue was not resolved within this PR.",
+        "should_comment": true,
+        "matched_lines": 5
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-1874": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "setupext.py",
+        "start_line": 80,
+        "end_line": 80,
+        "severity": "high",
+        "change_type": "F.3 Resource",
+        "category": "functional",
+        "description": "Reviewer `pelson` pointed out that splitting the `basedirlist` string from `setup.cfg` by comma might leave leading/trailing whitespace if users format the list with spaces (e.g., `/usr, /usr/local`), suggesting the need to strip whitespace. The author (`mdboom`) acknowledged this (\"Indeed. Stripping would be a good idea.\").",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-2807": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "src/_macosx.m",
+        "start_line": 3782,
+        "end_line": 3787,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "The reviewer (`mdehoon`) noted that while the change was correct for `start_event_loop`, the `stop_event_loop` function takes no arguments and therefore should use the `METH_NOARGS` flag instead of `METH_KEYWORDS | METH_VARARGS` which was introduced in the initial commit. The author (`cimarronm`) acknowledged this was correct and pushed a fix.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-3188": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/tri/triinterpolate.py",
+        "start_line": 213,
+        "end_line": 213,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `ianthomas23`, building on analysis by `WeatherGod`, identified that the `.ravel()` added in commit `b163b1ed` was not the correct place for the fix. While it addressed the numpy 1.9 warning/error for the specific case (`dzdx`/`dzdy`), it was applied too broadly within `_interpolate_multikeys` and could potentially affect other code paths incorrectly. The reviewer proposed removing this `.ravel()` and instead applying a more targeted fix within `_interpolate_single_key` where the problematic array shape originated. The author (`tacaswell`) agreed by asking the reviewer to submit the fix.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-3752": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/__init__.py",
+        "start_line": 1253,
+        "end_line": 1259,
+        "severity": "high",
+        "change_type": "F.3 Resource",
+        "category": "functional",
+        "description": "The reviewer (`WeatherGod`) questioned whether simply updating `rcParams` with the old values (`_rcparams`) would correctly reset the state if new keys were added before the exception occurred (e.g., `test.blah` in the test case). The author (`astrofrog`) acknowledged this (\"ah yes, good catch\") and implemented a fix.",
+        "should_comment": true,
+        "matched_lines": 6
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-3985": {
+    "false_positive_recurrence": [
+      {
+        "path": "lib/matplotlib/widgets.py",
+        "start_line": 734,
+        "end_line": 734,
+        "rule_id": "invalid-widget-index-validation",
+        "cwe": "CWE-20"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-416": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "doc/_templates/indexsidebar.html",
+        "start_line": 8,
+        "end_line": 8,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `WeatherGod` pointed out that while the text was updated to mention version 1.1.0, the associated download hyperlink still pointed to the location for version 1.0.1. The author (`efiring`) subsequently acknowledged this in a comment referencing the fixing commit.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-4441": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "doc/mpl_toolkits/index.rst",
+        "start_line": 191,
+        "end_line": 191,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "The reviewer (`jenshnielsen`) pointed out that using an external URL for the image caused the Sphinx documentation build to fail due to strict mode settings. They suggested using a local copy of the image instead. The author (`oselivanov`) acknowledged and implemented the suggested fix.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-4714": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/axes/_axes.py",
+        "start_line": 4345,
+        "end_line": 4357,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `tacaswell` pointed out that the new keyword argument `start_points` was added before existing keyword arguments (`transform`, `zorder`) in the function signatures for `streamplot` across multiple files. This breaks backward compatibility if users were previously relying on the positional order of those arguments. The developer implicitly acknowledged this by fixing the order in the subsequent commit.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-4824": {
+    "false_positive_recurrence": [
+      {
+        "path": "lib/matplotlib/colors.py",
+        "start_line": 1277,
+        "end_line": 1277,
+        "rule_id": "input-ownership",
+        "cwe": "CWE-669"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/colors.py",
+        "start_line": 1285,
+        "end_line": 1288,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "The reviewer (WeatherGod) pointed out that checking `not mask` would fail for array masks (non-trivial masked arrays), only working for scalar `False` masks. The author (fmaussion) acknowledged this (\"Correct, masked arrays have not been tested yet...\") and subsequent discussion (with efiring) covered how best to handle masked arrays and NaNs, leading to the use of `masked_invalid` and eventually `self.process_value`.",
+        "should_comment": true,
+        "matched_lines": 3
+      },
+      {
+        "path": "lib/matplotlib/colors.py",
+        "start_line": 1285,
+        "end_line": 1288,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (WeatherGod) questioned the accuracy of the comment `# ISSUE here: clip is ignored`, implying the `np.clip` call should handle it. The author (fmaussion) clarified that while `np.clip` worked on `xx`, the subsequent line `iret[xx >= self.vmax] = self.Ncmap` unconditionally assigned the \"over\" value (`self.Ncmap`) to any value equal to or greater than `self.vmax`. This meant that even when `clip=True`, values equal to `self.vmax` were mapped to `self.Ncmap` instead of the highest valid color index (`self.Ncmap - 1`), making the clipping ineffective for the upper bound.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-5195": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/tests/test_backend_qt5.py",
+        "start_line": 106,
+        "end_line": 114,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `mdboom` suggested using `six.unichr` instead of the newly introduced `chr` for Python 2/3 compatibility, specifically pointing out potential encoding issues on Python 2. The author initially thought `chr` was acceptable assuming PyQt5 meant Python 3, but reviewer `jenshnielsen` confirmed PyQt5 also runs on Python 2.7, validating `mdboom`'s concern. The author subsequently implemented the suggested change.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-5224": {
+    "false_positive_recurrence": [
+      {
+        "path": "lib/matplotlib/cbook.py",
+        "start_line": 1031,
+        "end_line": 1031,
+        "rule_id": "mkdirs-existing-relative-path",
+        "cwe": "CWE-754"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-5233": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/font_manager.py",
+        "start_line": 590,
+        "end_line": 590,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `tacaswell` pointed out that the syntax used for catching multiple exceptions (`except KeyError, RuntimeError:`) was valid in Python 2 but would cause a `SyntaxError` in Python 3, which requires parentheses (`except (KeyError, RuntimeError):`). The author (`mdboom`) acknowledged this oversight with \"Doh!\".",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-5374": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": ".mailmap",
+        "start_line": 23,
+        "end_line": 23,
+        "severity": "high",
+        "change_type": "F.3 Resource",
+        "category": "functional",
+        "description": "The reviewer (jlutgen, one of the contributors whose entry was added/modified) pointed out that the email address used for them in the `.mailmap` file introduced by the PR was not their preferred one. They provided the correct preferred email address. The author acknowledged this by applying the correction in a subsequent commit.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-5432": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "src/_backend_agg.h",
+        "start_line": 791,
+        "end_line": 794,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `jenshnielsen` reported incorrect rendering (providing an image) and correctly identified the specific line change in commit `ce5fb1f` (an incorrect calculation for image indexing) as the cause. The author `mdboom` acknowledged this by pushing a fix and commenting \"Updated per @jenshnielsen\".",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-5515": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "src/_png.cpp",
+        "start_line": 331,
+        "end_line": 333,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "The reviewer (`WeatherGod`) pointed out that the code introduced in the first commit didn't handle the case where the number of bytes read (`bufflen`) was not equal to the number of bytes requested (`length`). The reviewer questioned if an error should be set in this scenario. The author (`mdboom`) acknowledged this as a \"Good point\" and agreed that an exception should be set, indicating a potential read past the end of the file.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-5591": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "doc/users/plotting/colormaps/lightness.py",
+        "start_line": 17,
+        "end_line": 17,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `jenshnielsen` pointed out that the newly introduced dependency `colorspacious` (used for documentation generation) needed to be added to the Travis CI configuration file (`.travis.yml`) to ensure the documentation build would succeed. The author `kthyng` asked for clarification on how to add it, and the reviewer provided the specific line change required.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-563": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "lib/matplotlib/sankey.py",
+        "start_line": 248,
+        "end_line": 250,
+        "severity": "high",
+        "change_type": "F.3 Resource",
+        "category": "functional",
+        "description": "Reviewer 'pelson' pointed out that while the `flows` argument's mutable default was fixed in the first commit (`4b9f77d`), the `orientations` argument still used a mutable default (`[0, 0]`). The PR author 'mdboom' acknowledged this oversight (\"Ah, so it is. Will fix this also.\").",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-5825": {
+    "false_positive_recurrence": [
+      {
+        "path": "doc/_templates/layout.html",
+        "start_line": 180,
+        "end_line": 180,
+        "rule_id": "documentation-relative-link",
+        "cwe": "CWE-706"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "doc/conf.py",
+        "start_line": 188,
+        "end_line": 191,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `mdboom` noticed that the standard sidebar content (specifically the search box, as confirmed later) was missing from the index page after the changes introduced in the PR. The author (`tacaswell`) acknowledged this with \"stand by\" and subsequently fixed the issue. The author later confirmed \"Restored the search box\".",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-7279": {
+    "false_positive_recurrence": [
+      {
+        "path": "lib/matplotlib/__init__.py",
+        "start_line": 1596,
+        "end_line": 1596,
+        "rule_id": "plugin-class-instance-mismatch",
+        "cwe": "CWE-843"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-7831": {
+    "false_positive_recurrence": [
+      {
+        "path": "examples/api/two_scales.py",
+        "start_line": 75,
+        "end_line": 75,
+        "rule_id": "plotting-axis-color-association",
+        "cwe": "CWE-665"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "matplotlib__matplotlib-7968": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "examples/pylab_examples/cohere_demo.py",
+        "start_line": 14,
+        "end_line": 21,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer QuLogic identified that the convolution calculation using `mode='same'` resulted in unexpected behavior (noise dying out prematurely). They explicitly stated \"something is wrong here\" and suggested an alternative calculation. The author acknowledged the issue and resolved it by removing the convolution step entirely.",
+        "should_comment": true,
+        "matched_lines": 5
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-10474": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/utils/estimator_checks.py",
+        "start_line": 228,
+        "end_line": 228,
+        "rule_id": "python-invalid-conditional-suite",
+        "cwe": "CWE-670"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-10615": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/utils/sparsefuncs_fast.pyx",
+        "start_line": 314,
+        "end_line": 314,
+        "rule_id": "incremental-statistics-equivalence",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-10852": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "examples/cluster/plot_inductive_learning.py",
+        "start_line": 32,
+        "end_line": 43,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer 'TomDLT' pointed out that the `if_delegate_has_method` decorator should delegate to the fitted estimator attribute `classifier_` (with an underscore), not the constructor parameter `classifier`. The author 'chkoar' acknowledged this (\"Done\").",
+        "should_comment": true,
+        "matched_lines": 10
+      },
+      {
+        "path": "examples/cluster/plot_inductive_learning.py",
+        "start_line": 39,
+        "end_line": 45,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer 'TomDLT' pointed out the same issue as in Change-1 for the `decision_function` method: the `if_delegate_has_method` decorator should delegate to `classifier_`. The author 'chkoar' acknowledged this (\"Done\").",
+        "should_comment": true,
+        "matched_lines": 6
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-11277": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/utils/tests/test_estimator_checks.py",
+        "start_line": 181,
+        "end_line": 190,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "The reviewer (`amueller`) pointed out that the new tests introduced in the first commit failed on Python 2.7, confirming the underlying issue the PR aimed to address (related to function introspection with the `@deprecated` decorator). The author (`markroth8`) acknowledged this (\"Aha! Oh, good, that means my tests work! Okay, now on to fix the issue...\") and proceeded to implement the fix.",
+        "should_comment": true,
+        "matched_lines": 6
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-11509": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/tests/test_init.py",
+        "start_line": 57,
+        "end_line": 57,
+        "rule_id": "test-failure-converted-to-skip",
+        "cwe": "CWE-755"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "sklearn/tests/test_init.py",
+        "start_line": 30,
+        "end_line": 59,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `amueller` pointed out that the newly added test relied on `pytest`, which was not a dependency in the target 0.19.X branch. The author `rth` confirmed this (\"Yes, working on it..\").",
+        "should_comment": true,
+        "matched_lines": 20
+      }
+    ]
+  },
+  "scikit-learn__scikit-learn-11534": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/feature_extraction/text.py",
+        "start_line": 1441,
+        "end_line": 1458,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `glemaitre` pointed out that the example within the `TfidfVectorizer` docstring incorrectly imported and used `CountVectorizer`. The author (`mepa`) acknowledged this (\"Fixed with [this commit]...\") and also confirmed the mix-up in a later comment (\"You're right, the examples for TfidfVectorizer and CountVectorizer are mixed. I'll fix.\").",
+        "should_comment": true,
+        "matched_lines": 11
+      },
+      {
+        "path": "sklearn/feature_extraction/text.py",
+        "start_line": 790,
+        "end_line": 808,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `glemaitre` pointed out that the example within the `CountVectorizer` docstring incorrectly imported and used `TfidfVectorizer`. The author (`mepa`) acknowledged this (\"Fixed with [this commit]...\") and also confirmed the mix-up in a later comment (\"You're right, the examples for TfidfVectorizer and CountVectorizer are mixed. I'll fix.\").",
+        "should_comment": true,
+        "matched_lines": 13
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-1201": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/neighbors/classification.py",
+        "start_line": 317,
+        "end_line": 317,
+        "rule_id": "outlier-sentinel-used-as-class-index",
+        "cwe": "CWE-129"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-12033": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/preprocessing/_encoders.py",
+        "start_line": 54,
+        "end_line": 56,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "Reviewer 'jnothman' pointed out that the newly added NaN check for object dtype should not execute if the global `assume_all_finite` configuration is set to True. The author ('jorisvandenbossche') acknowledged this in a later comment (\"Added a check for that.\") and implemented the suggested conditional logic.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-12409": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/metrics/cluster/unsupervised.py",
+        "start_line": 337,
+        "end_line": 340,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "The reviewer questioned the validity of introducing a `pairwise_distances_func` parameter (intended to allow testing the diagonal fix) because the function inherently calculates centroids using `cluster_k.mean(axis=0)`. This method assumes a Euclidean space (or similar where arithmetic mean is meaningful), which is inconsistent with allowing arbitrary distance functions/metrics via the new parameter. The discussion confirmed this fundamental incompatibility, highlighting that the PR's approach to enabling the test/fix introduced a significant design flaw. The issue was deemed serious enough that the PR was ultimately closed without merging.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-12718": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "examples/compose/plot_transformed_target.py",
+        "start_line": 57,
+        "end_line": 63,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `TomDLT` pointed out that the initial change (replacing `normed` with `density`) would break the examples on older matplotlib versions. The author acknowledged this. Subsequent discussion involving reviewers `qinhanmin2014` and `rth` confirmed that the minimum required matplotlib version (1.4 according to the README) did not support the `density` parameter (introduced in 2.1). It was decided not to raise the minimum version requirement for this patch release. Reviewer `qinhanmin2014` suggested using version detection to maintain compatibility, which the author agreed to implement.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-12915": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/calibration.py",
+        "start_line": 447,
+        "end_line": 447,
+        "rule_id": "correctness-review",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-13251": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/utils/estimator_checks.py",
+        "start_line": 1534,
+        "end_line": 1534,
+        "rule_id": "outlier-contamination-invalid-tie-acceptance",
+        "cwe": "CWE-20"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-13468": {
+    "false_positive_recurrence": [
+      {
+        "path": "doc/about.rst",
+        "start_line": 51,
+        "end_line": 51,
+        "rule_id": "CONTRIBUTOR-LIST-CONSISTENCY",
+        "cwe": "CWE-840"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-14465": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "build_tools/circle/list_versions.py",
+        "start_line": 53,
+        "end_line": 53,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `jnothman` asked the author to confirm if the newly introduced regex (in commit 90b932c7) worked for all relevant directories. This prompt led the author to test the regex. The testing revealed that the initial regex `[\\w\\.]+` was insufficient as it did not account for hyphens in version names (like `0.15-git`). The author subsequently fixed the regex in commit 1abc74c2 before providing the confirmation requested by the reviewer, demonstrating that the reviewer's query led to the discovery and correction of the logical flaw in the regex.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-14817": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/datasets/base.py",
+        "start_line": 98,
+        "end_line": 98,
+        "rule_id": "documentation-role-syntax",
+        "cwe": "CWE-710"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-1496": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/preprocessing.py",
+        "start_line": 194,
+        "end_line": 194,
+        "rule_id": "minmax-zero-variance-feature-range",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-15098": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/neighbors/quad_tree.pyx",
+        "start_line": 14,
+        "end_line": 14,
+        "rule_id": "cython-runtime-import",
+        "cwe": "CWE-758"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "sklearn/neighbors/quad_tree.pyx",
+        "start_line": 278,
+        "end_line": 278,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `amueller` questioned the change from `fabsf` (float absolute value) to `fabs` (double absolute value), implying a potential type mismatch or incorrect function usage. The author `rth` acknowledged this as a mistake (\"My mistake.\") and explained that `fabsf` wasn't available in `libc.math` as expected, leading to the incorrect change. The author then reverted this specific change.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-15423": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "examples/tree/plot_cost_complexity_pruning.py",
+        "start_line": 17,
+        "end_line": 17,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "The developer's initial commit `280c3cdce1` fixed one syntax error (`ref`: -> :ref:`) but introduced another subtle error by keeping the leading underscore (`_minimal...`) within the `:ref:` role. The reviewer (`thomasjpfan`) identified this remaining syntax issue (the leading underscore, which is incorrect for Sphinx references unless it's an internal target label) and provided a direct suggestion for the correct syntax (`minimal...`). The developer implemented this suggestion in a later commit and acknowledged the edits.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-15847": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": ".binder/requirements.txt",
+        "start_line": 5,
+        "end_line": 5,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `qinhanmin2014` raised concerns about potential incompatibilities if dependencies other than scikit-learn were not pinned, as their versions could float and potentially break compatibility with the installed scikit-learn version. The author (`lesteve`) acknowledged this implicitly in a later comment explaining the fixing commit: \"I did set the dependencies version explicitly.\"",
+        "should_comment": true,
+        "matched_lines": 1
+      },
+      {
+        "path": ".binder/requirements.txt",
+        "start_line": 5,
+        "end_line": 5,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "The author initially raised the potential issue of using `0.22.*` possibly leading to an older version in Binder temporarily. Reviewer `jnothman` discussed this risk and suggested manually updating the version as one mitigation strategy. The author later explicitly stated they would revert to setting the version explicitly (\"I think it is probably simpler to explicitly set the scikit-learn version...\").",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-16269": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "azure-pipelines.yml",
+        "start_line": 138,
+        "end_line": 142,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "The reviewer (`glemaitre`) pointed out that the initial approach of enabling doctests on Windows CI (introduced starting in commit 198133b and subsequent commits) would likely lead to failures due to known numpy array representation inconsistencies across platforms. The reviewer suggested changing the approach to explicitly skip these tests on Windows by adding a condition in `conftest.py`. The author acknowledged this (by linking the relevant numpy issue) and implemented the reviewer's suggested approach.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-16841": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/decomposition/_pca.py",
+        "start_line": 79,
+        "end_line": 79,
+        "rule_id": "zero-residual-likelihood",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "sklearn/decomposition/_pca.py",
+        "start_line": 59,
+        "end_line": 63,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (`lschwetlick`) provided a specific code example using a rank-1 matrix where the `_assess_dimension` function, modified in this PR, produced a `nan` value. The reviewer correctly diagnosed the cause: when all eigenvalues from `rank` onwards are zero, the calculated variable `v` becomes zero, and the subsequent calculation `-np.log(v)` results in `nan`. The PR author (`NicolasHug`) acknowledged this edge case (\"unlikely case I think\") and proceeded to fix it.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ]
+  },
+  "scikit-learn__scikit-learn-1712": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/tree/tree.py",
+        "start_line": 309,
+        "end_line": 310,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `larsmans` pointed out that the `isinstance(..., float)` check would fail for NumPy float types (like `np.float32`). He initially suggested checking for integers using `numbers.Integral`. Further discussion (`amueller` agreeing, `larsmans` refining his point about `numbers.Integral` potentially missing some NumPy integers like `np.int32`) led the author (`glouppe`) to implement a fix that explicitly checks for both standard Python and NumPy integer types before falling back to the float case.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-17552": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/ensemble/_forest.py",
+        "start_line": 951,
+        "end_line": 951,
+        "rule_id": "incorrect-max-features-documentation",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-18062": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/linear_model/_least_angle.py",
+        "start_line": 75,
+        "end_line": 76,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "The reviewer (`thomasjpfan`) pointed out that changing the accepted value for the `method` parameter from `'lar'` to `'lars'` is a breaking change for users and requires a deprecation cycle, which they deemed unnecessary for this specific change. A subsequent commit by another maintainer (`glemaitre`) reverted this specific change, confirming the reviewer's point was accepted.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-182": {
+    "false_positive_recurrence": [
+      {
+        "path": "scikits/learn/cross_val.py",
+        "start_line": 566,
+        "end_line": 566,
+        "rule_id": "bootstrap-repr-random-state",
+        "cwe": "CWE-704"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-18693": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "doc/conftest.py",
+        "start_line": 102,
+        "end_line": 103,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `amueller` pointed out that the wrong setup function (`setup_impute`) was being called for the `loading_other_datasets.rst` file. The author (`cmarmo`) immediately acknowledged the mistake (\"Argh , yes! Sorry!\"). This confirmed it was a functional defect introduced in the first commit.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-19669": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/datasets/tests/test_kddcup99.py",
+        "start_line": 75,
+        "end_line": 75,
+        "rule_id": "unescaped-error-message-regex",
+        "cwe": "CWE-20"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-20149": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/_min_dependencies.py",
+        "start_line": 30,
+        "end_line": 30,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `ogrisel` reported a CI failure related to pandas version conflicts after the author bumped the minimum pandas version to 0.25.0 in commit `39595d8d`. The author later (2021-05-28 14:55:24) confirmed the issue was likely due to pandas 0.25.0 requiring numpy >= 1.14.6, which conflicted with the existing minimum numpy requirement (1.14.5) used in the CI environment.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-20889": {
+    "false_positive_recurrence": [
+      {
+        "path": "doc/whats_new/v1.0.rst",
+        "start_line": 628,
+        "end_line": 628,
+        "rule_id": "documentation.incorrect-metric-definition",
+        "cwe": "CWE-1059"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "doc/whats_new/v1.0.rst",
+        "start_line": 627,
+        "end_line": 629,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "The reviewer (glemaitre) pointed out that the PR, as initially submitted (with only the changelog update), was missing the actual code implementation (`_classification.py`) and tests for the new metrics. The author later acknowledged this and added the missing files in a subsequent commit.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ]
+  },
+  "scikit-learn__scikit-learn-259": {
+    "false_positive_recurrence": [
+      {
+        "path": "scikits/learn/linear_model/tests/test_logistic.py",
+        "start_line": 74,
+        "end_line": 74,
+        "rule_id": "nan-regression-test-wrong-input",
+        "cwe": "CWE-570"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "scikits/learn/svm/base.py",
+        "start_line": 376,
+        "end_line": 376,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `mblondel` pointed out that replacing `np.asanyarray` with the new `safe_asanyarray` (which handled sparse matrices differently) in `BaseLibLinear.fit` would incorrectly allow sparse matrices as input to this dense implementation. The author `larsmans` acknowledged this. `mblondel` argued against implicit densification and suggested raising an exception. After some discussion about implementation details, the author agreed (\"Yes, alright.\") to add an explicit check to disallow sparse input.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-280": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "scikits/learn/linear_model/least_angle.py",
+        "start_line": 391,
+        "end_line": 395,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `agramfort` suggested that `Lars` should accept either `n_features` or `alpha`, but not both, implying the interaction logic introduced (where `n_features` forces `alpha=0`) was incorrect or undesirable. Although the premise that `Lars` should accept `alpha` was later retracted by the reviewer, the initial comment highlighted the problematic interaction logic introduced in the commit. The developer removed this logic in a subsequent commit after discussion and clarification.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-3030": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/linear_model/tests/test_least_angle.py",
+        "start_line": 378,
+        "end_line": 378,
+        "rule_id": "ineffective-regression-assertion",
+        "cwe": "CWE-754"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-3065": {
+    "false_positive_recurrence": [
+      {
+        "path": "doc/sphinxext/gen_rst.py",
+        "start_line": 77,
+        "end_line": 77,
+        "rule_id": "REL-EMPTY-EXCEPT",
+        "cwe": "CWE-703"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "doc/sphinxext/gen_rst.py",
+        "start_line": 399,
+        "end_line": 410,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (ogrisel) identified that using `str(doc)` in the `except` block (intended for Python 3) would produce an incorrect representation (like `b'...'`) if `doc` happened to be bytes. This is a logical error in handling Python 3 strings/bytes. The reviewer suggested a way to correctly decode bytes to a string before splitting. The developer fixed the logic, although using a version check rather than `hasattr`.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-3365": {
+    "false_positive_recurrence": [
+      {
+        "path": "doc/modules/linear_model.rst",
+        "start_line": 656,
+        "end_line": 656,
+        "rule_id": "logistic-objective-label-encoding",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-3925": {
+    "false_positive_recurrence": [
+      {
+        "path": "doc/sphinxext/gen_rst.py",
+        "start_line": 573,
+        "end_line": 573,
+        "rule_id": "unescaped-gallery-tooltip",
+        "cwe": "CWE-116"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-398": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/utils/_fast_math.h",
+        "start_line": 38,
+        "end_line": 38,
+        "rule_id": "entropy-concavity",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "sklearn/tree/_tree.pyx",
+        "start_line": 305,
+        "end_line": 312,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "Reviewer `pprett` performed benchmarks comparing the PR's `fast_log` approximation against the standard `log` for the Entropy criterion in decision trees. The benchmarks showed a significant increase in classification error (e.g., from 0.0393 to 0.1317 on Covertype, from 0.75 to 0.50 accuracy on Madelon) and no noticeable speed improvement on real datasets. The PR author (`GaelVaroquaux`) acknowledged these results, agreed the error increase was problematic, and stated this was a reason not to merge the PR. The discussion concluded that the approximation was too inaccurate for practical use in this context, despite the potential speed benefits suggested by synthetic benchmarks.",
+        "should_comment": true,
+        "matched_lines": 5
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-4584": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/pipeline.py",
+        "start_line": 148,
+        "end_line": 165,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "The reviewer (`ogrisel`) pointed out that the `fit_predict` method was unconditionally added to the Pipeline, even if the final estimator didn't support it. They suggested using the `@if_delegate_has_method` decorator to conditionally expose the method, preventing potential `AttributeError` exceptions. The developer implicitly acknowledged this by implementing the suggestion in a subsequent commit.",
+        "should_comment": true,
+        "matched_lines": 14
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-5195": {
+    "false_positive_recurrence": [
+      {
+        "path": "doc/themes/scikit-learn/layout.html",
+        "start_line": 83,
+        "end_line": 83,
+        "rule_id": "documentation-artifact-reference",
+        "cwe": "CWE-706"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-5954": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "examples/linear_model/plot_ols.py",
+        "start_line": 55,
+        "end_line": 55,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (`agramfort`) pointed out an inconsistency introduced by the first commit: the comment `# The mean square error` did not match the changed print statement `\"Residual sum of squares: ...\"` and the new calculation `np.sum(...)`. The reviewer suggested changing the print statement (and implicitly the calculation) back to reflect \"Mean squared error\" to align with the comment, and also noted a typo (\"square\" -> \"squared\") in the comment itself. The developer accepted this suggestion in the next commit.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-7214": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "doc/modules/model_evaluation.rst",
+        "start_line": 376,
+        "end_line": 380,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `agramfort` pointed out that the CI (Travis) was failing. This implied an issue within the PR's changes. The subsequent commit by the author explicitly fixed the output value in the code example introduced earlier in the PR, indicating that the CI failure was likely a doctest failure caused by this incorrect output value. The developer's commit message (\"update result\") and comment (\"updated the result in example\") confirm the fix addressed the example's output.",
+        "should_comment": true,
+        "matched_lines": 5
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-7415": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/tests/test_base.py",
+        "start_line": 343,
+        "end_line": 343,
+        "rule_id": "pickle-warning-estimator-name-mismatch",
+        "cwe": "CWE-697"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-7498": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "circle.yml",
+        "start_line": 16,
+        "end_line": 16,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `lesteve` pointed out that the syntax used for specifying multiple branches in `circle.yml` was invalid according to CircleCI's parser, providing the exact error message. In a subsequent comment, `lesteve` suggested an alternative regular expression format. This confirmed the issue was a syntax error preventing the CI configuration from working as intended.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-7897": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/metrics/classification.py",
+        "start_line": 1372,
+        "end_line": 1372,
+        "rule_id": "incorrect-average-description",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-8567": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/linear_model/bayes.py",
+        "start_line": 206,
+        "end_line": 206,
+        "rule_id": "fitted-state-consistency",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-889": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/datasets/samples_generator.py",
+        "start_line": 367,
+        "end_line": 367,
+        "rule_id": "positional-api-compatibility",
+        "cwe": "CWE-628"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-8983": {
+    "false_positive_recurrence": [
+      {
+        "path": "examples/model_selection/plot_underfitting_overfitting.py",
+        "start_line": 63,
+        "end_line": 63,
+        "rule_id": "REL-PYTHON-SYNTAX",
+        "cwe": "CWE-710"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "examples/neighbors/plot_classification.py",
+        "start_line": 51,
+        "end_line": 52,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "The reviewer (`amueller`) noticed that the `edgecolor` parameter was set to `'b'` (blue) and questioned if this was intended, suggesting that black (`'k'`) might have been the correct color, especially given other changes in the PR aimed at adding black edgecolors for clarity. The developer subsequently changed the color code to `'k'.",
+        "should_comment": true,
+        "matched_lines": 2
+      },
+      {
+        "path": "examples/neighbors/plot_lof.py",
+        "start_line": 47,
+        "end_line": 50,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Following the previous comment on another file, the reviewer (`amueller`) pointed out that `edgecolor='b'` (blue) was used again in this file, implying it should likely be black (`'k'`). The developer subsequently changed the color code to `'k'` in the fixing commit.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-9035": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sklearn/linear_model/coordinate_descent.py",
+        "start_line": 400,
+        "end_line": 402,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "Reviewer `amueller` questioned whether using a warning was appropriate for the case where `positive=True` is used with multi-output data (where it's ignored/unsupported). Reviewer `tguillemot` agreed it should be an error. The author (`bellet`) acknowledged this and agreed to change it to a `ValueError`.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "scikit-learn__scikit-learn-9051": {
+    "false_positive_recurrence": [
+      {
+        "path": "sklearn/utils/estimator_checks.py",
+        "start_line": 1116,
+        "end_line": 1116,
+        "rule_id": "classifier-decision-score-semantics",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-10499": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/utilities/lambdify.py",
+        "start_line": 150,
+        "end_line": 150,
+        "rule_id": "backend-input-compatibility",
+        "cwe": "CWE-704"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-10692": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/simplify/hyperexpand.py",
+        "start_line": 2309,
+        "end_line": 2309,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (asmeurer) pointed out that `int()` truncates (rounds towards zero) and questioned if this behavior was correct for `lu`, which was expected to be an integer but might be represented as a float due to calculations. Truncation could lead to an incorrect loop range if `lu` was slightly less than the true integer value (e.g., 4.999... becoming 4). The reviewer suggested using `round()` instead. The author (jksuom) acknowledged this potential issue, confirmed their misunderstanding of `int()`, and agreed that rounding was necessary, leading to the discussion of the correct way to round and convert to int (`int(round(lu))`).",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-11970": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/core/evalf.py",
+        "start_line": 821,
+        "end_line": 821,
+        "rule_id": "evalf-log-cancellation-recovery",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-12010": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/simplify/cse_main.py",
+        "start_line": 452,
+        "end_line": 452,
+        "rule_id": "single-pass-ignore-iterator",
+        "cwe": "CWE-664"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-12059": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": ".travis.yml",
+        "start_line": 306,
+        "end_line": 306,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `isuruf` pointed out that the PR, in its current state after the first commit, failed to ensure the `distutils` installation worked correctly, referencing a failing CI build. The author (`madan96`) acknowledged this. `isuruf` then directed the author to the solution discussed in the original issue, which involved installing `mpmath`. The author confirmed this resolved the issue.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-12175": {
+    "false_positive_recurrence": [
+      {
+        "path": "setup.py",
+        "start_line": 373,
+        "end_line": 373,
+        "rule_id": "python-version-compatibility",
+        "cwe": "CWE-758"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-12813": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/simplify/tests/test_hyperexpand.py",
+        "start_line": 733,
+        "end_line": 733,
+        "rule_id": "test-execution-undefined-skip",
+        "cwe": "CWE-665"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-13017": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/solvers/solveset.py",
+        "start_line": 1271,
+        "end_line": 1271,
+        "rule_id": "symbol-validation-checks-presence-not-value",
+        "cwe": "CWE-20"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-13091": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/core/numbers.py",
+        "start_line": 700,
+        "end_line": 723,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "The author first noted CI failures on Python 2 (2017-08-06T18:31:56), explaining that Python 2 handles `NotImplemented` differently for inequality comparisons compared to Python 3 (it doesn't raise `TypeError`). Reviewer `asmeurer` then commented, acknowledging the Python 2 behavioral difference and suggesting that the changes to inequality methods (returning `NotImplemented` instead of raising `TypeError`) introduced in commit `4edfd3c` might need to be reverted (\"leave the inequalities alone\") to maintain Python 2 compatibility. This confirmed the issue stemmed from the PR's changes interacting incorrectly with the Python 2 runtime environment.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-13131": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/simplify/powsimp.py",
+        "start_line": 166,
+        "end_line": 168,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "The reviewer (`asmeurer`) pointed out that the check `b.is_rational` might be too broad for the intended purpose, as it could be true for symbolic expressions, whereas the context likely required a concrete `Rational` number. The reviewer suggested using `b.is_Rational` instead for a more precise check. The author implicitly acknowledged this by implementing the suggested change in a subsequent commit.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-13196": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/printing/pycode.py",
+        "start_line": 232,
+        "end_line": 232,
+        "rule_id": "generated-expression-precedence",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-13327": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/polys/monomials.py",
+        "start_line": 51,
+        "end_line": 51,
+        "rule_id": "non-executable-doctest",
+        "cwe": "CWE-754"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "sympy/polys/monomials.py",
+        "start_line": 56,
+        "end_line": 63,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (`jksuom`) suggested that for `degree < 0`, the function should return an empty set instead of the current behavior (which would return `{S(1)}` due to the `degree < 1` check). The author (`dps7ud`) asked if changing this behavior was acceptable, and the reviewer confirmed it was, stating there are no monomials of degree < 0.",
+        "should_comment": true,
+        "matched_lines": 6
+      }
+    ]
+  },
+  "sympy__sympy-13622": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/matrices/expressions/matexpr.py",
+        "start_line": 437,
+        "end_line": 485,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "Reviewer `jksuom` pointed out a fundamental conceptual issue: the proposed representation `TensorProduct(I, I)` for matrix derivatives like `X.diff(X)` is likely incorrect or insufficient, especially when considering index permutations required for expressions like `X.T.diff(X)`. The author (`Upabjojr`) later explicitly confirmed this flaw (2017-11-22T20:25:23+00:00), acknowledging that `X.diff(X)` does not evaluate to `I⊗I` and that the `TensorProduct` approach as implemented is not viable for this purpose.",
+        "should_comment": true,
+        "matched_lines": 19
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-13839": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/physics/units/definitions.py",
+        "start_line": 69,
+        "end_line": 69,
+        "rule_id": "dimensional-consistency",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-1399": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/utilities/tests/test_iterables.py",
+        "start_line": 20,
+        "end_line": 20,
+        "rule_id": "invalid-traversal-test-expectations",
+        "cwe": "CWE-561"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-14145": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/sets/dispatchers.py",
+        "start_line": 244,
+        "end_line": 253,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (`jksuom`) pointed out that the logic for computing the image set of an intersection (`Intersection(imageset(f, arg) for arg in x.args)`) is incorrect for non-invertible functions, providing `f(x) = x**2` as a counterexample. The author (`Upabjojr`) acknowledged the issue (\"I see.\") and discussed potential solutions, ultimately agreeing with the reviewer's suggestion to leave the imageset unevaluated in such cases.",
+        "should_comment": true,
+        "matched_lines": 7
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-15174": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/core/function.py",
+        "start_line": 164,
+        "end_line": 164,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "The reviewer (`jksuom`) pointed out that the arguments `args` and `kwargs` were being passed directly to `super().__init__` instead of being unpacked with `*` and `**`. Although the reviewer noted it didn't cause a functional issue in this specific case because the parent classes didn't use these arguments, the author (`asmeurer`) acknowledged the mistake (\"Obviously it should be `*args, **kwargs`.\"). This confirmed it was an incorrect way to forward arguments.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-15175": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/polys/rootoftools.py",
+        "start_line": 727,
+        "end_line": 731,
+        "severity": "high",
+        "change_type": "F.3 Resource",
+        "category": "functional",
+        "description": "Reviewer 'asmeurer' reported a test failure in `test_eval_approx_relative` when tests were run twice, indicating a state-related issue caused by the newly introduced caching not being reset for this specific test. The author ('jksuom') acknowledged this by pushing a commit to fix it and commented, \"Clearing the cache seems to help also in test_eval_approx_relative.\"",
+        "should_comment": true,
+        "matched_lines": 5
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-15278": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/tensor/array/tests/test_immutable_ndim_array.py",
+        "start_line": 394,
+        "end_line": 394,
+        "rule_id": "regression-test-call-signature",
+        "cwe": "CWE-628"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-15607": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/plotting/plot.py",
+        "start_line": 535,
+        "end_line": 535,
+        "rule_id": "REL-LOG-COORDINATES",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "sympy/plotting/plot.py",
+        "start_line": 514,
+        "end_line": 517,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "Reviewer `moorepants` observed a visual artifact (\"two lines\") in the plot generated by the PR's initial code. The author (`jmig5776`) acknowledged this (\"I am trying to solve this two lines issue\") and subsequently worked on fixing the underlying logic in the `sample` function, confirming the fix later (\"Now it fixes the above problem of two lines also\").",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-15619": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/integrals/manualintegrate.py",
+        "start_line": 1453,
+        "end_line": 1453,
+        "rule_id": "complex-gaussian-comparison",
+        "cwe": "CWE-755"
+      }
+    ],
+    "missed_recovery": [
+      {
+        "path": "sympy/integrals/manualintegrate.py",
+        "start_line": 346,
+        "end_line": 382,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (`jksuom`) pointed out that the `manualintegrate` function produced different (though mathematically equivalent) results for the same input across multiple calls. The author (`normalhuman`) acknowledged this, attributing it to iterating over a dictionary (`patterns`) whose key order is not guaranteed in older Python versions, leading to rules being applied in a non-deterministic order.",
+        "should_comment": true,
+        "matched_lines": 34
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-15646": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/series/limitseq.py",
+        "start_line": 227,
+        "end_line": 227,
+        "rule_id": "unchecked-even-subsequence-result",
+        "cwe": "CWE-476"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-15683": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/__init__.py",
+        "start_line": 77,
+        "end_line": 77,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "The reviewer (`ethankward`) pointed out that adding `from .stats import *` would cause name conflicts (specifically mentioning 'E'). The author (`czgdp1807`) confirmed this, noting that tests failed, validating the reviewer's finding. The author then decided to revert the change and add a comment explaining the conflict instead of trying to resolve the underlying name clashes in the `stats` module.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-15849": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/physics/vector/printing.py",
+        "start_line": 153,
+        "end_line": 153,
+        "rule_id": "printer-settings-preservation",
+        "cwe": "CWE-440"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-15876": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/printing/latex.py",
+        "start_line": 2325,
+        "end_line": 2327,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "The reviewer (`smichr`) questioned changing the order of arguments in the function signature, expressing concern that it could break code relying on positional argument passing, even for keyword arguments. The author (`oscargus`) acknowledged the point, discussed the likelihood, and ultimately agreed to revert the change to maintain the \"historical\" order, citing compatibility concerns and checking other functions.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-16051": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/functions/special/error_functions.py",
+        "start_line": 1221,
+        "end_line": 1221,
+        "rule_id": "symbolic-positivity-truth-evaluation",
+        "cwe": "CWE-754"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-1620": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/functions/special/delta_functions.py",
+        "start_line": 110,
+        "end_line": 110,
+        "rule_id": "delta-root-reality",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-16221": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/printing/mathematica.py",
+        "start_line": 164,
+        "end_line": 164,
+        "rule_id": "printer-nested-doprint-return-contract",
+        "cwe": "CWE-755"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-16637": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/geometry/plane.py",
+        "start_line": 287,
+        "end_line": 287,
+        "rule_id": "parallel-bounded-entity-distance",
+        "cwe": "CWE-755"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-16762": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/core/add.py",
+        "start_line": 401,
+        "end_line": 401,
+        "rule_id": "incorrect-coefficient-normalization",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-1688": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/assumptions/ask.py",
+        "start_line": 295,
+        "end_line": 298,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer (`asmeurer`) noticed that although the `unit_triangular` predicate was added, no logical implications involving it were defined in the `known_facts`. The reviewer suggested the specific implication `unit_triangular -> triangular`. The author (`mrocklin`) confirmed the definition and added the suggested implication.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-17357": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/functions/elementary/trigonometric.py",
+        "start_line": 858,
+        "end_line": 858,
+        "rule_id": "rewrite-deep-contract",
+        "cwe": "CWE-628"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-1749": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/rules/rl.py",
+        "start_line": 156,
+        "end_line": 156,
+        "rule_id": "REL-EXPRESSION-IDENTITY",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-17548": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/abc.py",
+        "start_line": 95,
+        "end_line": 95,
+        "rule_id": "wildcard-import-namespace-leak",
+        "cwe": "CWE-665"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "sympy/abc.py",
+        "start_line": 95,
+        "end_line": 109,
+        "severity": "high",
+        "change_type": "F.3 Resource",
+        "category": "functional",
+        "description": "The reviewer (`oscarbenjamin`) noted that doctests importing from `abc` were broken after the changes. The author (`asmeurer`) acknowledged this implicitly with the comment \"Ah, that sort of thing is probably why this code was in a function.\", suggesting that moving the code to the module level introduced a side effect (variable leakage) that wasn't present when it was contained within a function scope. The subsequent fix addressed this leakage.",
+        "should_comment": true,
+        "matched_lines": 14
+      }
+    ]
+  },
+  "sympy__sympy-1756": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": ".travis.yml",
+        "start_line": 24,
+        "end_line": 24,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `asmeurer` warned that the unqualified `pip install gmpy` command introduced in the first commit might install `gmpy2` instead of the intended `gmpy` (version 1.x). The author `certik` acknowledged this risk (\"Yes, I got burned by that too.\") and agreed to fix it by specifying the version.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-17672": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/functions/special/tests/test_error_functions.py",
+        "start_line": 437,
+        "end_line": 437,
+        "rule_id": "incorrect-expint-series-expectation",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-18021": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/matrices/common.py",
+        "start_line": 1940,
+        "end_line": 1940,
+        "rule_id": "permutation-self-swap-compatibility",
+        "cwe": "CWE-755"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-18131": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/stats/crv_types.py",
+        "start_line": 3211,
+        "end_line": 3211,
+        "rule_id": "non-normalizable-parameter-accepted",
+        "cwe": "CWE-20"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-1989": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/parsing/sympy_parser.py",
+        "start_line": 41,
+        "end_line": 41,
+        "rule_id": "parser-callable-resolution-truth-evaluation",
+        "cwe": "CWE-754"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-2044": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/solvers/solvers.py",
+        "start_line": 1089,
+        "end_line": 1089,
+        "rule_id": "piecewise-candidate-condition-contamination",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-2078": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/printing/theanocode.py",
+        "start_line": 79,
+        "end_line": 79,
+        "rule_id": "function-printer-dispatch",
+        "cwe": "CWE-670"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "sympy/printing/tests/test_theanocode.py",
+        "start_line": 218,
+        "end_line": 223,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "The reviewer (`gilbertgede`) questioned whether the test should be calling `theano_code` on the applied function `f(t)` rather than the function definition `f`. The author (`mrocklin`) acknowledged this as a \"Good catch\" and confirmed it was fixed. This indicates the original test code was using the `theano_code` function incorrectly for the intended purpose of handling applied user-defined functions.",
+        "should_comment": true,
+        "matched_lines": 6
+      }
+    ]
+  },
+  "sympy__sympy-2178": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/solvers/solvers.py",
+        "start_line": 744,
+        "end_line": 744,
+        "rule_id": "correctness.arg-branch",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-2397": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/interactive/printing.py",
+        "start_line": 71,
+        "end_line": 71,
+        "rule_id": "REL-DIAGNOSTIC-EXCEPTION-MASKING",
+        "cwe": "CWE-755"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-2417": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": ".travis.yml",
+        "start_line": 64,
+        "end_line": 67,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `moorepants` pointed out that the `apt-add-repository`, `apt-get update`, and `apt-get install` commands likely required `sudo` to run correctly in the Travis environment. The author `asmeurer` acknowledged this was probable (\"Oh probably.\"). Reviewer `certik` also later confirmed, \"You should be using sudo.\" The issue was accepted as valid.",
+        "should_comment": true,
+        "matched_lines": 4
+      },
+      {
+        "path": ".travis.yml",
+        "start_line": 43,
+        "end_line": 44,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `certik` analyzed the Travis build failure log and identified that the Python version variable was incorrectly set to a string containing all possible Python versions. This indicated a problem with the Travis matrix configuration for the new Sage test entry, which lacked a specific `python:` key. The author `asmeurer` acknowledged the issue (\"I guess I either have to specify a dummy python...\").",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-2437": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/solvers/tests/test_solvers.py",
+        "start_line": 1173,
+        "end_line": 1178,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `certik` noted test failures after the initial commit. The author `asmeurer` acknowledged this implicitly by pushing a fix and commenting, \"Ah, I didn't realize that this was used in library code,\" confirming that the initial commit had incompletely applied the renaming, causing calls to `solve` with the old `minimal` keyword from other parts of the library (`simplify.py`), leading to the test failures.",
+        "should_comment": true,
+        "matched_lines": 4
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-245": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/physics/quantum/qexpr.py",
+        "start_line": 63,
+        "end_line": 63,
+        "severity": "medium",
+        "change_type": "F.1 Interface",
+        "category": "functional",
+        "description": "Reviewer `ellisonbg` pointed out that the changes made `QExpr.args` return a SymPy `Tuple` instead of the standard Python `tuple` required by SymPy's conventions for the `.args` attribute. After a clarification of a typo, `ellisonbg` confirmed the issue: \"QExpr.args is a Tuple now, not a tuple like it should be.\" The author subsequently fixed this.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-287": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/polys/tests/test_polytools.py",
+        "start_line": 2104,
+        "end_line": 2104,
+        "rule_id": "missing-test-assertion",
+        "cwe": "CWE-252"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-2987": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/utilities/lambdify.py",
+        "start_line": 286,
+        "end_line": 286,
+        "rule_id": "use-array-explicit-modules",
+        "cwe": "CWE-670"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": [
+      {
+        "path": "sympy/utilities/tests/test_lambdify.py",
+        "start_line": 262,
+        "end_line": 272,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "The reviewer (`moorepants`) correctly identified that the existing test only checked the *values* of the returned numpy objects, not their *types* (`numpy.matrix` vs `numpy.ndarray`). Since the core purpose of the `use_array` flag was to control the return type, this was a significant omission in the test. The author (`jcrist`) acknowledged this as a \"Good catch\" (2014-03-12T04:11:37+00:00) and implemented the check.",
+        "should_comment": true,
+        "matched_lines": 10
+      }
+    ]
+  },
+  "sympy__sympy-416": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/utilities/iterables.py",
+        "start_line": 749,
+        "end_line": 749,
+        "rule_id": "unhashable-multiset-cache-key",
+        "cwe": "CWE-754"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-491": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "doc/src/modules/galgebra/GA/GAsympy.txt",
+        "start_line": 41,
+        "end_line": 41,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `certik` pointed out a visual rendering error (red \"\\bm\") on the documentation page generated using the changes in this PR. This indicated that the `\\bm` command was not supported or correctly handled by the new MathJax setup. The author subsequently acknowledged this and pushed a commit to fix the issue.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-542": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/polys/polytools.py",
+        "start_line": 4867,
+        "end_line": 4867,
+        "rule_id": "empty-positive-factor-group",
+        "cwe": "CWE-755"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-7293": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/utilities/lambdify.py",
+        "start_line": 148,
+        "end_line": 148,
+        "severity": "high",
+        "change_type": "F.6 Larger Defects",
+        "category": "functional",
+        "description": "The reviewer (moorepants) identified that removing the `use_array` keyword argument and changing the default behavior of `lambdify` to return `numpy.array` instead of `numpy.matrix` constitutes a backward-incompatible change. This is because the `*` operator performs matrix multiplication for `numpy.matrix` but element-wise multiplication for `numpy.array`. This change, introduced in the first commit, would silently break existing user code relying on the previous behavior. The subsequent discussion involved multiple participants (moorepants, jcrist, asmeurer) debating how to handle this: whether to split the PR, introduce a deprecation cycle, add new keyword arguments, or simply merge it before a release. The issue was acknowledged as significant, but a resolution within this PR was not reached; the PR was eventually closed in favor of a new one (#7811) intended to handle the deprecation properly.",
+        "should_comment": true,
+        "matched_lines": 1
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-755": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/printing/latex.py",
+        "start_line": 499,
+        "end_line": 499,
+        "rule_id": "boolean-latex-compound-negation",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-7614": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/geometry/ellipse.py",
+        "start_line": 1190,
+        "end_line": 1218,
+        "severity": "medium",
+        "change_type": "F.4 Check",
+        "category": "functional",
+        "description": "The reviewer (`smichr`) explicitly pointed out that the newly added `evolute` method did not account for ellipse rotation, which would lead to incorrect results. They suggested either implementing the correct rotated equation or raising an error. The author (`debugger22`) agreed with the assessment (\"I agree with you.\"). Further discussion led to the decision to raise `NotImplementedError` for rotated ellipses for the time being, as general ellipse support was lacking.",
+        "should_comment": true,
+        "matched_lines": 22
+      }
+    ],
+    "correct_retention": [
+      {
+        "path": "sympy/geometry/ellipse.py",
+        "start_line": 1190,
+        "end_line": 1218,
+        "severity": "high",
+        "change_type": "F.2 Logic",
+        "category": "functional",
+        "description": "The reviewer's initial question about rotation prompted the author to re-examine the formula. The author then realized they had omitted the necessary center shift in the calculation, acknowledging it explicitly: \"@smichr it was wrong. I forgot to add center shift. Does this look good now?\". This confirms the defect was found as a direct result of the reviewer's query.",
+        "should_comment": true,
+        "matched_lines": 22
+      }
+    ]
+  },
+  "sympy__sympy-7731": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "bin/build_doc.sh",
+        "start_line": 44,
+        "end_line": 48,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `asmeurer` pointed out that the initial commit only redirected standard error (`2>/dev/null`), while standard output (`stdout`) was not redirected. They suggested redirecting both. The developer (`debugger22`) acknowledged this by asking how to achieve it, confirming it was a valid point to address.",
+        "should_comment": true,
+        "matched_lines": 2
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-7865": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/sets/tests/test_sets.py",
+        "start_line": 253,
+        "end_line": 253,
+        "rule_id": "test-missing-assertion",
+        "cwe": "CWE-252"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-8264": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/physics/quantum/operator.py",
+        "start_line": 397,
+        "end_line": 397,
+        "rule_id": "unsafe-symbolic-string-coercion",
+        "cwe": "CWE-95"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  },
+  "sympy__sympy-9653": {
+    "false_positive_recurrence": [],
+    "missed_recovery": [
+      {
+        "path": "sympy/physics/mechanics/tests/test_kane3.py",
+        "start_line": 258,
+        "end_line": 260,
+        "severity": "medium",
+        "change_type": "F.5 Support",
+        "category": "functional",
+        "description": "Reviewer `asmeurer` pointed out that the `warnings.filterwarnings('always')` call was likely incorrect for the intended purpose of suppressing a deprecation warning, suggesting `'ignore'` should be used instead. While the author didn't explicitly reply to this comment, the subsequent commit implemented this suggestion.",
+        "should_comment": true,
+        "matched_lines": 3
+      }
+    ],
+    "correct_retention": []
+  },
+  "sympy__sympy-9856": {
+    "false_positive_recurrence": [
+      {
+        "path": "sympy/functions/combinatorial/factorials.py",
+        "start_line": 512,
+        "end_line": 512,
+        "rule_id": "incorrect-factorial-rewrite-domain",
+        "cwe": "CWE-682"
+      }
+    ],
+    "missed_recovery": [],
+    "correct_retention": []
+  }
+}

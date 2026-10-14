@@ -1,0 +1,59 @@
+{
+  "id": "sympy__sympy-11748",
+  "findings": [
+    {
+      "rule_id": "symbolic-index-normalization",
+      "severity": "medium",
+      "title": "Column-symbolic indexing passes a list as the scalar row index",
+      "explanation": "For M = Matrix([[2, 3], [4, 5]]) and symbolic j, M[0, j] reaches the new column-symbolic branch after the row index has already been normalized to [0]. It therefore calls MatrixElement(M, [0], j). The constructor's sympify preserves the Python list, and n.is_Integer raises AttributeError instead of returning a symbolic element. SparseMatrix has the same ordering problem in its column-symbolic branch. By contrast, M[i, 0] and M[i, j] return through the earlier row-symbolic branch before normalization, so the new both-symbolic tests do not expose this asymmetry. Normalized slice/list row selections also reach the column-symbolic constructor with a nonscalar row argument. Direct MatrixElement(M, 0, j) does not have this normalization problem: it can sympify the matrix and resolve to 3 when j is replaced by 1. The new sparse assertion provides no independent protection because line 285 assigns msij = M[i, j], using the dense matrix rather than Ms.",
+      "path": "sympy/matrices/dense.py",
+      "line": 115,
+      "evidence": "sympy/matrices/dense.py:106-107: else: i = [i]\nsympy/matrices/dense.py:113-115: elif isinstance(j, Expr) and not j.is_number: ... return MatrixElement(self, i, j)\nsympy/matrices/sparse.py:159-161: elif isinstance(j, Expr) and not j.is_number: ... return MatrixElement(self, i, j)\nsympy/matrices/expressions/matexpr.py:345: n, m = map(sympify, (n, m))\nsympy/matrices/expressions/matexpr.py:347-348: if isinstance(name, (MatrixBase,)): if n.is_Integer and m.is_Integer:\nsympy/matrices/expressions/tests",
+      "fix": "Handle symbolic scalar indices before converting either coordinate into an extraction list, preserving the original scalar row for MatrixElement. Keep slice/sequence selections separate from scalar MatrixElement construction. Change the sparse test to construct msij from Ms.",
+      "test": "For both Matrix and SparseMatrix containing [[2, 3], [4, 5]], assert that M[0, j] is a MatrixElement and that substitutions j=0 and j=1 return 2 and 3. Also test M[i, 0], both-symbolic indexing, direct MatrixElement(M, 0, j), and substitution of an out-of-bounds concrete index, which should follow explicit matrix indexing's IndexError behavior. Ensure the sparse cases actually index the SparseMatrix instance.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/matrices/dense.py",
+          "line": 107,
+          "symbol": "DenseMatrix.__getitem__: scalar row normalization"
+        },
+        {
+          "path": "sympy/matrices/dense.py",
+          "line": 115,
+          "symbol": "DenseMatrix.__getitem__: column-symbolic return"
+        },
+        {
+          "path": "sympy/matrices/sparse.py",
+          "line": 161,
+          "symbol": "SparseMatrix.__getitem__: analogous column-symbolic return"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 348,
+          "symbol": "MatrixElement.__new__: n.is_Integer"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 22289,
+  "llm_calls": 5
+}

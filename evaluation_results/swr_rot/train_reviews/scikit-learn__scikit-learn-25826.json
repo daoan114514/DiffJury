@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-25826",
+  "findings": [
+    {
+      "rule_id": "incorrect-hierarchy-cluster-size",
+      "severity": "medium",
+      "title": "Read cluster_size rather than merge distance when remapping non-finite samples",
+      "explanation": "The previous code initialized last_cluster_size from linkage column 3, which contains the number of samples in the final finite cluster. The replacement reads value, which contains its merge distance. Consequently, every appended non-finite-sample merge receives an incorrect cluster_size. For example, a three-sample finite hierarchy with records (0, 1, 0.5, 2) and (2, 3, 0.75, 3), mapping {0: 0, 1: 1, 2: 2}, and non_finite=[3] produces an appended record whose cluster_size is 1 after integer conversion of 0.75 + 1; the correct size is 4. This violates the linkage invariant that a merged cluster's size equals the sum of its children's sizes. The corruption is demonstrable in the returned hierarchy; this finding does not assert that the estimator's already-computed labels change.",
+      "path": "sklearn/cluster/_hdbscan/hdbscan.py",
+      "line": 239,
+      "evidence": "last_cluster_size = tree[tree.shape[0] - 1][\"value\"]",
+      "fix": "Initialize last_cluster_size from tree[-1][\"cluster_size\"] instead of tree[-1][\"value\"].",
+      "test": "Invoke remap_single_linkage_tree with np.array([(0, 1, 0.5, 2), (2, 3, 0.75, 3)], dtype=HIERARCHY_dtype), internal_to_raw={0: 0, 1: 1, 2: 2}, and non_finite=[3]. Assert that the returned cluster_size field is [2, 3, 4] and the appended merge has infinite value. Add a multiple-outlier case asserting that appended sizes increase from the finite sample count by exactly one per record. No test files were provided, so existing coverage could not be verified.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/cluster/_hdbscan/hdbscan.py",
+          "line": 239,
+          "symbol": "remap_single_linkage_tree"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 64925,
+  "llm_calls": 5
+}

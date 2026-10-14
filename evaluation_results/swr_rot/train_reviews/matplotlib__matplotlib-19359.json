@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-19359",
+  "findings": [
+    {
+      "rule_id": "plotting-grid-state-regression",
+      "severity": "low",
+      "title": "Preserve explicit grid enabling instead of toggling configured grids off",
+      "explanation": "Precondition: run the example with matplotlib.rcParams['axes.grid'] = True, as in a grid-enabled style. Newly created axes then already have their major grid enabled. Axes.grid() without a visibility argument toggles the selected grid, whereas the previous plt.grid(True) explicitly enabled it. Consequently, lines 21 and 31 turn off the major grids in the first and third symlog panels, where the previous version kept them visible. There is no guard ensuring that the grids start disabled. This violates the example's previous invariant that those panels display grids regardless of the initial grid configuration. The same explicit-enable-to-toggle substitution occurs in multiline.py:22 and custom_projection.py:448; the minor-grid call at symlog_demo.py:22 also reverses an already-enabled minor grid rather than ensuring it is visible.",
+      "path": "examples/scales/symlog_demo.py",
+      "line": 21,
+      "evidence": "ax0.grid()\nax0.xaxis.grid(which='minor')  # minor grid on too\n...\nax2.grid()",
+      "fix": "Retain explicit visibility: ax0.grid(True), ax0.xaxis.grid(True, which='minor'), and ax2.grid(True). Likewise retain grid(True) in the multiline and custom-projection examples.",
+      "test": "Using the Agg backend and suppressing plt.show, execute symlog_demo.py inside matplotlib.rc_context({'axes.grid': True, 'axes.grid.which': 'major'}). Draw the resulting figure and assert that major x and y gridlines remain visible on its first and third axes. Repeat with axes.grid.which='both' and assert that the first panel's minor x grid remains enabled. These assertions pass with the previous explicit True calls and fail with the new toggles.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/scales/symlog_demo.py",
+          "line": 16,
+          "symbol": "plt.subplots"
+        },
+        {
+          "path": "examples/scales/symlog_demo.py",
+          "line": 21,
+          "symbol": "ax0.grid"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-841",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 30422,
+  "llm_calls": 5
+}

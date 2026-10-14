@@ -1,0 +1,49 @@
+{
+  "id": "scikit-learn__scikit-learn-25108",
+  "findings": [
+    {
+      "rule_id": "public-api-parameter-compatibility",
+      "severity": "medium",
+      "title": "The new validator rejects supported floating-point positive labels",
+      "explanation": "The pos_label constraint excludes floating-point values, although roc_curve supports numeric positive labels, including floats. A concrete affected call is roc_curve([0, 1], [0.1, 0.9], pos_label=1.0). Previously, roc_curve passed this value to _binary_clf_curve, where an explicitly supplied positive label is used to form the boolean target with y_true == pos_label; 1.0 therefore correctly selects class 1. The new decorator rejects 1.0 before that processing because a Python float is neither Integral nor str nor None. Existing callers specifying floating-point labels now fail rather than receiving their ROC curve. This is a narrowing of accepted input, not a necessary validation of an unsupported computation.",
+      "path": "sklearn/metrics/_ranking.py",
+      "line": 911,
+      "evidence": "\"pos_label\": [Integral, str, None],",
+      "fix": "Accept real numeric labels rather than only integral labels, for example by replacing Integral with numbers.Real while retaining str and None.",
+      "test": "Add a valid-input regression test invoking the decorated public roc_curve with y_true=[0, 1], y_score=[0.1, 0.9], and pos_label=1.0, and assert fpr=[0, 0, 1] and tpr=[0, 1, 1]. Also cover non-integral labels, such as y_true=[0.5, 1.5] with pos_label=1.5, and NumPy floating scalars. Adding roc_curve to PARAM_VALIDATION_FUNCTION_LIST at sklearn/tests/test_public_functions.py:20 is not itself a regression assertion that these previously valid inputs remain accepted.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/metrics/_ranking.py",
+          "line": 907,
+          "symbol": "validate_params"
+        },
+        {
+          "path": "sklearn/metrics/_ranking.py",
+          "line": 916,
+          "symbol": "roc_curve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 13422,
+  "llm_calls": 5
+}

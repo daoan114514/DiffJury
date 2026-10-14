@@ -1,0 +1,118 @@
+{
+  "id": "sympy__sympy-755",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "boolean-negation-grouping",
+      "severity": "medium",
+      "title": "Compound operands lose their scope under negation",
+      "explanation": "For the symbolic expression Not(And(x, y)), the outer Not has one argument, And(x, y); distinct symbolic operands do not collapse to a constant or a double negation. The new printer prints that argument without grouping, producing `\\neg x \\wedge y` instead of `\\neg \\left(x \\wedge y\\right)`. The output denotes And(Not(x), y), not Not(And(x, y)): when x and y are both false, the original expression is true but the rendered expression is false. Parenthesizing Boolean operands in _print_And and _print_Or does not repair this because the missing grouping is inside _print_Not. The added tests cover only negation of a symbol, so they do not expose this defect.",
+      "path": "sympy/printing/latex.py",
+      "line": 499,
+      "evidence": "return r\"\\neg %s\" % self._print(e.args[0])",
+      "fix": "Parenthesize a compound Boolean operand of Not while retaining the existing unparenthesized rendering for atomic operands.",
+      "test": "Add exact-output tests for latex(Not(And(x, y))), latex(Not(Or(x, y))), and latex(Not(Implies(x, y))). Assert that each complete operand is enclosed by parentheses after \\neg; retain the existing atomic-negation tests.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 498,
+          "symbol": "_print_Not"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 501,
+          "symbol": "_print_And"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boolean-implication-grouping",
+      "severity": "medium",
+      "title": "Nested implication antecedents are printed as an ungrouped implication chain",
+      "explanation": "Implies(Implies(x, y), z) has a binary outer implication whose first argument is another binary implication. With distinct symbols, neither implication is eliminated by constant, duplicate, or identity simplification. The new method recursively prints both operands without parentheses, yielding `x \\Rightarrow y \\Rightarrow z`. This loses the explicit antecedent grouping and conventionally reads as x implying (y implying z), rather than (x implying y) implying z. These are different functions: for x=false, y=true, z=false, the original expression is false and the right-associated rendering is true. An Equivalent expression used as the antecedent likewise needs grouping. The only added implication test uses two atomic operands and cannot detect this regression.",
+      "path": "sympy/printing/latex.py",
+      "line": 532,
+      "evidence": "return r\"%s \\Rightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Use operand-aware grouping for implication, including parentheses around an implication or equivalence used as its antecedent. Conservatively grouping compound Boolean operands also preserves the expression tree.",
+      "test": "Assert latex(Implies(Implies(x, y), z)) renders `\\left(x \\Rightarrow y\\right) \\Rightarrow z`. Also cover Implies(x, Implies(y, z)) and Implies(Equivalent(x, y), z) to verify that nesting and operand position are preserved.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "_print_Implies"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 532,
+          "symbol": "_print_Implies recursively printing its antecedent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boolean-equivalence-operand-coverage",
+      "severity": "medium",
+      "title": "Equivalent printing silently discards every operand after the second",
+      "explanation": "Equivalent supports more than two operands: Equivalent(x, y, z), with three distinct symbolic operands, represents the condition that all three have the same truth value and retains three arguments rather than becoming a binary Equivalent. The new printer references only e.args[0] and e.args[1], so its precise trace is to print the first two operands with \\Leftrightarrow and never visit e.args[2]. For argument order (x, y, z), the output is `x \\Leftrightarrow y`, independent of z. At x=true, y=true, z=false, that output is true while the original expression is false. No added test exercises Equivalent at all, let alone its supported multi-argument form.",
+      "path": "sympy/printing/latex.py",
+      "line": 535,
+      "evidence": "return r\"%s \\Leftrightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Render every Equivalent operand with an explicitly all-equal interpretation, for example a conjunction of parenthesized adjacent binary equivalences. Do not merely emit an associative binary biconditional chain, whose truth function for three operands differs from all-equal equivalence.",
+      "test": "Add binary and three-/four-operand Equivalent tests. For Equivalent(x, y, z), assert a complete all-equal rendering such as `\\left(x \\Leftrightarrow y\\right) \\wedge \\left(y \\Leftrightarrow z\\right)`, and verify that changing only the third operand's truth value can change the represented result.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 534,
+          "symbol": "_print_Equivalent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

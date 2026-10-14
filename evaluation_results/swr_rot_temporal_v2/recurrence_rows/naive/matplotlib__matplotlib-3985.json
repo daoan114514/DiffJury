@@ -1,0 +1,188 @@
+{
+  "id": "matplotlib__matplotlib-3985",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "boundary-index-validation",
+      "severity": "medium",
+      "title": "Both set_active methods fail to reject invalid indices",
+      "explanation": "The chained comparison means index < 0 and index >= len(self.labels), which cannot hold for a nonnegative list length. Consequently, neither method raises the documented ValueError for invalid integer indices. With two labels, CheckButtons.set_active(-1) toggles the last checkbox and notifies observers with its label. RadioButtons.set_active(-1) sets value_selected to the last label but clears every circle because no enumerated circle index equals -1; it then notifies observers despite having no visibly selected button. An index equal to the label count, or below the negative list length, instead raises IndexError during list access. Valid mouse-click indices still follow the previous state-update, drawon, and eventson behavior; the defect affects the newly exposed programmatic APIs.",
+      "path": "lib/matplotlib/widgets.py",
+      "line": 591,
+      "evidence": "591: if 0 > index >= len(self.labels):\n592:     raise ValueError(\"Invalid CheckButton index: %d\" % index)\n594: l1, l2 = self.lines[index]\n595: l1.set_visible(not l1.get_visible())\n596: l2.set_visible(not l2.get_visible())\n604:     func(self.labels[index].get_text())\n734: if 0 > index >= len(self.labels):\n735:     raise ValueError(\"Invalid RadioButton index: %d\" % index)\n737: self.value_selected = self.labels[index].get_text()\n739: for i, p in enumerate(self.circles):\n740:     if i == index:\n741:",
+      "fix": "In both methods, reject indices with `if index < 0 or index >= len(self.labels):` before accessing labels or changing widget state.",
+      "test": "For each widget with two labels, verify that -1, -3, and 2 raise ValueError without changing visibility, circle colors, selection, drawing, or observer notifications. Verify that 0 and 1 update the expected button and respect drawon and eventson, including through the click handler. Existing test coverage cannot be verified from the supplied diff, which contains no tests.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 580,
+          "symbol": "CheckButtons.set_active"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 723,
+          "symbol": "RadioButtons.set_active"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-129",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01024c7a",
+      "K-0304254e",
+      "K-04cc185c",
+      "K-0584087c",
+      "K-0c8a636b",
+      "K-0d0eb6bb",
+      "K-18185de5",
+      "K-1c4c395f",
+      "K-1cd6e028",
+      "K-276bc9e3",
+      "K-2f0cda36",
+      "K-2f6df4e1",
+      "K-373ceb0d",
+      "K-3a4c1dfe",
+      "K-3d110084",
+      "K-3dd53bb0",
+      "K-475d59c2",
+      "K-501c2e6b",
+      "K-554337f7",
+      "K-5ac45b56",
+      "K-74cc7af4",
+      "K-767b1b8c",
+      "K-76e1d833",
+      "K-7baab940",
+      "K-83f0b31d",
+      "K-8d71bf5d",
+      "K-8ebb1030",
+      "K-93879fa5",
+      "K-94773538",
+      "K-a7a9b3d1",
+      "K-a9ffb7d6",
+      "K-aae7ebac",
+      "K-ac4af83c",
+      "K-b6f385be",
+      "K-b9077688",
+      "K-bdf4de72",
+      "K-caf264d7",
+      "K-d55a2bac",
+      "K-d9467d98",
+      "K-e3d89590",
+      "K-e545c79a",
+      "K-ea85db56",
+      "K-f31ad068",
+      "K-f3829dd8",
+      "K-f49b7d36",
+      "K-f659e55a",
+      "K-fdb1e5fa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-8d71bf5d",
+          "K-8ebb1030",
+          "K-f659e55a",
+          "K-18185de5"
+        ],
+        "tokens": 144,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f31ad068",
+          "K-a9ffb7d6",
+          "K-5ac45b56",
+          "K-1c4c395f",
+          "K-b6f385be",
+          "K-fdb1e5fa",
+          "K-554337f7",
+          "K-04cc185c",
+          "K-3dd53bb0",
+          "K-1cd6e028",
+          "K-bdf4de72",
+          "K-f3829dd8",
+          "K-d9467d98",
+          "K-76e1d833",
+          "K-276bc9e3",
+          "K-83f0b31d",
+          "K-0d0eb6bb",
+          "K-d55a2bac",
+          "K-767b1b8c",
+          "K-caf264d7",
+          "K-01024c7a",
+          "K-0c8a636b",
+          "K-aae7ebac",
+          "K-7baab940",
+          "K-74cc7af4",
+          "K-0304254e",
+          "K-94773538"
+        ],
+        "tokens": 1848,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-501c2e6b",
+          "K-ea85db56",
+          "K-93879fa5",
+          "K-f49b7d36"
+        ],
+        "tokens": 144,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-e545c79a",
+          "K-475d59c2",
+          "K-2f0cda36",
+          "K-ac4af83c",
+          "K-3a4c1dfe",
+          "K-e3d89590",
+          "K-0584087c",
+          "K-3d110084",
+          "K-a7a9b3d1",
+          "K-b9077688",
+          "K-373ceb0d",
+          "K-2f6df4e1"
+        ],
+        "tokens": 795,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

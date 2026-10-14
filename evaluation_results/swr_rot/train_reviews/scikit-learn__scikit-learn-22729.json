@@ -1,0 +1,54 @@
+{
+  "id": "scikit-learn__scikit-learn-22729",
+  "findings": [
+    {
+      "rule_id": "CI_JOB_STATUS_CONDITION",
+      "severity": "medium",
+      "title": "Repository-only condition skips failure and cancellation reporting",
+      "explanation": "GitHub Actions implicitly applies success() to an if condition that contains no status-check function. Consequently, the new condition behaves as success() && github.repository == 'scikit-learn/scikit-learn'. Previously, always() made update-tracker eligible after successful, failed, or cancelled check-manifest runs in both upstream and forks. Now, upstream success remains eligible, but upstream failure and cancellation skip the tracker; forks are excluded for all three outcomes, as intended. A concrete regression is an upstream check-manifest failure: needs.check-manifest.result is 'failure', but update-tracker is skipped instead of invoking the reusable workflow with job_status: 'failure'. The same loss of reporting applies to cancellation. The matching example in update_tracking_issue.yml line 5 propagates this incorrect condition to future callers.",
+      "path": ".github/workflows/check-manifest.yml",
+      "line": 28,
+      "evidence": "    if: github.repository == 'scikit-learn/scikit-learn'\n    needs: [check-manifest]\n    with:\n      job_status: ${{ needs.check-manifest.result }}",
+      "fix": "Use if: ${{ always() && github.repository == 'scikit-learn/scikit-learn' }} in both the actual caller and the reusable-workflow example. This preserves failure and cancellation eligibility while excluding forks.",
+      "test": "Exercise the caller condition for successful, failed, and cancelled dependencies in upstream and fork repositories. Assert that upstream invokes the tracker for each outcome with the corresponding job_status, while forks skip it for every outcome. Include an upstream failing dependency integration run to verify that GitHub Actions does not implicitly gate the tracker on success().",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".github/workflows/check-manifest.yml",
+          "line": 26,
+          "symbol": "jobs.update-tracker"
+        },
+        {
+          "path": ".github/workflows/check-manifest.yml",
+          "line": 27,
+          "symbol": "uses: ./.github/workflows/update_tracking_issue.yml"
+        },
+        {
+          "path": ".github/workflows/check-manifest.yml",
+          "line": 31,
+          "symbol": "with.job_status"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 11546,
+  "llm_calls": 5
+}

@@ -1,0 +1,103 @@
+{
+  "id": "sympy__sympy-542",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "factor-list-empty-remainder",
+      "severity": "medium",
+      "title": "All-positive factors introduce a unit factor that breaks factor_list without explicit generators",
+      "explanation": "When a noninteger power has multiple polynomial factors and every factor is provably positive, the new partition leaves `other` empty but still appends its product, 1, as a factor. The new conversion loop subsequently attempts `_poly_from_expr(1, _opt)`. Without explicit generators, a constant cannot establish polynomial generators, so this raises PolificationFailed instead of returning the factorization. A concrete previously supported input is `p, q = symbols('p q', positive=True); factor_list(sqrt(p*q + p + q + 1))`. Its base factors into the positive factors `p + 1` and `q + 1`; the expected result is coefficient 1 with those two factors at multiplicity 1/2. Previously, both factors remained Poly objects and no constant conversion occurred. The new result instead follows the empty-remainder path and fails. With explicit generators, the same path can retain an unnecessary unit factor. The added positive-factor tests retain at least one nonpositive factor, so they do not exercise this boundary.",
+      "path": "sympy/polys/polytools.py",
+      "line": 4867,
+      "evidence": "                    else:\n                        factors.append((_factors_product(other), exp))\n\n        for factors in (fp, fq):\n            for i, (f, k) in enumerate(factors):\n                if not f.is_Poly:\n                    f, _ = _poly_from_expr(f, _opt)",
+      "fix": "Append the grouped remainder only when `other` is nonempty, for example by replacing the final `else` with `elif other`. Do not introduce a factor for the empty product.",
+      "test": "For positive symbols p and q, call `factor_list(sqrt(p*q + p + q + 1))` without generators and assert coefficient 1 and exactly the factors `(p + 1, S.Half)` and `(q + 1, S.Half)`, independent of ordering. Repeat with explicit generators and assert that no unit factor is returned.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4899,
+          "symbol": "_generic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4857,
+          "symbol": "_symbolic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4867,
+          "symbol": "_factors_product(other)"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4904,
+          "symbol": "_poly_from_expr(f, _opt)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

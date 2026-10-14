@@ -1,0 +1,202 @@
+{
+  "id": "sympy__sympy-18131",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "nonfinite-reciprocal-upper-bound",
+      "severity": "medium",
+      "title": "An infinite upper bound is accepted despite making normalization impossible",
+      "explanation": "Reciprocal('X', 5, oo) satisfies both new validation predicates: 5 > 0 and 5 < oo. The validation message even explicitly includes +oo. However, log(oo) makes the normalizing denominator infinite, so the PDF is zero at every finite point in [5, oo), and its integral over the declared support is zero rather than one. The explicit CDF is likewise zero at every finite point above five and has an indeterminate infinity-over-infinity expression at infinity. A reciprocal density proportional to 1/x cannot be normalized on an unbounded upper interval. This is a concrete invalid distribution, distinct from accepting symbolic parameters whose inequalities are undecidable; symbolic acceptance should remain consistent with the existing validation convention.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3211,
+      "evidence": "_value_check((a < b),\n        \"Parameter b must be in range (%s, +oo]. b = %s\"%(a, b))",
+      "fix": "Require 0 < a < b < oo, rejecting provably infinite bounds while preserving the customary handling of undecidable symbolic inequalities. Correct the validation message to exclude infinity.",
+      "test": "Assert that Reciprocal('X', 5, oo) raises ValueError. Add validation cases for zero or negative a, equal or reversed bounds, valid finite bounds, and symbolic bounds. For valid finite bounds, assert that the density integrates to one over the declared support.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3225,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "rv(name, ReciprocalDistribution, (a, b))"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3209,
+          "symbol": "ReciprocalDistribution.check"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3214,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-pdf-outside-support",
+      "severity": "medium",
+      "title": "Reciprocal density is one above its upper support bound",
+      "explanation": "For X = Reciprocal('X', 5, 30), the new PDF returns density(X)(4) = 0 and density(X)(10) = 1/(10*log(6)), but density(X)(31) = 1 instead of 0. Declaring Interval(5, 30) as the distribution's support does not correct the expression returned by the PDF to density consumers. Integrated over the declared finite support, the density is normalized; integrated over the real line, its constant upper tail has infinite mass. The expectation and probability assertions at lines 962–964 use the declared support and therefore do not expose this defect. The assertion at line 959 and the documentation at lines 3252–3259 explicitly encode the incorrect upper tail. The explicit public imports and __all__ additions correctly expose Reciprocal; the defect is in the exported distribution's behavior, not an export collision.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3219,
+      "evidence": "(S.One, (x > b)))",
+      "fix": "Return S.Zero above b, preferably using a zero default branch after the in-support expression. Update the symbolic density assertion and the documentation to show a zero upper tail.",
+      "test": "For Reciprocal('X', 5, 30), assert density(X)(4) == 0, density(X)(10) == 1/(10*log(6)), and density(X)(31) == 0. Also verify that integrating the PDF over the entire real line gives one.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3225,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3214,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "unclipped-reciprocal-cdf",
+      "severity": "medium",
+      "title": "The explicit CDF formula returns probabilities outside [0, 1]",
+      "explanation": "The new _cdf supplies only the interior logarithmic formula. For finite bounds a=5 and b=30, it gives the correct endpoint values zero and one, but at x=4 it gives log(4/5)/log(6), which is negative, and at x=60 it gives log(12)/log(6), which exceeds one. The continuous-distribution CDF shortcut uses an explicit _cdf rather than constructing the generic integrated CDF, so generic integration's support handling does not clip this formula. In particular, the passing P(X < 4) assertion does not establish that cdf(X)(4) is correct: probability evaluation restricts integration to the declared Interval support, whereas the explicit CDF path returns this formula. This is independently wrong even after correcting the PDF's upper tail.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3223,
+      "evidence": "return (log(x) - log(a)) / (log(b) - log(a))",
+      "fix": "Return a Piecewise CDF: zero below a, the logarithmic expression within the support, and one above b.",
+      "test": "For Reciprocal('X', 5, 30), directly assert cdf(X)(4) == 0, cdf(X)(5) == 0, cdf(X)(20) == log(4)/log(6), cdf(X)(30) == 1, and cdf(X)(60) == 1. Test cdf directly rather than substituting probability assertions.",
+      "confidence": 0.8,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3221,
+          "symbol": "ReciprocalDistribution._cdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e13d441c",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-2b42cad0",
+          "K-93a099ce",
+          "K-ad16cdc6"
+        ],
+        "tokens": 286,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-e13d441c",
+          "K-e820d88f",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-83dfddfe"
+        ],
+        "tokens": 647,
+        "budget": 600,
+        "dropped": [
+          "K-e172ac33",
+          "K-c01df042",
+          "K-524f3b73",
+          "K-4073d146",
+          "K-7ac64342",
+          "K-0faed540",
+          "K-5af1f6aa",
+          "K-25a05e81"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

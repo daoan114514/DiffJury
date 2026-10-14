@@ -1,0 +1,176 @@
+{
+  "id": "sympy__sympy-16762",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "power-normalization-coefficient-sign",
+      "severity": "high",
+      "title": "Normalization assigns one sign to all maximum-magnitude coefficients",
+      "explanation": "For a numeric exponent other than ±1, the new branch records the sign of just one maximum-magnitude coefficient in s. Line 401 then uses that same sign for every coefficient whose absolute value equals big. Consequently, equally large positive and negative coefficients become coefficients with the same sign. A minimal reproducer is x = Symbol('x'); p = (Float(2)*x - Float(2))**2. Regardless of which tied coefficient is visited first, the normalized base becomes either x + 1 or -x - 1. Thus p.subs(x, 1) becomes 16 instead of 0. Before this change, this Add power did not perform that replacement. This is a direct derivation from the added code, not an executed reproducer. The added tests exercise unequal magnitudes and therefore miss this case.",
+      "path": "sympy/core/add.py",
+      "line": 401,
+      "evidence": "addpow = Add(*[(s if abs(c[i]) == big else c[i]/big)*m[i] for i in range(len(c))])**e",
+      "fix": "Determine the sign separately for each tied coefficient, rather than reusing s from the maximum-selection loop. Alternatively, divide every coefficient by a positive normalization factor while handling precision appropriately.",
+      "test": "Add a regression constructing (Float(2)*x - Float(2))**2 and asserting that substitution x=1 returns exactly zero and x=-1 returns 16. Also cover a fractional exponent and ties between coefficients of distinct symbolic terms. The existing cases at lines 459–469 all have unequal coefficient magnitudes.",
+      "confidence": 0.8400000000000001,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 391,
+          "symbol": "Add._eval_power"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 399,
+          "symbol": "selection of the maximum coefficient's sign"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "construction of the normalized Add power"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "power-normalization-exact-coefficient-rounding",
+      "severity": "medium",
+      "title": "The normalization factor rounds large exact coefficients to default precision",
+      "explanation": "The branch computes big with 1.0*abs(i), even when the maximum coefficient is an exact Integer or Rational. If any other coefficient is a Float, normalization subsequently proceeds using that rounded factor and converts exact coefficients through division by it. For example, let N = Integer(10)**20 + 1 and p = (N*x + Float(1))**2. Previously the power retained its exact symbolic leading coefficient: p.expand().coeff(x, 2) was N**2. The new branch converts N to a default-precision Float, then builds the power from floating-point coefficients, producing a rounded floating-point leading coefficient near 10**40 rather than the exact N**2. An odd integer of this size cannot be represented at that precision. This loss is introduced by normalization; the pre-existing Float in the constant term did not require rounding the exact x coefficient. This reproducer is derived from the code and was not executed. Multiplication by 1.0 need not reduce an already high-precision Float's precision; the demonstrated defect concerns exact coefficients coerced to default precision. The added tests cover only small, ordinary-precision coefficients and provide no large-exact, high-precision, or special-value cases.",
+      "path": "sympy/core/add.py",
+      "line": 398,
+      "evidence": "big = 1.0*abs(i)",
+      "fix": "Keep the normalization factor exact when the selected coefficient is exact, rather than multiplying it by a Python float. Ensure reconstruction preserves exact symbolic coefficients; if this cannot be guaranteed for mixed exact/inexact inputs, leave those powers unevaluated.",
+      "test": "With N = Integer(10)**20 + 1, construct (N*x + Float(1))**2 and assert that its expanded x**2 coefficient is the exact Integer N**2. Add a separate mixed exact/high-precision Float case and check accuracy at the requested precision rather than using default-precision string comparisons.",
+      "confidence": 0.69,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 391,
+          "symbol": "Add._eval_power"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 398,
+          "symbol": "conversion of the maximum coefficient to a Float"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "division of exact coefficients by the rounded factor"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 402,
+          "symbol": "reconstruction of the scaled power"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1339",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-4ff368df",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e13d441c"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-b5e72943"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-25a05e81",
+          "K-83dfddfe",
+          "K-e13d441c"
+        ],
+        "tokens": 647,
+        "budget": 600,
+        "dropped": [
+          "K-e172ac33",
+          "K-0faed540",
+          "K-e820d88f"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

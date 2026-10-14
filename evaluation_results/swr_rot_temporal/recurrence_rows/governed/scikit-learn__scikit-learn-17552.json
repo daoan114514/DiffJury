@@ -1,0 +1,78 @@
+{
+  "id": "scikit-learn__scikit-learn-17552",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation-correctness",
+      "severity": "low",
+      "title": "Float max_features is truncated, not rounded",
+      "explanation": "The revised formula misstates the behavior of RandomForestClassifier (line 951), RandomForestRegressor (1275), ExtraTreesClassifier (1557), and ExtraTreesRegressor (1875). Their forest fitting path calls _parallel_build_trees, which fits the corresponding DecisionTreeClassifier, DecisionTreeRegressor, ExtraTreeClassifier, or ExtraTreeRegressor. These tree estimators use BaseDecisionTree.fit in sklearn/tree/_classes.py, which converts a positive floating-point max_features using max(1, int(max_features * n_features)), not round. For example, with 10 input features and max_features=0.19, the implementation selects a feature budget of 1, whereas the new documentation promises 2. The implementation also enforces a minimum of 1: max_features=0.01 with 10 features produces 1, not the documented round result of 0. This change affects documentation only, but gives users an incorrect prediction of the split-search feature budget for all four estimators.",
+      "path": "sklearn/ensemble/_forest.py",
+      "line": 951,
+      "evidence": "`round(max_features * n_features)` features are considered at each",
+      "fix": "Replace the formula in all four docstrings with max(1, int(max_features * n_features)) to describe truncation and the minimum feature budget accurately.",
+      "test": "Fit each of the four forest estimators on a dataset with 10 features using max_features=0.19 and assert that every fitted tree has max_features_ == 1. Repeat with max_features=0.01 to verify the minimum of 1, and ensure all four docstrings describe this formula.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

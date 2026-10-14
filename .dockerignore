@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.db
+.git
+.env
+tests
+
+evaluation_data/swrbench/repos
+evaluation_data/swrbench/raw
+evaluation_results

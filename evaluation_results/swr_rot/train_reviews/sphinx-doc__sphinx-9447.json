@@ -1,0 +1,14 @@
+{
+  "id": "sphinx-doc__sphinx-9447",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 36815,
+  "llm_calls": 11
+}

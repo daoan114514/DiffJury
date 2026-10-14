@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-20889",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation-invalid-sphinx-role",
+      "severity": "low",
+      "title": "Malformed function roles leave two metric references as literal text",
+      "explanation": "The added miss_rate and fallout_rate references use apostrophes instead of the backticks required by reStructuredText interpreted-text roles. Consequently, Sphinx will not recognize them as function cross-references, and the changelog will display the raw role syntax rather than linked function names. This defect is independent of whether the functions exist. No API definitions or implementations are supplied in the available evidence, so API existence, resolution of the other two references, and implementation-specific accuracy of the metric descriptions cannot be verified; no findings based on those assumptions are asserted.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 627,
+      "evidence": "- |Feature| Added :func:`sensitivity` , :func:`specificity` , :func:'miss_rate and :func:'fallout_rate'",
+      "fix": "Replace the malformed references with :func:`miss_rate` and :func:`fallout_rate`, using the actual qualified API names if needed for Sphinx resolution.",
+      "test": "Build the changelog with Sphinx and inspect the rendered entry: both names should be function links, no literal :func: syntax should remain, and their targets should resolve to the intended documented APIs.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

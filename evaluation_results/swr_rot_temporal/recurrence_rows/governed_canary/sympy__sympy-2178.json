@@ -1,0 +1,125 @@
+{
+  "id": "sympy__sympy-2178",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-argument-rewrite",
+      "severity": "medium",
+      "title": "The arg rewrite loses quadrants and rejects valid negative-real solutions",
+      "explanation": "The replacement is not mathematically equivalent to arg: atan(im(z)/re(z)) loses quadrant information and is undefined at zero real part. Static reproduction, without execution: let x = Symbol('x', real=True) and call solve([x + 1, arg(x) - pi], x). The original system has the unique solution x = -1, since arg(-1) = pi. The new preprocessing simplifies the second equation to atan(0/x) - pi = -pi, making the system inconsistent and eliminating that valid solution. This rewrite occurs before the real/complex assumption guard, so that guard does not protect real or explicitly complex inputs. The added test also asserts an invalid solution: substituting its x = 2 candidate into the original arg(x) - pi gives -pi, not zero. That expected test output is evidence of an incorrect assertion, not an observed execution result. Abs(z) -> sqrt(z**2) also lacks general complex equivalence, but that replacement already existed before this change and is not a separate introduced defect.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 744,
+      "evidence": "f[i] = fi.xreplace(dict(zip(_arg,\n    [atan(im(a.args[0])/re(a.args[0])) for a in _arg])))",
+      "fix": "Preserve arg unless an equivalent transformation is established, or use quadrant-aware atan2(im(z), re(z)) while retaining arg's undefined-at-zero behavior. Check returned candidates against the original equations. Correct the added test so that x = 2 is not accepted.",
+      "test": "Add a regression for real x asserting that solve([x + 1, arg(x) - pi], x) retains the unique solution -1. Repeat with unconstrained and complex=True symbols. Check every candidate from solve([Abs(x) - 2, arg(x) - pi], x) by substitution into both original equations; only -2 is valid. Include positive/negative imaginary-axis cases with uniquely fixed nonzero arguments, and verify that an equation fixing the argument to zero does not accept arg(0) as a defined phase.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 738,
+          "symbol": "solve: preprocess input equations"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 744,
+          "symbol": "solve: replace arg with atan"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-0faed540",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-4ff368df",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-b5e72943"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-83dfddfe",
+          "K-e172ac33",
+          "K-0faed540"
+        ],
+        "tokens": 648,
+        "budget": 600,
+        "dropped": [
+          "K-e13d441c"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

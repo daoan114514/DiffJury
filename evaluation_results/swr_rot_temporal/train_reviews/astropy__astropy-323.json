@@ -1,0 +1,44 @@
+{
+  "id": "astropy__astropy-323",
+  "findings": [
+    {
+      "rule_id": "public-axis-attribute-initialization",
+      "severity": "low",
+      "title": "Retain naxis2 initialization for one-dimensional WCS objects",
+      "explanation": "The old get_naxis implementation unconditionally initialized both naxis1 and naxis2. The replacement initializes only attributes corresponding to self.naxis. For a fresh one-dimensional WCS, such as WCS(naxis=1), the loop therefore initializes naxis1 but no longer initializes naxis2. Existing consumers reading w.naxis2 now receive AttributeError instead of the previous 0.0 sentinel. The same omission occurs when axis selection reduces the transformation to one dimension; supplying a Header with NAXIS2 cannot restore the attribute because the header-reading loop is also bounded by self.naxis. This is a public-attribute compatibility regression independent of header serialization. The added test exercises only a four-dimensional WCS and does not check the lower-dimensional initialization boundary. This finding follows the changed initialization code rather than a runtime reproduction; no execution tools or downstream consumer implementations were supplied.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 1334,
+      "evidence": "for i in range(1, self.naxis + 1):\n            setattr(self, 'naxis{0:d}'.format(i), 1.0)",
+      "fix": "Preserve initialization of the existing naxis1 and naxis2 attributes, including the previous sentinel for an axis absent from the transformation, before populating attributes for all actual coordinate axes.",
+      "test": "Construct a fresh WCS(naxis=1), read both naxis1 and naxis2, and assert that naxis2 remains available with its previous absent-axis value. Repeat with a Header and with selection of a single axis from a multidimensional header, while retaining the new four-axis test.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1333,
+          "symbol": "WCS.get_naxis"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 26560,
+  "llm_calls": 5
+}

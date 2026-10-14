@@ -1,0 +1,165 @@
+{
+  "admission_by_source": {
+    "missed": {
+      "ADD": 68,
+      "REJECT": 8,
+      "UPVOTE": 3,
+      "CONFLICT": 0,
+      "MERGE": 0,
+      "RESTORE": 0
+    },
+    "false_positive": {
+      "ADD": 58,
+      "REJECT": 5,
+      "UPVOTE": 2,
+      "CONFLICT": 0,
+      "MERGE": 0,
+      "RESTORE": 0
+    },
+    "contradiction": {
+      "ADD": 2,
+      "REJECT": 5,
+      "UPVOTE": 0,
+      "CONFLICT": 12,
+      "MERGE": 0,
+      "RESTORE": 0
+    },
+    "noise": {
+      "ADD": 0,
+      "REJECT": 38,
+      "UPVOTE": 0,
+      "CONFLICT": 0,
+      "MERGE": 0,
+      "RESTORE": 0
+    }
+  },
+  "admission_candidates": 201,
+  "decision_definition": "CONFLICT is an exclusive display category; its stored action is REJECT",
+  "interception": {
+    "contradiction": {
+      "planned_events": 24,
+      "candidate_count": 19,
+      "rejected_candidates": 17,
+      "candidate_rate": 0.894737,
+      "events_with_candidates": 19,
+      "blocked_events": 17,
+      "event_rate": 0.894737
+    },
+    "noise": {
+      "planned_events": 49,
+      "candidate_count": 38,
+      "rejected_candidates": 38,
+      "candidate_rate": 1.0,
+      "events_with_candidates": 38,
+      "blocked_events": 38,
+      "event_rate": 1.0
+    }
+  },
+  "contamination": {
+    "naive": {
+      "items": 244,
+      "polluted_items": 73,
+      "item_rate": 0.29918,
+      "tokens": 23862,
+      "polluted_tokens": 2816,
+      "token_rate": 0.118012,
+      "by_source": {
+        "missed": 89,
+        "false_positive": 82,
+        "contradiction": 24,
+        "noise": 49
+      },
+      "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+    },
+    "governed": {
+      "items": 7,
+      "polluted_items": 0,
+      "item_rate": 0.0,
+      "tokens": 383,
+      "polluted_tokens": 0,
+      "token_rate": 0.0,
+      "by_source": {
+        "missed": 2,
+        "false_positive": 5
+      },
+      "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+    },
+    "governed_canary": {
+      "items": 128,
+      "polluted_items": 2,
+      "item_rate": 0.015625,
+      "tokens": 13883,
+      "polluted_tokens": 88,
+      "token_rate": 0.006339,
+      "by_source": {
+        "missed": 68,
+        "false_positive": 58,
+        "contradiction": 2
+      },
+      "definition": "live rules and learned skills; excludes shipped disk skills; pollution uses item.source"
+    }
+  },
+  "lifecycle": {
+    "promotion_events": 7,
+    "unique_promoted_items": 7,
+    "eviction_events": 0,
+    "unique_evicted_items": 0,
+    "currently_archived": 0,
+    "archived_categories": {},
+    "archived_reasons": {}
+  },
+  "counterfactual": {
+    "pair_attempts": 60,
+    "individual_replays": 118,
+    "replay_definition": "review attempts, including failures and unexposed trial reviews",
+    "applied_pairs": 38,
+    "helpful": 4,
+    "harmful": 0,
+    "neutral": 34,
+    "failed": 3,
+    "not_exposed": 19,
+    "unique_items": 15,
+    "unique_prs": 30,
+    "train_only": true
+  },
+  "source_validation": {
+    "entry_attempts": 39,
+    "result_events": 41,
+    "review_attempts": 226,
+    "applied_entries": 29,
+    "completed_pairs": 101,
+    "helpful": 21,
+    "harmful": 8,
+    "neutral": 72,
+    "statuses": {
+      "unverified": 12,
+      "neutral": 17,
+      "harmful": 5,
+      "passed": 7
+    },
+    "passed_unique_items": 7,
+    "failed": 9,
+    "not_exposed": 1,
+    "skipped": 2,
+    "unfinished_reservations": 0,
+    "unique_source_prs": 38,
+    "unique_side_prs": 11,
+    "train_only": true,
+    "fast_promotion_events": 7,
+    "unique_fast_promoted_items": 7,
+    "archived_validation_status": {},
+    "rounds": {
+      "100": {
+        "replay_limit": 120,
+        "budget_consumed": 111,
+        "review_attempts": 111
+      },
+      "200": {
+        "replay_limit": 120,
+        "budget_consumed": 115,
+        "review_attempts": 115
+      }
+    },
+    "notice": "source screening overlaps recurrence feedback PRs; k=3 is a screening condition, not a significance test"
+  }
+}

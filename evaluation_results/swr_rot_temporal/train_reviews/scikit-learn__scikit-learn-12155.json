@@ -1,0 +1,82 @@
+{
+  "id": "scikit-learn__scikit-learn-12155",
+  "findings": [
+    {
+      "rule_id": "supported-iterable-cv-regression",
+      "severity": "medium",
+      "title": "Comparing every CV input with a string rejects valid array-backed iterables",
+      "explanation": "The new equality check runs before check_cv distinguishes integers, splitters, and iterables. A supported iterable can return a non-scalar result from equality. For example, create cv = np.empty(2, dtype=object), assign cv[0] = ([0, 1], [2, 3]) and cv[1] = ([2, 3], [0, 1]), and call check_cv(cv). These are valid train/test index pairs; previously the identity check was false and the iterable was wrapped normally. Now cv == 'warn' returns a two-element Boolean array, and evaluating the if condition raises ValueError about an ambiguous truth value. None short-circuits correctly, ordinary numeric inputs still reach their existing handling, and ordinary splitter instances retain their behavior, but array-backed iterables no longer do. Copied or deserialized strings are correctly recognized by equality; that comparison must be restricted to string inputs.",
+      "path": "sklearn/model_selection/_split.py",
+      "line": 1942,
+      "evidence": "if cv is None or cv == 'warn':",
+      "fix": "Guard the sentinel comparison with a string type check, using the project's supported string-type convention: cv is None or (isinstance(cv, string_types) and cv == 'warn').",
+      "test": "Construct the two-element object array of split tuples above, invoke check_cv, and assert that its split iterator yields both original train/test pairs. Also verify that an independently deserialized 'warn' string produces the default three-fold splitter and expected warning.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/model_selection/_split.py",
+          "line": 1942,
+          "symbol": "check_cv"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "environment-dependent-regression-coverage",
+      "severity": "low",
+      "title": "The sentinel regression test does not exercise copying on a single-worker environment",
+      "explanation": "The intended path is cross_validate scheduling an outer fold, a process backend serializing the GridSearchCV estimator, and the reconstructed GridSearchCV subsequently passing its deserialized default cv='warn' to check_cv during fit. This exposes the original identity comparison failure. However, n_jobs=-1 means all available CPUs, not a guaranteed process boundary. When joblib determines that only one CPU is available, execution is sequential and the estimator is not serialized; cloning an ordinary string does not force a distinct string object. A threading backend likewise does not provide the required serialization. Consequently the newly added test can pass with the original defective identity check in these supported execution environments. The lack of result assertions is not itself the problem—the original exception would fail the test when the relevant boundary is actually exercised.",
+      "path": "sklearn/model_selection/tests/test_validation.py",
+      "line": 292,
+      "evidence": "cross_validate(grid, X, y, n_jobs=-1)",
+      "fix": "Add a deterministic check_cv regression using a separately constructed or deserialized sentinel, explicitly asserting equality with 'warn' and non-identity before invoking check_cv. Keep the parallel integration test as supplementary coverage rather than relying on available CPU count to establish the regression.",
+      "test": "Run the deterministic sentinel test with the original identity condition restored and verify that it fails even when effective parallelism is one. With the equality fix and string guard applied, assert the expected warning and three-fold splitter.",
+      "confidence": 0.9099999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/model_selection/tests/test_validation.py",
+          "line": 292,
+          "symbol": "test_cross_validate_many_jobs"
+        },
+        {
+          "path": "sklearn/model_selection/_split.py",
+          "line": 1942,
+          "symbol": "check_cv"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1041",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [
+      1
+    ],
+    "missed": []
+  },
+  "tokens": 15737,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-12155.json",
+  "borrowed_sha256": "91516a31a6e2faf3c0102deb1052a36b2ed9328ecea02c66680a9f5858d36f67"
+}

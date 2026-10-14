@@ -1,0 +1,84 @@
+{
+  "id": "sympy__sympy-13564",
+  "findings": [
+    {
+      "rule_id": "performance.repeated-constant-parsing",
+      "severity": "medium",
+      "title": "Every multiplication now parses the same constant expression",
+      "explanation": "The parse_expr call is unconditional within _print_Mul and precedes even the ordinary-product and nonunit-denominator decisions. Previously these paths performed no parsing. Printing an expression containing N visited Mul nodes now performs N complete parses of the identical string '1/1', including parser transformations and unevaluated expression construction. The local import does not cache the function's result. This affects normal symbolic products as well as the uncommon explicit-unity case, and nested printed products repeat the same work. The execution-path comparison is therefore zero parser calls before versus one per visited multiplication afterward, with no input-size bound or reuse in the changed code. This adds avoidable parser work to a routine formatting path; no runtime timing measurement is claimed.",
+      "path": "sympy/printing/latex.py",
+      "line": 419,
+      "evidence": "one_by_one =  parse_expr('1/1', evaluate=False)",
+      "fix": "Replace parsing with a direct structural check for the relevant reciprocal-of-one factor. If a comparison expression is necessary, construct it once outside the per-multiplication printing path rather than parsing a constant for every Mul.",
+      "test": "Compare baseline and revised printing of an Add constructed with evaluate=False containing hundreds or thousands of distinct ordinary products. Assert identical output, instrument parser calls to verify ordinary multiplication printing performs none, and benchmark elapsed printing time to ensure the fix restores baseline-scale performance.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 374,
+          "symbol": "LatexPrinter._print_Mul"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 419,
+          "symbol": "parse_expr"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "correctness.failing-new-regression",
+      "severity": "medium",
+      "title": "The new condition does not recognize the expression used by the added regression test",
+      "explanation": "The added test introduces a deterministic suite failure rather than demonstrating the intended fix. With evaluation disabled, division is constructed as Mul(lhs, Pow(rhs, -1, evaluate=False), evaluate=False). Thus parse_expr('1/1', evaluate=False) is a complete Mul with arguments (1, Pow(1, -1, evaluate=False)), whereas parse_expr('5/1', evaluate=False).args contains (5, Pow(1, -1, evaluate=False)). Neither argument equals the complete Mul stored in one_by_one. fraction() reduces the denominator to S.One, so both sides of the new condition are false and execution still reaches convert(expr), not the fraction-rendering branch. Consequently the new assertion requiring '\\\\frac{5}{1}' is not satisfied. The underlying failure to preserve this denominator existed previously; the introduced defect is that the proposed fix leaves its newly added regression test failing. Ordinary products without this nested Mul retain their previous branch, and nonunit denominators also retain their previous branch. The membership check instead recognizes a nested factor such as Mul(parse_expr('1/1', evaluate=False), x, evaluate=False), demonstrating that it tests the wrong structural level. Negative products additionally pass through the pre-existing sign normalization before this check, so this test does not establish preservation of negative unevaluated divisions.",
+      "path": "sympy/printing/latex.py",
+      "line": 421,
+      "evidence": "one_by_one =  parse_expr('1/1', evaluate=False)\n\n        if not denom is S.One or one_by_one in expr.args:",
+      "fix": "Detect the unevaluated reciprocal-of-one factor itself, rather than looking for an entire parsed multiplication among the factors. Preserve the original factor structure when handling signs, if negative explicit denominators are part of the intended contract.",
+      "test": "Run test_issue_13559 against the real printer and require the exact '\\\\frac{5}{1}' result. Add structural and output assertions for unevaluated '1/1', an ordinary product, a nonunit denominator, a negative explicit-unity division, and a nested unevaluated reciprocal factor. The structural assertion should establish that the direct factor is Pow(1, -1, evaluate=False), not the whole parsed '1/1' Mul.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/tests/test_latex.py",
+          "line": 1632,
+          "symbol": "test_issue_13559"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 374,
+          "symbol": "LatexPrinter._print_Mul"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0,
+      1
+    ],
+    "missed": []
+  },
+  "tokens": 19213,
+  "llm_calls": 5
+}

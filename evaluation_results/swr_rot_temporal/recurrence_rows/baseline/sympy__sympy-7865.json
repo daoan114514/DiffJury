@@ -1,0 +1,50 @@
+{
+  "id": "sympy__sympy-7865",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "missing-test-assertion",
+      "severity": "low",
+      "title": "The new intersection equality check discards its result",
+      "explanation": "This expression computes a Boolean but never asserts it, so an incorrect result does not fail the test. For example, if the complement-intersection rewrite incorrectly returns EmptySet for Intersection(S.Reals, S.Integers - FiniteSet(0)), this comparison evaluates to False and execution continues. The other added assertion at line 144 also passes for EmptySet because it checks only that zero is absent. Thus the added checks do not establish that the rewrite preserves the nonzero integers.",
+      "path": "sympy/sets/tests/test_sets.py",
+      "line": 253,
+      "evidence": "    Intersection(S.Reals, S.Integers - FiniteSet(0)) == \\\n            Complement(Intersection(S.Reals, S.Integers), FiniteSet(0))",
+      "fix": "Prefix the equality expression with assert.",
+      "test": "Run test_intersection with the equality asserted. Verify that temporarily making the complement-intersection branch return EmptySet causes this test to fail; the correct rewrite must equal Complement(Intersection(S.Reals, S.Integers), FiniteSet(0)).",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/tests/test_sets.py",
+          "line": 253,
+          "symbol": "test_intersection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-252",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,65 @@
+{
+  "id": "sympy__sympy-542",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "empty-residual-factor-group",
+      "severity": "medium",
+      "title": "All-positive factorizations add a unit factor that breaks factor_list without generators",
+      "explanation": "When every polynomial factor is provably positive, `other` remains empty, but the new `else` branch still appends `_factors_product(other)`, which is 1. For example, let `p, q = symbols('p q', positive=True)` and call `factor_list(sqrt(p*q + p + q + 1))`. The underlying polynomial factors are `p + 1` and `q + 1`, both positive and both of multiplicity 1. Previously this returned coefficient 1 with those two factors, each of exponent 1/2. The changed path additionally appends `(1, 1/2)`. Lines 4903–4904 then attempt to convert this constant to a Poly using options with no explicit generators; a constant cannot supply inferred generators, so the otherwise valid factor_list call fails. With explicit generators, the conversion instead succeeds but leaves a spurious unit factor in the public factor list. Ordinary factor reconstruction hides this issue because multiplying by `1**exp` has no effect. This is distinct from the intentional branch-safety change: extracting these positive factors is valid, but an empty residual group must not become a factor. The added tests exercise factor(), not this factor_list conversion path, and do not cover an all-positive factorization.",
+      "path": "sympy/polys/polytools.py",
+      "line": 4866,
+      "evidence": "                    else:\n                        factors.append((_factors_product(other), exp))",
+      "fix": "Change the residual-group branch to `elif other:` so that no factor is appended when all factors were extracted as positive.",
+      "test": "With positive symbols p and q, assert that factor_list(sqrt(p*q + p + q + 1)) succeeds and returns coefficient 1 and exactly the factors p + 1 and q + 1 with exponents 1/2. Repeat with explicit generators and with polys=True, asserting that there is no unit factor and that the returned Poly factors have the requested generators/domain.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4899,
+          "symbol": "_generic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4857,
+          "symbol": "_symbolic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4867,
+          "symbol": "_factors_product"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4904,
+          "symbol": "_poly_from_expr"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

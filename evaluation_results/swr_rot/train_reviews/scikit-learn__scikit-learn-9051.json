@@ -1,0 +1,54 @@
+{
+  "id": "scikit-learn__scikit-learn-9051",
+  "findings": [
+    {
+      "rule_id": "classifier-decision-score-semantics",
+      "severity": "medium",
+      "title": "Three-class pairwise SVM scores are incorrectly treated as class scores",
+      "explanation": "The new branch applies the argmax assertion to BaseLibSVM classifiers exposing one-vs-one decision scores. Those scores describe the pairs (0, 1), (0, 2), and (1, 2), not classes 0, 1, and 2. Their shape happens to be (n_samples, 3), so the shape assertion cannot distinguish them. Prediction uses pairwise votes, not the index of the largest pairwise margin. A concrete counterexample is a linear SVC in its pairwise configuration trained on X=[[-2], [0], [2]] and y=[0, 1, 2]: at X=[[-2]], the pairwise margins are approximately [1, 1, 3], prediction is class 0, and argmax is 2. Thus the strengthened check rejects valid classifier behavior rather than enforcing a class-score contract. The removed guard and its '1on1 of LibSVM works differently' comment identify the previously supported case. The supplied excerpt establishes the three-class assertion path, but does not include the full setup, callers, or SVM implementation; consequently, the exact default configurations reached by the repository's test enumeration cannot be independently verified here. Separately, replacing identity comparisons with equality is correct and introduces no demonstrated defect.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 1116,
+      "evidence": "                if n_classes == 3:\n                    assert_equal(decision.shape, (n_samples, n_classes))\n                    assert_array_equal(np.argmax(decision, axis=1), y_pred)",
+      "fix": "Retain the BaseLibSVM exemption for pairwise decision functions, or distinguish pairwise outputs from class-wise outputs before applying the argmax assertion. Keep the equality-comparison correction.",
+      "test": "Exercise the real classifier check with the repository's three-class SVC and NuSVC configurations and require valid pairwise classifiers to pass. Also train a linear pairwise SVC on X=[[-2], [0], [2]], y=[0, 1, 2], and verify that its prediction at [-2] is 0 despite the largest pairwise margin having index 2. Preserve the argmax assertion for estimators returning genuine class-wise scores.",
+      "confidence": 0.83,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1111,
+          "symbol": "check_classifiers_train: classifier.decision_function(X)"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1116,
+          "symbol": "check_classifiers_train: three-class branch"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1118,
+          "symbol": "check_classifiers_train: compare pairwise-score argmax with prediction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12473,
+  "llm_calls": 5
+}

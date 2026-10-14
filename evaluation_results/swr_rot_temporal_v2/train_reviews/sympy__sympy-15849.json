@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-15849",
+  "findings": [
+    {
+      "rule_id": "printer-settings-preservation",
+      "severity": "medium",
+      "title": "Higher-order LaTeX fallback discards caller printer settings",
+      "explanation": "The newly introduced fallback constructs a default LatexPrinter rather than preserving the active printer's configuration. For example, let t = dynamicsymbols._t and expr = dynamicsymbols('omega').diff(t, 5). Printing expr with VectorLatexPrinter({'symbol_names': {t: r'\\tau'}}) should render both occurrences of the differentiation variable as \\tau, matching a standard LatexPrinter with those settings. Instead, this branch renders t in the denominator and function argument. This affects fifth-and-higher-order derivatives entering the new fallback; the fourth-order branch does not instantiate another printer. The added fifth-order test uses only default settings, so it cannot detect this configuration loss.",
+      "path": "sympy/physics/vector/printing.py",
+      "line": 153,
+      "evidence": "return LatexPrinter().doprint(der_expr)",
+      "fix": "Construct the standard fallback printer with the active settings and print the expression without applying a second top-level mode wrapper, for example LatexPrinter(self._settings)._print(der_expr).",
+      "test": "For derivative orders five and six, compare VectorLatexPrinter(settings).doprint(expr) with LatexPrinter(settings).doprint(expr), using symbol_names={dynamicsymbols._t: r'\\tau'}. Also exercise mode='inline' to ensure the fix preserves settings without introducing nested dollar delimiters.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/vector/printing.py",
+          "line": 153,
+          "symbol": "VectorLatexPrinter._print_Derivative"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17309,
+  "llm_calls": 5
+}

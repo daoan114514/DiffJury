@@ -1,0 +1,146 @@
+{
+  "id": "astropy__astropy-11224",
+  "repository": "astropy/astropy",
+  "pull_request": 11224,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 149125,
+  "llm_calls": 10,
+  "input_tokens": 74332,
+  "output_tokens": 4785,
+  "total_tokens": 79117,
+  "instruction_calls": 10,
+  "instruction_tokens": 30177,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 5,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 1,
+  "revision_results": 1,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 5632,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 5264
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 5632,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 5264
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 5632,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 5264
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 5632,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 5264
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 5632,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 5264
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {}
+}

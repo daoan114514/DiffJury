@@ -1,0 +1,65 @@
+{
+  "id": "sympy__sympy-16637",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "unhandled-empty-intersection",
+      "severity": "medium",
+      "title": "Distance to an offset parallel segment or ray raises ValueError",
+      "explanation": "For Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1)), both Segment3D(Point3D(0, 0, 1), Point3D(1, 0, 1)) and Ray3D(Point3D(0, 0, 1), Point3D(1, 0, 1)) have distance 1. Their initial intersection with the plane is empty, so distance enters the new bounded-entity branch. Their supporting line is also parallel and disjoint: intersection solves the constant equation 1 for its parameter and returns []. Unpacking that result at line 287 therefore raises ValueError instead of returning 1. The previous implementation returned the perpendicular distance from the first endpoint for these inputs. Coplanar entities and endpoint-touching entities are protected by the initial nonempty-intersection return, but offset parallel entities are not. The added tests exercise nonparallel segments, endpoint touching, and rays pointing toward or away from the plane; they do not exercise this parallel failure path. This outcome follows directly from the supplied control flow; execution tools were unavailable.",
+      "path": "sympy/geometry/plane.py",
+      "line": 287,
+      "evidence": "pi, = self.intersection(Line3D(a, b))",
+      "fix": "Check the supporting-line intersection before unpacking it. If it is empty, return self.distance(a), since distance is constant along a line parallel to the plane; otherwise retain the endpoint-selection logic.",
+      "test": "Add regression assertions that the z=0 plane has distance 1 from both the segment and ray through (0, 0, 1) and (1, 0, 1), and that their intersections are []. Retain checks for coplanar entities, endpoint touching, nonparallel segments outside the plane, and rays directed toward and away from it.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 282,
+          "symbol": "Plane.distance: initial intersection check"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 287,
+          "symbol": "Plane.distance: supporting-line intersection unpack"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 407,
+          "symbol": "Plane.intersection: solve((a - p1).dot(n), t)"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 408,
+          "symbol": "Plane.intersection: return [] when there is no solution"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

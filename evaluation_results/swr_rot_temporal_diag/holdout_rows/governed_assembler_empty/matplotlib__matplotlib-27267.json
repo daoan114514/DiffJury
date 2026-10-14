@@ -1,0 +1,118 @@
+{
+  "id": "matplotlib__matplotlib-27267",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 27267,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 94315,
+  "llm_calls": 5,
+  "input_tokens": 12598,
+  "output_tokens": 3549,
+  "total_tokens": 16147,
+  "instruction_calls": 5,
+  "instruction_tokens": 4002,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

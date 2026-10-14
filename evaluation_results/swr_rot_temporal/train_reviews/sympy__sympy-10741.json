@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-10741",
+  "findings": [
+    {
+      "rule_id": "python-chained-membership-assertion",
+      "severity": "medium",
+      "title": "New membership assertion cannot pass",
+      "explanation": "Python parses this as a chained comparison: `(Interval(0, 2) in middle) and (middle is S.false)`, where `middle` is the second `Interval(0, 2)`, evaluated once. The identity comparison therefore compares an Interval object with S.false, not the membership result with S.false. If membership returns False, the chain short-circuits to False; if membership returns True, the identity comparison is False. Thus, whenever membership completes normally, the assertion fails; an exception during membership also fails the test. This follows directly from Python's comparison semantics without requiring a test run. The intended check appears to be that an interval is not an element of another interval. Python's `in` operator produces a native bool, not a SymPy Boolean, so merely parenthesizing the membership expression and retaining `is S.false` would still be incorrect.",
+      "path": "sympy/sets/tests/test_sets.py",
+      "line": 426,
+      "evidence": "assert Interval(0, 2) in Interval(0, 2) is S.false",
+      "fix": "For Python membership, use `assert Interval(0, 2) not in Interval(0, 2)`. If the intended contract is specifically SymPy's symbolic contains result, use `assert Interval(0, 2).contains(Interval(0, 2)) is S.false` instead.",
+      "test": "Run test_contains with the corrected assertion against the real implementation. For the Python membership contract, assert that `(Interval(0, 2) in Interval(0, 2)) is False`; this verifies the negative membership result using the correct Boolean type and without comparison chaining.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/tests/test_sets.py",
+          "line": 426,
+          "symbol": "test_contains"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 9842,
+  "llm_calls": 5
+}

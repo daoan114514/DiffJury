@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-14817",
+  "findings": [
+    {
+      "rule_id": "documentation-role-syntax",
+      "severity": "low",
+      "title": "Restore the missing colon in the load_files module reference",
+      "explanation": "When Sphinx parses the load_files docstring, ':mod`~sklearn.feature_extraction.text`' is not recognized as a module role: explicit role syntax requires ':mod:' before the opening backtick. The backtick immediately following 'mod' also lacks the boundary required to start ordinary interpreted text. Consequently, this sentence exposes the malformed role notation as ordinary text instead of creating the intended module hyperlink. The correctly formed reference at line 105 does not repair this occurrence. This is a rendering defect, not a verified documentation-build failure. Verification was limited to the supplied selected hunks and omitted-hunk summaries; no full diff, parser execution, or documentation build was available. No additional unresolved class, method, or glossary target, or concrete regression from default_role='literal', was established from that evidence.",
+      "path": "sklearn/datasets/base.py",
+      "line": 98,
+      "evidence": "    you will need to use the :mod`~sklearn.feature_extraction.text` module to",
+      "fix": "Change the reference to :mod:`~sklearn.feature_extraction.text`.",
+      "test": "Build the generated load_files API documentation and assert that this sentence contains a hyperlink to sklearn.feature_extraction.text, without a visible ':mod' prefix or backticks.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/base.py",
+          "line": 98,
+          "symbol": "load_files docstring"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 65920,
+  "llm_calls": 5
+}

@@ -1,0 +1,94 @@
+{
+  "id": "sympy__sympy-17548",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "module-namespace-symbol-overwrite",
+      "severity": "medium",
+      "title": "Module-level loop overwrites the predefined symbol k",
+      "explanation": "Moving the loop out of clashing() makes k a module-global assignment rather than a function-local temporary. During initialization, every ns.popitem() assigns a string namespace key to k, replacing the predefined Symbol exported by sympy.abc. The nonempty namespace ensures that k remains a string after the loop. Reproduction: `from sympy import Symbol; from sympy.abc import k; assert k == Symbol('k')` now fails, and `k + 1` raises TypeError instead of producing a symbolic expression. This breaks both explicit imports of k and consumers importing all predefined symbols. The clash dictionary predicates and updates remain equivalent; the regression comes from the assignment's new scope, not the unchanged exec_ call or the relocated doctest examples. The same scope change also leaves the temporary ns and _ in the module namespace.",
+      "path": "sympy/abc.py",
+      "line": 100,
+      "evidence": "    k, _ = ns.popitem()",
+      "fix": "Use an underscore-prefixed temporary such as _name instead of k throughout the loop, and delete the temporary namespace, key, and value bindings afterward. Alternatively, retain the helper function so its temporaries remain local. Do not merely delete k, since that would remove the predefined symbol.",
+      "test": "Import sympy.abc and assert that abc.k == Symbol('k') and abc.k + 1 == Symbol('k') + 1. Also exercise `from sympy.abc import *` in a fresh namespace and check that k remains a Symbol and temporary ns is not exported. Retain equality checks for the three clash dictionaries and run the relocated module doctests.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/abc.py",
+          "line": 95,
+          "symbol": "module initialization creates temporary namespace"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 96,
+          "symbol": "exec_ populates namespace with string keys"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 100,
+          "symbol": "module-level loop replaces exported k"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

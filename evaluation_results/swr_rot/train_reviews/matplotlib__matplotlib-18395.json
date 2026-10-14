@@ -1,0 +1,54 @@
+{
+  "id": "matplotlib__matplotlib-18395",
+  "findings": [
+    {
+      "rule_id": "toolbar-customization-compatibility",
+      "severity": "medium",
+      "title": "Pan and zoom now fail when a customized toolbar omits either button",
+      "explanation": "A NavigationToolbar2Tk subclass can customize toolitems to omit Zoom while retaining Pan. Invoking pan(), either through the remaining button or programmatically, now calls _update_buttons_checked() after the base implementation. When pan activation succeeds, self.mode is _Mode.PAN, so the first iteration unconditionally looks up _buttons['Zoom'] and raises KeyError. The base mode transition has already occurred, so the invocation reports an exception after changing toolbar state. Previously, pan() did not require the omitted Zoom button. Omitting Pan similarly breaks zoom activation. This lookup also runs after a base-method early return, so rejection of an activation does not protect against missing buttons. The supplied diff contains no regression test for customized toolitems; existing repository tests were not available for inspection.",
+      "path": "lib/matplotlib/backends/_backend_tk.py",
+      "line": 553,
+      "evidence": "        for text, mode in [('Zoom', _Mode.ZOOM), ('Pan', _Mode.PAN)]:\n            if self.mode != mode:\n                self._buttons[text].deselect()",
+      "fix": "Skip absent buttons when synchronizing check states, rather than requiring both default toolitems to exist.",
+      "test": "Create a NavigationToolbar2Tk subclass whose toolitems excludes Zoom but retains Pan. Invoke the Pan checkbutton and assert that activation and deactivation complete without exceptions and produce the expected mode. Repeat with Pan omitted and Zoom retained, and exercise direct pan()/zoom() calls and a widget-lock-rejected activation.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/backends/_backend_tk.py",
+          "line": 555,
+          "symbol": "NavigationToolbar2Tk.pan"
+        },
+        {
+          "path": "lib/matplotlib/backends/_backend_tk.py",
+          "line": 557,
+          "symbol": "NavigationToolbar2Tk._update_buttons_checked"
+        },
+        {
+          "path": "lib/matplotlib/backends/_backend_tk.py",
+          "line": 553,
+          "symbol": "self._buttons[text].deselect"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12253,
+  "llm_calls": 5
+}

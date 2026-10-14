@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-542",
+  "findings": [
+    {
+      "rule_id": "empty-positive-factor-group",
+      "severity": "medium",
+      "title": "factor_list fails when every extracted factor is positive",
+      "explanation": "For p and q declared positive, call factor_list(sqrt(expand((p + 1)*(q + 1)))) without explicit generators. The polynomial factorization produces two positive factors, so the new loop extracts both and leaves other empty. The unconditional else branch then appends (_factors_product([]), exp), i.e. (1, 1/2). The new expression-to-Poly conversion attempts to convert that constant with no generators available and raises instead of returning the factor list. Previously, this input produced the two polynomial factors with exponent 1/2 and did not introduce a constant factor requiring conversion. The invariant is that extracting all factors must leave no residual factor, rather than an artificial unit. The added tests do not exercise an all-positive, multiple-factor base: their multiple-factor examples retain unknown-sign factors in other.",
+      "path": "sympy/polys/polytools.py",
+      "line": 4867,
+      "evidence": "                    else:\n                        factors.append((_factors_product(other), exp))\n\n        for factors in (fp, fq):\n            for i, (f, k) in enumerate(factors):\n                if not f.is_Poly:\n                    f, _ = _poly_from_expr(f, _opt)",
+      "fix": "Append the residual product only when other is nonempty: retain the single-factor branch and change the final else to elif other.",
+      "test": "Create p, q = symbols('p q', positive=True), then call factor_list(sqrt(expand((p + 1)*(q + 1)))) without generators. Assert coefficient 1 and exactly the factors p + 1 and q + 1, each with exponent S.Half; assert no exception or unit factor. Also exercise explicit generators to ensure no artificial unit factor is returned.",
+      "confidence": 0.93,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4857,
+          "symbol": "_symbolic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4867,
+          "symbol": "_symbolic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4904,
+          "symbol": "_generic_factor_list"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 21220,
+  "llm_calls": 5
+}

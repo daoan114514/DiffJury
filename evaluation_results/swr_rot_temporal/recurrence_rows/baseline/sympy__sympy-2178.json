@@ -1,0 +1,65 @@
+{
+  "id": "sympy__sympy-2178",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-principal-argument-rewrite",
+      "severity": "medium",
+      "title": "Replacing arg with atan loses quadrants and rejects valid solutions",
+      "explanation": "The new preprocessing replaces the principal complex argument with atan(im(z)/re(z)), which is not an equivalent function. A concrete regression is x = Symbol('x', real=True); solve([x + 2, arg(x) - pi], x). The original system has the unique valid solution x = -2: both original residuals are zero. On the new path, im(x) is 0 and re(x) is x, so the replacement simplifies arg(x) to atan(0) = 0. The second equation consequently becomes the nonzero constant -pi and the solver rejects the valid solution. The new regression test also explicitly expects x = 2 for solve([Abs(x) - 2, arg(x) - pi], x), although substituting that candidate into the original argument equation gives -pi, not zero. Thus its assertion enshrines an invalid solution rather than verifying the original equations. The problem is introduced by the added arg rewrite; the mathematically problematic Abs-to-sqrt rewrite already existed and is not the basis of this finding. Auxiliary-symbol handling cannot recover the lost quadrant information, and for a real symbol it is skipped altogether. At zero, the same rewrite also fails to preserve arg(0)'s undefined value.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 744,
+      "evidence": "[atan(im(a.args[0])/re(a.args[0])) for a in _arg]",
+      "fix": "Preserve arg unless an equivalent, quadrant-aware transformation can be made. If using atan2(im(z), re(z)), retain the undefined behavior at z = 0 and check candidates against the original argument equations rather than only transformed equations. Correct the new test to exclude x = 2.",
+      "test": "Add a regression asserting that solve([x + 2, arg(x) - pi], x), with real x, retains the solution -2. For the new Abs/arg system, assert that only -2 is returned and substitute every candidate into both original equations. Cover all quadrants, the imaginary axes, and zero; exercise default and complex=True symbols and dict/set output options.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 738,
+          "symbol": "solve: preprocess each equation"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 742,
+          "symbol": "solve: collect argument expressions involving requested symbols"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 744,
+          "symbol": "solve: replace principal argument with one-argument atan"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 751,
+          "symbol": "solve: skip auxiliary real/imaginary handling for real symbols"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

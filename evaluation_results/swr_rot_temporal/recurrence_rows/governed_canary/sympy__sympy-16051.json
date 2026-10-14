@@ -1,0 +1,158 @@
+{
+  "id": "sympy__sympy-16051",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "symbolic-truth-evaluation",
+      "severity": "medium",
+      "title": "Unknown integer sign now raises during expint branch handling",
+      "explanation": "An integer-assumed symbol need not have a known sign. For nu = Symbol('nu', integer=True), nu.is_integer is True but nu > 0 remains a symbolic StrictGreaterThan. With a nonzero polar winding, expint(nu, z*exp_polar(2*pi*I)) reaches this guard. Previously, (nu > 0) != True evaluated to True and returned without applying the positive-integer branch correction. The replacement attempts Python truth evaluation of the undecidable relation and raises TypeError instead of leaving the function unevaluated. The integer check does not establish positivity.",
+      "path": "sympy/functions/special/error_functions.py",
+      "line": 1221,
+      "evidence": "        if nu.is_integer:\n            if not nu > 0:\n                return",
+      "fix": "Retain an explicit comparison against True, such as `if (nu > 0) != True:`, so an undecidable sign causes the evaluation method to return without simplifying.",
+      "test": "Use `nu = Symbol('nu', integer=True)` and `z = Symbol('z')`. Verify that `(nu > 0) != True` is True whereas `bool(nu > 0)` raises TypeError. Add a public regression test constructing `expint(nu, z*exp_polar(2*pi*I))` and asserting that it remains unevaluated without raising. Also retain positive- and nonpositive-integer winding tests.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/error_functions.py",
+          "line": 1220,
+          "symbol": "expint.eval"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "symbolic-truth-evaluation",
+      "severity": "medium",
+      "title": "Union filtering truth-tests undecidable set membership",
+      "explanation": "For x = Symbol('x', real=True), unioning FiniteSet(0, x) with Interval(0, oo) reaches this filtering branch because the interval definitely contains 0. Its membership test for x is the undecidable relation x >= 0. Previously, `b.contains(x) != True` retained x because membership was not proven. The new `not b.contains(x)` attempts to convert that relation to a Python boolean and raises TypeError. The preceding any() guard proves membership for only one finite-set element, not for every element subsequently filtered, so it does not prevent this regression.",
+      "path": "sympy/sets/handlers/union.py",
+      "line": 113,
+      "evidence": "    if any(b.contains(x) == True for x in a):\n        return set((\n            FiniteSet(*[x for x in a if not b.contains(x)]), b))",
+      "fix": "Restore `b.contains(x) != True` when filtering. Remove only elements whose membership is definitely true, retaining elements with undecidable membership.",
+      "test": "Set `x = Symbol('x', real=True)` and `b = Interval(0, oo)`. Verify that `b.contains(x) != True` is True while `bool(b.contains(x))` raises TypeError. Add a regression test for `Union(FiniteSet(0, x), b)` expecting `Union(FiniteSet(x), b, evaluate=False)` without an exception. Include cases where all memberships are definite and where none are definitely true.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 111,
+          "symbol": "union_sets"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-4b143eb5",
+      "K-4ff368df",
+      "K-524f3b73",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-9f4e51f5",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-e13d441c",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ad16cdc6",
+          "K-93a099ce",
+          "K-b5e72943",
+          "K-2b42cad0",
+          "K-9f4e51f5",
+          "K-2ec8eae2"
+        ],
+        "tokens": 402,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-83dfddfe",
+          "K-d0414ebb",
+          "K-e172ac33",
+          "K-4b143eb5",
+          "K-e13d441c",
+          "K-b1da47ce",
+          "K-524f3b73"
+        ],
+        "tokens": 649,
+        "budget": 600,
+        "dropped": [
+          "K-ddb18739",
+          "K-0faed540",
+          "K-e820d88f",
+          "K-0117d999",
+          "K-46b8b947",
+          "K-c01df042",
+          "K-25a05e81",
+          "K-7b0b7360"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

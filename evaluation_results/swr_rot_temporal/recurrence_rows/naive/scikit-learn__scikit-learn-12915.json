@@ -1,0 +1,227 @@
+{
+  "id": "scikit-learn__scikit-learn-12915",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "calibration-zero-weight-saturation",
+      "severity": "medium",
+      "title": "Saturated zero-weight observations make the calibration objective NaN",
+      "explanation": "The new loss becomes infinite when P rounds to 1 and T1 is positive. Multiplying that loss by a zero sample weight at line 449 produces NaN, whereas the previous tiny-stabilized logarithm produced a finite loss and therefore a zero contribution. An analytical reproducer is _sigmoid_calibration(np.array([-1., 1., 1e100, 0.]), np.array([0, 1, 0, 1]), sample_weight=np.array([1., 1., 0., 0.])). The balanced initialization has A=B=0, and its nonzero slope gradient drives A negative. At the ordinary first descent candidate A=-0.5, the third observation has exp(A*F+B)=0 and P=1, so the objective becomes NaN solely because of this zero-weight observation. Ordinary backtracking cannot reach the approximately 1e-99 slope scale needed to avoid saturation, preventing the optimizer from learning the nonconstant calibration supported by the two positive-weight observations. This example requires exponential underflow, not the pre-existing exponential overflow problem. The reproducer is analytical rather than tool-executed; the supplied context contains no complete optimizer implementation or tests to inspect.",
+      "path": "sklearn/calibration.py",
+      "line": 447,
+      "evidence": "l = -(xlogy(T, P) + xlogy(T1, 1. - P))\n        if sample_weight is not None:\n            return (sample_weight * l).sum()",
+      "fix": "Evaluate the logistic loss directly from the linear predictor using a stable logaddexp formulation, rather than taking logarithms of rounded probabilities. At minimum, exclude zero-weight observations before evaluating and multiplying their losses.",
+      "test": "Add a regression test calling _sigmoid_calibration with scores [-1., 1., 1e100, 0.], labels [0, 1, 0, 1], and weights [1., 1., 0., 0.]. Assert finite learned coefficients and that the calibrated probabilities for the first two observations differ substantially rather than both remaining 0.5. Compare against the previous finite-loss implementation, and cover the mirrored extreme score as well.",
+      "confidence": 0.65,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/calibration.py",
+          "line": 445,
+          "symbol": "_sigmoid_calibration.objective: compute saturated probability"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 447,
+          "symbol": "_sigmoid_calibration.objective: compute infinite loss"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 449,
+          "symbol": "_sigmoid_calibration.objective: multiply infinite loss by zero weight"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0289f811",
+      "K-02febdba",
+      "K-04a42f60",
+      "K-05d5938d",
+      "K-06940955",
+      "K-0a9d5779",
+      "K-116601a4",
+      "K-1911e86a",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2d2f2af1",
+      "K-2fcf8cc0",
+      "K-3e3ec617",
+      "K-50891544",
+      "K-5097afae",
+      "K-517aea0d",
+      "K-53fd90dd",
+      "K-5726f975",
+      "K-58877fa4",
+      "K-5da5b627",
+      "K-6b983152",
+      "K-6caa3a53",
+      "K-7065ea3f",
+      "K-72d03d82",
+      "K-7410a7a0",
+      "K-750985c9",
+      "K-7a9550c8",
+      "K-81dce0d8",
+      "K-81df992c",
+      "K-8275c990",
+      "K-82989614",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8ac0d8df",
+      "K-8b12aa56",
+      "K-8b250572",
+      "K-8e49d3b8",
+      "K-9154d241",
+      "K-9fb0e5d3",
+      "K-9fc0d205",
+      "K-a02dc96f",
+      "K-a32f0183",
+      "K-c33a05ee",
+      "K-c59d36ba",
+      "K-c9e50aa1",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d55a9679",
+      "K-d5f0918f",
+      "K-dbd6b2da",
+      "K-e01a8db3",
+      "K-e552537e",
+      "K-e9744f86",
+      "K-eb0ce9df",
+      "K-ebb06c34",
+      "K-ef402548",
+      "K-f5fd559f",
+      "K-f6e0dac6",
+      "K-f9562eac"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-d398b681",
+          "K-04a42f60"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-dbd6b2da",
+          "K-e01a8db3",
+          "K-5097afae",
+          "K-750985c9",
+          "K-1911e86a",
+          "K-d55a9679",
+          "K-58877fa4",
+          "K-c33a05ee",
+          "K-24b3bdf1",
+          "K-d5f0918f",
+          "K-f6e0dac6",
+          "K-9154d241",
+          "K-0a9d5779",
+          "K-c59d36ba",
+          "K-8e49d3b8",
+          "K-116601a4",
+          "K-53fd90dd",
+          "K-81dce0d8",
+          "K-ebb06c34",
+          "K-eb0ce9df",
+          "K-295e0897",
+          "K-f5fd559f",
+          "K-f9562eac",
+          "K-6b983152",
+          "K-6caa3a53",
+          "K-3e3ec617",
+          "K-7a9550c8"
+        ],
+        "tokens": 2106,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-72d03d82",
+          "K-8b12aa56",
+          "K-e9744f86",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-20ab8e8e",
+          "K-5726f975",
+          "K-cebaccb0",
+          "K-82989614",
+          "K-1c46e9f8",
+          "K-9fb0e5d3",
+          "K-7410a7a0",
+          "K-c9e50aa1",
+          "K-1a7e5ff1",
+          "K-8b250572",
+          "K-06940955",
+          "K-8ac0d8df",
+          "K-50891544",
+          "K-2d2f2af1",
+          "K-e552537e",
+          "K-0289f811",
+          "K-02febdba",
+          "K-517aea0d",
+          "K-9fc0d205",
+          "K-8aa6a19d",
+          "K-21394d34",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-81df992c",
+          "K-05d5938d",
+          "K-218187b3",
+          "K-7065ea3f",
+          "K-a02dc96f",
+          "K-a32f0183",
+          "K-8275c990",
+          "K-ef402548"
+        ],
+        "tokens": 2110,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

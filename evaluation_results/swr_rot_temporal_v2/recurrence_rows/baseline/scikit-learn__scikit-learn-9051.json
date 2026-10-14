@@ -1,0 +1,60 @@
+{
+  "id": "scikit-learn__scikit-learn-9051",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "classifier-decision-function-contract",
+      "severity": "medium",
+      "title": "Three-class LibSVM pairwise scores cannot be classified with argmax",
+      "explanation": "Removing the BaseLibSVM exemption applies the per-class argmax assertion to SVC and NuSVC using decision_function_shape='ovo'. In the three-class iteration, classifier.decision_function(X) at line 1111 returns three pairwise margins, so the shape assertion passes: three class pairs happen to equal three classes. However, the columns represent (0,1), (0,2), and (1,2), not classes 0, 1, and 2. LibSVM predict uses pairwise voting rather than the index of the largest margin. A concrete supported counterexample is SVC(kernel='linear', C=1, decision_function_shape='ovo') fitted on X=[[-2],[0],[2]], y=[0,1,2]: at X=[[-2]], its pairwise margins are approximately [1,1,3], while predict returns class 0. The new assertion instead obtains class 2. Thus a valid classifier can now fail the estimator check. The 'ovr' mode converts margins into per-class scores, but that does not justify imposing its column interpretation on 'ovo'. The identity-to-equality replacements themselves correctly express numeric comparisons and introduce no identified defect. Repository source beyond the supplied diff and executable reproduction were unavailable, so the exact checker configuration/setup could not be independently inspected.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 1116,
+      "evidence": "if n_classes == 3:\n    assert_equal(decision.shape, (n_samples, n_classes))\n    assert_array_equal(np.argmax(decision, axis=1), y_pred)",
+      "fix": "Preserve the LibSVM exemption, or distinguish pairwise decision functions explicitly and validate their predictions using their documented voting semantics. Do not infer per-class semantics from the number of columns, since three-class ovo scores have the same shape.",
+      "test": "Add a focused regression using the linear three-point SVC configuration above: assert prediction 0 and pairwise-margin argmax 2, demonstrating that argmax agreement is not an ovo invariant. Also exercise the real classifier-check path with three-class SVC and NuSVC in ovo mode and verify that valid pairwise outputs are not rejected.",
+      "confidence": 0.8,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1111,
+          "symbol": "check_classifiers_train: classifier.decision_function(X)"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1116,
+          "symbol": "check_classifiers_train: unconditional three-class decision check"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1118,
+          "symbol": "check_classifiers_train: argmax compared with y_pred"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

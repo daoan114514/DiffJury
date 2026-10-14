@@ -1,0 +1,60 @@
+{
+  "id": "sympy__sympy-17548",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "module-namespace-symbol-overwrite",
+      "severity": "medium",
+      "title": "Module-level loop overwrites the exported symbol k",
+      "explanation": "Moving the loop out of clashing() makes its assignment to k mutate the module namespace instead of a function-local variable. Every namespace key produced by the import is a string, so after the loop sympy.abc.k is the last popped key string rather than the predefined Symbol('k'), regardless of dictionary iteration order. The final deletion does not remove or restore k. Consequently, an existing consumer executing `from sympy.abc import k; k + 1` now raises TypeError instead of constructing a symbolic expression. The move also leaves the exhausted dictionary ns publicly accessible (and exported by wildcard imports), and retains the last popped value as _. The clash-dictionary construction itself preserves the previous predicates, Symbol construction, and union operations; this namespace overwrite does not demonstrate a change to their contents. The relocated doctests exercise those dictionaries, not the exported k, and therefore would not detect this regression. No separate doctest-output defect is established by the supplied evidence.",
+      "path": "sympy/abc.py",
+      "line": 100,
+      "evidence": "    k, _ = ns.popitem()\n\n del _latin, _greek, Symbol",
+      "fix": "Use a private loop variable such as _name instead of k and delete _name, ns, and _ after construction, or keep construction inside a helper function so its temporary bindings cannot overwrite exported symbols.",
+      "test": "Import k from sympy.abc and assert it equals Symbol('k') and that k + 1 constructs the expected symbolic expression. Also execute a wildcard import into an isolated namespace and assert ns is absent. Verify _clash equals the union of _clash1 and _clash2 and run the relocated module doctests.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/abc.py",
+          "line": 95,
+          "symbol": "<module>: initialize imported namespace"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 100,
+          "symbol": "<module>: overwrite exported k while consuming namespace"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 111,
+          "symbol": "<module>: cleanup leaves overwritten k and temporary bindings"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

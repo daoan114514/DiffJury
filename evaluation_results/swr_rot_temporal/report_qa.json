@@ -1,0 +1,20 @@
+{
+  "protected_files_unchanged": 497,
+  "raw_experiment_inputs_unchanged": 1044,
+  "source_dataset_hash_verified": true,
+  "temporal_dataset_hash_verified": true,
+  "candidate_decisions_verified": 244,
+  "event_training_scope_verified": 243,
+  "counterfactual_training_scope_verified": 60,
+  "contamination_sql_verified": true,
+  "t5_registered_worktrees": 0,
+  "credential_scan_files": 1140,
+  "credential_matches": 0,
+  "test_suite_passed": 130,
+  "utf8_files_verified": 18,
+  "chinese_reports_verified": 3,
+  "progress_credential_matches": 0,
+  "empty_t5_retained": true,
+  "empty_t5_cleanup": "automatic approval rejected deletion as destructive risk",
+  "verified_at": "2026-10-14"
+}

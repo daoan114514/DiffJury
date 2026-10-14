@@ -1,0 +1,140 @@
+{
+  "id": "astropy__astropy-4736",
+  "findings": [
+    {
+      "rule_id": "non_scalar_quantity_conversion",
+      "severity": "high",
+      "title": "Every get_moon call attempts to convert a three-component Quantity to float",
+      "explanation": "For a scalar Time, ERFA epv00 returns position/velocity arrays shaped (2, 3), so earth_p is shaped (3,). Multiplying earth_p by the dimensionless mass ratio produces a three-element Quantity, not a scalar. Quantity.__float__ only accepts dimensionless scalar quantities, so line 209 raises TypeError before get_moon can return a coordinate. For Time shaped (N,) or (A, B), the same expression has shape (N, 3) or (A, B, 3) and also fails; empty arrays do not fix this. Line 211 repeats the error for velocity. A minimal triggering input is get_moon(Time('2000-01-01')). The scalar mass-ratio conversions themselves are valid; including earth_p or earth_v inside float is the defect. This makes the newly exported public function unusable for all documented inputs.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 209,
+      "evidence": "moon_p = float((const.M_moon+const.M_earth)/const.M_moon)*emb_p - \\\n             float(const.M_earth/const.M_moon*earth_p)",
+      "fix": "Convert only the scalar mass ratio: float(const.M_earth/const.M_moon) * earth_p, and make the equivalent correction for earth_v.",
+      "test": "Call the publicly exported get_moon with scalar, one-dimensional, and two-dimensional Time inputs. Assert that each returns a GCRS SkyCoord with the input Time shape and finite position components. Include an empty Time array to verify that no scalar conversion is attempted on array values.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "get_moon"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 203,
+          "symbol": "earth_p = earth_pv_helio[..., 0, :]"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 209,
+          "symbol": "float(const.M_earth/const.M_moon*earth_p)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "invalid_erfa_ab_parameters",
+      "severity": "medium",
+      "title": "Lunar aberration uses unnormalized velocities and the wrong Lorentz factor",
+      "explanation": "After correcting the float conversion, this call still violates ERFA ab's numerical contract. epv00 and plan94 velocities are in AU/day, whereas ab requires velocity in units of c. The speed of light is approximately 173.1446 AU/day, so the supplied velocity is too large by that factor. For a transverse relative velocity of 1 km/s, the code supplies approximately 0.00057755 rather than 0.00000333564: its first-order directional correction is approximately 119 arcseconds instead of 0.688 arcseconds. Moreover, ab's bm1 argument must be sqrt(1 - |v|^2), not its reciprocal as calculated on line 213. ab also specifies observer barycentric velocity and Sun-observer distance; the supplied relative lunar velocity and Moon-observer distance do not satisfy those definitions. Thus fixing the exception alone produces scientifically incorrect apparent coordinates. These parameter errors are independent of ephemeris accuracy. The lunar reconstruction also amplifies an EMB position error by (M_earth + M_moon)/M_moon, approximately 82.25; no dated residual comparison is available in the supplied evidence, so ephemeris accuracy is not asserted as a separate reproduced defect.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 213,
+      "evidence": "invlorentz = (1-np.sum((moon_v-earth_v)**2, axis=-1))**-0.5\nproperdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),\n                    earth_v-moon_v,\n                    dmoon,\n                    invlorentz)",
+      "fix": "Use an apparent-position calculation with consistent light-time and observer conventions. If calling ab directly, supply the observer's barycentric velocity divided by c, sqrt(1 - |v/c|^2), and the Sun-observer distance, with direction/sign handling consistent with the chosen light-time calculation.",
+      "test": "After removing the float failure, verify the aberration calculation against ERFA's documented inputs using a transverse-velocity case with a known first-order correction. Also compare returned lunar GCRS directions and distances at several dates with an independent lunar ephemeris, rather than merely asserting finite output.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "erfa.epv00"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 199,
+          "symbol": "erfa.plan94"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 210,
+          "symbol": "moon_v"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "erfa.ab"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "multidimensional_time_broadcasting",
+      "severity": "medium",
+      "title": "Flattening the distance axis breaks multidimensional Time inputs",
+      "explanation": "After correcting the float conversion, a Time array shaped (2, 2) produces earth_p and moon_p shaped (2, 2, 3), and dmoon shaped (2, 2). Line 214 reshapes dmoon to (4, 1). NumPy cannot broadcast (2, 2, 3) against (4, 1), because the aligned dimensions 2 and 4 disagree, so the function raises ValueError. Scalar input would produce (1, 3) here and the explicit scalar extraction handles that case; one-dimensional input also broadcasts correctly. The failure is specifically introduced for multidimensional arrays, which the documented array-Time contract does not exclude.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 214,
+      "evidence": "properdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),",
+      "fix": "Preserve the Time dimensions by using dmoon[..., np.newaxis]. Adjust scalar CartesianRepresentation construction as necessary so the scalar result remains scalar instead of relying on the extra axis introduced by reshape.",
+      "test": "Use Time([[2451545.0, 2451546.0], [2451547.0, 2451548.0]], format='jd'). Assert a returned coordinate shape of (2, 2), and compare every element with an independent scalar get_moon call. Include a shape such as (2, 1) to detect accidental broadcasting that expands the result.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "get_moon"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 212,
+          "symbol": "dmoon"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "dmoon.reshape(-1, 1)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 24853,
+  "llm_calls": 5
+}

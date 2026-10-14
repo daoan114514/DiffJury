@@ -1,0 +1,205 @@
+{
+  "id": "sympy__sympy-15278",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "tensor-variance-axis-restoration",
+      "severity": "medium",
+      "title": "Raising or lowering later axes swaps unrelated tensor axes",
+      "explanation": "For rank-three tensors, converting variance on axis 2 incorrectly transposes axes 0 and 1. A concrete reproduction is to call _match_indices_with_other_tensor(A, [i, j, -k], [i, j, k], {L: Array([[1, 0], [0, -1]])}), where all indices have type L and A = Array([1,2,3,4,5,6,7,8]).reshape(2,2,2). After contraction, the axes are [new_k, i, j]. Swapping positions 0 and 2 produces [j, i, new_k], not the required [i, j, new_k]. The final index permutation is the identity because free_ind2 has already become [i, j, -k], so it does not repair this error. Consequently result[0,1,0] is 5 instead of 3. The added rank-four test only checks that extraction is truthy, and therefore does not establish componentwise correctness.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2714,
+      "evidence": "array = tensorcontraction(tensorproduct(metric, array), (1, 2+pos))\npermu = list(range(len(free_ind1)))\npermu[0], permu[pos] = permu[pos], permu[0]\nreturn permutedims(array, permu)",
+      "fix": "Move the new metric axis from position 0 to position pos while retaining the relative order of every other axis; use [1, ..., pos, 0, pos+1, ...] rather than swapping two positions.",
+      "test": "Use a nonsymmetric rank-three array and assert every component after lowering axis 2. Repeat with a non-diagonal metric, raising indices, and a rank-four array with conversions on multiple axes.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2725,
+          "symbol": "contract_and_permute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "tensor-reordered-index-metric-selection",
+      "severity": "medium",
+      "title": "Reordered mixed-type indices select the wrong metric",
+      "explanation": "The conversion positions are measured in free_ind2, but index_types1 is measured in free_ind1. These positions differ when the requested indices are reordered. Let i have type L, j have type M, A = Array([[1,2],[3,4]]), and the covariant metrics be L: Array([[2,0],[0,3]]) and M: Array([[5,0],[0,7]]). Calling _match_indices_with_other_tensor(A, [j, -i], [i, j], metrics) records pos2down = [0] for lowering i. However, index_types1[0] is M, so the implementation lowers i using M's metric. After the final transpose it returns [[5,21],[10,28]] instead of [[2,9],[4,12]]. If L and M have different dimensions, the same mistake can instead raise a contraction dimension error for an otherwise valid conversion.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2724,
+      "evidence": "index_types1 = [i.tensor_index_type for i in free_ind1]\n...\npos2down.append(pos2)\n...\nfor pos in pos2down:\n    metric = replacement_dict[index_types1[pos]]",
+      "fix": "Record the matched index type alongside each conversion position, or select the type from the corresponding free_ind2 axis. Apply the same correction to the raising loop.",
+      "test": "Assert the exact array for reordered mixed-type indices using distinct metrics. Include both raising and lowering and a case where the index types have different dimensions.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2724,
+          "symbol": "lower-index metric selection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-decorator-preserves-callability",
+      "severity": "medium",
+      "title": "Warning-filter decorator executes tests immediately and returns None",
+      "explanation": "The decorator invokes f while decoration is taking place and has no return statement. Thus applying it to a test executes that test during module import and binds the test name to None rather than a callable. This can be reproduced with an events list and a decorated test that appends to it: immediately after definition, events is [1] and test_example is None. Normal callable-based discovery cannot collect the test, and any assertion or exception occurs during import instead of normal test execution. The warning context must surround execution of a returned wrapper, not execution of the decorator itself.",
+      "path": "sympy/tensor/tests/test_tensor.py",
+      "line": 23,
+      "evidence": "def filter_warnings_decorator(f):\n    with warnings.catch_warnings():\n        warnings.filterwarnings(\"ignore\", category=SymPyDeprecationWarning)\n        f()",
+      "fix": "Return a functools.wraps-decorated wrapper that enters catch_warnings and invokes f only when the test runner calls it.",
+      "test": "Decorate a function with a side-effect counter; assert decoration leaves the counter unchanged and returns a callable, then invoke it and assert the counter increments once. Verify decorated tests remain present in test collection.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 20,
+          "symbol": "filter_warnings_decorator"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 23,
+          "symbol": "immediate invocation of decorated test"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-0faed540",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-4b143eb5",
+      "K-524f3b73",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-93b0799e",
+      "K-9f4e51f5",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-ddb18739",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-2ec8eae2",
+          "K-09474f0c",
+          "K-b5e72943",
+          "K-93a099ce",
+          "K-ad16cdc6",
+          "K-9f4e51f5",
+          "K-2b42cad0"
+        ],
+        "tokens": 463,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-c01df042",
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-e820d88f",
+          "K-524f3b73",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-0faed540"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-d0414ebb",
+          "K-83dfddfe",
+          "K-e172ac33",
+          "K-7ac64342",
+          "K-25a05e81",
+          "K-e13d441c",
+          "K-46b8b947",
+          "K-5af1f6aa",
+          "K-4073d146"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

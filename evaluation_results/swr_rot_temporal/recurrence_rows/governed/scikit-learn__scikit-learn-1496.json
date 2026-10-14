@@ -1,0 +1,89 @@
+{
+  "id": "scikit-learn__scikit-learn-1496",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "constant-feature-range",
+      "severity": "medium",
+      "title": "Zero-variance handling produces the wrong value for non-unit feature ranges",
+      "explanation": "The newly added denominator replacement makes constant features produce finite results, but the existing offset calculation is incompatible with that replacement when the feature range has width other than one. For the supported two-dimensional floating-point input X = [[1.0, 0.0], [1.0, 2.0]] and feature_range=(0, 2), fit computes the replacement denominator [1, 2], self.scale_=[2, 1], and self.min_=[-1, 0]. Under the scaler's affine transformation, the constant column therefore becomes [1, 1], rather than the required lower bound [0, 0]; the varying column maps correctly to [0, 2]. The corresponding inverse transformation of a constant-column value at the lower bound returns 0.5 rather than the fitted constant 1.0, although transforming and then inverse-transforming still round-trips. The offset formula itself predates this change; the finding is specifically the newly enabled finite-but-incorrect zero-variance behavior, not the unrelated pre-existing behavior of varying nonzero-minimum columns. The added assertions use ranges (0, 1) and (1, 2), both of width one, so they cannot detect this interaction. The renamed Iris test does not exercise the new zero-variance branch. These results are calculated from the supplied fit code; the transform and inverse_transform implementations were not included in the supplied context and no execution tools were available.",
+      "path": "sklearn/preprocessing.py",
+      "line": 194,
+      "evidence": "scale_[scale_ == 0.0] = 1.0\n        self.scale_ = (feature_range[1] - feature_range[0]) / scale_\n        self.min_ = feature_range[0] - min_ / scale_",
+      "fix": "Calculate the offset using the actual multiplier: self.min_ = feature_range[0] - min_ * self.scale_. Keep the zero-denominator replacement.",
+      "test": "Fit and transform [[1.0, 0.0], [1.0, 2.0]] with feature_range=(0, 2), and assert the exact expected array [[0.0, 0.0], [0.0, 2.0]]. Repeat with a shifted non-unit range such as (-1, 2). Assert inverse_transform of the expected transformed array recovers the original input; a round-trip assertion alone would miss the incorrect placement within the feature range.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_preprocessing.py",
+          "line": 150,
+          "symbol": "scaler.fit_transform"
+        },
+        {
+          "path": "sklearn/preprocessing.py",
+          "line": 194,
+          "symbol": "MinMaxScaler.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

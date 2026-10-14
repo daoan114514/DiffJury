@@ -1,0 +1,46 @@
+{
+  "id": "matplotlib__matplotlib-2726",
+  "findings": [
+    {
+      "rule_id": "duplicate-forwarded-keyword",
+      "severity": "medium",
+      "title": "Explicit snap argument breaks callers passing snap through kwargs",
+      "explanation": "The Axes.pcolor collection-construction path forwards keyword arguments to PolyCollection, whose Artist properties include snap. An existing call such as ax.pcolor([[1, 2], [3, 4]], snap=True) previously forwarded that property once. The changed expression supplies snap both explicitly and through kwargs, so Python raises TypeError for multiple values for keyword argument 'snap' before constructing the collection. Passing snap=False or snap=None also fails; this is not merely a restriction on enabling snapping. The supplied excerpt establishes the old and new forwarding behavior, but does not include the enclosing signature/documentation, the snap implementation, or regression tests; those items could not be independently inspected in this no-tools review. No separate rendering defect is claimed.",
+      "path": "lib/matplotlib/axes.py",
+      "line": 7606,
+      "evidence": "collection = mcoll.PolyCollection(verts, snap=False, **kwargs)",
+      "fix": "Set kwargs.setdefault('snap', False) before construction, then call mcoll.PolyCollection(verts, **kwargs). This changes the omitted-value default while preserving supported caller overrides.",
+      "test": "Exercise Axes.pcolor with snap omitted and with snap=True, snap=False, and snap=None. Assert that each call succeeds and that the returned collection's get_snap() equals False for omission and the explicitly supplied value otherwise. The explicit-value cases should reproduce the duplicate-keyword failure with the changed implementation.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes.py",
+          "line": 7606,
+          "symbol": "Axes.pcolor -> mcoll.PolyCollection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 10785,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-2726.json",
+  "borrowed_sha256": "0a38281a250271ed8aeebcea63b677ca04f28e6fafaf3430be2bd57960c1ef08"
+}

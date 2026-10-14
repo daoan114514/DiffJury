@@ -1,0 +1,49 @@
+{
+  "id": "scikit-learn__scikit-learn-7415",
+  "findings": [
+    {
+      "rule_id": "pickle-warning-estimator-name-mismatch",
+      "severity": "medium",
+      "title": "The replacement estimator changes the warning name but not its expected message",
+      "explanation": "The changed test pickles a TreeBadVersion instance rather than a DecisionTreeClassifier instance. TreeBadVersion overrides only __getstate__, so it retains the inherited deserialization behavior: BaseEstimator.__setstate__ reports the concrete estimator's class name in its version-mismatch warning. Consequently, unpickling this object reports 'Trying to unpickle estimator TreeBadVersion from version something ...', whereas the existing expected message still begins 'Trying to unpickle estimator DecisionTreeClassifier from ...'. The helper successfully supplies the mismatched version, but the warning-message check now fails because the estimator name differs. The supplied excerpt does not include the complete assertion or BaseEstimator implementation, so those could not be independently inspected in this tool-free review.",
+      "path": "sklearn/tests/test_base.py",
+      "line": 343,
+      "evidence": "    tree = TreeBadVersion().fit(iris.data, iris.target)\n    tree_pickle_other = pickle.dumps(tree)\n    message = (\"Trying to unpickle estimator DecisionTreeClassifier from \"",
+      "fix": "Update the expected warning's estimator name to TreeBadVersion while retaining the assertions for the mismatched and current versions.",
+      "test": "Run test_pickle_version_warning with the real pickle.dumps/pickle.loads round trip and assert that the warning contains 'Trying to unpickle estimator TreeBadVersion from version something' followed by the current sklearn version.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_base.py",
+          "line": 332,
+          "symbol": "test_pickle_version_warning"
+        },
+        {
+          "path": "sklearn/tests/test_base.py",
+          "line": 328,
+          "symbol": "TreeBadVersion.__getstate__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 11330,
+  "llm_calls": 5
+}

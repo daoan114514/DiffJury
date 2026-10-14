@@ -1,0 +1,84 @@
+{
+  "id": "sympy__sympy-17672",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-expint-branch-series",
+      "severity": "medium",
+      "title": "The updated expint series expectation accepts an incorrect imaginary coefficient",
+      "explanation": "The changed assertion requires expint(4, z) to contain -I*pi*z**3/6. This is mathematically incorrect on the positive real axis. For t > 0, expint(4, t) = Integral(exp(-t*u)/u**4, (u, 1, oo)) is real. Its expansion is 1/3 - t/2 + t**2/2 + t**3*(log(t)/6 - 11/36 + EulerGamma/6) - t**4/24 + t**5/240 + O(t**6), obtained from E1(t) = -EulerGamma - log(t) + t - t**2/4 + ... and n*E_(n+1)(t) = exp(-t) - t*E_n(t). Substituting a positive real t into the newly asserted polynomial instead gives imaginary part -pi*t**3/6; an O(t**6) remainder cannot repair this discrepancy. Thus the expectation change masks a branch regression rather than validating a correct expansion.\n\nThe direct Ei correction is appropriate for an ordinary negative real argument: Chi(-t) has imaginary part pi whereas Ei(-t) and Shi(-t) are real. Positive, unknown-sign, and nonreal arguments still take the unchanged else branch; any existing unknown-sign rewrite/substitution inconsistency is not newly introduced and is not reported here. The Si, Ci, Chi, and Shi rewrite aliases share this implementation, although the added direct rewrite test checks only Si.\n\nThe new improper-integral expectations are independently correct: for p > 1, substitution u = log(x) gives integral_0^infinity exp(-(p-1)*u)*log(u) du = -(EulerGamma + log(p-1))/(p-1). The new right-hand limit is also EulerGamma. Those tests exercise the repaired negative-real Ei behavior, but do not justify introducing an imaginary term into positive-real expint.",
+      "path": "sympy/functions/special/tests/test_error_functions.py",
+      "line": 437,
+      "evidence": "z**3*(log(z)/6 - Rational(11, 36) + EulerGamma/6 - I*pi/6) - z**4/24 + \\",
+      "fix": "Restore the real z**3 coefficient in this assertion and correct the downstream series branch handling so the negative-real Ei correction preserves expint's principal branch. Keep the valid correction for direct Ei calls on negative real arguments.",
+      "test": "With t a positive real symbol, assert the complete real expansion of expint(4, t) through O(t**6). Also substitute t into the expansion for an unconstrained z and assert that its imaginary part is zero; the newly asserted coefficient fails this check with -pi*t**3/6. Retain the negative-real Ei regression and exercise each shared rewrite alias.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/tests/test_error_functions.py",
+          "line": 436,
+          "symbol": "test_expint: expint(4, z).series(z)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

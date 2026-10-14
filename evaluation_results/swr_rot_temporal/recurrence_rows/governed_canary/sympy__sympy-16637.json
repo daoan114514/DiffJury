@@ -1,0 +1,135 @@
+{
+  "id": "sympy__sympy-16637",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "plane-distance-empty-supporting-line-intersection",
+      "severity": "medium",
+      "title": "Distance to a disjoint parallel segment or ray now raises ValueError",
+      "explanation": "The new tuple unpack assumes that every disjoint segment or ray has exactly one supporting-line intersection with the plane. A supporting line parallel to, but outside, the plane has none. Minimal reproducer: p = Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1)); s = Segment3D(Point3D(0, 0, 1), Point3D(1, 0, 1)); p.distance(s). Expected: 1. Actual, by the changed call path: ValueError while unpacking an empty list. Replacing Segment3D with Ray3D gives the same regression. The initial intersection check returns [], so it does not prevent entry into this branch. In intersection(), the normal-vector dot product is the constant 1; solve(1, t) returns [], and lines 408–409 return []. The subsequent supporting-line intersection returns [] for the same reason. Previously, the LinearEntity3D distance branch calculated the normal separation from the first endpoint and correctly returned 1. Supporting lines contained in the plane are protected by the initial intersection check, and nonparallel supporting lines supply one point; the missing case is the empty result. The added endpoint and direction tests exercise nonparallel geometries but do not cover this failure. This counterexample uses exact numeric coordinates, so it requires no assumptions about symbolic containment or simplification.",
+      "path": "sympy/geometry/plane.py",
+      "line": 287,
+      "evidence": "            pi, = self.intersection(Line3D(a, b))",
+      "fix": "Check the supporting-line intersection result before unpacking. If it is empty, return self.distance(a), since every point on that parallel supporting line has the same distance to the plane. Preserve the existing endpoint-selection logic for a single intersection point.",
+      "test": "Add exact assertions that the plane z=0 has distance 1 from both Segment3D((0, 0, 1), (1, 0, 1)) and Ray3D((0, 0, 1), (1, 0, 1)). Assert their plane intersections are [], and repeat with reversed endpoints or ray direction. Retain tests for contained entities, nonparallel intersections, and nonparallel entities directed away from the plane.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 282,
+          "symbol": "Plane.distance: initial intersection check"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 287,
+          "symbol": "Plane.distance: supporting-line intersection and unpack"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 407,
+          "symbol": "Plane.intersection: solve((a - p1).dot(n), t)"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 408,
+          "symbol": "Plane.intersection: empty solution returns []"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-0faed540",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-524f3b73",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ad16cdc6",
+          "K-09474f0c",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-b5e72943"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa",
+          "K-726d8aec",
+          "K-25a05e81",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-b1da47ce",
+          "K-e172ac33",
+          "K-83dfddfe",
+          "K-524f3b73",
+          "K-0faed540"
+        ],
+        "tokens": 649,
+        "budget": 600,
+        "dropped": [
+          "K-4b143eb5",
+          "K-0117d999"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

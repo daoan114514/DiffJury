@@ -1,0 +1,59 @@
+{
+  "id": "scikit-learn__scikit-learn-29493",
+  "findings": [
+    {
+      "rule_id": "REL-KEYBOARD-ACCESSIBILITY",
+      "severity": "medium",
+      "title": "Replacing toggle-all buttons with a span removes keyboard activation",
+      "explanation": "The previous toggle-all controls were native buttons: once revealed by hovering over a dropdown, they could receive Tab focus and be activated with Enter or Space. The replacement span has neither tabindex nor button semantics, and its action is registered only for click. Reproduction: leave the pointer over a dropdown so the toggle-all icon is visible, then navigate with Tab and attempt to activate it. Previously the displayed button was reachable and activated all dropdowns; now focus skips the icon. Enter or Space on the enclosing summary toggles only that summary's dropdown, because the marker's click listener does not receive clicks targeted at its parent. Thus the existing toggle-all feature loses its keyboard-operable path.",
+      "path": "doc/js/scripts/dropdown.js",
+      "line": 20,
+      "evidence": "const newStateMarker = document.createElement(\"span\");",
+      "fix": "Retain a native button styled with the new state-marker classes. Prevent its click default action and explicitly update every dropdown, including the originating dropdown, so native summary activation cannot undo the requested state. Ensure the control is visible when keyboard-focused as well as when hovered.",
+      "test": "Add a browser regression test with two dropdowns. Hover the first dropdown, use Tab to focus its toggle-all control, and activate it with Enter and Space. Assert that both dropdowns expand or collapse together. Also verify that ordinary keyboard activation of the summary still toggles only its own dropdown.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/js/scripts/dropdown.js",
+          "line": 11,
+          "symbol": "DOMContentLoaded listener"
+        },
+        {
+          "path": "doc/js/scripts/dropdown.js",
+          "line": 20,
+          "symbol": "newStateMarker creation"
+        },
+        {
+          "path": "doc/js/scripts/dropdown.js",
+          "line": 40,
+          "symbol": "newStateMarker click listener"
+        },
+        {
+          "path": "doc/js/scripts/dropdown.js",
+          "line": 59,
+          "symbol": "summaryTitle.insertBefore"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-684",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 67234,
+  "llm_calls": 5
+}

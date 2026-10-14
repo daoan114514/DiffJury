@@ -1,0 +1,128 @@
+{
+  "id": "matplotlib__matplotlib-5825",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "correctness-documentation-link",
+      "severity": "medium",
+      "title": "Resolve the style-changes link relative to the documentation root",
+      "explanation": "The shared layout now uses a bare relative URL for the style-changes announcement. On a nested generated page such as https://matplotlib.org/users/index.html, clicking “new updates” navigates to https://matplotlib.org/users/style_changes.html rather than the documentation-root style_changes.html page. The link works on the root index but points to the wrong destination on nested documentation pages. No template URL resolver is applied to account for the current page's depth.",
+      "path": "doc/_templates/layout.html",
+      "line": 180,
+      "evidence": "<p>Learn what to expect in the <a href=\"style_changes.html\" style=\"font-weight: bold;",
+      "fix": "Generate the link with Sphinx's page-relative URL helper, for example href=\"{{ pathto('style_changes') }}\", so nested pages resolve to the same documentation-root target.",
+      "test": "Render both index.html and a nested page such as users/index.html. Resolve each announcement href against its generated page URL and assert that both reach the generated root style_changes.html page.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 180,
+          "symbol": "Shared announcement link rendered on documentation pages"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "external-popup-opener-isolation",
+      "severity": "medium",
+      "title": "Mobile donation popup retains access to the documentation window",
+      "explanation": "The donation sidebar passes a fixed campaign identifier to open_window. Its visible mobile branch constructs an HTTPS Flipcause URL and opens it with window.open(new_url), without requesting noopener. Unlike an ordinary cross-origin iframe, this popup can retain a window.opener capability. If the external widget serves attacker-controlled content, that content can use window.opener.location = 'https://attacker.example/fake-docs' to replace the documentation tab with a phishing page in browsers that permit cross-origin opener navigation. The exploit requires the mobile user-agent branch, a successfully opened popup, attacker control of content at the external destination, and no effective hosting/browser opener isolation such as Cross-Origin-Opener-Policy. It does not give the popup permission to read the documentation DOM. This conclusion is limited to the supplied visible code: repository inspection was unavailable, so omitted widget code and hosting headers could not be checked for compensating controls. The campaign identifiers are constants, so the visible URL construction does not establish attacker-controlled URL injection.",
+      "path": "doc/_templates/layout.html",
+      "line": 368,
+      "evidence": "window.open(new_url);",
+      "fix": "Open the external widget with window.open(new_url, '_blank', 'noopener,noreferrer'). Confirm that supported browsers enforce opener isolation; use an appropriately isolated link or another compatible approach where necessary.",
+      "test": "In a browser security test, trigger the mobile donation branch and intercept the Flipcause navigation with a controlled test page. Assert that window.opener is null and that an attempted opener navigation cannot change the documentation tab. Also verify that the donation popup still opens at the expected campaign URL.",
+      "confidence": 0.7699999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/_templates/donate_sidebar.html",
+          "line": 2,
+          "symbol": "onclick=\"open_window('MjI1OA==')\""
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 366,
+          "symbol": "mobile user-agent branch"
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 367,
+          "symbol": "new_url=\"https://www.flipcause.com/widget/\"+cause_id"
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 368,
+          "symbol": "window.open"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1022",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

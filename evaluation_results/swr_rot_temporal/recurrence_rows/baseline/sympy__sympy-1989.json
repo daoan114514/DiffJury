@@ -1,0 +1,55 @@
+{
+  "id": "sympy__sympy-1989",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "local-binding-truth-value",
+      "severity": "medium",
+      "title": "Callable resolution incorrectly truth-tests local bindings",
+      "explanation": "The new lookup treats a false-valued local binding as absent and invokes arbitrary local objects' truth-value methods. A concrete regression is a callable defined as `class F: def __bool__(self): return False; def __call__(self, x): return x + 1` (with the methods on separate lines). With `local_dict={'f': F()}`, `global_dict={}`, and `transformations=(function_exponentiation,)`, parsing `f**2(3)` previously rewrote the expression to `f(3)**2` and returned 16. Now function_exponentiation calls _token_callable, which replaces the existing local callable with the missing global binding, returns False, and leaves `f**2(3)` unchanged; evaluation raises TypeError because it attempts to call the integer 2. If F.__bool__ instead raises ValueError, parsing now raises that exception before rewriting, although the callable itself remains valid. Neither failure occurred in the previous unconditional function-exponentiation path. The added tests use default global functions and do not exercise either local-binding boundary.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 41,
+      "evidence": "func = local_dict.get(token[1])\n    if not func:\n        func = global_dict.get(token[1])",
+      "fix": "Choose the binding by dictionary membership rather than truth value: use the local binding when the name is present in local_dict, otherwise consult global_dict. Do not invoke bool() on namespace values.",
+      "test": "Parse `f**2(3)` using transformations=(function_exponentiation,), global_dict={}, and a local callable that returns x + 1. Assert the result is 16 both when its __bool__ returns False and when its __bool__ raises. Also add implicit-application coverage for these callables and a namespace-shadowing assertion showing that an existing false-valued local binding is not replaced by a global function.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 304,
+          "symbol": "function_exponentiation"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 41,
+          "symbol": "_token_callable"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

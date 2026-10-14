@@ -1,0 +1,85 @@
+{
+  "id": "sympy__sympy-10499",
+  "findings": [
+    {
+      "rule_id": "backend-precision-regression",
+      "severity": "medium",
+      "title": "Preserve mpmath's arbitrary-precision implementation of Abs",
+      "explanation": "The unconditional assignment replaces the previous mpmath translation, Abs -> fabs, with Python's built-in abs. This changes numerical results for supported Python complex inputs: under mpmath.workdps(80), lambdify(x, Abs(x), modules='mpmath')(1+1j) previously evaluated mpmath.fabs(1+1j), producing an arbitrary-precision mpf approximation of sqrt(2). It now evaluates abs(1+1j), returning a binary64 float regardless of the mpmath precision setting. This is a concrete code-level counterexample: mpmath.fabs converts the complex input into the mpmath context before computing its magnitude, whereas built-in complex.__abs__ computes a Python float. The new Abs tests use only None, math, and numpy backends and the exactly representable magnitude of 3+4j, so they do not exercise this precision regression.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 150,
+      "evidence": "namespace['Abs'] = abs",
+      "fix": "Retain the mpmath Abs -> fabs translation and install built-in abs only when the selected backend has no appropriate Abs implementation.",
+      "test": "Within mpmath.workdps(80), construct lambdify(x, Abs(x), modules='mpmath'), evaluate it at 1+1j, and assert that the result is an mpf equal to mpmath.sqrt(2) at the active precision. The changed implementation returns a float and fails this assertion.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 154,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 150,
+          "symbol": "_import"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "backend-input-compatibility",
+      "severity": "medium",
+      "title": "Keep NumPy's array-like input support for Abs",
+      "explanation": "Replacing the previous NumPy translation, Abs -> numpy.abs, with built-in abs narrows the accepted inputs of NumPy-backed lambdified functions. For example, lambdify(x, Abs(x), modules='numpy')([-1, 2]) previously dispatched to numpy.abs([-1, 2]) and returned an array containing [1, 2]. The new namespace binding dispatches to abs([-1, 2]), which raises TypeError because lists do not implement __abs__. NumPy's ufunc previously performed the array-like conversion; built-in abs has no equivalent conversion or fallback. Ordinary ndarray inputs still work through ndarray.__abs__, so ndarray-only coverage does not detect the break. The added Abs test passes only scalar values.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 150,
+      "evidence": "namespace['Abs'] = abs",
+      "fix": "Preserve the NumPy Abs translation to numpy.abs rather than overwriting it with built-in abs; use the built-in implementation only as a backend fallback.",
+      "test": "Construct lambdify(x, Abs(x), modules='numpy') and evaluate it with both [-1, 2] and (-1, 2). Assert that each returns a NumPy array equal to [1, 2], and retain an ndarray case to verify normal vectorized behavior.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 154,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 150,
+          "symbol": "_import"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      1
+    ],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 21833,
+  "llm_calls": 5
+}

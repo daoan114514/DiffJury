@@ -1,0 +1,133 @@
+{
+  "id": "sympy__sympy-1989",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "parser-callable-lookup-truth-evaluation",
+      "severity": "medium",
+      "title": "Callable lookup now evaluates the truth value of local bindings",
+      "explanation": "The new `if not func` invokes a local object's truth-value method before checking whether it is callable. This introduces a failure for valid callable overrides whose truth evaluation raises. A representative reproduction is:\n\nclass F(object):\n    def __call__(self, x):\n        return x + 1\n    def __bool__(self):\n        raise TypeError('truth value is undefined')\n    __nonzero__ = __bool__\n\nparse_expr('sin x', local_dict={'sin': F()}, transformations=standard_transformations + (implicit_application,))\n\nExpected: `x + 1`. Previously, `_implicit_application` recognized the default global `sin` as a function, inserted application parentheses, and evaluation invoked the local callable. Now `_implicit_application` calls `_token_callable`, which raises `TypeError` while truth-testing the local binding, before parentheses are inserted. Namespace lookup must not require values to support boolean conversion; symbolic relation and array bindings can likewise raise during this new lookup. The two added tests exercise global functions with explicit powered arguments, not local overrides, and therefore miss this regression. Falsy-local fallback and ordinary-power handling are not reported separately here because the supplied evidence does not establish that those cases introduce an additional regression.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 41,
+      "evidence": "    func = local_dict.get(token[1])\n    if not func:\n        func = global_dict.get(token[1])",
+      "fix": "Resolve namespaces by key presence: use the local value when `token[1] in local_dict`, otherwise use the global value. Do not boolean-test the retrieved object. This also preserves local precedence for falsy bindings.",
+      "test": "Add a regression test invoking `parse_expr('sin x', local_dict={'sin': F()}, transformations=standard_transformations + (implicit_application,))` with the callable above and assert the exact result `Symbol('x') + 1`. Also cover truthy and falsy callable overrides, non-callable local overrides of global functions, and local objects whose boolean conversion raises. Keep those namespace tests separate from function-exponent tests containing ordinary symbolic powers.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 245,
+          "symbol": "_implicit_application"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 248,
+          "symbol": "_token_callable"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 41,
+          "symbol": "F.__bool__ / F.__nonzero__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-46b8b947",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-e172ac33",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ad16cdc6",
+          "K-09474f0c",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-b5e72943"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa",
+          "K-e820d88f",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-25a05e81",
+          "K-83dfddfe",
+          "K-b1da47ce",
+          "K-46b8b947",
+          "K-e172ac33"
+        ],
+        "tokens": 647,
+        "budget": 600,
+        "dropped": [
+          "K-4b143eb5",
+          "K-0faed540",
+          "K-e13d441c",
+          "K-ddb18739",
+          "K-0117d999"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

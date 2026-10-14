@@ -1,0 +1,307 @@
+{
+  "id": "sympy__sympy-15278",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "tensor-metric-axis-order",
+      "severity": "medium",
+      "title": "Lowering the third or later index corrupts the remaining axis order",
+      "explanation": "The metric contraction places the transformed axis first, followed by the original axes with that axis removed. Swapping the first axis with pos does not restore the original order when pos >= 2. For example, directly call this helper with Array(range(1, 9), (2, 2, 2)), free_ind1=[i, j, -k], free_ind2=[i, j, k], and replacement_dict={L: diag(1, -1)}, where all three indices have type L. The result is [[[1, -2], [5, -6]], [[3, -4], [7, -8]]], whereas lowering k must produce [[[1, -2], [3, -4]], [[5, -6], [7, -8]]]. The subsequent index permutation is the identity in this example, so it does not repair the exchanged i and j axes. This is a mathematical error in the new array-alignment helper, independent of the omitted caller implementations.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2714,
+      "evidence": "array = tensorcontraction(tensorproduct(metric, array), (1, 2+pos))\npermu = list(range(len(free_ind1)))\npermu[0], permu[pos] = permu[pos], permu[0]\nreturn permutedims(array, permu)",
+      "fix": "Move the newly created leading axis into position pos while preserving the relative order of every other axis. For rank n, use list(range(1, pos + 1)) + [0] + list(range(pos + 1, n)) rather than a swap.",
+      "test": "Add componentwise rank-three tests using eight distinct components and a nontrivial metric, lowering and raising each axis separately. Assert the complete array and its shape, including the pos=2 counterexample.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2711,
+          "symbol": "contract_and_permute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "tensor-metric-index-type",
+      "severity": "medium",
+      "title": "Reordered heterogeneous indices select the metric of a different axis",
+      "explanation": "pos2up and pos2down contain positions in free_ind2, but index_types1 is indexed in free_ind1 order. Consequently, requesting a reordered output can select another index type's metric. A concrete rank-three helper call uses i of type L, j of type M, k of type N, Array(range(1, 9), (2, 2, 2)), free_ind1=[-j, i, k], free_ind2=[i, j, k], L: diag(2, 3), and M: diag(5, 7). Lowering j records position 1, then incorrectly selects index_types1[1], which is L. The resulting array is [[[2, 4], [10, 12]], [[9, 12], [21, 24]]], instead of [[[5, 10], [25, 30]], [[21, 28], [49, 56]]]. Both metrics have compatible shapes, so shape validation cannot detect the incorrect result. The analogous lookup in the raising loop has the same defect.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2724,
+      "evidence": "index_types1 = [i.tensor_index_type for i in free_ind1]\n...\npos2down.append(pos2)\n...\nfor pos in pos2down:\n    metric = replacement_dict[index_types1[pos]]\n    array = contract_and_permute(metric, array, pos)",
+      "fix": "Associate each recorded source-array position with the matched index's tensor_index_type, or select the type from free_ind2[pos]. Apply the same correction to the raising loop.",
+      "test": "Add the heterogeneous rank-three counterexample with distinct same-sized metrics, requesting [-j, i, k]. Also test reordered raising with metrics whose inverses differ, asserting components against explicit sums.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2724,
+          "symbol": "metric selection for lowering"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-decorator-eager-execution",
+      "severity": "medium",
+      "title": "Warning decorator executes tests during import and replaces them with None",
+      "explanation": "This function is used as a decorator but immediately calls f and implicitly returns None. Python therefore runs every decorated test while importing the module and binds its test name to None. Those tests are no longer callable or discoverable as tests, and their assertions run even when the runner selects an unrelated test. An assertion or exception also aborts module import rather than becoming an individually reported test result. This affects the decorated valued-tensor tests, including test_valued_assign_numpy_ndarray: any dependency checks in that body now execute at import time, not during runner-managed test execution. The precise optional-dependency failure cannot be established from the omitted body, but the eager execution and lost binding follow directly from the shown decorator. catch_warnings restores warning filters, but does not undo tensor-data mutations performed by these eagerly executed tests.",
+      "path": "sympy/tensor/tests/test_tensor.py",
+      "line": 23,
+      "evidence": "def filter_warnings_decorator(f):\n    with warnings.catch_warnings():\n        warnings.filterwarnings(\"ignore\", category=SymPyDeprecationWarning)\n        f()",
+      "fix": "Return a functools.wraps-decorated wrapper that enters catch_warnings only when invoked and returns f(*args, **kwargs). Do not execute f while constructing the decorator.",
+      "test": "Decorate a function with a visible side effect and return value; assert decoration performs no side effect, the returned object is callable and retains the test name, and invocation returns the original result. Confirm test collection includes the decorated valued-tensor tests and optional-dependency skips occur during execution rather than module import.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 1506,
+          "symbol": "@filter_warnings_decorator on test_valued_assign_numpy_ndarray"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 20,
+          "symbol": "filter_warnings_decorator"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01fed82c",
+      "K-0214191c",
+      "K-0bbe1015",
+      "K-0eae5fab",
+      "K-0fbbf738",
+      "K-13c28565",
+      "K-17ff28eb",
+      "K-1950a5a7",
+      "K-1989ba9e",
+      "K-19ad3c9d",
+      "K-2436b487",
+      "K-251fab07",
+      "K-309de097",
+      "K-34bb9f5c",
+      "K-358c8c4f",
+      "K-37dba615",
+      "K-3afad64d",
+      "K-3bdec917",
+      "K-3c126146",
+      "K-3f79acc6",
+      "K-46d9d9f2",
+      "K-4760bbdf",
+      "K-4ccc2518",
+      "K-4e1559a1",
+      "K-4f66d5d3",
+      "K-4fd56d09",
+      "K-509e2923",
+      "K-56673f3c",
+      "K-584c8d57",
+      "K-60750032",
+      "K-633a5476",
+      "K-64df9e81",
+      "K-659408f9",
+      "K-6cca1eba",
+      "K-6db029aa",
+      "K-76094f2b",
+      "K-765402dd",
+      "K-7810cf1c",
+      "K-7bc41659",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-85c6407d",
+      "K-88c09c66",
+      "K-91a8c8ce",
+      "K-934cbecb",
+      "K-99e65698",
+      "K-9d082e14",
+      "K-9fe3253b",
+      "K-a0889f64",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a5bd98ec",
+      "K-a9ea6942",
+      "K-aac022e0",
+      "K-ac72cb59",
+      "K-ade6e308",
+      "K-ba823e2d",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-c88be94c",
+      "K-c8969e3c",
+      "K-c8bb5ffb",
+      "K-cb01c870",
+      "K-cf4ba613",
+      "K-d3ab563e",
+      "K-d578b2d4",
+      "K-d7f74de4",
+      "K-dafa11ad",
+      "K-e2f20c42",
+      "K-f0828052",
+      "K-f39fb2d9",
+      "K-f8c37d11",
+      "K-fd698324"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-0fbbf738",
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-cb01c870",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-847c7cac",
+          "K-4fd56d09",
+          "K-3f79acc6",
+          "K-85c6407d",
+          "K-633a5476",
+          "K-99e65698",
+          "K-251fab07",
+          "K-f8c37d11",
+          "K-1989ba9e",
+          "K-c1f97abd",
+          "K-509e2923",
+          "K-c88be94c",
+          "K-2436b487",
+          "K-f39fb2d9",
+          "K-4f66d5d3",
+          "K-0bbe1015",
+          "K-d3ab563e",
+          "K-934cbecb",
+          "K-ade6e308",
+          "K-c621f945"
+        ],
+        "tokens": 1430,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-a1e29320",
+          "K-a9ea6942",
+          "K-765402dd",
+          "K-7de8581d",
+          "K-cf4ba613"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a5bd98ec",
+          "K-0214191c",
+          "K-d578b2d4",
+          "K-3bdec917",
+          "K-4760bbdf",
+          "K-56673f3c",
+          "K-64df9e81",
+          "K-7810cf1c",
+          "K-ba823e2d",
+          "K-7bc41659",
+          "K-91a8c8ce",
+          "K-34bb9f5c",
+          "K-37dba615",
+          "K-584c8d57",
+          "K-e2f20c42",
+          "K-358c8c4f",
+          "K-a0889f64",
+          "K-f0828052",
+          "K-3afad64d",
+          "K-309de097",
+          "K-6db029aa",
+          "K-1950a5a7",
+          "K-3c126146",
+          "K-0eae5fab",
+          "K-4ccc2518",
+          "K-01fed82c",
+          "K-9fe3253b",
+          "K-60750032",
+          "K-19ad3c9d",
+          "K-6cca1eba",
+          "K-aac022e0",
+          "K-ac72cb59",
+          "K-fd698324",
+          "K-c8969e3c",
+          "K-76094f2b",
+          "K-9d082e14",
+          "K-d7f74de4",
+          "K-13c28565",
+          "K-17ff28eb",
+          "K-dafa11ad",
+          "K-a527e894",
+          "K-4e1559a1"
+        ],
+        "tokens": 3231,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

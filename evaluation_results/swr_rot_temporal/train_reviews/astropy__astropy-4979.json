@@ -1,0 +1,44 @@
+{
+  "id": "astropy__astropy-4979",
+  "findings": [
+    {
+      "rule_id": "array-shape-regression",
+      "severity": "medium",
+      "title": "Keeping the distance axis expands vectorized Sun coordinates",
+      "explanation": "For a Time input of shape (2,), earth_p has shape (2, 3), but keepdims=True makes dsun shape (2, 1), rather than the previous (2,). The extra axis is needed only when normalizing earth_p. ERFA's distance argument is scalar per observation, and each Cartesian component must also have the original Time shape. If ab preserves the intended direction shape (2, 3), the subsequent multiplication of dsun (2, 1) by properdir[..., 0] (2,) broadcasts to (2, 2). If ab broadcasts its scalar arguments using NumPy semantics, the extra distance axis already expands its output to (2, 2, 3), with the same incorrect Cartesian result. A wrapper that rejects the extra axis instead causes the call to fail. Thus the new distance shape cannot preserve the previously valid length-two output. Multidimensional inputs can likewise expand or encounter incompatible broadcasting. The scalar and length-one cases can conceal this problem, so they are insufficient regression checks. The exact wrapper-dependent failure mode could not be executed or inspected because no tools or ERFA implementation were supplied.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 162,
+      "evidence": "dsun = np.sqrt(np.sum(earth_p**2, axis=-1, keepdims=True))\nproperdir = erfa.ab(earth_p/dsun, -earth_v, dsun, invlorentz)\nx = -dsun*properdir[..., 0] * u.AU\ny = -dsun*properdir[..., 1] * u.AU",
+      "fix": "Keep dsun at the original Time shape by omitting keepdims=True, and introduce its trailing axis only for direction normalization: earth_p / dsun[..., np.newaxis]. Pass the unexpanded dsun to erfa.ab and use it for Cartesian component multiplication.",
+      "test": "Exercise get_sun with scalar, length-one, length-two, and non-square (2, 3) Time inputs. Assert that the coordinate shape equals the input Time shape, that cartesian.xyz.shape equals (3,) + time.shape, and that every vectorized result agrees with the corresponding individually evaluated timestamp. Run these through the actual ERFA wrapper, not a mock.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 162,
+          "symbol": "get_sun"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 16604,
+  "llm_calls": 5
+}

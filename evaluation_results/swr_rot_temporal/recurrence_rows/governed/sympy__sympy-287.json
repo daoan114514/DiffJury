@@ -1,0 +1,166 @@
+{
+  "id": "sympy__sympy-287",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "public-polynomial-return-flag-rejected",
+      "severity": "medium",
+      "title": "Allow the polys flag in the new polynomial-returning wrapper",
+      "explanation": "The wrapper rejects all flags before constructing the polynomial, although its return branch explicitly supports opt.polys. Consequently, nth_power_roots_poly(x - 2, 2, polys=True) raises FlagError instead of returning Poly(x - 4, x). Likewise, polys=False cannot explicitly request an expression for a Poly input. The implicit expression-versus-Poly behavior does not provide a fallback for consumers that explicitly select the return type.",
+      "path": "sympy/polys/polytools.py",
+      "line": 4864,
+      "evidence": "options.allowed_flags(args, [])",
+      "fix": "Permit the return-type flag with options.allowed_flags(args, ['polys']).",
+      "test": "Assert that nth_power_roots_poly(x - 2, 2, polys=True) returns Poly(x - 4, x), and that nth_power_roots_poly(Poly(x - 2, x), 2, polys=False) returns the expression x - 4. Also retain tests for the implicit return types.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4842,
+          "symbol": "nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4864,
+          "symbol": "options.allowed_flags"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4873,
+          "symbol": "opt.polys return-type selection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "undefined-test-variable",
+      "severity": "medium",
+      "title": "Restore the half-exponent binding in test_roots",
+      "explanation": "The revised assignment removes the binding of r1_2, but every entry in the immediately following expected-root dictionary still references it. When test_roots reaches this assertion, constructing the expected dictionary raises NameError rather than checking the quartic roots. This also prevents the subsequent cyclotomic-root and multiplicity assertions in the same test from executing. The revised radical expressions themselves have the correct values; the missing variable binding is the failure.",
+      "path": "sympy/polys/tests/test_polyroots.py",
+      "line": 226,
+      "evidence": "r1_4, r1_8, r5_8 = [ Rational(*r) for r in ((1,4), (1,8), (5,8)) ]\n\nassert roots(f, x) == {\n    -r1_4 + r1_4*5**r1_2 + I*(r5_8 + r1_8*5**r1_2)**r1_2: 1,",
+      "fix": "Retain a local r1_2 binding, for example by adding r1_2 = S.Half before constructing the expected dictionary.",
+      "test": "Execute sympy/polys/tests/test_polyroots.py::test_roots and verify that the quartic assertion and the subsequent cyclotomic multiplicity assertions all execute successfully.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polyroots.py",
+          "line": 226,
+          "symbol": "test_roots"
+        },
+        {
+          "path": "sympy/polys/tests/test_polyroots.py",
+          "line": 229,
+          "symbol": "expected-root dictionary construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-457",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "unchecked-test-comparison",
+      "severity": "low",
+      "title": "The new power-root tests discard every expected-result comparison",
+      "explanation": "The n=1 comparison and all four transformed-polynomial comparisons lack assert. Python evaluates their Boolean results and discards them, so an incorrect result does not fail this test. For example, an implementation that validates n and multivariate inputs but returns the original polynomial for every positive n would pass this entire added test, despite producing incorrect roots and multiplicities for n=2, 3, 4, and 12. Only the exception cases are actually checked.",
+      "path": "sympy/polys/tests/test_polytools.py",
+      "line": 2099,
+      "evidence": "nth_power_roots_poly(f, 1) == f\n\nraises(ValueError, \"nth_power_roots_poly(f, 0)\")\nraises(ValueError, \"nth_power_roots_poly(f, x)\")\n\nfactor(nth_power_roots_poly(f, 2)) == f_2\nfactor(nth_power_roots_poly(f, 3)) == f_3\nfactor(nth_power_roots_poly(f, 4)) == f_4\nfactor(nth_power_roots_poly(f, 12)) == f_12",
+      "fix": "Add assert to all five expected-result comparisons.",
+      "test": "Temporarily make the valid-input implementation return its input unchanged and verify that the n=2, 3, 4, and 12 checks fail. Supplement the asserted cases with odd-degree, nonmonic, repeated-root, coefficient-domain, and explicit return-type cases; when comparing exact polynomials, specify the intended scalar normalization.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polytools.py",
+          "line": 2091,
+          "symbol": "test_nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/tests/test_polytools.py",
+          "line": 2104,
+          "symbol": "discarded transformed-polynomial comparisons"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-391",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

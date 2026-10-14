@@ -1,0 +1,50 @@
+{
+  "id": "sympy__sympy-2987",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "use-array-explicit-numpy",
+      "severity": "medium",
+      "title": "Explicit NumPy module selections ignore use_array",
+      "explanation": "The use_array handling is nested in the default module-selection branch. Consequently, modules='numpy' and modules=['numpy'] bypass both translation updates, even when use_array=True. A concrete sequence is to first call lambdify((x, y, z), A) with the default use_array=False, establishing the matrix translations, and then call lambdify((x, y, z), A, modules='numpy', use_array=True). The second call does not change those translations and therefore continues selecting numpy.matrix rather than the requested numpy.array. The same issue affects list-based selection. This failure does not depend on whether _import reuses its namespace or rebuilds it: the existing namespace and the translations available for rebuilding both select matrix. The added test does not exercise explicit module selections, and its elementwise equality assertions would also pass if both functions returned matrices. The supplied evidence omits _import's implementation, so no separate finding about its early-return/reload policy or changes to previously generated functions is asserted.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 286,
+      "evidence": "        if use_array:\n            NUMPY_TRANSLATIONS.update({\"Matrix\": \"array\",\n                \"MutableDenseMatrix\": \"array\",\n                \"ImmutableMatrix\": \"array\"})",
+      "fix": "Apply the requested matrix-constructor mapping to the per-call NumPy namespace whenever NumPy is selected, rather than only when modules is omitted. Keep this override local to the generated function so explicit selections and successive calls can honor independent settings.",
+      "test": "For both modules='numpy' and modules=['numpy'], generate functions with use_array=False followed by use_array=True and assert that the results have exact types numpy.matrix and numpy.ndarray respectively. Repeat in the opposite order and re-evaluate previously generated functions. Strengthen test_numpy_matrix with exact return-type assertions: numpy.all(matrix_result == array_result) cannot distinguish these constructors.",
+      "confidence": 0.92,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 148,
+          "symbol": "lambdify"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,136 @@
+{
+  "id": "sympy__sympy-542",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "empty-positive-factor-group",
+      "severity": "medium",
+      "title": "Skip the residual factor when all polynomial factors are positive",
+      "explanation": "For p = Symbol('p', positive=True), factor_list(sqrt(p**2 + 3*p + 2)) reaches this branch with two factors, p + 1 and p + 2, both provably positive. Both are extracted, leaving other empty, but the new else branch still appends (_factors_product([]), 1/2), namely (1, 1/2). The added conversion loop then attempts _poly_from_expr(1, _opt). With no explicitly supplied generators, that constant cannot establish polynomial generators and raises PolificationFailed instead of returning the factorization. The inferred options from converting the original base are not retained for this conversion. The new expression-level factor tests miss this failure because multiplication simply removes the unit factor. This is distinct from the pre-existing unsafe multiplication of a single factor's multiplicity by a fractional exponent; the added odd-multiplicity assertions do not demonstrate branch safety, and the weakened separatevars assertion only checks expression type.",
+      "path": "sympy/polys/polytools.py",
+      "line": 4867,
+      "evidence": "                    else:\n                        factors.append((_factors_product(other), exp))\n\n        _opt = opt.clone(dict(expand=True))\n\n        for factors in (fp, fq):\n            for i, (f, k) in enumerate(factors):\n                if not f.is_Poly:\n                    f, _ = _poly_from_expr(f, _opt)",
+      "fix": "Append the residual grouped factor only when other is nonempty; use elif other for the final branch. Do not manufacture a unit factor that subsequently requires polynomial conversion.",
+      "test": "Create p = Symbol('p', positive=True) and call factor_list(sqrt(p**2 + 3*p + 2)) without explicit generators. Assert coefficient 1 and exactly the factors (p + 1, S.Half) and (p + 2, S.Half), with no unit factor or exception. Also exercise the same call with explicit generators and polys=True.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4857,
+          "symbol": "_symbolic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4867,
+          "symbol": "_symbolic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4904,
+          "symbol": "_generic_factor_list"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-4073d146",
+      "K-4ff368df",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-e13d441c",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-93a099ce",
+          "K-09474f0c",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-b5e72943",
+          "K-2ec8eae2"
+        ],
+        "tokens": 404,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-25a05e81",
+          "K-b1da47ce",
+          "K-83dfddfe",
+          "K-e820d88f",
+          "K-e13d441c",
+          "K-4073d146"
+        ],
+        "tokens": 631,
+        "budget": 600,
+        "dropped": [
+          "K-4b143eb5",
+          "K-0117d999",
+          "K-0faed540",
+          "K-e172ac33",
+          "K-ddb18739"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

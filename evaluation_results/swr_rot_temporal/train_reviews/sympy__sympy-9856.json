@@ -1,0 +1,119 @@
+{
+  "id": "sympy__sympy-9856",
+  "findings": [
+    {
+      "rule_id": "incorrect-factorial-rewrite-domain",
+      "severity": "medium",
+      "title": "Factorial rewrite introduces indeterminate pole quotients for nonpositive bases",
+      "explanation": "The guard requires integer arguments but does not exclude factorial poles. Let n and k be integer symbols and e = rf(n, k). Substituting k=1 and then n=-1 into e gives -1 through the existing finite-product evaluation. Performing the new factorial rewrite before those substitutions instead gives factorial(-1)/factorial(-2), which evaluates to zoo/zoo and therefore nan. SymPy factorial evaluates negative integer arguments to complex infinity, so the quotient does not preserve the finite-product cancellation. The added test at lines 52–53 only asserts the symbolic quotient's shape; it does not substitute a nonpositive base. Although the existing gamma rewrite also has pole limitations, this change newly exposes the incorrect result through rewrite(factorial) and documents it for unrestricted integer symbols.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 512,
+      "evidence": "if x.is_integer and k.is_integer:\n            return factorial(k + x - 1) / factorial(x - 1)",
+      "fix": "Restrict this quotient to assumptions that exclude poles in both factorial arguments, such as positive integer x and positive integer x+k. Preserve the original RisingFactorial when validity cannot be established, or use a pole-safe piecewise identity.",
+      "test": "For integer symbols n and k, compare rf(n, k).subs(k, 1).subs(n, -1) against rf(n, k).rewrite(factorial).subs(k, 1).subs(n, -1), requiring both to equal -1. Also cover n=0, k=-1, where the original is -1 and the unrestricted quotient is indeterminate.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 510,
+          "symbol": "RisingFactorial._eval_rewrite_as_factorial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 461,
+          "symbol": "RisingFactorial.eval positive-integer product branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-binomial-rewrite-negative-order",
+      "severity": "medium",
+      "title": "Binomial rewrite turns negative integer orders into NaN",
+      "explanation": "Negative integer orders are explicitly supported by RisingFactorial's reciprocal-product branch, but the new rewrite accepts every integer k. For integer symbol k, rf(3, k).subs(k, -1) is 1/2. Rewriting first produces factorial(k)*binomial(k + 2, k); substituting k=-1 gives factorial(-1)*binomial(1, -1). Factorial(-1) evaluates to zoo and binomial(1, -1) evaluates to zero because its lower argument is a negative integer, so the product becomes nan rather than 1/2. The added assertion at line 51 merely checks this formula with a symbolic integer order and consequently accepts the invalid negative-order domain. This is a newly introduced rewrite failure, not a change to the existing negative-order evaluation.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 515,
+      "evidence": "if k.is_integer:\n            return factorial(k) * binomial(x + k - 1, k)",
+      "fix": "Require a nonnegative integer order for this binomial formula. For negative or sign-unknown integer orders, retain RisingFactorial or implement a separate reciprocal identity valid on that domain. Update the unrestricted-integer documentation example accordingly.",
+      "test": "Create an integer symbol k and assert that rf(3, k).rewrite(binomial).subs(k, -1) equals rf(3, k).subs(k, -1), namely Rational(1, 2). Include a known-negative integer symbol to exercise the rewrite guard directly.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 514,
+          "symbol": "RisingFactorial._eval_rewrite_as_binomial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 494,
+          "symbol": "RisingFactorial.eval negative-integer reciprocal-product branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-binomial-rewrite-polynomial-base",
+      "severity": "medium",
+      "title": "Binomial rewrite loses the supported polynomial-shift interpretation",
+      "explanation": "RisingFactorial supports a distinct polynomial-base contract: for a univariate polynomial of degree greater than one it shifts the polynomial's variable, rather than adding integers to the polynomial value. With x an ordinary symbol and k an integer symbol, rf(x**3, k).subs(k, 2) evaluates to Poly(x**6 + 3*x**5 + 3*x**4 + x**3, x), representing x**3*(x+1)**3. The new binomial rewrite instead gives factorial(k)*binomial(k + x**3 - 1, k); substituting k=2 evaluates to x**3*(x**3 + 1), using the ordinary binomial upper-argument product. These polynomials differ, for example giving 216 versus 72 at x=2. This failure persists even if the negative-order issue is fixed by requiring k to be nonnegative. The existing polynomial evaluation test and documentation exercise the original evaluation, while the added rewrite test uses only a degree-one symbolic base and misses this incompatibility.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 516,
+      "evidence": "return factorial(k) * binomial(x + k - 1, k)",
+      "fix": "Do not apply the scalar binomial identity to bases handled by RisingFactorial's higher-degree univariate polynomial-shift branch. Preserve the original expression for those bases unless a rewrite implementing the same shift semantics is available.",
+      "test": "With integer symbol k, compare rf(x**3, k).rewrite(binomial).subs(k, 2) with rf(x**3, k).subs(k, 2) as polynomial expressions, requiring both to represent x**3*(x+1)**3. Repeat with k declared nonnegative to ensure a sign restriction alone does not hide this defect.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 514,
+          "symbol": "RisingFactorial._eval_rewrite_as_binomial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 478,
+          "symbol": "RisingFactorial.eval polynomial positive-order branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 31734,
+  "llm_calls": 5
+}

@@ -1,0 +1,54 @@
+{
+  "id": "scikit-learn__scikit-learn-21697",
+  "findings": [
+    {
+      "rule_id": "public-api-label-preservation",
+      "severity": "medium",
+      "title": "Label normalization also rewrites explicit user legend labels",
+      "explanation": "An explicit label passed through line_kwargs is forwarded unchanged to ax.plot at line 1100, but the new unconditional replacement then mutates it before ax.legend runs at line 1106. For example, display.plot(label=\"child classifier\") now sets self.line_.get_label() to \"line classifier\" and displays that altered text in the legend; previously both retained \"child classifier\". The replacement also affects occurrences inside larger words. This is distinct from normalizing a matplotlib-generated label such as \"_child0\" to \"_line0\": those generated labels retain their leading underscore and remain excluded from automatic legend selection. Applying the same normalization to explicit labels breaks the observable plotting API independently of which matplotlib version generated default labels.",
+      "path": "sklearn/calibration.py",
+      "line": 1103,
+      "evidence": "self.line_.set_label(self.line_.get_label().replace(\"child\", \"line\"))",
+      "fix": "Preserve explicit labels verbatim. If generated-label normalization is necessary, restrict it to the matplotlib-generated default-label path and its exact generated-label format rather than replacing arbitrary substrings.",
+      "test": "Plot a CalibrationDisplay with label=\"child classifier\" and assert that both display.line_.get_label() and the corresponding legend text equal \"child classifier\". Separately test omitted labels against generated default-label formats, confirming that they remain excluded from automatic legends. Existing tests and documentation were not supplied and cannot be verified in this no-tools review; the supplied code directly establishes the label forwarding and legend call.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/calibration.py",
+          "line": 1100,
+          "symbol": "CalibrationDisplay.plot: ax.plot(self.prob_pred, self.prob_true, \"s-\", **line_kwargs)"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 1103,
+          "symbol": "CalibrationDisplay.plot: self.line_.set_label"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 1106,
+          "symbol": "CalibrationDisplay.plot: ax.legend"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 10754,
+  "llm_calls": 5
+}

@@ -1,0 +1,89 @@
+{
+  "id": "scikit-learn__scikit-learn-7897",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "classification-report-averaging-documentation",
+      "severity": "low",
+      "title": "The report uses weighted macro averages, not micro averages",
+      "explanation": "The newly added documentation incorrectly calls the summary a 'prevalence-weighted micro-average'. The actual computation independently averages per-class precision, recall, and F1 using support weights; this is weighted macro averaging. For example, y_true=[0,0,0,1] and y_pred=[0,0,1,1] produce per-class precision [1,0.5], recall [2/3,1], F1 [0.8,2/3], and support [3,1]. The report therefore displays weighted precision 0.88, recall 0.75, and F1 0.77 at the default precision, whereas micro precision, recall, and F1 are all 0.75. No formatting or input-validation condition removes this distinction. The calculation is unchanged and the reference to average='weighted' is correct, but the new micro-average description gives consumers an incorrect interpretation of the public output.",
+      "path": "sklearn/metrics/classification.py",
+      "line": 1372,
+      "evidence": "The reported averages are a prevalence-weighted micro-average across\nclasses (equivalent to :func:`precision_recall_fscore_support` with\n``average='weighted'``).\n\nreport += row_fmt.format(last_line_heading,\n                         np.average(p, weights=s),\n                         np.average(r, weights=s),\n                         np.average(f1, weights=s),",
+      "fix": "Replace 'prevalence-weighted micro-average' with 'support-weighted average of the per-class scores' or 'weighted macro-average', retaining the correct average='weighted' reference.",
+      "test": "Use y_true=[0,0,0,1] and y_pred=[0,0,1,1] to verify that the report's summary matches precision_recall_fscore_support(..., average='weighted') and differs from average='micro'; ensure the documentation describes the former.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1415,
+          "symbol": "classification_report -> precision_recall_fscore_support(average=None)"
+        },
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1428,
+          "symbol": "classification_report: support-weighted per-class averages"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-684",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "id": "astropy__astropy-4736",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "vector-quantity-scalar-conversion",
+      "severity": "high",
+      "title": "get_moon converts a three-component vector to a scalar float",
+      "explanation": "Every nonempty scalar or array Time input reaches a float conversion of an entire position vector. For scalar Time, earth_p already has shape (3,), so const.M_earth/const.M_moon*earth_p is a three-element dimensionless Quantity, not a scalar. Calling float on that quantity raises TypeError before any coordinates are returned. The velocity calculation repeats the same defect. This makes the new public function unusable even for a single observation time.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 209,
+      "evidence": "moon_p = float((const.M_moon+const.M_earth)/const.M_moon)*emb_p - \\\n             float(const.M_earth/const.M_moon*earth_p)",
+      "fix": "Convert only the dimensionless mass ratio to float, then multiply the resulting scalar by earth_p or earth_v outside float.",
+      "test": "Call get_moon(Time('2000-01-01', scale='tdb')) and get_moon with a two-element Time array; both must return coordinates without TypeError. A direct minimal demonstration of the current failure is float((const.M_earth/const.M_moon) * np.array([1.0, 0.0, 0.0])).",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 198,
+          "symbol": "get_moon: erfa.epv00"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 203,
+          "symbol": "get_moon: earth_p extraction"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 209,
+          "symbol": "get_moon: float(vector Quantity)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "time-array-broadcasting",
+      "severity": "medium",
+      "title": "Flattening the distance axes breaks multidimensional Time inputs",
+      "explanation": "Independently of the scalar-conversion defect, this normalization cannot preserve multidimensional Time shapes. For a Time array of shape (2, 2), earth_p-moon_p has shape (2, 2, 3), while dmoon.reshape(-1, 1) has shape (4, 1). NumPy cannot broadcast these operands because their corresponding dimensions are 2 and 4, so division raises ValueError. After correcting the earlier float conversions, the documented array-Time path still fails for this input.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 214,
+      "evidence": "properdir = erfa.ab((earth_p-moon_p)/dmoon.reshape(-1, 1),",
+      "fix": "Append a singleton vector axis without flattening the Time axes, using dmoon[..., np.newaxis]. Preserve scalar handling deliberately rather than relying on reshape to introduce an artificial observation axis.",
+      "test": "After fixing the float conversions, call get_moon(Time(np.full((2, 2), '2000-01-01'), scale='tdb')) and require an output shape of (2, 2), matching elementwise scalar evaluations. The broadcasting failure can also be demonstrated directly by np.ones((2, 2, 3)) / np.ones((2, 2)).reshape(-1, 1). Include shapes (2, 1) and (1, 2) to detect accidental axis expansion.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 203,
+          "symbol": "get_moon: vector extraction preserving Time axes"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 212,
+          "symbol": "get_moon: distance reduction over the vector axis"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 214,
+          "symbol": "get_moon: incompatible normalization broadcasting"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-1cc8d780",
+      "K-2dfe0413",
+      "K-3bfbed4b",
+      "K-67701866",
+      "K-b36de422"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b36de422",
+          "K-1cc8d780",
+          "K-2dfe0413",
+          "K-67701866"
+        ],
+        "tokens": 268,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bfbed4b"
+        ],
+        "tokens": 117,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

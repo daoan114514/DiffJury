@@ -1,0 +1,89 @@
+{
+  "id": "matplotlib__matplotlib-4290",
+  "findings": [
+    {
+      "rule_id": "WEBAGG-BLIT-REPEATED-SWAP",
+      "severity": "medium",
+      "title": "Multiple blit calls publish alternating old and new frames",
+      "explanation": "Every blit marks the PNG stale and refreshes it, and frame serialization swaps _renderer with _last_renderer. Consequently, after drawing a frame into renderer B while A contains the previous frame, the first blit publishes B and makes A the drawing renderer. A second blit without intervening drawing publishes A, reverting the displayed frame. This is a normal animation path: Animation._blit_draw draws its artists and then calls canvas.blit(ax.bbox) separately for each updated Axes. Enabling supports_blit therefore breaks animations updating two Axes: the second Axes blit undoes the first refresh, because bbox is ignored and the entire alternate buffer is published. The notebook's repeated-click example restores and draws before every single blit, so it does not exercise this sequence.",
+      "path": "lib/matplotlib/backends/backend_webagg_core.py",
+      "line": 187,
+      "evidence": "self._png_is_old = True\n        self.manager.refresh_all()",
+      "fix": "Preserve the currently rendered image as the writable baseline after publishing a blit, or otherwise make successive bbox blits of the same rendered frame idempotent. Updating artist renderer caches alone does not synchronize the alternate buffer's pixels.",
+      "test": "Create a connected WebAgg canvas with two Axes and a FuncAnimation returning one animated artist from each Axes. Advance one frame and reconstruct the client image after both blit notifications; both artists must remain at their new positions. Also draw once and call blit twice without drawing between calls; the second notification must not restore the preceding frame.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/backends/backend_webagg_core.py",
+          "line": 183,
+          "symbol": "FigureCanvasWebAggCore.blit"
+        },
+        {
+          "path": "lib/matplotlib/backends/backend_webagg_core.py",
+          "line": 255,
+          "symbol": "FigureCanvasWebAggCore.get_diff_image"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "WEBAGG-BACKGROUND-DRAW-EVENT",
+      "severity": "medium",
+      "title": "Background capture during draw_event reads the preceding render",
+      "explanation": "A synchronous draw_event callback runs during the Agg draw, before WebAgg's subsequent manager.refresh_all() serializes and swaps the renderer frames. At that point the completed new figure is in _renderer, but the new copy_from_bbox override unconditionally reads _last_renderer. A standard blitting callback that captures its background on draw_event therefore captures the previous figure, not the figure just drawn. For a concrete redraw sequence, draw a figure, change its limits, then draw again while a draw_event handler captures the Axes background. The handler captures the old limits and ticks; restoring that background on the next animated update replaces the newly drawn Axes with stale content. Capturing on draw_event is also the usual way to rebuild a background after resize, so selecting the displayed buffer unconditionally is not compatible with that lifecycle. The UAT captures only after an explicit draw returns and does not cover event-time capture.",
+      "path": "lib/matplotlib/backends/backend_webagg_core.py",
+      "line": 196,
+      "evidence": "renderer = self._last_renderer\n        return renderer.copy_from_bbox(bbox)",
+      "fix": "Make background capture select the newly drawn renderer while a full draw is in progress, including synchronous draw_event callbacks, and select the published renderer after the frame swap. Explicitly track the drawing/published state rather than always using _last_renderer.",
+      "test": "Connect a draw_event callback that captures an Axes background, perform an initial draw and a redraw with changed limits, then restore the captured background, draw an animated artist, and blit. Assert that the resulting pixels retain the new limits and ticks. Repeat after resizing and verify that the captured background matches the resized full draw.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/backends/backend_webagg_core.py",
+          "line": 181,
+          "symbol": "FigureCanvasWebAggCore.draw"
+        },
+        {
+          "path": "lib/matplotlib/backends/backend_webagg_core.py",
+          "line": 193,
+          "symbol": "FigureCanvasWebAggCore.copy_from_bbox"
+        },
+        {
+          "path": "lib/matplotlib/backends/backend_webagg_core.py",
+          "line": 255,
+          "symbol": "FigureCanvasWebAggCore.get_diff_image"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0,
+      1
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 26256,
+  "llm_calls": 5
+}

@@ -1,0 +1,161 @@
+{
+  "id": "sympy__sympy-2078",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "function-printer-test-contract",
+      "severity": "medium",
+      "title": "The new test passes an unapplied function and uses the wrong Theano type",
+      "explanation": "Function('f') creates an undefined function class, whereas Function('f')(t) creates the applied expression whose args contain t. The test passes the former, so it does not exercise the intended applied-Function handler and cannot establish the expected generated name f_t: the local t is never passed to the printer. Under SymPy's class-hierarchy dispatch, the unapplied class is dispatched through its metaclass rather than the Function instance hierarchy. Independently, tt.TheanoVariable is not the standard tensor variable class; the existing neighboring test correctly uses tt.TensorVariable. In an environment where Theano tests run, this assertion can raise AttributeError instead of validating the returned tensor. These are API/static conclusions; no Theano-backed test execution was available.",
+      "path": "sympy/printing/tests/test_theanocode.py",
+      "line": 221,
+      "evidence": "f = sy.Function('f')\nft = theano_code(f)\nassert isinstance(ft, tt.TheanoVariable)\nassert ft.name == 'f_t'",
+      "fix": "Pass f(t) to theano_code and assert isinstance(ft, tt.TensorVariable), retaining the f_t name assertion.",
+      "test": "Run the corrected test with Theano installed. Assert the generated name, dtype and broadcastability overrides keyed by f(t), identity reuse with a shared cache, and distinct cached tensors for different full argument tuples.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 218,
+          "symbol": "test_Function"
+        },
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 221,
+          "symbol": "theano_code(f)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "function-printer-dispatch",
+      "severity": "medium",
+      "title": "The generic Function handler bypasses mapped mathematical operations",
+      "explanation": "SymPy printer dispatch searches an expression's class hierarchy for a printer method. Applied mathematical functions are Function subclasses, so adding _print_Function intercepts them before the existing _print_Basic handler can use mapping[type(expr)]. Consequently, existing mapped mathematical expressions such as sin(x) become independent named tensor inputs instead of operations on x. The new handler never prints the arguments or consults the mapping, so nesting the expression inside another operation does not preserve its mathematical meaning either. This is a static dispatch analysis, not a dependency-backed execution result.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 79,
+      "evidence": "def _print_Function(self, s, dtypes={}, broadcastables={}):\n    dtype = dtypes.get(s, 'floatX')\n    broadcastable = broadcastables.get(s, ())\n    name = str(type(s)) + '_' + str(s.args[0])",
+      "fix": "Restrict the new handler to applied undefined functions, for example by implementing _print_AppliedUndef, so mapped mathematical functions continue through _print_Basic.",
+      "test": "Translate sin(x) and a nested expression containing sin(x); assert that the resulting graph contains the mapped sine operation applied to the cached x tensor, rather than a new input named sin_x. Also verify that f(x) still produces an independent tensor.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        },
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 87,
+          "symbol": "tt.tensor"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "undefined-function-empty-arguments",
+      "severity": "low",
+      "title": "Valid zero-argument undefined functions raise IndexError",
+      "explanation": "An undefined function created without a nargs restriction can be applied with zero arguments: Function('f')(). This is an applied Function and reaches the new handler, but its args tuple is empty. Reading s.args[0] therefore raises IndexError before tensor creation. No guard or fallback handles this valid boundary input. For nonempty applications, the dtype and broadcastable overrides are looked up by the complete application, and the cache key includes the complete argument tuple; those mechanisms do not prevent this failure.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 82,
+      "evidence": "name = str(type(s)) + '_' + str(s.args[0])",
+      "fix": "Construct the generated name without assuming at least one argument, using the function name alone for zero-argument applications and an explicit argument-based suffix otherwise.",
+      "test": "Translate Function('f')() and assert successful tensor creation. Repeat with a shared cache and verify identity reuse, then verify that f() and f(t) remain distinct cache entries.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        },
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 82,
+          "symbol": "s.args[0]"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

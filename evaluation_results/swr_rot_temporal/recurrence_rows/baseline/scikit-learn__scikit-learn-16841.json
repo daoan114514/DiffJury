@@ -1,0 +1,60 @@
+{
+  "id": "scikit-learn__scikit-learn-16841",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "pca-mle-absolute-eigenvalue-cutoff",
+      "severity": "medium",
+      "title": "The absolute eigenvalue cutoff rejects valid spectra and can still select zero components",
+      "explanation": "The new cutoff introduces a scale-dependent rank-selection regression. Consider a float64 spectrum [9e-16, 5e-16, 3e-16] with n_samples=1000. Previously, every residual-variance calculation exceeded float64 epsilon, and rank 2 had the greatest likelihood (approximately 26 log-likelihood units above rank 1). Now both admissible ranks return -inf because their selected eigenvalues are below 1e-15. Together with ll[0] = -inf, this makes argmax return 0. This is reachable through public PCA: construct a centered 1000-by-3 matrix whose first six rows are paired vectors +/-sqrt(999 * spectrum[i] / 2) * e_i and whose remaining rows are zero. Its explained-variance spectrum is the one above, so PCA(n_components='mle') changes from two components to zero. Multiplying that same matrix by 1e8 produces spectrum [9, 5, 3] and selects two components again. Thus changing measurement units changes the inferred dimension, and this newly rejected spectrum also contradicts the release note's promise not to infer zero. Unlike all-zero or sufficiently tiny spectra that already returned zero before the patch, this example was supported by the previous implementation.",
+      "path": "sklearn/decomposition/_pca.py",
+      "line": 63,
+      "evidence": "if spectrum[rank - 1] < 1e-15:\n    ...\n    return -np.inf\n\nll = np.empty_like(spectrum)\nll[0] = -np.inf  # we don't want to return n_components = 0\nfor rank in range(1, spectrum.shape[0]):\n    ll[rank] = _assess_dimension(spectrum, rank, n_samples)\nreturn ll.argmax()",
+      "fix": "Use a scale-relative criterion for negligible eigenvalues, or normalize the spectrum before assessing likelihoods, rather than imposing an absolute 1e-15 cutoff. Also explicitly handle the all-negative-infinity case so the excluded rank-zero slot cannot win by tie.",
+      "test": "Construct the centered float64 matrix described above and assert that PCA(n_components='mle', svd_solver='full') selects two components both before and after multiplying X by 1e8. Add a focused helper regression asserting that _infer_dimension(np.array([9e-16, 5e-16, 3e-16]), 1000) returns 2.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 463,
+          "symbol": "PCA._fit_full"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 102,
+          "symbol": "_infer_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 63,
+          "symbol": "_assess_dimension"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

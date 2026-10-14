@@ -1,0 +1,55 @@
+{
+  "id": "sympy__sympy-7731",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "failure-diagnostics-discarded",
+      "severity": "medium",
+      "title": "Retain actionable diagnostics when the documentation clone fails",
+      "explanation": "Previously, `> /dev/null` discarded stdout but preserved stderr. The new `2>/dev/null` discards stderr while leaving stdout visible. Neither redirection changes Git's exit status; `--quiet` suppresses normal clone output, not fatal diagnostics. For example, if the remote lacks the requested `gh-pages` branch, Git exits nonzero and reports the missing branch on stderr. This change removes that actionable cause from the deployment log, leaving the preceding `Cloning repository` message without an explanation of why cloning failed. Operators consequently cannot distinguish a missing branch from authentication or network failure using this command's output. The replacement at line 48 likewise suppresses remote-configuration errors rather than stdout. Surrounding script error handling is unavailable, so this finding does not assert that the script continues, exits successfully, or newly deploys incorrect content; the concrete regression is loss of the original failure diagnostics.",
+      "path": "bin/build_doc.sh",
+      "line": 44,
+      "evidence": "        git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/sympy/sympy_doc.git  gh-pages 2>/dev/null",
+      "fix": "Preserve actionable clone and remote-configuration failure information instead of unconditionally discarding stderr. If suppression is intended to protect GH_TOKEN, capture and sanitize diagnostics before emitting them, ensuring neither the token nor credential-bearing URL is logged.",
+      "test": "Exercise the clone command against a disposable repository without a gh-pages branch and capture stdout, stderr, and exit status. Verify that failure remains nonzero and the deployment log identifies the missing branch. Also test authentication failure with a sentinel credential and assert that the diagnostic contains no credential. For remote configuration, verify that adding an already-existing origin reports a sanitized cause rather than silently discarding it.",
+      "confidence": 0.83,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "bin/build_doc.sh",
+          "line": 43,
+          "symbol": "echo \"Cloning repository\""
+        },
+        {
+          "path": "bin/build_doc.sh",
+          "line": 44,
+          "symbol": "git clone --quiet --branch=gh-pages"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-778",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

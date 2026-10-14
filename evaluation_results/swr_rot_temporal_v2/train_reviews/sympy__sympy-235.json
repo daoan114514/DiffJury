@@ -1,0 +1,49 @@
+{
+  "id": "sympy__sympy-235",
+  "findings": [
+    {
+      "rule_id": "incorrect-gamma-pole-replacement",
+      "severity": "medium",
+      "title": "The shortcut replaces negative-integer gamma poles with a function regular at the limit point",
+      "explanation": "For e = sin(x + 1)*gamma(x), z = x, z0 = -1, and dir = '+', the new match has p = x, q = 1, and m = sin(x + 1). The shortcut therefore recursively evaluates sin(x + 1)/x, whose limit is 0. The correct result is -1: writing t = x + 1, gamma(-1 + t) = -1/t + O(1) and sin(t) = t + O(t**3). More generally, the pole at -n has principal part (-1)**n/(n!*(x + n)), not 1/x. This example has no independent multiplicative prefactor, so the surrounding factor extraction and its earlier i*limit(d, ...) return cannot prevent the error. The new unconditional return also prevents the original expression from reaching the subsequent fallback. The added tests exercise only z0 = 0 and therefore do not distinguish this incorrect negative-pole replacement from a correct implementation.",
+      "path": "sympy/series/limits.py",
+      "line": 122,
+      "evidence": "if z0.is_integer and z0.is_nonpositive:\n    ...\n    r = d.match(gamma(p)**q*m)\n    ...\n    if p == z and q.is_Number:\n        return limit(m/z**q, z, z0, dir)",
+      "fix": "Use the principal part at the actual pole, gamma(z) ~ (-1)**n/(factorial(n)*(z + n)) for z0 = -n, rather than 1/z. Preserve its residue, shifted denominator, and exponent grouping.",
+      "test": "Add assertions that limit(sin(x + 1)*gamma(x), x, -1, dir='+') and its left-hand counterpart equal -1, and that limit(sin(x + 2)*gamma(x), x, -2) equals Rational(1, 2). These distinguish both the pole location and residue from the current shortcut.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/series/limits.py",
+          "line": 5,
+          "symbol": "limit"
+        },
+        {
+          "path": "sympy/series/limits.py",
+          "line": 122,
+          "symbol": "limit (recursive shortcut)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 16905,
+  "llm_calls": 5
+}

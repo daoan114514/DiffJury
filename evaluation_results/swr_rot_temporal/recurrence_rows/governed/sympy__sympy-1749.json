@@ -1,0 +1,137 @@
+{
+  "id": "sympy__sympy-1749",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "CORRECTNESS-ATOMIC-REBUILD",
+      "severity": "medium",
+      "title": "Rebuilding Dummy atoms changes symbolic identity",
+      "explanation": "For d = Dummy('d'), d.args is empty, so rebuild(d) calls Dummy() rather than preserving d. That constructor succeeds and creates a different dummy symbol; the exception fallback therefore does not protect this case. Repeated occurrences are reconstructed independently: rebuild(Basic.__new__(Add, d, d)) produces two distinct dummy symbols instead of the equivalent expression 2*d. This violates the helper's canonicalization contract and changes the mathematical expression. The added test covers only an Add containing Python integers and does not detect identity-bearing atoms or repeated occurrences.",
+      "path": "sympy/rules/rl.py",
+      "line": 156,
+      "evidence": "return type(expr)(*map(rebuild, expr.args))",
+      "fix": "Return atomic expressions unchanged before invoking their constructors. Recursively reconstruct only expressions with children, preserving atom identity and constructor state not represented in args.",
+      "test": "Assert rebuild(Dummy('d')) preserves the original dummy. Also construct d = Dummy('d') and expr = Basic.__new__(Add, d, d), then assert rebuild(expr) == 2*d and that its free symbols contain only d.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 148,
+          "symbol": "rebuild"
+        },
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 156,
+          "symbol": "recursive rebuild followed by type(expr)(...)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "CORRECTNESS-FALSE-ASSUMPTION",
+      "severity": "medium",
+      "title": "A false assumption disables filtering instead of rejecting matches",
+      "explanation": "The new assumption guard uses the proposition's truth value to decide whether filtering is enabled. With rl = rewriterule(x, x, [x], assume=S.false), list(rl(S(5))) yields [S(5)]: S.false makes the left side of the guard false, so ask is never called and the match reaches yield. An explicitly false requirement must reject every match; only the absence of a requirement should disable filtering. The added assumption test exercises a positive predicate with runtime assumptions, not false or unknown requirements.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 46,
+      "evidence": "if (assume and not ask(assume.xreplace(match), assumptions)):",
+      "fix": "Distinguish an omitted requirement from a false requirement using assume is not None. Normalize Python Boolean requirements to SymPy propositions before applying xreplace if those inputs are supported.",
+      "test": "Assert list(rewriterule(x, x, [x], assume=S.false)(S(5))) == []. Add companion cases for S.true, an unknown predicate, and a predicate resolved by supplied runtime assumptions.",
+      "confidence": 0.8699999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 41,
+          "symbol": "rewrite_rl"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 46,
+          "symbol": "assumption filter"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 51,
+          "symbol": "yield expr2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

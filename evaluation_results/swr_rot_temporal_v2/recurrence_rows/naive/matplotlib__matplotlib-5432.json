@@ -1,0 +1,105 @@
+{
+  "id": "matplotlib__matplotlib-5432",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01024c7a",
+      "K-0584087c",
+      "K-0c8a636b",
+      "K-18185de5",
+      "K-2f6df4e1",
+      "K-3d110084",
+      "K-3dd53bb0",
+      "K-501c2e6b",
+      "K-76e1d833",
+      "K-8d71bf5d",
+      "K-8ebb1030",
+      "K-93879fa5",
+      "K-a7a9b3d1",
+      "K-a9ffb7d6",
+      "K-aae7ebac",
+      "K-b6f385be",
+      "K-b9077688",
+      "K-caf264d7",
+      "K-e3d89590",
+      "K-ea85db56",
+      "K-f3829dd8",
+      "K-f49b7d36",
+      "K-f659e55a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-8ebb1030",
+          "K-8d71bf5d",
+          "K-f659e55a",
+          "K-18185de5"
+        ],
+        "tokens": 144,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-a9ffb7d6",
+          "K-0c8a636b",
+          "K-aae7ebac",
+          "K-caf264d7",
+          "K-3dd53bb0",
+          "K-01024c7a",
+          "K-b6f385be",
+          "K-76e1d833",
+          "K-f3829dd8"
+        ],
+        "tokens": 543,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-501c2e6b",
+          "K-ea85db56",
+          "K-93879fa5",
+          "K-f49b7d36"
+        ],
+        "tokens": 144,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3d110084",
+          "K-a7a9b3d1",
+          "K-b9077688",
+          "K-2f6df4e1",
+          "K-e3d89590",
+          "K-0584087c"
+        ],
+        "tokens": 339,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

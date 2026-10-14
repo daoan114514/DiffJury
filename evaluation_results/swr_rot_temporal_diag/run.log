@@ -1,0 +1,19 @@
+[10:33:51] replay baseline_rerun: 219 PRs, attempt 1
+[10:53:50] replay baseline_rerun: completed=216/219, F1=0.3036
+[10:53:50] replay baseline_rerun: 3 PRs, attempt 2
+[10:56:21] replay baseline_rerun: completed=218/219, F1=0.3036
+[10:56:21] replay baseline_rerun: 1 PRs, attempt 3
+[10:58:51] replay baseline_rerun: completed=218/219, F1=0.3036
+[10:58:51] replay governed_assembler_empty: 219 PRs, attempt 1
+[11:26:09] replay governed_assembler_empty: completed=193/219, F1=0.2286
+[11:26:09] replay governed_assembler_empty: 26 PRs, attempt 2
+[11:31:41] replay governed_assembler_empty: completed=217/219, F1=0.2783
+[11:31:41] replay governed_assembler_empty: 2 PRs, attempt 3
+[11:34:14] replay governed_assembler_empty: completed=217/219, F1=0.2783
+[11:34:14] replay governed_rerun: 219 PRs, attempt 1
+[11:50:42] replay governed_rerun: completed=218/219, F1=0.3158
+[11:50:42] replay governed_rerun: 1 PRs, attempt 2
+[11:53:11] replay governed_rerun: completed=218/219, F1=0.3158
+[11:53:11] replay governed_rerun: 1 PRs, attempt 3
+[11:55:50] replay governed_rerun: completed=218/219, F1=0.3158
+[11:58:04] done: evaluation_results\swr_rot_temporal_diag\diag.md

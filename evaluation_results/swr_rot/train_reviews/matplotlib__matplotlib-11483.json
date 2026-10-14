@@ -1,0 +1,54 @@
+{
+  "id": "matplotlib__matplotlib-11483",
+  "findings": [
+    {
+      "rule_id": "ci-required-packages-lost",
+      "severity": "medium",
+      "title": "The pinned Python 3.5 job no longer installs pandas or nose",
+      "explanation": "Previously, the first Python 3.5 matrix entry explicitly installed both pandas<0.21.0 and nose. It now supplies travis35.txt with -c, which constrains versions but does not request package installation. pandas appears only in that constraints file, not in travis_all.txt; nose is absent from both files. On a clean environment without these optional packages, the dependency-installation step therefore no longer installs them. This changes the minimum-dependency test environment and removes its guarantee of testing with the older pandas package and nose present. The Python 3.6 job still installs pandas through its separate requirements file, but does not replace that Python 3.5 coverage.\n\nEffective arguments are: the pinned Python 3.5 entry installs --upgrade -r requirements/testing/travis_all.txt -c requirements/testing/travis35.txt; the unpinned Python 3.5 entry installs only the shared requirements; Python 3.6 adds -r requirements/testing/travis36.txt; nightly adds --pre to the shared installation. Other entries without overrides also receive only the shared requirements.\n\nResolver qualification: travis_all.txt requests pytest>=3.6 while travis35.txt constrains pytest==3.4. Those specifications have no intersection, so a strict resolver rejects them. However, the legacy pip resolver relevant to the original configuration processes constraints first and can retain pytest==3.4 without enforcing the conflicting direct requirement; consequently, an unconditional claim that this historical job fails dependency installation is not justified. Under that legacy behavior, the pytest, pytest-cov, and pytest-timeout pins preserve the old pinned combination. The remaining pytest plugins were already unpinned before this change, so no additional specific plugin incompatibility is demonstrated by the supplied evidence. The missing pandas and nose installation is independent of these resolver differences.",
+      "path": "requirements/testing/travis35.txt",
+      "line": 6,
+      "evidence": "requirements/testing/travis35.txt:6: pandas<0.21.0\n.travis.yml:74:         - PINNEDVERS='-c requirements/testing/travis35.txt'\n.travis.yml:126:     python -mpip install --upgrade $PRE -r requirements/testing/travis_all.txt $EXTRAREQS $PINNEDVERS\nrequirements/testing/travis_all.txt:11: pytest>=3.6\nrequirements/testing/travis35.txt:8: pytest==3.4",
+      "fix": "Explicitly request pandas and nose for the pinned Python 3.5 job through an extra requirements file, while retaining travis35.txt for version constraints. Separately, make the shared pytest requirement compatible with the explicitly supported pytest 3.4 job rather than relying on legacy resolver conflict handling.",
+      "test": "Create a clean environment for the pinned Python 3.5 matrix entry, execute its actual dependency-installation command, and assert that pandas and nose are installed and pandas is below 0.21.0. Also assert the intended pytest, pytest-cov, and pytest-timeout versions so resolver changes cannot silently alter the supported combination.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".travis.yml",
+          "line": 74,
+          "symbol": "pinned Python 3.5 matrix environment"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 126,
+          "symbol": "dependency installation"
+        },
+        {
+          "path": "requirements/testing/travis35.txt",
+          "line": 6,
+          "symbol": "pandas version constraint"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1104",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 24436,
+  "llm_calls": 5
+}

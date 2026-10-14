@@ -1,0 +1,99 @@
+{
+  "id": "astropy__astropy-5494",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "ignored-coordinate-system-argument",
+      "severity": "medium",
+      "title": "Honor the explicitly supplied coordsys argument",
+      "explanation": "The new public parameter is documented as selecting the coordinate system, with radesys used only when the parameter is omitted. However, the implementation always writes self.wcs.radesys. The changed test supplies coordsys='FK5' to an ICRS WCS and confirms that the output remains 'ICRS\\n', directly demonstrating the contract violation. Callers cannot select the requested DS9 declaration. The assertion on test line 624 encodes this defect rather than testing the advertised selection behavior. The repeated call's four-line assertion separately demonstrates intentional overwrite behavior; overwriting itself is not the defect.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "Use self.wcs.radesys only when coordsys is None; otherwise serialize the explicitly supplied coordinate system. Update the second test assertion to expect 'FK5\\n'.",
+      "test": "Invoke footprint_to_file on the existing ICRS fixture first without coordsys and then with coordsys='FK5'. Assert ICRS for the default call, FK5 for the explicit call, the requested color, and four lines after overwriting.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/tests/test_wcs.py",
+          "line": 618,
+          "symbol": "w.footprint_to_file(testfile, coordsys='FK5', color='red')"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "coordinate declaration serialization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "invalid-ds9-coordinate-declaration",
+      "severity": "medium",
+      "title": "Do not serialize RADESYS directly as a DS9 coordinate-system keyword",
+      "explanation": "RADESYS is an equatorial reference-system value, not a general DS9 coordinate-system declaration. A supported Galactic WCS with CTYPE1='GLON-TAN' and CTYPE2='GLAT-TAN' can have empty radesys. With an otherwise calculable footprint, this code writes a blank third line followed by Galactic longitude/latitude numbers; there is no 'galactic' declaration, so DS9 interprets them using its default physical coordinate system. Another supported FITS value, 'FK4-NO-E', is written verbatim even though it is not a supported DS9 region coordinate-system keyword. The previous implementation emitted the syntactically valid 'linear' declaration. The new direct serialization therefore introduces malformed or incorrectly interpreted region files for supported inputs. No check or frame mapping exists before the write, and the added tests cover only ICRS.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "Derive a valid DS9 declaration from the actual WCS coordinate frame rather than RADESYS alone. Emit 'galactic' for Galactic coordinates and handle unsupported equatorial frames through a supported-frame conversion or an explicit error. Validate the selected declaration before opening the destination in write mode.",
+      "test": "Create a two-dimensional GLON-TAN/GLAT-TAN WCS with image dimensions and empty radesys, write its footprint, and assert that the declaration is 'galactic' and the polygon retains Galactic coordinates. Also exercise RADESYS='FK4-NO-E' and assert a supported converted declaration or an explicit failure before the destination is overwritten.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "raw RADESYS declaration"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2666,
+          "symbol": "self.calc_footprint().tofile"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

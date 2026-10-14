@@ -1,0 +1,267 @@
+{
+  "id": "sympy__sympy-13327",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "monomial-enumeration-amplification",
+      "severity": "medium",
+      "title": "Identity padding makes single-variable noncommutative enumeration exponential",
+      "explanation": "For a single noncommutative symbol a, itermonomials([a], 30) should produce only {1, a, ..., a**30}. Appending 1 and taking a Cartesian product with repeat=30 constructs 2**30 candidate tuples, although they collapse to just 31 distinct monomials. The previous implementation produces the same correct result for this input using 30 powers and 31 calls on the empty tail. Thus a previously inexpensive supported input now requires over a billion Mul constructions. The new degree-0 through degree-3 tests establish small-input correctness but do not detect this amplification. The commutative branch also introduces additional work: for one symbol and degree D it constructs D+1 tuples of length D, instead of directly constructing D powers.",
+      "path": "sympy/polys/monomials.py",
+      "line": 63,
+      "evidence": "variables = list(variables) + [S(1)]\nif all(variable.is_commutative for variable in variables):\n    return {Mul(*item) for item in combinations_with_replacement(variables, degree)}\nelse:\n    return {Mul(*item) for item in product(variables, repeat=degree)}",
+      "fix": "Do not pad Cartesian products with the identity. Enumerate noncommutative words separately for each length from zero through degree; construct commutative monomials from exponent vectors and powers rather than degree-length padded factor tuples.",
+      "test": "Add a regression exercising itermonomials([a], 30) with a noncommutative symbol and asserting exactly {a**k for k in range(31)}. Add an operation-count check or benchmark demonstrating work proportional to the 31 outputs rather than 2**30 candidates. Also benchmark a single commutative symbol as degree increases.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 59,
+          "symbol": "itermonomials"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 63,
+          "symbol": "product"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "monomial-doctest-symbolic-sorting",
+      "severity": "low",
+      "title": "The new noncommutative example cannot execute as written",
+      "explanation": "The new example calls sorted without a key on a set containing unrelated symbolic expressions. Python sorting invokes symbolic inequalities, whose truth value cannot be determined, so this example raises TypeError rather than returning the displayed list. The preceding examples correctly provide monomial_key. Even after adding a suitable sort key, the displayed entries xa and xb are not how SymPy prints x*a and x*b; juxtaposed names denote different symbols. Consequently the newly added doctest has both an execution failure and an incorrect expected representation.",
+      "path": "sympy/polys/monomials.py",
+      "line": 51,
+      "evidence": ">>> a, b = symbols('a, b', commutative=False)\n>>> sorted(itermonomials([a, b, x], 2))\n[1, a, b, x, a**2, a*b, b*a, b**2, xa, xb, x**2]",
+      "fix": "Use a symbolic sorting key such as default_sort_key, import it in the example, and regenerate the expected output with explicit multiplication signs and the actual resulting order.",
+      "test": "Run the monomials.py doctests and require this example to produce the exact displayed output without exceptions.",
+      "confidence": 0.74,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 51,
+          "symbol": "sorted"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01fed82c",
+      "K-0214191c",
+      "K-0bbe1015",
+      "K-0eae5fab",
+      "K-0fbbf738",
+      "K-13c28565",
+      "K-17ff28eb",
+      "K-1950a5a7",
+      "K-1989ba9e",
+      "K-19ad3c9d",
+      "K-2436b487",
+      "K-251fab07",
+      "K-309de097",
+      "K-34bb9f5c",
+      "K-358c8c4f",
+      "K-37dba615",
+      "K-3afad64d",
+      "K-3bdec917",
+      "K-3c126146",
+      "K-3f79acc6",
+      "K-46d9d9f2",
+      "K-4760bbdf",
+      "K-4ccc2518",
+      "K-4e1559a1",
+      "K-4f66d5d3",
+      "K-4fd56d09",
+      "K-509e2923",
+      "K-56673f3c",
+      "K-584c8d57",
+      "K-60750032",
+      "K-633a5476",
+      "K-64df9e81",
+      "K-659408f9",
+      "K-6cca1eba",
+      "K-6db029aa",
+      "K-76094f2b",
+      "K-765402dd",
+      "K-7810cf1c",
+      "K-7bc41659",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-85c6407d",
+      "K-88c09c66",
+      "K-91a8c8ce",
+      "K-934cbecb",
+      "K-99e65698",
+      "K-9d082e14",
+      "K-9fe3253b",
+      "K-a0889f64",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a5bd98ec",
+      "K-a9ea6942",
+      "K-aac022e0",
+      "K-ac72cb59",
+      "K-ade6e308",
+      "K-ba823e2d",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-c88be94c",
+      "K-c8969e3c",
+      "K-cb01c870",
+      "K-cf4ba613",
+      "K-d3ab563e",
+      "K-d578b2d4",
+      "K-d7f74de4",
+      "K-dafa11ad",
+      "K-e2f20c42",
+      "K-f0828052",
+      "K-f39fb2d9",
+      "K-f8c37d11",
+      "K-fd698324"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-0fbbf738",
+          "K-cb01c870",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-847c7cac",
+          "K-4fd56d09",
+          "K-c621f945",
+          "K-99e65698",
+          "K-251fab07",
+          "K-633a5476",
+          "K-f39fb2d9",
+          "K-1989ba9e",
+          "K-509e2923",
+          "K-3f79acc6",
+          "K-d3ab563e",
+          "K-c1f97abd",
+          "K-4f66d5d3",
+          "K-c88be94c",
+          "K-934cbecb",
+          "K-ade6e308",
+          "K-f8c37d11",
+          "K-2436b487",
+          "K-0bbe1015",
+          "K-85c6407d"
+        ],
+        "tokens": 1430,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-a9ea6942",
+          "K-765402dd",
+          "K-7de8581d",
+          "K-cf4ba613",
+          "K-a1e29320"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-c8969e3c",
+          "K-7810cf1c",
+          "K-dafa11ad",
+          "K-7bc41659",
+          "K-34bb9f5c",
+          "K-584c8d57",
+          "K-fd698324",
+          "K-a0889f64",
+          "K-3afad64d",
+          "K-6db029aa",
+          "K-1950a5a7",
+          "K-3bdec917",
+          "K-19ad3c9d",
+          "K-3c126146",
+          "K-309de097",
+          "K-01fed82c",
+          "K-60750032",
+          "K-0eae5fab",
+          "K-358c8c4f",
+          "K-f0828052",
+          "K-ba823e2d",
+          "K-4760bbdf",
+          "K-a5bd98ec",
+          "K-76094f2b",
+          "K-6cca1eba",
+          "K-aac022e0",
+          "K-0214191c",
+          "K-56673f3c",
+          "K-d7f74de4",
+          "K-9d082e14",
+          "K-64df9e81",
+          "K-ac72cb59",
+          "K-e2f20c42",
+          "K-91a8c8ce",
+          "K-d578b2d4",
+          "K-17ff28eb",
+          "K-4ccc2518",
+          "K-37dba615",
+          "K-9fe3253b",
+          "K-a527e894",
+          "K-4e1559a1",
+          "K-13c28565"
+        ],
+        "tokens": 3231,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

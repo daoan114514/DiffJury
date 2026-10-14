@@ -1,0 +1,414 @@
+{
+  "model": "gpt-6.1-sol",
+  "fake": false,
+  "source": "evaluation_results\\swr_rot\\events.json",
+  "candidates": 25,
+  "completed": 25,
+  "conflicts": 25,
+  "rejected": 25,
+  "blocked_rate": 1.0,
+  "protocol": "each contradiction judged against its original lesson in an isolated temporary database",
+  "source_unchanged": true,
+  "results": [
+    {
+      "event_index": 28,
+      "target_index": 26,
+      "action": "REJECT",
+      "item_id": "K-7e01d1b8",
+      "reason": "conflicts with K-7e01d1b8",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-7e01d1b8",
+          "score": 0.603969
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 35,
+      "target_index": 15,
+      "action": "REJECT",
+      "item_id": "K-0f264a5c",
+      "reason": "conflicts with K-0f264a5c",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-0f264a5c",
+          "score": 0.732031
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 39,
+      "target_index": 18,
+      "action": "REJECT",
+      "item_id": "K-753f5622",
+      "reason": "conflicts with K-753f5622",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-753f5622",
+          "score": 0.691584
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 65,
+      "target_index": 12,
+      "action": "REJECT",
+      "item_id": "K-84dfb549",
+      "reason": "conflicts with K-84dfb549",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-84dfb549",
+          "score": 0.574634
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 79,
+      "target_index": 37,
+      "action": "REJECT",
+      "item_id": "K-d98d5d97",
+      "reason": "conflicts with K-d98d5d97",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-d98d5d97",
+          "score": 0.702579
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 98,
+      "target_index": 8,
+      "action": "REJECT",
+      "item_id": "K-50a1f6a3",
+      "reason": "conflicts with K-50a1f6a3",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-50a1f6a3",
+          "score": 0.753599
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 113,
+      "target_index": 82,
+      "action": "REJECT",
+      "item_id": "K-5c7b453e",
+      "reason": "conflicts with K-5c7b453e",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-5c7b453e",
+          "score": 0.730145
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 116,
+      "target_index": 10,
+      "action": "REJECT",
+      "item_id": "K-894e04b1",
+      "reason": "conflicts with K-894e04b1",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-894e04b1",
+          "score": 0.626793
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 125,
+      "target_index": 17,
+      "action": "REJECT",
+      "item_id": "K-ac0332ed",
+      "reason": "conflicts with K-ac0332ed",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-ac0332ed",
+          "score": 0.456931
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 143,
+      "target_index": 5,
+      "action": "REJECT",
+      "item_id": "K-6b3ba548",
+      "reason": "conflicts with K-6b3ba548",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-6b3ba548",
+          "score": 0.54864
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 173,
+      "target_index": 52,
+      "action": "REJECT",
+      "item_id": "K-acb4ea38",
+      "reason": "conflicts with K-acb4ea38",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-acb4ea38",
+          "score": 0.776368
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 175,
+      "target_index": 83,
+      "action": "REJECT",
+      "item_id": "K-d302c1c3",
+      "reason": "conflicts with K-d302c1c3",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-d302c1c3",
+          "score": 0.783682
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 184,
+      "target_index": 61,
+      "action": "REJECT",
+      "item_id": "K-6b1a1915",
+      "reason": "conflicts with K-6b1a1915",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-6b1a1915",
+          "score": 0.709665
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 195,
+      "target_index": 16,
+      "action": "REJECT",
+      "item_id": "K-0e25317f",
+      "reason": "conflicts with K-0e25317f",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-0e25317f",
+          "score": 0.528587
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 203,
+      "target_index": 82,
+      "action": "REJECT",
+      "item_id": "K-722a65a4",
+      "reason": "conflicts with K-722a65a4",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-722a65a4",
+          "score": 0.791202
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 207,
+      "target_index": 167,
+      "action": "REJECT",
+      "item_id": "K-4f8134c0",
+      "reason": "conflicts with K-4f8134c0",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-4f8134c0",
+          "score": 0.715512
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 208,
+      "target_index": 22,
+      "action": "REJECT",
+      "item_id": "K-b08aaaa3",
+      "reason": "conflicts with K-b08aaaa3",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-b08aaaa3",
+          "score": 0.645968
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 213,
+      "target_index": 210,
+      "action": "REJECT",
+      "item_id": "K-d0fea90e",
+      "reason": "conflicts with K-d0fea90e",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-d0fea90e",
+          "score": 0.644927
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 215,
+      "target_index": 71,
+      "action": "REJECT",
+      "item_id": "K-eeb1b782",
+      "reason": "conflicts with K-eeb1b782",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-eeb1b782",
+          "score": 0.812111
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 230,
+      "target_index": 228,
+      "action": "REJECT",
+      "item_id": "K-cc9c7795",
+      "reason": "conflicts with K-cc9c7795",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-cc9c7795",
+          "score": 0.517121
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 233,
+      "target_index": 191,
+      "action": "REJECT",
+      "item_id": "K-4b6bcb92",
+      "reason": "conflicts with K-4b6bcb92",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-4b6bcb92",
+          "score": 0.711312
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 241,
+      "target_index": 68,
+      "action": "REJECT",
+      "item_id": "K-b318d10c",
+      "reason": "conflicts with K-b318d10c",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-b318d10c",
+          "score": 0.646685
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 246,
+      "target_index": 51,
+      "action": "REJECT",
+      "item_id": "K-469a8f55",
+      "reason": "conflicts with K-469a8f55",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-469a8f55",
+          "score": 0.7839
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 247,
+      "target_index": 12,
+      "action": "REJECT",
+      "item_id": "K-4615ab74",
+      "reason": "conflicts with K-4615ab74",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-4615ab74",
+          "score": 0.652274
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    },
+    {
+      "event_index": 248,
+      "target_index": 9,
+      "action": "REJECT",
+      "item_id": "K-1b63395a",
+      "reason": "conflicts with K-1b63395a",
+      "judge": "llm-conflict",
+      "similar": [
+        {
+          "id": "K-1b63395a",
+          "score": 0.691945
+        }
+      ],
+      "conflict": true,
+      "original_unchanged": true
+    }
+  ]
+}

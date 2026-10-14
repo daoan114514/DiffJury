@@ -1,0 +1,89 @@
+{
+  "id": "sympy__sympy-13091",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "RICH-COMPARISON-NOTIMPLEMENTED",
+      "severity": "low",
+      "title": "Inequality coerces foreign comparison results instead of reflecting __ne__",
+      "explanation": "For an unsupported operand whose rich comparisons return non-Boolean results, the new equality fallback makes inequality raise unexpectedly. For example, let Foreign.__eq__ and Foreign.__ne__ return result objects whose __bool__ raises TypeError. Float(1) == foreign now correctly returns the foreign equality result: Float.__eq__ returns NotImplemented, so Python calls Foreign.__eq__. But Float(1) != foreign enters the changed Float.__ne__, repeats that equality dispatch, and applies `not` to its result, raising TypeError rather than allowing Foreign.__ne__ to handle inequality. In the opposite operand order, foreign != Float(1) successfully returns the foreign inequality result. Previously Float(1) != foreign returned True without raising. This affects integrations using symbolic or vector-valued comparison results, which Python's rich-comparison protocol permits. The same pattern appears in the changed Basic, Rational, Integer, and NumberSymbol inequality implementations. This counterexample follows the supplied changed code and Python dispatch rules; no execution tools or complete surrounding source were available. The supplied strict/non-strict NumberSymbol delegation changes themselves correctly pair opposite operators and do not establish a separate precision regression.",
+      "path": "sympy/core/numbers.py",
+      "line": 1279,
+      "evidence": "    def __ne__(self, other):\n        return not self == other",
+      "fix": "Preserve NotImplemented in __ne__: evaluate self.__eq__(other), return NotImplemented unchanged when unsupported, and negate only a supported equality result. Python can then dispatch to the foreign operand's __ne__. Apply the same correction to the other changed core inequality implementations.",
+      "test": "Define Result with __bool__ and __nonzero__ raising TypeError, and an otherwise unsympifiable Foreign with __eq__ returning an equality Result and __ne__ returning a distinct inequality Result. Assert that Float(1) == foreign and foreign == Float(1) return the equality result, and that both Float(1) != foreign and foreign != Float(1) return the inequality result without Boolean coercion. Repeat for Basic(), Rational(1, 3), Integer(1), and pi, while retaining the existing Boolean Foo/Bar tests.",
+      "confidence": 0.93,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/numbers.py",
+          "line": 1279,
+          "symbol": "Float.__ne__: evaluates self == other and then coerces its result with not"
+        },
+        {
+          "path": "sympy/core/numbers.py",
+          "line": 1261,
+          "symbol": "Float.__eq__: returns NotImplemented on SympifyError, enabling Foreign.__eq__ reflected dispatch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

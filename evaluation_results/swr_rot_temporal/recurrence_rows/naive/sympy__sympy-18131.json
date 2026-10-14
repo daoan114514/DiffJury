@@ -1,0 +1,312 @@
+{
+  "id": "sympy__sympy-18131",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "reciprocal-finite-upper-bound",
+      "severity": "medium",
+      "title": "An infinite upper bound passes validation but cannot define a reciprocal distribution",
+      "explanation": "Reciprocal('X', 1, oo) passes both new checks: 1 > 0 and 1 < oo are true. Its normalization denominator is log(oo) - log(1) = oo, making the density zero at every finite point in its declared support. Consequently its integral over [1, oo) is zero rather than one, and the new _cdf returns zero at every finite positive argument. There is no normalizable reciprocal density proportional to 1/x on this unbounded interval. The validation message even advertises +oo as an allowed endpoint, while all added numeric tests use finite bounds.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3211,
+      "evidence": "_value_check((a < b),\n        \"Parameter b must be in range (%s, +oo]. b = %s\"%(a, b))",
+      "fix": "Reject a definitely infinite upper bound in addition to checking 0 < a < b, while retaining the customary handling of symbolic parameters whose finiteness is unknown. Correct the validation message to exclude infinity.",
+      "test": "Assert that Reciprocal('X', 1, oo) raises ValueError, retain a valid finite-bound normalization test, and verify that ordinary symbolic parameters remain constructible.",
+      "confidence": 0.9400000000000001,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3209,
+          "symbol": "ReciprocalDistribution.check"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3218,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "reciprocal-pdf-support",
+      "severity": "medium",
+      "title": "Reciprocal density is one above its upper bound",
+      "explanation": "For X = Reciprocal('X', 5, 30), density(X)(31) returns 1 instead of 0. A reciprocal density must vanish outside [a, b]; this implementation instead has an infinite integral over the real line. Support-aware probability and expectation operations integrate over the distribution's declared Interval(a, b), so the added expectation and probability assertions can pass despite the incorrect public density. The new density assertion at test_continuous_rv.py:959 explicitly requires the erroneous final branch, and the documentation example repeats it.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3219,
+      "evidence": "(S.One, (x > b)))",
+      "fix": "Return zero above b, preferably with a zero default branch outside the support. Update the density assertion and documentation to match.",
+      "test": "For Reciprocal('X', 5, 30), assert density(X)(4) == 0 and density(X)(31) == 0, verify the formula inside the support, and assert that integrating the public density over the whole real line gives 1.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3214,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "reciprocal-cdf-boundaries",
+      "severity": "medium",
+      "title": "Reciprocal CDF returns values outside the probability range",
+      "explanation": "The supplied _cdf shortcut evaluates the logarithmic formula for every x, without enforcing either support boundary. For a = 1 and b = exp(1), it returns -1 at x = exp(-1) and 2 at x = exp(2), whereas the CDF must return 0 and 1 respectively. SingleContinuousDistribution.cdf uses an available _cdf result directly; this shortcut does not obtain support clipping from the generic integration machinery. The added P(X < 4) assertion exercises support-aware probability integration rather than this CDF shortcut, so it does not protect this public behavior.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3223,
+      "evidence": "return (log(x) - log(a)) / (log(b) - log(a))",
+      "fix": "Return a Piecewise CDF with zero below a, the logarithmic formula within [a, b], and one above b.",
+      "test": "Construct X = Reciprocal('X', 1, exp(1)); assert cdf(X)(exp(-1)) == 0, cdf(X)(1) == 0, cdf(X)(exp(1)) == 1, and cdf(X)(exp(2)) == 1. Also verify an interior value such as cdf(X)(exp(Rational(1, 2))) == Rational(1, 2).",
+      "confidence": 0.82,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3221,
+          "symbol": "ReciprocalDistribution._cdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01fed82c",
+      "K-0214191c",
+      "K-0bbe1015",
+      "K-0eae5fab",
+      "K-0fbbf738",
+      "K-13c28565",
+      "K-17ff28eb",
+      "K-1950a5a7",
+      "K-1989ba9e",
+      "K-19ad3c9d",
+      "K-2436b487",
+      "K-251fab07",
+      "K-309de097",
+      "K-34bb9f5c",
+      "K-358c8c4f",
+      "K-37dba615",
+      "K-3afad64d",
+      "K-3bdec917",
+      "K-3c126146",
+      "K-3f79acc6",
+      "K-46d9d9f2",
+      "K-4760bbdf",
+      "K-4ccc2518",
+      "K-4e1559a1",
+      "K-4f66d5d3",
+      "K-4fd56d09",
+      "K-509e2923",
+      "K-56673f3c",
+      "K-584c8d57",
+      "K-60750032",
+      "K-633a5476",
+      "K-64df9e81",
+      "K-659408f9",
+      "K-6cca1eba",
+      "K-6db029aa",
+      "K-76094f2b",
+      "K-765402dd",
+      "K-7810cf1c",
+      "K-7bc41659",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-85c6407d",
+      "K-88c09c66",
+      "K-91a8c8ce",
+      "K-934cbecb",
+      "K-99e65698",
+      "K-9d082e14",
+      "K-9fe3253b",
+      "K-a0889f64",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a5bd98ec",
+      "K-a9ea6942",
+      "K-aac022e0",
+      "K-ac72cb59",
+      "K-ade6e308",
+      "K-b7652dc9",
+      "K-ba823e2d",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-c88be94c",
+      "K-c8969e3c",
+      "K-cb01c870",
+      "K-cf4ba613",
+      "K-d3ab563e",
+      "K-d578b2d4",
+      "K-d7f74de4",
+      "K-dafa11ad",
+      "K-e2f20c42",
+      "K-f0828052",
+      "K-f39fb2d9",
+      "K-f8c37d11",
+      "K-fd698324"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-0fbbf738",
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-cb01c870",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-1989ba9e",
+          "K-847c7cac",
+          "K-4fd56d09",
+          "K-99e65698",
+          "K-251fab07",
+          "K-509e2923",
+          "K-934cbecb",
+          "K-d3ab563e",
+          "K-f39fb2d9",
+          "K-4f66d5d3",
+          "K-c88be94c",
+          "K-ade6e308",
+          "K-633a5476",
+          "K-f8c37d11",
+          "K-c621f945",
+          "K-2436b487",
+          "K-0bbe1015",
+          "K-c1f97abd",
+          "K-3f79acc6",
+          "K-85c6407d"
+        ],
+        "tokens": 1430,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-a1e29320",
+          "K-765402dd",
+          "K-7de8581d",
+          "K-cf4ba613",
+          "K-a9ea6942"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bdec917",
+          "K-4760bbdf",
+          "K-56673f3c",
+          "K-64df9e81",
+          "K-7810cf1c",
+          "K-7bc41659",
+          "K-91a8c8ce",
+          "K-ac72cb59",
+          "K-34bb9f5c",
+          "K-37dba615",
+          "K-584c8d57",
+          "K-e2f20c42",
+          "K-358c8c4f",
+          "K-a0889f64",
+          "K-f0828052",
+          "K-309de097",
+          "K-9fe3253b",
+          "K-1950a5a7",
+          "K-0eae5fab",
+          "K-01fed82c",
+          "K-3c126146",
+          "K-d578b2d4",
+          "K-aac022e0",
+          "K-a5bd98ec",
+          "K-60750032",
+          "K-13c28565",
+          "K-6cca1eba",
+          "K-ba823e2d",
+          "K-0214191c",
+          "K-3afad64d",
+          "K-c8969e3c",
+          "K-19ad3c9d",
+          "K-fd698324",
+          "K-76094f2b",
+          "K-9d082e14",
+          "K-17ff28eb",
+          "K-d7f74de4",
+          "K-6db029aa",
+          "K-4ccc2518",
+          "K-dafa11ad",
+          "K-a527e894",
+          "K-4e1559a1"
+        ],
+        "tokens": 3231,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

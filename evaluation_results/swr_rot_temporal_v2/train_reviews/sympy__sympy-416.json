@@ -1,0 +1,49 @@
+{
+  "id": "sympy__sympy-416",
+  "findings": [
+    {
+      "rule_id": "unhashable-multiset-cache-key",
+      "severity": "medium",
+      "title": "Tuple cache keys reject multiset elements that are unhashable",
+      "explanation": "For a multiset containing lists, such as list(multiset_partitions([[1], [2], [3]], 2)), converting each block to a tuple does not make its elements hashable. Every resulting cache key still contains lists, so cache.has_key(canonical) raises TypeError instead of returning partitions. The previous str(ps) cache key did not require elements to be hashable and supported this input. The new integer-only regression test does not exercise this compatibility break. This is separate from unordered-partition deduplication: both the old string key and the new tuple key retain block order, so that limitation is not newly introduced.",
+      "path": "sympy/utilities/iterables.py",
+      "line": 749,
+      "evidence": "canonical = tuple(tuple(j) for j in ps)\n        if not cache.has_key(canonical):\n            cache[canonical] = 1",
+      "fix": "Build cache keys from hashable identifiers assigned to input elements, or provide an equality-based fallback for unhashable elements, rather than requiring the elements themselves to be hashable.",
+      "test": "Enumerate multiset_partitions([[1], [2], [3]], 2) and assert that iteration completes without an exception and returns the three partitions: [[[1], [2]], [[3]]], [[[1]], [[2], [3]]], and [[[1], [3]], [[2]]], comparing without imposing an unverified traversal order. Also test repeated unhashable elements with [[1], [2], [2]] and assert two distinct results and no None entries.",
+      "confidence": 0.93,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 756,
+          "symbol": "multiset_partitions.f -> visit"
+        },
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 749,
+          "symbol": "multiset_partitions.visit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17380,
+  "llm_calls": 5
+}

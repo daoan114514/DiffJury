@@ -1,0 +1,61 @@
+{
+  "id": "matplotlib__matplotlib-7279",
+  "findings": [
+    {
+      "rule_id": "plugin-class-instance-mismatch",
+      "severity": "medium",
+      "title": "matplotlib.test() calls already-instantiated nose plugins",
+      "explanation": "_get_extra_test_plugins() returns plugin classes, but line 1594 extends that list with instantiated built-in plugins. The new comprehension at line 1596 calls every entry again. With the normal, nonempty nose built-in plugin list, it constructs the extra plugins and then raises TypeError when it reaches a non-callable built-in plugin instance. Consequently matplotlib.test() fails before Config construction or nose.run(), even with all test dependencies installed. Previously PluginManager received instances directly, without this second construction. The same mixed list would also violate the multiprocess factory contract at line 1602; fixing it to contain classes consistently resolves both paths. In contrast, tests.py receives only classes from the helper and instantiates them once for nose.main(), while passing classes to multiprocess. No separate compatibility finding is established for removing verify_test_dependencies because the supplied evidence identifies no supported external caller. Combining $MOCK with the other pip arguments preserves empty-variable omission and requirement argument splitting; the additional application of $PRE to mock is not enough, without the CI environment values and resolved versions, to establish a dependency regression.",
+      "path": "lib/matplotlib/__init__.py",
+      "line": 1596,
+      "evidence": "plugins = _get_extra_test_plugins()\n        plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])\n\n        manager = PluginManager(plugins=[x() for x in plugins])",
+      "fix": "Extend plugins with nose.plugins.builtin.plugins directly, without instantiating them. Keep the list as classes for multiprocess and instantiate it exactly once when constructing PluginManager.",
+      "test": "With supported nose and test dependencies installed, set default_test_modules to a trivial passing test module and invoke matplotlib.test(). Assert it completes without TypeError, PluginManager receives plugin instances, and multiprocess._instantiate_plugins contains callable plugin classes.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1580,
+          "symbol": "test"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1573,
+          "symbol": "_get_extra_test_plugins"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1594,
+          "symbol": "plugins.extend"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1596,
+          "symbol": "[x() for x in plugins]"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-843",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 111275,
+  "llm_calls": 6,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-7279.json",
+  "borrowed_sha256": "0da6b8fc67a708830d1b9ea553101d38f95233d243248b89244c7e98595b45f2"
+}

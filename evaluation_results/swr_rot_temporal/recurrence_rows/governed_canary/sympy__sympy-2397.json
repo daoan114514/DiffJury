@@ -1,0 +1,133 @@
+{
+  "id": "sympy__sympy-2397",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-DIAGNOSTIC-MASKS-EXCEPTION",
+      "severity": "low",
+      "title": "Preview diagnostics can replace the original exception even when debugging is disabled",
+      "explanation": "The new exception handler evaluates repr(e) before calling debug, so debug's SYMPY_DEBUG guard cannot protect that evaluation. If preview raises an exception whose __repr__ raises—for example, a custom exception propagated from user-defined printing code—the representation error escapes instead of the original preview exception, and the bare raise is never reached. Previously the preview exception propagated unchanged. This is a constrained exception-handling regression, not unconditional output pollution: the shown debug implementation still gates print(*args) on SYMPY_DEBUG. The supplied evidence does not establish a separate supported-runtime or argument-spacing compatibility defect.",
+      "path": "sympy/interactive/printing.py",
+      "line": 72,
+      "evidence": "        except Exception as e:\n            # IPython swallows exceptions\n            debug(\"png printing:\", \"_preview_wrapper exception raised:\",\n                repr(e))\n            raise",
+      "fix": "Make the diagnostic best-effort: protect both exception representation and debug output with a nested exception handler, then retain the outer bare raise so diagnostic failures cannot replace the preview exception.",
+      "test": "Exercise the registered PNG formatter with preview replaced by a function that raises a particular custom exception instance whose __repr__ raises ValueError. With SYMPY_DEBUG disabled, assert that the original exception instance propagates rather than ValueError. Also verify that ordinary preview failures retain their original identity and disabled debugging produces no output.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/interactive/printing.py",
+          "line": 64,
+          "symbol": "_preview_wrapper"
+        },
+        {
+          "path": "sympy/interactive/printing.py",
+          "line": 67,
+          "symbol": "preview"
+        },
+        {
+          "path": "sympy/interactive/printing.py",
+          "line": 72,
+          "symbol": "repr(e)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-2b42cad0",
+      "K-46b8b947",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-7b0b7360",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-d0414ebb",
+      "K-e13d441c",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-93a099ce",
+          "K-09474f0c"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-e172ac33",
+          "K-46b8b947",
+          "K-7ac64342",
+          "K-5af1f6aa",
+          "K-c01df042",
+          "K-7b0b7360",
+          "K-e13d441c"
+        ],
+        "tokens": 629,
+        "budget": 600,
+        "dropped": [
+          "K-ddb18739",
+          "K-e820d88f",
+          "K-4b143eb5",
+          "K-0117d999",
+          "K-b1da47ce"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

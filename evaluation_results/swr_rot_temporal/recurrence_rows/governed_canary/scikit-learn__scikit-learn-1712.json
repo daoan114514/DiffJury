@@ -1,0 +1,123 @@
+{
+  "id": "scikit-learn__scikit-learn-1712",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "max-features-nonfinite-validation",
+      "severity": "low",
+      "title": "Infinite max_features bypasses validation with an OverflowError",
+      "explanation": "For max_features=float('inf') or float('-inf'), the new float branch calls int() on an infinite product and raises OverflowError before subsequent max_features validation or tree construction can run. This changes the failure path for invalid numeric parameters: the existing tests require ValueError for invalid max_features, whereas callers catching that validation exception will not catch this failure. NaN does not have the same exception mismatch because int(NaN) raises ValueError. The relocated invalid integer/string tests preserve their previous checks, and the added 0.0 test covers a finite invalid fraction, but none exercises this new conversion failure. The documentation changes themselves consistently describe integer counts and truncated fractional counts; the demonstrated problem is conversion preceding validation, not those documented semantics.",
+      "path": "sklearn/tree/tree.py",
+      "line": 310,
+      "evidence": "elif isinstance(self.max_features, float):\n            max_features = int(self.max_features * self.n_features_)",
+      "fix": "Reject non-finite floating max_features with ValueError before converting the product to int, leaving the existing finite-value range validation intact.",
+      "test": "Fit DecisionTreeClassifier and DecisionTreeRegressor on a nonempty, two-feature dataset with max_features=float('inf') and float('-inf'); assert ValueError rather than OverflowError. Include NaN and retain the existing finite fractional and invalid-value tests.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tree/tree.py",
+          "line": 309,
+          "symbol": "BaseDecisionTree.fit: float max_features conversion"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-15a64966",
+      "K-2019c936",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-75ffcebf",
+      "K-900623ee",
+      "K-95d752ab",
+      "K-9f32c0f2",
+      "K-9fbca2ff",
+      "K-c1e264d7",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-f0b9d1e9",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-900623ee",
+          "K-75ffcebf",
+          "K-95d752ab",
+          "K-542e4ee3",
+          "K-f0b9d1e9",
+          "K-c43a8094",
+          "K-2019c936",
+          "K-0466258e",
+          "K-f463a446"
+        ],
+        "tokens": 612,
+        "budget": 600,
+        "dropped": [
+          "K-780def96"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-21a33670",
+          "K-340b5726",
+          "K-d07491c7",
+          "K-15a64966",
+          "K-9f32c0f2",
+          "K-9fbca2ff",
+          "K-c1e264d7"
+        ],
+        "tokens": 451,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

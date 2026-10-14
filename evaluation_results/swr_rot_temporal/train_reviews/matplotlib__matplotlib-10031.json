@@ -1,0 +1,51 @@
+{
+  "id": "matplotlib__matplotlib-10031",
+  "findings": [
+    {
+      "rule_id": "legend-array-color-conversion",
+      "severity": "low",
+      "title": "Repeated labels on collections with empty colors now raise ValueError",
+      "explanation": "A supported PathCollection can return empty arrays rather than scalar colors. For example: `fig, ax = plt.subplots(); ax.scatter([0], [0], facecolors='none', edgecolors='none', label='x'); ax.scatter([1], [1], facecolors='none', edgecolors='none', label='x'); ax.legend()`. Both collections return arrays of shape (0, 4) from get_facecolor() and get_edgecolor(). Once the second matching label reaches _in_handles, the new scalar colors.to_rgba conversion rejects the empty facecolor array with ValueError; the handler catches only AttributeError, so automatic legend construction fails. Previously, comparison of the two empty arrays had false truth value on the NumPy versions supporting that behavior, allowing deduplication to finish (potentially with an empty-array deprecation warning). This is specifically an empty-array regression: ordinary nonempty collection color arrays already made the previous direct comparison ambiguous, so their failures should not be attributed to this change. Line2D scalar colors, including equivalent named/hex/RGB representations and the scalar 'none' sentinel, do not have this problem; Patch getters normally return scalar RGBA tuples. The relevant sentinel distinction is that a collection resolves 'none' into an empty color array. No test changes are supplied that exercise this repeated-label case.",
+      "path": "lib/matplotlib/legend.py",
+      "line": 1360,
+      "evidence": "if (colors.to_rgba(f_h.get_facecolor()) !=\n        colors.to_rgba(h.get_facecolor())):\n    continue\nexcept AttributeError:\n    pass",
+      "fix": "Keep scalar color normalization, but handle array-valued collection getters with array-aware normalization and equality, including empty arrays. Apply the same handling to edgecolor and collection get_color comparisons rather than swallowing conversion errors and treating unrelated handles as duplicates.",
+      "test": "Construct the two scatter collections shown above, assert their facecolor and edgecolor arrays have shape (0, 4), then call get_legend_handles_labels() and legend(). Assert no exception and one retained 'x' entry. Separately retain equivalent scalar-color deduplication coverage and assert differently colored repeated-label handles remain distinct.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1378,
+          "symbol": "_get_legend_handles_labels: not _in_handles(handle, label)"
+        },
+        {
+          "path": "lib/matplotlib/legend.py",
+          "line": 1360,
+          "symbol": "_in_handles: colors.to_rgba(f_h.get_facecolor())"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15742,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-10031.json",
+  "borrowed_sha256": "96d360e3579731405fce0c94b407c212b52885c720f12fcba93b9451f9f549ed"
+}

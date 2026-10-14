@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-20265",
+  "findings": [
+    {
+      "rule_id": "legend-patch-color-state",
+      "severity": "medium",
+      "title": "Copied legend colors are lost when the legend patch's alpha is changed",
+      "explanation": "Directly assigning the resolved colors leaves the Rectangle's original-color state at its constructor defaults. Patch.set_alpha() subsequently calls _set_facecolor(self._original_facecolor) and _set_edgecolor(self._original_edgecolor), so changing the legend handle's transparency replaces the copied colors with those defaults. A concrete trigger is a red fill_between collection followed by ax.legend().get_patches()[0].set_alpha(1), commonly used to make a translucent plot's legend opaque: with patch.facecolor configured as blue, the new implementation changes the legend patch from red to blue, whereas the previous set_facecolor-based implementation preserves red. The initial rendering is otherwise consistent: collection getters supply resolved RGBA arrays, the empty-array fallback supplies transparent RGBA, edgecolor='face' is resolved by get_edgecolor(), and copying _hatch_color while leaving the patch's alpha unset preserves the collection's hatch-color semantics. The added smoke test detects the original edgecolor='face' exception during legend construction, but it never changes the resulting handle's alpha and therefore does not detect this regression.",
+      "path": "lib/matplotlib/legend_handler.py",
+      "line": 748,
+      "evidence": "legend_handle._facecolor = first_color(orig_handle.get_facecolor())\n        legend_handle._edgecolor = first_color(orig_handle.get_edgecolor())",
+      "fix": "Keep the Patch's original-color state synchronized with its displayed colors. For example, pass the resolved RGBA tuples to set_facecolor and set_edgecolor, continue omitting set_alpha, and copy the collection's hatch color afterward.",
+      "test": "Within mpl.rc_context({'patch.facecolor': 'blue'}), create a fill_between collection with facecolor='red', edgecolor='black', alpha=0.25, and a label. Obtain ax.legend().get_patches()[0], assert its initial face color is (1, 0, 0, 0.25), call set_alpha(1), and assert its face color is (1, 0, 0, 1) and its edge color is (0, 0, 0, 1). This exercises the real handler and fails when the original-color state is left at the Rectangle defaults.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/legend_handler.py",
+          "line": 761,
+          "symbol": "HandlerPolyCollection.create_artists"
+        },
+        {
+          "path": "lib/matplotlib/legend_handler.py",
+          "line": 734,
+          "symbol": "HandlerPolyCollection._update_prop"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 16643,
+  "llm_calls": 5
+}

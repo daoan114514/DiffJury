@@ -1,0 +1,156 @@
+{
+  "id": "sympy__sympy-13196",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "generated-expression-precedence",
+      "severity": "medium",
+      "title": "Parenthesize the division emitted for log2",
+      "explanation": "The new printer represents a symbolic function as an unparenthesized division. Surrounding printers determine parentheses from the symbolic expression's precedence, where log2(x) is a function, rather than from the division emitted here. Consequently, lambdify((x, y), y/log2(x), modules='mpmath') generates y/mpmath.log(x)/mpmath.log(2). At x=4 and y=1, this evaluates to approximately 1.04068 instead of 0.5. Similarly, log2(x)**y prints as mpmath.log(x)/mpmath.log(2)**y, which raises only the denominator to y. The former rewrite produced a symbolic quotient before surrounding-expression printing, allowing the multiplication and power printers to group it correctly. Ordinary products may remain correct, but denominators and power bases do not.",
+      "path": "sympy/printing/pycode.py",
+      "line": 232,
+      "evidence": "return '{0}({1})/{0}(2)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Wrap the entire emitted quotient in parentheses, or emit a single mpmath.log(argument, 2) call so its textual precedence matches the symbolic function.",
+      "test": "Add MpmathPrinter and explicit modules='mpmath' lambdify tests for y/log2(x), log2(x)**y, and products containing log2. Assert numerical results at x=4, y=2 as well as appropriate grouping in generated code. These paths are not exercised by the changed test_sin assertion.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 231,
+          "symbol": "MpmathPrinter._print_log2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "mpmath-intermediate-precision",
+      "severity": "medium",
+      "title": "The literal +1 makes log1p lose precision before mpmath receives its argument",
+      "explanation": "For log1p(x), the new generated code is mpmath.log(x+1). When x is a Python float, addition now occurs in native floating-point arithmetic before mpmath is called. For example, with mpmath precision set to 50 digits, lambdify(x, log1p(x), modules='mpmath')(1e-20) returns exactly zero because Python evaluates 1e-20+1 as 1.0. The expected result is approximately 1e-20. Previously, rewriting to log(x + 1) passed the symbolic Integer through _print_Integer, producing mpmath.log(x + mpmath.mpf(1)); the addition therefore occurred at mpmath precision and returned a nonzero result for this input. This is a new regression for ordinary float inputs, distinct from the pre-existing limitations of calculating log1p through log after finite-precision addition.",
+      "path": "sympy/printing/pycode.py",
+      "line": 236,
+      "evidence": "return '{0}({1}+1)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Emit mpmath.log1p(argument), or at minimum print the added one through _print_Integer so addition retains the former mpmath precision semantics.",
+      "test": "Within mpmath.workdps(50), evaluate an explicit modules='mpmath' lambdified log1p(x) at the Python float 1e-20 and compare with mpmath.log1p(1e-20), asserting a nonzero, numerically accurate result. Also cover an mpf input. Accepting float or mpf in test_sin does not verify numerical accuracy or exercise this changed function, so that relaxed assertion provides no protection against this regression.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 235,
+          "symbol": "MpmathPrinter._print_log1p"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-9f4e51f5",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-2b42cad0",
+          "K-93a099ce",
+          "K-9f4e51f5",
+          "K-b5e72943",
+          "K-ad16cdc6"
+        ],
+        "tokens": 406,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-e172ac33",
+          "K-83dfddfe",
+          "K-7ac64342"
+        ],
+        "tokens": 648,
+        "budget": 600,
+        "dropped": [
+          "K-524f3b73",
+          "K-e13d441c",
+          "K-46b8b947",
+          "K-0faed540",
+          "K-c01df042",
+          "K-e820d88f",
+          "K-7b0b7360"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

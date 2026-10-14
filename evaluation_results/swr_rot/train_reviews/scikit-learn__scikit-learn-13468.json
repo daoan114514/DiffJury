@@ -1,0 +1,54 @@
+{
+  "id": "scikit-learn__scikit-learn-13468",
+  "findings": [
+    {
+      "rule_id": "CONTRIBUTOR-LIST-CONSISTENCY",
+      "severity": "low",
+      "title": "Brian Holt disappears from both contributor lists",
+      "explanation": "The change removes Brian Holt (`bdholt1`) from `doc/authors.rst`, but the new Emeritus Core Developers list does not include him. All fourteen other people removed from the generated table are represented in that emeritus list. Consequently, viewing the updated About page loses Brian Holt's existing contributor credit altogether, rather than moving it out of the current-contributors section. This does not imply that he must remain a current contributor; the inconsistency is the missing historical acknowledgment in the coordinated migration.",
+      "path": "doc/about.rst",
+      "line": 51,
+      "evidence": "- Vincent Dubourg\n- Vincent Michel\n- Virgile Fritsch",
+      "fix": "Add Brian Holt to the emeritus list if his removal from the current-contributors table is intended; otherwise restore his current entry and ensure the generator includes him.",
+      "test": "Compare the pre-change contributor names with the union of the updated current and emeritus names. Assert that Brian Holt remains acknowledged, and that each intended emeritus move appears in the emeritus section.",
+      "confidence": 0.8300000000000001,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/about.rst",
+          "line": 23,
+          "symbol": ".. include:: authors.rst"
+        },
+        {
+          "path": "doc/authors.rst",
+          "line": 66,
+          "symbol": "Deletion of the preceding bdholt1 / Brian Holt table entry"
+        },
+        {
+          "path": "doc/about.rst",
+          "line": 34,
+          "symbol": "Emeritus Core Developers"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-840",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 39447,
+  "llm_calls": 5
+}

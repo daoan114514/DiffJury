@@ -1,0 +1,51 @@
+{
+  "id": "matplotlib__matplotlib-5825",
+  "findings": [
+    {
+      "rule_id": "documentation-relative-link",
+      "severity": "medium",
+      "title": "Shared banner resolves the style-changes link inside nested documentation directories",
+      "explanation": "The banner is rendered by the shared layout, including on nested documentation pages. On https://matplotlib.org/users/pyplot_tutorial.html, the new href resolves to https://matplotlib.org/users/style_changes.html rather than the intended https://matplotlib.org/style_changes.html. Sphinx's HTML output preserves the users/ directory; a plain relative URL does not automatically resolve against the documentation root. Thus the banner works on the index but directs users of nested pages to the wrong location.",
+      "path": "doc/_templates/layout.html",
+      "line": 180,
+      "evidence": "<p>Learn what to expect in the <a href=\"style_changes.html\" style=\"font-weight: bold;",
+      "fix": "Generate the link with Sphinx's document-aware helper, for example href=\"{{ pathto('style_changes') }}\", so it accounts for both nested pages and documentation deployment prefixes.",
+      "test": "Build the documentation with the HTML builder and check the banner links in index.html and users/pyplot_tutorial.html. Resolve each href against its generated page URL and assert that both reach the generated top-level style_changes.html.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 175,
+          "symbol": "shared layout body"
+        },
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 180,
+          "symbol": "style-changes banner link"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 22174,
+  "llm_calls": 5
+}

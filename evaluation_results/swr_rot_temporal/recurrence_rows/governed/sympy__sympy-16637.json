@@ -1,0 +1,99 @@
+{
+  "id": "sympy__sympy-16637",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "parallel-bounded-entity-distance",
+      "severity": "medium",
+      "title": "Distance to a disjoint parallel segment or ray now raises ValueError",
+      "explanation": "For P = Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1)) and either Segment3D(Point3D(0, 0, 1), Point3D(1, 0, 1)) or Ray3D(Point3D(0, 0, 1), Point3D(1, 0, 1)), the mathematical distance is 1. The initial intersection check returns [], so execution reaches the new bounded-entity branch. The supporting Line3D is also parallel and disjoint: its plane-intersection equation is the constant 1, and solve(..., t) returns [], causing Plane.intersection to return []. Unpacking that empty list at line 287 raises ValueError instead of returning 1. The previous distance implementation returned the distance from the entity's first point and therefore handled this case correctly. This also affects symbolic coordinates with a provably nonzero offset, such as a positive symbol h used instead of 1; the expected distance is h. The added tests cover nonparallel segments with intersection points before, inside, and after their bounds, and nonparallel rays pointing toward or away from the plane, but do not cover disjoint parallel entities. Those nonparallel endpoint corrections do not eliminate this separate empty-intersection case.",
+      "path": "sympy/geometry/plane.py",
+      "line": 287,
+      "evidence": "        if isinstance(o, (Segment3D, Ray3D)):\n            a, b = o.p1, o.p2\n            pi, = self.intersection(Line3D(a, b))",
+      "fix": "Store the supporting-line intersection before unpacking it. If it is empty, return self.distance(a), since the supporting line is parallel and disjoint and every point on the segment or ray has the same plane distance. Retain the endpoint-selection logic for a singleton intersection.",
+      "test": "Add assertions that the z=0 plane has distance 1 from the parallel segment and ray through (0, 0, 1) and (1, 0, 1), including reversed direction/endpoints. Add a symbolic counterpart with positive h and expected distance h. Keep the existing nonparallel endpoint and ray-direction assertions, and verify parallel entities contained in the plane still return zero.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 282,
+          "symbol": "Plane.distance: disjoint bounded entity passes the initial intersection check"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 287,
+          "symbol": "Plane.distance: intersect the supporting Line3D"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 407,
+          "symbol": "Plane.intersection: solve constant nonzero plane equation and return [] at lines 408–409"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 287,
+          "symbol": "Plane.distance: singleton unpack of [] raises ValueError"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "id": "sympy__sympy-15278",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "tensor-array-variance-axis-order",
+      "severity": "medium",
+      "title": "Variance conversion transposes unrelated axes for rank-three tensors",
+      "explanation": "After contracting metric axis 1 with array axis pos, the remaining axes are [converted_axis, original axes except pos]. Swapping axis 0 with pos does not restore their original order when pos >= 2. For example, create L = TensorIndexType('L'), i,j,k = tensor_indices('i j k', L), H = tensorhead('H', [L,L,L], [[1],[1],[1]]), and data = Array(range(8)).reshape(2,2,2). The conversion H(i,j,k).replace_with_arrays({H(i,j,k): data, L: diag(1,1)}, [i,j,-k]) should leave data unchanged because the metric is the identity. The added helper, invoked directly with (data, [i,j,-k], [i,j,k], {L: Array(diag(1,1))}), instead produces [[[0,1],[4,5]],[[2,3],[6,7]]: the i and j axes are exchanged. Its final index permutation is the identity because free_ind2 has already been relabeled, so it cannot repair the error. This affects ordinary symmetric metrics and is independent of the spinor metric-position TODO. The public conversion body and _extract_data hunks are omitted from the supplied evidence; the incorrect helper result is established directly from the complete added helper rather than assuming those omitted implementations.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2714,
+      "evidence": "array = tensorcontraction(tensorproduct(metric, array), (1, 2+pos))\npermu = list(range(len(free_ind1)))\npermu[0], permu[pos] = permu[pos], permu[0]\nreturn permutedims(array, permu)",
+      "fix": "Move the leading metric axis into position pos while preserving the relative order of all remaining axes. Use a permutation equivalent to list(range(1, pos + 1)) + [0] + list(range(pos + 1, rank)), rather than swapping two axes.",
+      "test": "Add a rank-three replacement test lowering the last index with an identity metric and assert that every component and the shape remain unchanged. Also test a rank-four conversion of an interior axis and multiple successive variance conversions against explicit component sums.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2711,
+          "symbol": "contract_and_permute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "tensor-array-metric-index-type",
+      "severity": "medium",
+      "title": "Permuted heterogeneous indices select the metric of the wrong index type",
+      "explanation": "pos2up and pos2down contain positions in the source array/free_ind2, but index_types1 contains index types in the requested free_ind1 order. When those orders differ, metric lookup uses the type of an unrelated requested index. A minimal example is L = TensorIndexType('L'), M = TensorIndexType('M'), i = tensor_indices('i', L), j = tensor_indices('j', M), and H = tensorhead('H', [L,M], [[1],[1]]). For H(i,j).replace_with_arrays({H(i,j): [[1,2],[3,4]], L: diag(2,3), M: diag(5,7)}, [j,-i]), the mathematically expected array is [[2,9],[4,12]]. The matching helper with source indices [i,j] and requested indices [j,-i] records lowering source axis 0, then looks up index_types1[0], which is M. It therefore yields [[5,21],[10,28]]. This can also be reproduced directly by passing Array([[1,2],[3,4]]) and Array-valued metrics to the added helper. Both metrics are present and have compatible dimensions, so existing lookup and contraction checks do not prevent the silent incorrect result. The complete public conversion and _extract_data bodies are unavailable in the bounded diff; the demonstrated error is in the fully supplied matching helper, not an inferred defect in the omitted contraction refactoring.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2724,
+      "evidence": "index_types1 = [i.tensor_index_type for i in free_ind1]\n...\npos2down.append(pos2)\n...\nfor pos in pos2down:\n    metric = replacement_dict[index_types1[pos]]\n    array = contract_and_permute(metric, array, pos)",
+      "fix": "Record the matched index type together with each source-axis variance conversion, and use that type for metric lookup. Apply the same correction to both the raising and lowering loops.",
+      "test": "Add a heterogeneous rank-two test requesting [j,-i] with distinct diagonal metrics and assert [[2,9],[4,12]]. Include the corresponding raising case and a rank-three heterogeneous permutation with distinct metrics for every type.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2711,
+          "symbol": "contract_and_permute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-decorator-executes-during-import",
+      "severity": "medium",
+      "title": "Warning-filter decorator executes tests during import and replaces them with None",
+      "explanation": "Applying @filter_warnings_decorator calls the test immediately while importing test_tensor.py. Because the decorator has no return statement, each decorated test name is then bound to None rather than a callable. Consequently, normal test discovery cannot collect these legacy-data tests, selecting an individual decorated test cannot execute it, and assertion failures occur during module import instead of being reported as individual test failures. This affects the decorated iteration, variance, contraction, power, matrix, symmetry, and other legacy-data tests. The decorated test_valued_assign_numpy_ndarray also performs any optional-dependency handling during import rather than test execution; an exception-based skip there would escape through the decorator and interrupt collection instead of skipping just that test. The supplied diff does not show that test's dependency-check implementation, so the specific missing-NumPy outcome is not established. The new replacement tests exercise replace_with_arrays, not the retained .data API, and therefore do not restore normal execution coverage of those legacy paths. No additional legacy behavior break beyond the intended warnings is established by the supplied evidence.",
+      "path": "sympy/tensor/tests/test_tensor.py",
+      "line": 23,
+      "evidence": "def filter_warnings_decorator(f):\n    with warnings.catch_warnings():\n        warnings.filterwarnings(\"ignore\", category=SymPyDeprecationWarning)\n        f()",
+      "fix": "Return a functools.wraps-preserving wrapper that enters warnings.catch_warnings(), installs the filter, and invokes the original test only when the wrapper is called. Forward arguments and return the original result.",
+      "test": "Verify that importing the module does not execute decorated test bodies and that its decorated test bindings remain callable. Collect and run an individual legacy-data test with the normal runner. Also run collection without NumPy and verify that dependency handling remains scoped to the relevant test rather than interrupting module collection.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 20,
+          "symbol": "filter_warnings_decorator"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-691",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

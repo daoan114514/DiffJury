@@ -1,0 +1,67 @@
+{
+  "id": "astropy__astropy-5446",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "unresolved-rst-reference",
+      "severity": "medium",
+      "title": "Renamed pytest references do not match the retained link target",
+      "explanation": "The change replaces references to `py.test`_ with `pytest`_, but the document still defines `.. _py.test: http://pytest.org/latest/` at line 21 and `.. _pytest.main: ...` at line 22. Neither target resolves the new name `pytest`, and the supplied diff adds no corresponding target. Consequently, the new references are unresolved when this document is processed without an externally supplied pytest target, producing reference warnings and losing the intended links. No shared documentation definitions were supplied, so a global definition or project-wide warnings-as-errors failure cannot be verified here.",
+      "path": "docs/development/testguide.rst",
+      "line": 18,
+      "evidence": ":doc:`package template <affiliated-packages>`) is the `pytest`_ framework,",
+      "fix": "Define `.. _pytest: http://pytest.org/latest/` alongside the retained py.test target, or rename the target after checking remaining references to the old name.",
+      "test": "Build the documentation and check that the pytest references at lines 18, 35, 60, 72, 120, 122, 255, and 632 resolve without unknown-target warnings.",
+      "confidence": 0.8200000000000001,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "dangling-documentation-instruction",
+      "severity": "low",
+      "title": "The system-pytest instructions still refer to the deleted invocation method",
+      "explanation": "The note for astropy.test() tells readers they can use the locally installed framework through the '`pytest`_ method described above'. This change removes the entire direct py.test invocation section that previously described that alternative. The remaining setup.py section describes its own wrapper and environment-variable option, not a direct pytest method. Thus, even after repairing the pytest hyperlink, the note points readers to instructions that no longer exist.",
+      "path": "docs/development/testguide.rst",
+      "line": 122,
+      "evidence": "variable (see :doc:`/config/index`) or the `pytest`_ method described",
+      "fix": "Remove the alternative-method clause, or restore a direct pytest invocation section and reference it explicitly.",
+      "test": "Review the rendered astropy.test() note and verify that every named alternative invocation method has a corresponding instructions section.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,84 @@
+{
+  "id": "scikit-learn__scikit-learn-10615",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-incremental-weighted-mean",
+      "severity": "medium",
+      "title": "Incremental mean no longer normalizes the previous batch's contribution",
+      "explanation": "On subsequent passes, last_mean and new_mean have already been multiplied by their respective sample counts. The expected weighted mean is therefore (last_mean + new_mean) / updated_n, as in the removed implementation. The new expression divides only new_mean. For example, prior statistics last_mean=[2.0], last_var=[0.0], last_n=2 and a new batch [[4.0], [4.0]] give new_mean=[4.0], new_var=[0.0], new_n=2. After unnormalization, the new code returns 4 + 8 / 4 = 6 instead of the correct mean 3; the variance remains 1, making the returned statistics inconsistent. The first-pass guard does not protect subsequent updates. The defect occurs whenever the previous mean is nonzero and the combined count differs from one, including ordinary float32 and float64 inputs. The removed expression handled this case correctly.",
+      "path": "sklearn/utils/sparsefuncs_fast.pyx",
+      "line": 314,
+      "evidence": "    updated_mean = last_mean + new_mean / updated_n",
+      "fix": "Restore normalization of both contributions: updated_mean = (last_mean + new_mean) / updated_n.",
+      "test": "Exercise the sparse incremental statistics path with an initial two-row batch containing 2.0 and a second two-row batch containing 4.0. Assert that the second update returns mean=[3.0], variance=[1.0], and count=4, matching statistics computed over the concatenated batches. Run for float32 and float64.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/sparsefuncs_fast.pyx",
+          "line": 314,
+          "symbol": "_incr_mean_variance_axis0"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

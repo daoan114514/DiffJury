@@ -1,0 +1,40 @@
+{
+  "id": "scikit-learn__scikit-learn-3365",
+  "findings": [
+    {
+      "rule_id": "logistic-objective-label-encoding",
+      "severity": "low",
+      "title": "Specify the signed label encoding required by the logistic objectives",
+      "explanation": "Both new objectives require y_i to be encoded as -1 or +1, but the added text does not state this prerequisite or define a label transformation. Reading y_i as a binary target encoded as 0/1 gives an incorrect objective: every observation with y_i = 0 contributes log(2), independent of its features and the weights. Consequently, those observations exert no influence on training, rather than penalizing predictions of the other class. This is a mathematical documentation defect under the concrete 0/1 interpretation, not a claim about the implementation's internal encoding, which is unavailable in the supplied diff. The same issue occurs in the L1 equation at line 660.",
+      "path": "doc/modules/linear_model.rst",
+      "line": 656,
+      "evidence": ".. math:: \\underset{w}{min\\,} \\frac{1}{2}w^T w + C \\sum_{i=1}^n \\log(\\exp(- y_i X_i w) + 1)",
+      "fix": "Define y_i as the class label after encoding the two classes as -1 and +1 before presenting either objective. Alternatively, express the loss as binary cross-entropy and explicitly define a 0/1 encoding.",
+      "test": "Verify that the documented loss for a target originally encoded as 0 is evaluated with signed label -1 and equals log(1 + exp(X_i w)), rather than the constant log(2). Check equivalence with binary cross-entropy for both classes.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 11814,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-3365.json",
+  "borrowed_sha256": "f713f6568c87f6049ddecea54701582a6440b7e0b8c5977462f650102d325e26"
+}

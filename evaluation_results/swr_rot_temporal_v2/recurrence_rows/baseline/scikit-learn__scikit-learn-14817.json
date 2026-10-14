@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-14817",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "invalid-rst-role",
+      "severity": "low",
+      "title": "Missing colon prevents the module role from being recognized",
+      "explanation": "In the load_files docstring, `:mod` is missing the colon required before the opening backtick. Consequently, Sphinx cannot recognize this occurrence as an explicit module reference, and the intended hyperlink is replaced by malformed markup in the rendered documentation. The changed default role cannot repair the missing role delimiter. This is a syntax defect, not a claim that the module target is absent; target inventory and autodoc resolution were not available for verification. Coverage is limited to the exact supplied hunks, which contain docstring edits only: omitted hunks and documentation configuration were not verified, and no runtime or security defect is inferred.",
+      "path": "sklearn/datasets/base.py",
+      "line": 98,
+      "evidence": "    you will need to use the :mod`~sklearn.feature_extraction.text` module to",
+      "fix": "Replace `:mod`~sklearn.feature_extraction.text`` with `:mod:`~sklearn.feature_extraction.text`` by inserting the missing colon before the opening backtick.",
+      "test": "Build the generated API documentation for sklearn.datasets.load_files and verify that this occurrence renders as a module hyperlink without stray role markup.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

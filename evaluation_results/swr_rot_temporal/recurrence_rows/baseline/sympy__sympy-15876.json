@@ -1,0 +1,56 @@
+{
+  "id": "sympy__sympy-15876",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "public-api-positional-compatibility",
+      "severity": "medium",
+      "title": "Preserve the positional order of symbol_names and root_notation",
+      "explanation": "The public latex() signature previously ended with order=None, symbol_names=None, root_notation=True; it now ends with order=None, root_notation=True, symbol_names=None. Existing positional callers therefore supply values to different settings. For example, with x a Symbol, latex(x, False, False, None, \"abbreviated\", False, False, None, \"[\", None, \"plain\", None, None, {x: \"X\"}) supplies the original defaults for every argument through order (positions 2–13). Previously its 14th argument bound to symbol_names and root_notation retained True. Now that dictionary binds to root_notation and symbol_names retains None, losing the requested custom-name setting. If the caller also supplies a final False, that value now binds to symbol_names rather than root_notation. This is a confirmed argument-binding compatibility regression for existing positional consumers; no particular downstream exception or exact rendered output is asserted. Keyword callers are unaffected.",
+      "path": "sympy/printing/latex.py",
+      "line": 2274,
+      "evidence": "    order=None, root_notation=True, symbol_names=None):",
+      "fix": "Restore the original trailing parameter order: order=None, symbol_names=None, root_notation=True. The documentation may be reordered independently without changing the callable contract.",
+      "test": "Add a regression test comparing latex(x, False, False, None, \"abbreviated\", False, False, None, \"[\", None, \"plain\", None, None, {x: \"X\"}) with latex(x, symbol_names={x: \"X\"}), asserting identical custom-name output. Also compare an old-style call supplying both trailing arguments ({x: \"X\"}, False) with the equivalent keyword call, using an expression containing x and a fractional power.",
+      "confidence": 0.99,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:b0675653d748a122",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sympy/printing/latex.py\", \"start_line\": 2267, \"end_line\": 2280, \"content\": \"        return s\\n\\n\\ndef latex(expr, fold_frac_powers=False, fold_func_brackets=False,\\n    fold_short_frac=None, inv_trig_style=\\\"abbreviated\\\",\\n    itex=False, ln_notation=False, long_frac_ratio=None,\\n    mat_delim=\\\"[\\\", mat_str=None, mode=\\\"plain\\\", mul_symbol=None,\\n    order=None, root_notation=True, symbol_names=None):\\n    r\\\"\\\"\\\"Convert the given expression to LaTeX string representation.\\n\\n    Parameters\\n    ==========\\n    fold_frac_powers : boolean, optional\\n        Emit ``^{p/q}`` instead of ``^{\\\\frac{p}{q}}`` for fractional powers.\\n\"}"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 2270,
+          "symbol": "latex"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,88 @@
+{
+  "id": "sympy__sympy-12175",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "python-call-syntax-compatibility",
+      "severity": "high",
+      "title": "Trailing comma after **extra_kwargs breaks installation on Python 3.4",
+      "explanation": "The setup call now ends with `**extra_kwargs,`. Python 3.4's call grammar does not permit a trailing comma after a **kwargs argument; that syntax became valid in Python 3.5. Python 3.4 is explicitly advertised as supported by the classifier at setup.py:369. Consequently, running `python3.4 setup.py install` (or any other setup.py command) raises SyntaxError before executing the module. Both the setuptools and distutils branches are affected because neither import branch can be reached. The conditional zip_safe assignment and forwarding an empty dictionary to distutils are otherwise compatible; the regression is the trailing comma.",
+      "path": "setup.py",
+      "line": 373,
+      "evidence": "          **extra_kwargs,",
+      "fix": "Remove the comma after **extra_kwargs, preserving the conditional zip_safe=False forwarding.",
+      "test": "Compile the complete setup.py with Python 3.4 and run its --name command. The current version fails during parsing; the corrected version should compile and execute. The syntax issue can also be isolated with `python3.4 -c 'dict(**{},)'`, which raises SyntaxError, versus `python3.4 -c 'dict(**{})'`, which succeeds.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "setup.py",
+          "line": 373,
+          "symbol": "<module> parsing, before setuptools/distutils import selection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-758",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "matplotlib__matplotlib-5374",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "mailmap-canonical-email-preservation",
+      "severity": "low",
+      "title": "Preserve Levi Kilcher's email-address normalization",
+      "explanation": "The previous entry explicitly mapped `Levi Kilcher <Levi.Kilcher@nrel.gov>` to `Levi Kilcher <levi.kilcher@nrel.gov>`. Git's single-address `Proper Name <Commit Email>` format replaces only the name; although email matching is case-insensitive, it does not replace the input email with the spelling in this entry. Consequently, the new entry leaves the concrete input's email as `Levi.Kilcher@nrel.gov`, losing the previously configured lowercase canonical address. This is an email-normalization regression, not a name-normalization problem, and affects consumers that compare canonical email strings exactly.",
+      "path": ".mailmap",
+      "line": 36,
+      "evidence": "Levi Kilcher <levi.kilcher@nrel.gov>",
+      "fix": "Use the email-replacement format: `Levi Kilcher <levi.kilcher@nrel.gov> <Levi.Kilcher@nrel.gov>`.",
+      "test": "In an isolated Git repository, set `.mailmap` to the previous entry `Levi Kilcher <levi.kilcher@nrel.gov> Levi Kilcher <Levi.Kilcher@nrel.gov>` and run `git check-mailmap 'Levi Kilcher <Levi.Kilcher@nrel.gov>'`; the expected output is `Levi Kilcher <levi.kilcher@nrel.gov>`. Repeat with the changed line: the single-address format preserves the uppercase input email instead. Assert that the fixed entry produces the original lowercase output.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-178",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

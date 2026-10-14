@@ -1,0 +1,122 @@
+{
+  "id": "sympy__sympy-13196",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "generated-expression-precedence",
+      "severity": "medium",
+      "title": "Parenthesize the quotient emitted for log2",
+      "explanation": "For log2(x)**y, the new handler emits a division even though the enclosing printer treats log2(x) as an atomic function application. Consequently, the generated expression is mpmath.log(x)/mpmath.log(2)**y, which Python parses as mpmath.log(x)/(mpmath.log(2)**y), not (mpmath.log(x)/mpmath.log(2))**y. With x=4 and y=2, the expected result is 4, but this expression returns approximately 2.8853900818. Previously, doprint rewrote log2 into a symbolic quotient before printing; the power printer could therefore recognize and parenthesize the quotient. The new handler bypasses that structural precedence handling. Neither the mapping change nor the relaxed test_sin assertion protects this case: test_sin does not exercise log2 or composition of the new handler with powers.",
+      "path": "sympy/printing/pycode.py",
+      "line": 232,
+      "evidence": "return '{0}({1})/{0}(2)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Wrap the complete emitted quotient in parentheses, so that enclosing operations preserve the precedence of the original function application.",
+      "test": "Generate mpmath code for log2(x)**y and evaluate it with x=4, y=2; assert that the result is 4. Also exercise a reciprocal of log2(x). These tests should use the actual printer or lambdify with modules='mpmath', rather than manually parenthesizing the generated fragment.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 231,
+          "symbol": "MpmathPrinter._print_log2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "mpmath-native-arithmetic-precision",
+      "severity": "medium",
+      "title": "The literal 1 in log1p loses precision before mpmath receives the argument",
+      "explanation": "For log1p(x), the new generated code is mpmath.log(x+1). When a lambdified mpmath function receives a Python float, the addition now happens in native float arithmetic before mpmath.log is called. For example, with mpmath precision set to 50 decimal digits and x=1e-20, Python evaluates x+1 to exactly 1.0, so the function returns zero instead of approximately 1e-20. Previously, rewriting log1p to log(x + 1) produced a symbolic Integer, which MpmathPrinter._print_Integer prints as mpmath.mpf(1); the addition therefore occurred in mpmath arithmetic and retained the small increment. No input conversion in this generated expression prevents the regression. The changed test_sin assertion still checks an allowed scalar type, but neither its input nor its expression tests this numerical behavior.",
+      "path": "sympy/printing/pycode.py",
+      "line": 236,
+      "evidence": "return '{0}({1}+1)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Prefer emitting mpmath.log1p(argument), which also avoids cancellation for small arguments. Alternatively, preserve the previous arithmetic contract by printing the added one through _print_Integer and grouping the argument.",
+      "test": "Within mpmath.workdps(50), lambdify log1p(x) with modules='mpmath', pass the native float 1e-20, and compare the result against mpmath.log1p(mpmath.mpf(1e-20)) using a sufficiently small absolute tolerance. Assert explicitly that the result is nonzero, and include an mpf input to cover both argument types.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 235,
+          "symbol": "MpmathPrinter._print_log1p"
+        },
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 209,
+          "symbol": "MpmathPrinter._print_Integer"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

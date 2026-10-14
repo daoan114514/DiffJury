@@ -1,0 +1,198 @@
+{
+  "id": "matplotlib__matplotlib-4714",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "public-positional-argument-compatibility",
+      "severity": "medium",
+      "title": "Inserting start_points rebinds existing positional transform arguments",
+      "explanation": "All three public streamplot signatures insert start_points before the existing transform and zorder parameters. A previously valid call such as ax.streamplot(x, y, u, v, 1, None, None, None, None, 1, '-|>', 0.1, ax.transData) formerly supplied ax.transData as transform; it now supplies that object as start_points. Axes forwards it unchanged into the new seed-array branch, which attempts copy and two-dimensional indexing on a transform instead of plotting. The same rebinding affects matplotlib.streamplot.streamplot and pyplot.streamplot; pyplot's positional zorder and hold slots also shift. Keyword forwarding between wrappers does not preserve compatibility for existing positional callers.",
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 4345,
+      "evidence": "minlength=0.1, start_points=None, transform=None, zorder=1):",
+      "fix": "Append start_points after all existing parameters in each public signature, including after hold in pyplot, while retaining keyword forwarding.",
+      "test": "For the module function, Axes method, and pyplot wrapper, exercise previously valid positional calls supplying transform and zorder, plus hold for pyplot. Verify their bindings and behavior remain unchanged, and separately verify start_points works when supplied by keyword.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/pyplot.py",
+          "line": 3341,
+          "symbol": "pyplot.streamplot changed positional signature"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4345,
+          "symbol": "Axes.streamplot changed positional signature"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4357,
+          "symbol": "Axes.streamplot forwards rebound argument"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 24,
+          "symbol": "streamplot changed positional signature"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 138,
+          "symbol": "streamplot treats transform as seed array"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": [
+        "K-db90d837"
+      ]
+    },
+    {
+      "rule_id": "integer-seed-inplace-casting",
+      "severity": "medium",
+      "title": "Integer seed arrays fail during floating-point origin adjustment",
+      "explanation": "start_points.copy() preserves the seed array's integer dtype, but x and y commonly come from np.linspace and therefore have floating-point origins. For x = y = np.linspace(0, 1, 11) and start_points = np.array([[0, 0]], dtype=int), the first in-place addition attempts to store a floating-point ufunc result in an integer array. Under NumPy's same-kind casting rules this raises a casting error, even though the origin is zero and the seed is a valid boundary point. The documented Nx2-array input has no floating-dtype restriction. The exception occurs before data2grid or trajectory integration can process the seed.",
+      "path": "lib/matplotlib/streamplot.py",
+      "line": 138,
+      "evidence": "sp2 = start_points.copy()\n        sp2[:,0] += np.abs(x[0])\n        sp2[:,1] += np.abs(y[0])",
+      "fix": "Create an independent floating-point seed array, for example np.array(start_points, dtype=float, copy=True), before performing origin subtraction.",
+      "test": "Call streamplot with float-valued x/y grids and integer Nx2 seed arrays, including a zero-origin boundary seed and an interior seed on a grid with a fractional origin. Verify no casting exception, correct trajectory placement, and that the caller's seed array remains unchanged.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/pyplot.py",
+          "line": 3352,
+          "symbol": "pyplot.streamplot forwards start_points"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4357,
+          "symbol": "Axes.streamplot forwards start_points"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 138,
+          "symbol": "streamplot preserves seed dtype"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 139,
+          "symbol": "in-place floating-point addition"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-seed-origin-conversion",
+      "severity": "medium",
+      "title": "Positive grid origins shift starting points in the wrong direction",
+      "explanation": "The new seed conversion adds the absolute value of each grid origin instead of subtracting that origin. For x = y = np.linspace(1, 2, 11) and start_points = np.array([[1.5, 1.5]]), the code passes (2.5, 2.5) to data2grid instead of the required origin-relative coordinates (0.5, 0.5). Thus a seed inside the domain is integrated from coordinates outside it, rather than producing the requested streamline. Adding abs(origin) works for negative origins and leaves zero origins unchanged, but is incorrect for positive origins. No guard in the new branch corrects this before integration.",
+      "path": "lib/matplotlib/streamplot.py",
+      "line": 139,
+      "evidence": "sp2[:,0] += np.abs(x[0])\n        sp2[:,1] += np.abs(y[0])",
+      "fix": "Subtract the actual grid origins from floating-point seed coordinates before calling data2grid; use the normalized grid origins rather than indexing the original x/y representations.",
+      "test": "Use uniform nonzero vector fields on np.linspace(1, 2, 11) for both axes and seed at (1.5, 1.5). Verify that the resulting trajectory passes through that seed. Repeat with negative and zero origins, and with seeds on the domain boundaries.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4357,
+          "symbol": "Axes.streamplot forwards start_points"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 139,
+          "symbol": "streamplot seed-origin adjustment"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 142,
+          "symbol": "dmap.data2grid"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 143,
+          "symbol": "integrate"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-db90d837"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-db90d837"
+        ],
+        "tokens": 113,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

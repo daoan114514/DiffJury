@@ -1,0 +1,151 @@
+{
+  "id": "scikit-learn__scikit-learn-15098",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "cython-c-library-python-import",
+      "severity": "high",
+      "title": "Import fabs with cimport, not a Python import",
+      "explanation": "The new statement is an ordinary Python import, not a Cython declaration import. Cython's libc.math supplies C declarations through a .pxd file; it does not supply an importable Python module. Consequently this statement does not give the calls at lines 278 and 442 the C, nogil-compatible fabs declaration that replaces the removed extern declaration. Python calls are forbidden in nogil code, so those paths cannot compile as intended. Even in a GIL-holding path, the generated runtime import would fail with ModuleNotFoundError in a normal Cython installation. This introduces a build/import failure rather than merely changing floating-point behavior.",
+      "path": "sklearn/neighbors/quad_tree.pyx",
+      "line": 14,
+      "evidence": "from libc.math import fabs",
+      "fix": "Change the statement to `from libc.math cimport fabs`, which declares the C function and its nogil availability.",
+      "test": "Cythonize and build quad_tree.pyx together with its associated .pxd using the minimum supported Cython version, then import the resulting sklearn.neighbors.quad_tree extension and run the existing quad-tree duplicate-point tests. Compilation must succeed without Python-call-in-nogil diagnostics, and import must not attempt to load a Python libc.math module.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 14,
+          "symbol": "module initialization / fabs import"
+        },
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 278,
+          "symbol": "duplicate-point comparison using fabs"
+        },
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 442,
+          "symbol": "cell-summary duplicate comparison using fabs"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-04a42f60",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2fcf8cc0",
+      "K-5726f975",
+      "K-5da5b627",
+      "K-72d03d82",
+      "K-81df992c",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8b12aa56",
+      "K-9fc0d205",
+      "K-a32f0183",
+      "K-c59d36ba",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d5f0918f",
+      "K-e01a8db3",
+      "K-e9744f86",
+      "K-ebb06c34",
+      "K-ef402548"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-d398b681",
+          "K-04a42f60"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-d5f0918f",
+          "K-e01a8db3",
+          "K-ebb06c34",
+          "K-24b3bdf1",
+          "K-c59d36ba",
+          "K-295e0897"
+        ],
+        "tokens": 497,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-72d03d82",
+          "K-8b12aa56",
+          "K-e9744f86",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-1a7e5ff1",
+          "K-20ab8e8e",
+          "K-cebaccb0",
+          "K-1c46e9f8",
+          "K-ef402548",
+          "K-5726f975",
+          "K-9fc0d205",
+          "K-8aa6a19d",
+          "K-21394d34",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-81df992c",
+          "K-218187b3",
+          "K-a32f0183"
+        ],
+        "tokens": 793,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

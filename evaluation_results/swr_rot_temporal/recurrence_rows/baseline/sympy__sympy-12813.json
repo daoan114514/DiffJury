@@ -1,0 +1,50 @@
+{
+  "id": "sympy__sympy-12813",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "correctness-review.undefined-name",
+      "severity": "medium",
+      "title": "Travis-only hyperexpand skip calls an unimported helper",
+      "explanation": "The changed pytest-helper import adds ON_TRAVIS but omits skip. When ON_TRAVIS is true and test_prudnikov_3 runs, the new branch calls skip and raises NameError instead of recording the intended skip. This turns the slow test into a failure on the CI environment this change is intended to accommodate.",
+      "path": "sympy/simplify/tests/test_hyperexpand.py",
+      "line": 733,
+      "evidence": "from sympy.utilities.pytest import XFAIL, raises, slow, ON_TRAVIS\n\n    if ON_TRAVIS:\n        # See https://github.com/sympy/sympy/pull/12795\n        skip(\"Too slow for travis.\")",
+      "fix": "Import skip from sympy.utilities.pytest alongside ON_TRAVIS.",
+      "test": "Run test_prudnikov_3 with the module's ON_TRAVIS value set to true and assert that the repository test runner records a skip, not a NameError or test failure.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/tests/test_hyperexpand.py",
+          "line": 730,
+          "symbol": "test_prudnikov_3"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-248",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

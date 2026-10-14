@@ -1,0 +1,59 @@
+{
+  "id": "sphinx-doc__sphinx-4987",
+  "findings": [
+    {
+      "rule_id": "latex-index-control-word-termination",
+      "severity": "medium",
+      "title": "Terminate the replacement brace macros before subsequent index text",
+      "explanation": "The replacement emits TeX control words without delimiters. A previously valid paired-brace entry `{name}` is encoded as `\\{name\\}` and now becomes `\\index{\\sphinxleftcurlybracename\\sphinxrightcurlybrace}`. LaTeX writes the index argument as text; MakeIndex carries this spelling into the generated index, where TeX reads `\\sphinxleftcurlybracename` as one undefined control sequence, rather than the defined brace macro followed by `name`. Final index compilation therefore reports an undefined control sequence. Whitespace also regresses: the valid entry `{} bar` becomes `\\index{\\sphinxleftcurlybrace\\sphinxrightcurlybrace bar}`, which renders as `{}bar` because TeX consumes the space terminating the right-brace control word. The new terminal unmatched-brace fixture `main {` becomes `main \\sphinxleftcurlybrace` and avoids both problems because the macro occurs at the end of the argument; an unmatched `{name` produces the same concatenated control word as the paired example, although unmatched braces already had problems before this change. All five entry types use this helper, so the regression also affects pair/triple components and see/seealso labels or targets. The added assertion checks only a terminal brace in generated source and cannot detect these compilation or whitespace regressions.",
+      "path": "sphinx/writers/latex.py",
+      "line": 1954,
+      "evidence": "            value = value.replace(r'\\{', r'\\sphinxleftcurlybrace')\n            value = value.replace(r'\\}', r'\\sphinxrightcurlybrace')",
+      "fix": "Terminate both replacement control words with an empty group, emitting `\\sphinxleftcurlybrace{}` and `\\sphinxrightcurlybrace{}`. This prevents letters from joining the macro name and preserves subsequent literal whitespace.",
+      "test": "Add entries containing `{name}`, `{} bar`, a terminal unmatched brace, and an unmatched brace followed by letters. Exercise single, pair, triple, see, and seealso entries, including braces in cross-reference targets. Assert explicitly delimited macros in generated TeX, then run LaTeX, MakeIndex, and final LaTeX compilation; require successful compilation and verify that the index retains both the letters and the space in `{} bar`.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 1950,
+          "symbol": "LaTeXTranslator.visit_index"
+        },
+        {
+          "path": "sphinx/writers/latex.py",
+          "line": 1952,
+          "symbol": "escape"
+        },
+        {
+          "path": "sphinx/texinputs/sphinx.sty",
+          "line": 1612,
+          "symbol": "\\sphinxleftcurlybrace"
+        },
+        {
+          "path": "sphinx/texinputs/sphinx.sty",
+          "line": 1613,
+          "symbol": "\\sphinxrightcurlybrace"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 19197,
+  "llm_calls": 5
+}

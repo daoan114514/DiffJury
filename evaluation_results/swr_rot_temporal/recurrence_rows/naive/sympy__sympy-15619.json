@@ -1,0 +1,357 @@
+{
+  "id": "sympy__sympy-15619",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "reciprocal-log-branch-rewrite",
+      "severity": "medium",
+      "title": "Reciprocal substitution changes the integrand on the negative real axis",
+      "explanation": "The replacement log(u) -> -log(base) is not valid for negative real base under principal logarithms. Consider the valid substitution u = 1/x for log(1/x)/x**2: its transformed integrand is -log(u), whose antiderivative is u - u*log(u). Previously eval_u returned (1 - log(1/x))/x. The added replacement instead returns (1 + log(x))/x, whose derivative is -log(x)/x**2. At x = -1 the requested integrand is I*pi, but this derivative is -I*pi. The difference between the old and new antiderivatives is 2*I*pi/x on negative real x, not an additive integration constant. The condition checks only the reciprocal power, without requiring a positive base or otherwise establishing the logarithm identity. This demonstrates a regression in evaluation of a valid reciprocal URule; positive-real and off-cut complex bases do not have this particular problem.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1259,
+      "evidence": "if u_func.is_Pow and u_func.exp == -1:\n        # avoid needless -log(1/x) from substitution\n        result = result.subs(sympy.log(u_var), -sympy.log(u_func.base))",
+      "fix": "Apply this replacement only when assumptions establish the identity, for example when u_func.base.is_positive is True; otherwise retain log(u_func) after substitution.",
+      "test": "Evaluate eval_u with u_func=1/x and a substep integrating -log(u), for a negative real x. Assert that differentiating its result gives log(1/x)/x**2, including equality at x=-1. Also retain positive-real and non-real off-cut cases to distinguish harmless additive constants from this variable-dependent error.",
+      "confidence": 0.87,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1255,
+          "symbol": "eval_u"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "complex-gaussian-order-comparison",
+      "severity": "medium",
+      "title": "Complex Gaussian integrands reach an invalid real-order comparison",
+      "explanation": "manualintegrate(exp(I*x**2), x) now matches the new quadratic-exponential pattern with a=I, b=0 and c=0. The wildcard allows I because it is nonzero. Evaluation of the resulting ErfRule evaluates a < 0 while constructing Piecewise; ordering the explicitly non-real number I against zero raises TypeError. Thus this previously unevaluated integral now raises instead of returning an antiderivative or an Integral. Neither special_function_rule nor eval_erf requires a to be real. The added tests cover positive and negative real quadratic coefficients but do not exercise this complex-coefficient failure.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1453,
+      "evidence": "(sympy.sqrt(sympy.pi/(-a))/2 * sympy.exp(c - b**2/(4*a)) *\n            sympy.erf((-2*a*symbol - b)/(2*sympy.sqrt(-a))), a < 0),",
+      "fix": "Avoid constructing an ordering relation for a known non-real coefficient. Use the complex-valid erfi expression directly in that case, or decline the special rule so the integral remains unevaluated.",
+      "test": "Add manualintegrate(exp(I*x**2), x) and a shifted complex quadratic exponential. Assert that neither raises and, when an explicit result is returned, that its derivative equals the original integrand.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 346,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 364,
+          "symbol": "quadratic exponential pattern returning ErfRule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1450,
+          "symbol": "eval_erf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-fresnel-antiderivative-sign",
+      "severity": "medium",
+      "title": "Fresnel antiderivatives have the wrong sign for negative quadratic coefficients",
+      "explanation": "Let x be real and a be a negative-assumed symbol. The integrand cos(a*x**2 + x + 1) matches FresnelCRule, since the wildcard excludes only zero coefficients. Differentiating the returned expression gives a prefactor of 2*a*sqrt(pi/(2*a))/sqrt(2*a*pi), which equals -1 for negative real a, not 1. Consequently the returned derivative is -cos(a*x**2 + x + 1). FresnelSRule has the same defect for sin(a*x**2 + x + 1). This is an incorrect derivative, not a branch-dependent additive constant. The new Fresnel tests exercise only positive quadratic coefficients.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1459,
+      "evidence": "return sympy.sqrt(sympy.pi/(2*a)) * (\n        sympy.cos(b**2/(4*a) - c)*sympy.fresnelc((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)) +\n        sympy.sin(b**2/(4*a) - c)*sympy.fresnels((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)))",
+      "fix": "Use a prefactor with the same square-root branch as the argument denominator, such as sqrt(pi)/sqrt(2*a), in both Fresnel evaluators instead of sqrt(pi/(2*a)).",
+      "test": "With real x and negative-assumed a, differentiate manualintegrate(cos(a*x**2 + x + 1), x) and manualintegrate(sin(a*x**2 + x + 1), x), and assert that each derivative equals its original integrand. Include a numerical specialization such as a=-1.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 366,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1458,
+          "symbol": "eval_fresnelc"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "invalid-elliptic-square-root-factorization",
+      "severity": "medium",
+      "title": "Elliptic rules incorrectly factor square roots when the constant term is negative",
+      "explanation": "The allowed integrand 1/sqrt(-1 + 2*sin(x)**2), with real x, matches a=-1 and d=-2; both wildcards are nonzero and a != d. The new evaluator returns elliptic_f(x, 2)/I. Its derivative at x=pi/2 is (1/I)/sqrt(1-2) = -1, whereas the integrand there is 1. Likewise sqrt(-1 + 2*sin(x)**2) returns I*elliptic_e(x, 2), whose derivative at pi/2 is I*sqrt(-1) = -1 instead of 1. Factoring sqrt(a-d*sin(x)**2) into sqrt(a)*sqrt(1-d/a*sin(x)**2) is not valid across these principal-square-root branches. The counterexample is nonsingular at the evaluation point, and the discrepancy cannot be repaired by an integration constant. The new elliptic tests use positive a only.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1483,
+      "evidence": "return sympy.elliptic_f(symbol, d/a)/sympy.sqrt(a)\n\n@evaluates(EllipticERule)\ndef eval_elliptic_e(a, d, integrand, symbol):\n    return sympy.elliptic_e(symbol, d/a)*sympy.sqrt(a)",
+      "fix": "Restrict these formulas to conditions that justify square-root factorization, such as a being positive real, and otherwise leave the integral unevaluated or implement domain-aware branch corrections. Apply the restriction to both elliptic rules.",
+      "test": "For real x, integrate 1/sqrt(-1 + 2*sin(x)**2) and sqrt(-1 + 2*sin(x)**2), then check the derivatives at x=pi/2 against 1. Also cover negative and assumption-unknown a rather than only positive constants.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 369,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1482,
+          "symbol": "eval_elliptic_f"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01fed82c",
+      "K-0214191c",
+      "K-0bbe1015",
+      "K-0eae5fab",
+      "K-0fbbf738",
+      "K-13c28565",
+      "K-17ff28eb",
+      "K-1950a5a7",
+      "K-1989ba9e",
+      "K-19ad3c9d",
+      "K-2436b487",
+      "K-251fab07",
+      "K-309de097",
+      "K-34bb9f5c",
+      "K-358c8c4f",
+      "K-37dba615",
+      "K-3afad64d",
+      "K-3bdec917",
+      "K-3c126146",
+      "K-3f79acc6",
+      "K-46d9d9f2",
+      "K-4760bbdf",
+      "K-4ccc2518",
+      "K-4e1559a1",
+      "K-4f66d5d3",
+      "K-4fd56d09",
+      "K-509e2923",
+      "K-56673f3c",
+      "K-584c8d57",
+      "K-60750032",
+      "K-633a5476",
+      "K-64df9e81",
+      "K-659408f9",
+      "K-6cca1eba",
+      "K-6db029aa",
+      "K-76094f2b",
+      "K-765402dd",
+      "K-7810cf1c",
+      "K-7bc41659",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-85c6407d",
+      "K-88c09c66",
+      "K-91a8c8ce",
+      "K-934cbecb",
+      "K-99e65698",
+      "K-9d082e14",
+      "K-9fe3253b",
+      "K-a0889f64",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a5bd98ec",
+      "K-a9ea6942",
+      "K-aac022e0",
+      "K-ac72cb59",
+      "K-ade6e308",
+      "K-b7652dc9",
+      "K-ba823e2d",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-c88be94c",
+      "K-c8969e3c",
+      "K-c8bb5ffb",
+      "K-cb01c870",
+      "K-cf4ba613",
+      "K-d3ab563e",
+      "K-d578b2d4",
+      "K-d7f74de4",
+      "K-dafa11ad",
+      "K-e2f20c42",
+      "K-f0828052",
+      "K-f39fb2d9",
+      "K-f8c37d11",
+      "K-fd698324"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-cb01c870",
+          "K-0fbbf738",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ade6e308",
+          "K-847c7cac",
+          "K-4fd56d09",
+          "K-99e65698",
+          "K-251fab07",
+          "K-c621f945",
+          "K-509e2923",
+          "K-f39fb2d9",
+          "K-1989ba9e",
+          "K-633a5476",
+          "K-934cbecb",
+          "K-3f79acc6",
+          "K-2436b487",
+          "K-d3ab563e",
+          "K-4f66d5d3",
+          "K-0bbe1015",
+          "K-c88be94c",
+          "K-c1f97abd",
+          "K-f8c37d11",
+          "K-85c6407d"
+        ],
+        "tokens": 1430,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-cf4ba613",
+          "K-7de8581d",
+          "K-765402dd",
+          "K-a9ea6942",
+          "K-a1e29320"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-c8969e3c",
+          "K-3bdec917",
+          "K-4760bbdf",
+          "K-56673f3c",
+          "K-7810cf1c",
+          "K-ba823e2d",
+          "K-7bc41659",
+          "K-91a8c8ce",
+          "K-34bb9f5c",
+          "K-37dba615",
+          "K-584c8d57",
+          "K-e2f20c42",
+          "K-fd698324",
+          "K-358c8c4f",
+          "K-a0889f64",
+          "K-f0828052",
+          "K-309de097",
+          "K-1950a5a7",
+          "K-0eae5fab",
+          "K-64df9e81",
+          "K-3c126146",
+          "K-19ad3c9d",
+          "K-3afad64d",
+          "K-6db029aa",
+          "K-aac022e0",
+          "K-6cca1eba",
+          "K-01fed82c",
+          "K-13c28565",
+          "K-a527e894",
+          "K-0214191c",
+          "K-ac72cb59",
+          "K-a5bd98ec",
+          "K-60750032",
+          "K-4ccc2518",
+          "K-17ff28eb",
+          "K-76094f2b",
+          "K-9d082e14",
+          "K-d7f74de4",
+          "K-dafa11ad",
+          "K-9fe3253b",
+          "K-4e1559a1",
+          "K-d578b2d4"
+        ],
+        "tokens": 3231,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

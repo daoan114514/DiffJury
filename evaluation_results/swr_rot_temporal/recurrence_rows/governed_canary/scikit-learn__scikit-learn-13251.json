@@ -1,0 +1,136 @@
+{
+  "id": "scikit-learn__scikit-learn-13251",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "fit-predict-contamination-check-skipped",
+      "severity": "medium",
+      "title": "Contamination is no longer checked for detectors without decision_function",
+      "explanation": "The previous unconditional contamination assertion is replaced by a branch requiring decision_function. Consequently, check_outliers_fit_predict accepts an incorrect outlier count without any assertion for LocalOutlierFactor in its default non-novelty mode and for custom detectors exposing only fit_predict. A concrete regression detector is a LocalOutlierFactor subclass that performs the normal fit and validation but returns exactly one outlier and otherwise inliers: the contamination check now skips its 1-versus-30 mismatch. The new iris test checks only the stock LocalOutlierFactor on one dataset; it does not restore this guarantee for subclasses or other estimators passed to check_estimator. check_outliers_train also explicitly excludes estimators with a novelty parameter from its contamination assertion.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 2420,
+      "evidence": "if (num_outliers != expected_outliers and\n                hasattr(estimator, 'decision_function')):",
+      "fix": "Retain an exact count assertion when no scores are available to justify a discrepancy. For LocalOutlierFactor, use negative_outlier_factor_ to perform the tie-aware check rather than silently skipping validation.",
+      "test": "Add a LocalOutlierFactor subclass that calls the real fit implementation but returns one outlier regardless of valid contamination. Assert that check_outliers_fit_predict rejects it. Separately verify that a legitimate LOF threshold tie is accepted using negative_outlier_factor_.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2384,
+          "symbol": "check_outliers_fit_predict"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2420,
+          "symbol": "check_outliers_fit_predict"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-0a8093ab",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-65899550",
+      "K-75ffcebf",
+      "K-900623ee",
+      "K-91e5b509",
+      "K-95d752ab",
+      "K-9f32c0f2",
+      "K-9fbca2ff",
+      "K-c1e264d7",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f1a99f69",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-91e5b509",
+          "K-f1a99f69",
+          "K-900623ee",
+          "K-95d752ab",
+          "K-c43a8094",
+          "K-542e4ee3",
+          "K-0466258e",
+          "K-75ffcebf",
+          "K-f463a446"
+        ],
+        "tokens": 611,
+        "budget": 600,
+        "dropped": [
+          "K-2019c936",
+          "K-780def96",
+          "K-f0b9d1e9"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-ecc8b51d",
+          "K-0a8093ab",
+          "K-2134f4e9",
+          "K-65899550",
+          "K-21a33670",
+          "K-c1e264d7",
+          "K-9fbca2ff",
+          "K-340b5726",
+          "K-d07491c7",
+          "K-9f32c0f2"
+        ],
+        "tokens": 624,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

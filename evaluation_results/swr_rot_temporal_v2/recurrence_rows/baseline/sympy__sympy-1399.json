@@ -1,0 +1,50 @@
+{
+  "id": "sympy__sympy-1399",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "test-quality.invalid-traversal-oracle",
+      "severity": "low",
+      "title": "New traversal alternatives accept a missing node and the wrong root",
+      "explanation": "The existing alternatives describe the expression z + w*(x + y), but expected5 and expected6 replace its standalone z with x and end with x + w*(x + y). Consequently, the expanded assertion would pass a traversal that loses z, duplicates x, and returns a different expression as its root. Arbitrary .args ordering can change sibling order, but cannot change node identity or the root. expected4 and the new traversal doctest alternatives preserve these invariants; expected5 and expected6 do not.",
+      "path": "sympy/utilities/tests/test_iterables.py",
+      "line": 20,
+      "evidence": "    expected5 = [x, y, x + y, w, w*(x + y), x, x + w*(x + y)]\n    expected6 = [y, x, x + y, w, w*(x + y), x, x + w*(x + y)]\n    assert list(postorder_traversal(expr)) in [expected1, expected2,\n                                               expected3, expected4,\n                                               expected5, expected6]",
+      "fix": "Replace the penultimate x with z and the final x + w*(x + y) with z + w*(x + y) in both expected5 and expected6.",
+      "test": "Check that every accepted alternative ends with expr and has the same node multiplicities as the original alternatives. Explicitly verify that the current expected5 and expected6 lists are rejected, while [x, y, x + y, w, w*(x + y), z, z + w*(x + y)] and its x/y sibling-order variant are accepted.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/tests/test_iterables.py",
+          "line": 22,
+          "symbol": "test_postorder_traversal"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

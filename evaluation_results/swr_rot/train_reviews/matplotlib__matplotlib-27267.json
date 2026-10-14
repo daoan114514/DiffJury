@@ -1,0 +1,56 @@
+{
+  "id": "matplotlib__matplotlib-27267",
+  "findings": [
+    {
+      "rule_id": "stale-image-comparison-baseline",
+      "severity": "medium",
+      "title": "Update the image baseline for the added secondary axes",
+      "explanation": "test_secondary_xy still compares against secondary_xy.png, but now creates an additional top axis in the first subplot and an additional right axis in the second subplot. These axes display translated tick values and affect the constrained-layout output. Neither baseline image is included in the changed files, so running the existing image-comparison test compares the newly rendered axes against the old output and fails. The translation helper's forward and inverse arithmetic is consistent; the concrete regression here is the unmatched image expectation, not an established transform-conversion failure.",
+      "path": "lib/matplotlib/tests/test_axes.py",
+      "line": 7530,
+      "evidence": "@image_comparison(['secondary_xy.png'], style='mpl20')\n        secax(\"top\" if nn == 0 else \"right\", functions=_Translation(2))",
+      "fix": "Regenerate and review the secondary_xy image baseline for the additional axes, or test Transform equivalence in a separate figure-equality test without changing the existing baseline-dependent rendering.",
+      "test": "Run the image-comparison test for test_secondary_xy with the existing baseline to demonstrate the mismatch, then rerun after updating the expected image and verify that both new axes have the intended translated tick labels.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_axes.py",
+          "line": 7512,
+          "symbol": "test_secondary_xy"
+        },
+        {
+          "path": "lib/matplotlib/axes/_secondary_axes.py",
+          "line": 154,
+          "symbol": "SecondaryAxis.set_functions"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_axes.py",
+          "line": 7504,
+          "symbol": "_Translation.transform"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1104",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 15059,
+  "llm_calls": 5
+}

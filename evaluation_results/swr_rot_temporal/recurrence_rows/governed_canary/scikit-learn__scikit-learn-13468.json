@@ -1,0 +1,126 @@
+{
+  "id": "scikit-learn__scikit-learn-13468",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "DOC-CONTRIBUTOR-ATTRIBUTION",
+      "severity": "low",
+      "title": "Brian Holt is removed without being retained in the emeritus list",
+      "explanation": "The change removes Brian Holt's entry (GitHub login `bdholt1`) from doc/authors.rst, but does not include him in the new emeritus list. The other 14 removed contributors are represented in that list, including Raghav Rajagopalan under his simplified name. Consequently, Brian alone loses his attribution on the About page rather than being reclassified as emeritus.",
+      "path": "doc/about.rst",
+      "line": 38,
+      "evidence": "- Alexander Fabisch\n- Alexandre Passos\n- Chris Gorgolewski\n- David Cournapeau\n- David Warde-Farley\n- Jake Vanderplas\n- Kyle Kastner\n- Matthieu Brucher\n- Raghav Rajagopalan\n- Robert Layton\n- Ron Weiss\n- Vincent Dubourg\n- Vincent Michel\n- Virgile Fritsch",
+      "fix": "Add Brian Holt to the emeritus list if his removal from the current-contributor table is intentional; otherwise restore his current-contributor entry.",
+      "test": "Compare the old and new author entries and verify that every removed contributor is retained in the emeritus section unless an explicit attribution removal is intended.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/about.rst",
+          "line": 23,
+          "symbol": "include:: authors.rst"
+        },
+        {
+          "path": "doc/about.rst",
+          "line": 34,
+          "symbol": "Emeritus Core Developers"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1059",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0466258e",
+      "K-0a8093ab",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-55026f2c",
+      "K-65899550",
+      "K-75ffcebf",
+      "K-780def96",
+      "K-900623ee",
+      "K-95d752ab",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f0b9d1e9",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-780def96",
+          "K-f0b9d1e9",
+          "K-95d752ab",
+          "K-55026f2c",
+          "K-c43a8094",
+          "K-542e4ee3",
+          "K-f463a446",
+          "K-75ffcebf",
+          "K-0466258e",
+          "K-900623ee"
+        ],
+        "tokens": 628,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0a8093ab",
+          "K-d07491c7",
+          "K-2134f4e9",
+          "K-21a33670",
+          "K-340b5726",
+          "K-ecc8b51d",
+          "K-65899550"
+        ],
+        "tokens": 464,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

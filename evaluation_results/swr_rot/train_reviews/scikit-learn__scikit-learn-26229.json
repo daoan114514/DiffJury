@@ -1,0 +1,49 @@
+{
+  "id": "scikit-learn__scikit-learn-26229",
+  "findings": [
+    {
+      "rule_id": "api-compatibility",
+      "severity": "medium",
+      "title": "Requiring predict rejects estimators that provide their own score",
+      "explanation": "The new estimator constraint rejects previously usable estimators such as PCA, which implements fit and score but not predict. A concrete reproducer is `X = np.random.RandomState(0).normal(size=(30, 3)); validation_curve(PCA(), X, param_name='n_components', param_range=[1, 2], cv=3)`. Before this decorator, validation_curve could clone and fit PCA and evaluate its default score: check_scoring with scoring=None selects the estimator's score method, and _fit_and_score evaluates that scorer without needing predict. The new decorator rejects the same call before fitting. Custom callable scoring likewise does not necessarily require predict. Although the existing docstring mentions fit and predict, that wording predates this change and is narrower than the previously supported execution path. This breaks validation curves for scoring-only estimators without a compatibility fallback.",
+      "path": "sklearn/model_selection/_validation.py",
+      "line": 1807,
+      "evidence": "\"estimator\": [HasMethods([\"fit\", \"predict\"])],",
+      "fix": "Require only fit at the estimator boundary, leaving check_scoring and the selected scorer to enforce the scoring methods actually needed. This preserves default-score and custom-scorer compatibility while still rejecting estimators without fit.",
+      "test": "Add a regression test calling validation_curve on PCA with scoring=None, a deterministic 30-by-3 input, n_components=[1, 2], and cv=3. Assert both returned score arrays have shape (2, 3) and contain finite scores. Also exercise a fit/transform-only estimator with a callable scorer that uses transform rather than predict.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/model_selection/_validation.py",
+          "line": 1805,
+          "symbol": "validate_params"
+        },
+        {
+          "path": "sklearn/model_selection/_validation.py",
+          "line": 1822,
+          "symbol": "validation_curve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 18467,
+  "llm_calls": 5
+}

@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-12131",
+  "findings": [
+    {
+      "rule_id": "unregistered-subplot-class-selection",
+      "severity": "medium",
+      "title": "Subclass discovery can select an unrelated, unregistered subplot implementation",
+      "explanation": "On an uncached call, the factory now treats every class with the matching bases as a registered replacement. A concrete counterexample is an application defining `class A(Axes): pass` and `class Specialized(SubplotBase, A): _axes_class = A; def __init__(self, figure, spec, required_option): pass`, without registering Specialized. Previously, `subplot_class_factory(A)` generated an ordinary subplot class, which accepted the standard `(figure, 111)` construction. Now it returns Specialized, and that same construction raises TypeError because required_option is missing. With multiple matching subclasses, the first discovered class also wins even if `_subplot_classes[A]` explicitly names another one. The affected consumer is an application or integration defining specialized subplot classes alongside an Axes subclass; merely defining such a class now changes the public factory's behavior. The regression test reproduces the simple Cartopy-style registration shape, but does not verify that registration controls selection: deleting its dictionary assignment would leave its assertion passing. Previously cached factory results still bypass discovery because of the unchanged lru_cache; registration after a cached call is therefore a pre-existing limitation, not a separate finding. Default Axes calls introduce no demonstrated failure here. The test's registry mutation retains its local classes, but its unique Dummy key does not demonstrate interference with other tests.",
+      "path": "lib/matplotlib/axes/_subplots.py",
+      "line": 217,
+      "evidence": "return next(cls for cls in SubplotBase.__subclasses__()\n                    if cls.__bases__ == (SubplotBase, axes_class))",
+      "fix": "Use the compatibility registry to select explicitly registered replacements, and otherwise retain ordinary dynamic class creation. Do not infer registration solely from matching base classes.",
+      "test": "Define an unregistered Specialized subplot with an additional required constructor argument and assert that subplot_class_factory(A) does not return it and supports ordinary construction. Then define two matching subclasses, register the second before the first factory call, and assert that the registered class is returned. Restore registry entries during cleanup. Keep cached-registration behavior separate from these uncached regression cases.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_subplots.py",
+          "line": 203,
+          "symbol": "subplot_class_factory"
+        },
+        {
+          "path": "lib/matplotlib/axes/_subplots.py",
+          "line": 217,
+          "symbol": "SubplotBase.__subclasses__ selection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 16369,
+  "llm_calls": 5
+}

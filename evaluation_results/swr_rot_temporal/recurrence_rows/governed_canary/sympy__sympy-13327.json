@@ -1,0 +1,167 @@
+{
+  "id": "sympy__sympy-13327",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "avoidable-exponential-enumeration",
+      "severity": "medium",
+      "title": "Padding noncommutative products with 1 introduces exponential redundant work",
+      "explanation": "For the supported input `a = symbols('a', commutative=False); itermonomials([a], 30)`, the previous implementation generated the 30 powers of a and returned 31 distinct monomials. The new implementation enumerates all 2**30 tuples over [a, 1], constructing a Mul for each, although these still collapse to exactly 31 distinct results. Every placement of the identity is redundantly enumerated before set deduplication. This is an avoidable exponential runtime regression, not unavoidable output complexity: even the one-variable case can become impractical. The added noncommutative and mixed-variable assertions have correct expected sets, but only exercise degrees up to three and do not expose this degeneration.",
+      "path": "sympy/polys/monomials.py",
+      "line": 63,
+      "evidence": "variables = list(variables) + [S(1)]\nif all(variable.is_commutative for variable in variables):\n    return {Mul(*item) for item in combinations_with_replacement(variables, degree)}\nelse:\n    return {Mul(*item) for item in product(variables, repeat=degree)}",
+      "fix": "Enumerate noncommutative words separately for lengths zero through degree without identity padding. For mixed inputs, combine these words with commutative monomials within the remaining degree budget rather than enumerating all placements of commuting factors.",
+      "test": "Add a single-noncommutative-variable regression asserting that degree 30 returns `{a**k for k in range(31)}`. Also check candidate-generation counts, or use an appropriately bounded performance test, so enumeration remains proportional to the 31 outputs rather than 2**30 padded tuples. Preserve the existing mixed-variable and noncommutative set assertions.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 59,
+          "symbol": "itermonomials: append identity to the alphabet"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 63,
+          "symbol": "itermonomials: enumerate padded Cartesian products"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "non-executable-documentation-example",
+      "severity": "low",
+      "title": "The new documentation example cannot sort symbolic expressions on Python 3",
+      "explanation": "The new example executes `sorted(itermonomials([a, b, x], 2))` without a sorting key. Its result contains distinct symbolic expressions, whose comparison constructs symbolic relations rather than supplying a Boolean total order; Python 3 sorting therefore raises TypeError instead of producing the documented list. The existing example immediately above avoids this problem by supplying `monomial_key`. Independently, the shown entries `xa` and `xb` are not the representations of the generated products, which print as `x*a` and `x*b`. Thus the example fails as an executable documentation test even though the underlying degree-two mixed-variable set contains the correct 11 monomials.",
+      "path": "sympy/polys/monomials.py",
+      "line": 51,
+      "evidence": ">>> a, b = symbols('a, b', commutative=False)\n>>> sorted(itermonomials([a, b, x], 2))\n[1, a, b, x, a**2, a*b, b*a, b**2, xa, xb, x**2]",
+      "fix": "Supply a sorting key suitable for general SymPy expressions, such as default_sort_key, and regenerate the expected list using that key, including explicit multiplication signs.",
+      "test": "Run the itermonomials docstring through the project's doctest runner on Python 3 and require the mixed-variable example to execute successfully and match its displayed output.",
+      "confidence": 0.68,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 50,
+          "symbol": "itermonomials documentation: construct noncommutative symbols"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 51,
+          "symbol": "itermonomials documentation: sorted without a symbolic sorting key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-7b0b7360",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-b5e72943",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-2ec8eae2",
+          "K-ad16cdc6"
+        ],
+        "tokens": 404,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa",
+          "K-7b0b7360",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-25a05e81",
+          "K-b1da47ce",
+          "K-4b143eb5",
+          "K-e172ac33",
+          "K-7ac64342"
+        ],
+        "tokens": 649,
+        "budget": 600,
+        "dropped": [
+          "K-83dfddfe",
+          "K-0117d999",
+          "K-46b8b947",
+          "K-c01df042",
+          "K-0faed540",
+          "K-e13d441c",
+          "K-ddb18739",
+          "K-e820d88f"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

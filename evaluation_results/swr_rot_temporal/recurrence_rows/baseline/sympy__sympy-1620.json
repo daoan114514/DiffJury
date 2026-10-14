@@ -1,0 +1,60 @@
+{
+  "id": "sympy__sympy-1620",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "symbolic-root-domain",
+      "severity": "medium",
+      "title": "Unknown root realness permits invalid unconditional delta expansions",
+      "explanation": "With x and a real symbols and no sign assumption on a, DiracDelta(x**2 - a) has roots ±sqrt(a). Their is_real and the derivatives' is_zero properties are unknown. Previously the realness check rejected this expansion; the changed condition accepts it and produces (DiracDelta(x - sqrt(a)) + DiracDelta(x + sqrt(a)))/(2*Abs(sqrt(a))) unconditionally. Specializing a=-1 exposes the domain error: the original expression is DiracDelta(x**2 + 1), which is zero for real x, whereas the expansion contains DiracDelta(x ± I), outside the real DiracDelta domain. Specializing a=0 also introduces division by zero instead of preserving the unexpanded expression with a multiple root. These are symbolic counterexamples derived from the changed predicate, not runtime observations. The expansion is also consumed by deltaintegrate and recursively integrated, so the unsupported parameter domain reaches integration results. The local Integral/integrate imports refer to the same sympy.integrals members as the previous qualified accesses; no independent import or recursive-call defect is established. The relocated tests exercise numeric real roots and recursive integration, but none supplies a parameter-dependent root with unknown realness, so their expectations do not detect this regression.",
+      "path": "sympy/functions/special/delta_functions.py",
+      "line": 110,
+      "evidence": "if r.is_real is not False and not darg.subs(x, r).is_zero:\n                    result += DiracDelta(x - r)/abs(darg.subs(x, r))",
+      "fix": "Require established realness before applying the real-root expansion, restoring the previous guard, or return a conditional expansion with an unexpanded fallback outside the established real, simple-root domain.",
+      "test": "Use real symbols x and a without a sign assumption. Assert that simplifying DiracDelta(x**2 - a) does not introduce an unconditional root expansion. Verify that specializing a=-1 before and after simplification gives zero without introducing nonreal delta arguments, and that a=0 does not introduce division by zero. Exercise the same parameter-dependent expression through integrate, not only deltaintegrate.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/deltafunctions.py",
+          "line": 137,
+          "symbol": "deltaintegrate: h = f.simplify(x)"
+        },
+        {
+          "path": "sympy/functions/special/delta_functions.py",
+          "line": 110,
+          "symbol": "DiracDelta.simplify: root-domain check and expansion"
+        },
+        {
+          "path": "sympy/integrals/deltafunctions.py",
+          "line": 148,
+          "symbol": "deltaintegrate: integrate(h, x)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

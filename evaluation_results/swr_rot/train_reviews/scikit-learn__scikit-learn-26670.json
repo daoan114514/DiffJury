@@ -1,0 +1,59 @@
+{
+  "id": "scikit-learn__scikit-learn-26670",
+  "findings": [
+    {
+      "rule_id": "CI_FAILURE_PROPAGATION",
+      "severity": "medium",
+      "title": "Printing the lint log discards download and linter execution failures",
+      "explanation": "With errexit disabled, a failed download or nonzero linter exit no longer determines the step result: the final `cat` does. For example, if the linter exits 2 after writing an execution error, its output file exists because of the shell redirection, `cat` succeeds, and the step exits 0. Previously, that nonzero linter exit failed the step. This also removes the early failure on a nonzero curl exit. Publishing lint results may intentionally be non-blocking, but the changed code does not distinguish reportable lint violations from failures to obtain or execute the linter. The adjacent artifact-upload step already uses `if: always()`, so preserving the failure would not prevent that reporting step. The supplied context does not establish the final job outcome or how downstream code handles malformed execution logs; this finding is limited to the demonstrably lost failure status of this step. No existing tests were supplied. The comment changes themselves show no reproducible regression: the absent-details branch adds advice, and both result paths retain commit and workflow-run links.",
+      "path": ".github/workflows/lint.yml",
+      "line": 45,
+      "evidence": "          set +e\n          curl https://raw.githubusercontent.com/scikit-learn/scikit-learn/main/build_tools/linting.sh -o ./build_tools/linting.sh\n          ./build_tools/linting.sh &> /tmp/linting_output.txt\n          cat /tmp/linting_output.txt",
+      "fix": "Check the download status explicitly. Capture the linter exit status before printing the log, then preserve execution failures in the step result. If lint violations are intentionally informational, distinguish their expected status from infrastructure or execution errors rather than unconditionally returning the status of `cat`.",
+      "test": "Exercise the actual shell sequence with a controlled linter that writes an error and exits 2; assert that the output is printed and the step still exits nonzero. Separately simulate a curl transport failure and assert that it is propagated without executing a stale or incomplete script. Include a successful linter case that prints the log and exits 0.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".github/workflows/lint.yml",
+          "line": 42,
+          "symbol": "run shell disables errexit"
+        },
+        {
+          "path": ".github/workflows/lint.yml",
+          "line": 43,
+          "symbol": "download linting.sh"
+        },
+        {
+          "path": ".github/workflows/lint.yml",
+          "line": 44,
+          "symbol": "execute linting.sh with redirected output"
+        },
+        {
+          "path": ".github/workflows/lint.yml",
+          "line": 45,
+          "symbol": "cat supplies final shell exit status"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-252",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 19782,
+  "llm_calls": 5
+}

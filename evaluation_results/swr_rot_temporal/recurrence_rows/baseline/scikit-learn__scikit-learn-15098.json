@@ -1,0 +1,94 @@
+{
+  "id": "scikit-learn__scikit-learn-15098",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "correctness.cython-nogil-import",
+      "severity": "high",
+      "title": "Import fabs with cimport, not a Python import",
+      "explanation": "The replacement imports fabs as a Python object rather than declaring the libc C function. Consequently, the calls introduced at lines 278 and 442 are Python calls, which cannot execute in the quadtree's nogil methods: Cython rejects the required Python global lookup, argument conversion, and function call. The previous explicitly declared fabsf was callable without the GIL. This prevents building the quadtree extension and therefore blocks a source build of the package. Even outside nogil, this statement would attempt to import libc.math as a Python module; Cython's libc declarations are not such a runtime module. This conclusion is static reasoning from the import and affected call sites; no build was executed.",
+      "path": "sklearn/neighbors/quad_tree.pyx",
+      "line": 14,
+      "evidence": "from libc.math import fabs",
+      "fix": "Replace the statement with `from libc.math cimport fabs`, giving both call sites the Cython libc declaration that permits nogil calls.",
+      "test": "Cythonize sklearn/neighbors/quad_tree.pyx using the project's supported build configuration and require successful code generation and extension compilation. Then run the existing quadtree and Barnes-Hut t-SNE tests to exercise both duplicate-detection call sites.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 14,
+          "symbol": "Python import of fabs"
+        },
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 278,
+          "symbol": "fabs(point1[i] - point2[i])"
+        },
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 442,
+          "symbol": "fabs(results[idx + i])"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "correctness.unbound-sentinel",
+      "severity": "high",
+      "title": "Declare SIZE_MAX in the quadtree module before using it",
+      "explanation": "The quadtree's previously self-contained sentinel initializer now references SIZE_MAX, but the change does not import that constant into quad_tree.pyx. The new `from libc.stdint cimport SIZE_MAX` declaration is in _tree.pyx only; Cython imports in one extension do not make names available in another extension, including through the existing import of tree allocation helpers. Thus the new initializer has an unresolved name and prevents successful Cython compilation. Fixing the fabs import alone does not fix this independent build failure. This finding concerns availability of the constant, not a numerical difference between SIZE_MAX and the old SIZE_t cast, and does not rely on obsolete compiler support. It is a static diagnosis; compilation was not executed.",
+      "path": "sklearn/neighbors/quad_tree.pyx",
+      "line": 30,
+      "evidence": "cdef SIZE_t DEFAULT = SIZE_MAX",
+      "fix": "Add `from libc.stdint cimport SIZE_MAX` to quad_tree.pyx, or retain its previous explicitly cast sentinel.",
+      "test": "After correcting the fabs cimport, Cythonize and compile the quadtree extension with the supported project toolchain, requiring successful module import. Run a quadtree construction test that inserts enough points to trigger automatic capacity growth and verifies the resulting tree contents.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 30,
+          "symbol": "DEFAULT sentinel initialization"
+        },
+        {
+          "path": "sklearn/tree/_tree.pyx",
+          "line": 25,
+          "symbol": "module-local SIZE_MAX cimport"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

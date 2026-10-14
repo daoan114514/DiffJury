@@ -1,0 +1,222 @@
+{
+  "id": "scikit-learn__scikit-learn-7897",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-averaging-documentation",
+      "severity": "low",
+      "title": "Describe the reported averages as weighted macro averages, not micro averages",
+      "explanation": "The newly added description incorrectly calls the reported values a \"prevalence-weighted micro-average\". The implementation averages independently computed per-class metrics using class support as weights; micro averaging instead pools true positives, false positives, and false negatives before computing metrics. For y_true=[0,0,0,1] and y_pred=[0,0,1,1], the report's weighted precision, recall, and F1 are 0.875, 0.75, and approximately 0.7667, whereas micro precision, recall, and F1 are all 0.75. The calculation is unchanged by this refactor, but the new documentation incorrectly identifies its averaging method. The reference to average='weighted' is correct.",
+      "path": "sklearn/metrics/classification.py",
+      "line": 1372,
+      "evidence": "The reported averages are a prevalence-weighted micro-average across\n        classes (equivalent to :func:`precision_recall_fscore_support` with\n        ``average='weighted'``).",
+      "fix": "Replace \"prevalence-weighted micro-average\" with \"support-weighted average of the per-class metrics\" or \"weighted macro average\", retaining the reference to average='weighted'.",
+      "test": "Use y_true=[0,0,0,1] and y_pred=[0,0,1,1] to verify that the report agrees with precision_recall_fscore_support(..., average='weighted') and differs from average='micro'; ensure any documentation example describes these values as weighted per-class averages.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1415,
+          "symbol": "classification_report: precision_recall_fscore_support(..., average=None)"
+        },
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1428,
+          "symbol": "classification_report: np.average(p, weights=s), np.average(r, weights=s), np.average(f1, weights=s)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0289f811",
+      "K-02febdba",
+      "K-04a42f60",
+      "K-05d5938d",
+      "K-06940955",
+      "K-0a9d5779",
+      "K-116601a4",
+      "K-1911e86a",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2d2f2af1",
+      "K-2fcf8cc0",
+      "K-3e3ec617",
+      "K-50891544",
+      "K-5097afae",
+      "K-517aea0d",
+      "K-53fd90dd",
+      "K-5726f975",
+      "K-58877fa4",
+      "K-5da5b627",
+      "K-6b983152",
+      "K-6caa3a53",
+      "K-7065ea3f",
+      "K-72d03d82",
+      "K-7410a7a0",
+      "K-750985c9",
+      "K-7a9550c8",
+      "K-81dce0d8",
+      "K-81df992c",
+      "K-8275c990",
+      "K-82989614",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8ac0d8df",
+      "K-8b12aa56",
+      "K-8b250572",
+      "K-8e49d3b8",
+      "K-9154d241",
+      "K-9fb0e5d3",
+      "K-9fc0d205",
+      "K-a02dc96f",
+      "K-a32f0183",
+      "K-c33a05ee",
+      "K-c59d36ba",
+      "K-c9e50aa1",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d55a9679",
+      "K-d5f0918f",
+      "K-dbd6b2da",
+      "K-e01a8db3",
+      "K-e552537e",
+      "K-e9744f86",
+      "K-eb0ce9df",
+      "K-ebb06c34",
+      "K-ef402548",
+      "K-f5fd559f",
+      "K-f6e0dac6",
+      "K-f9562eac"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-04a42f60",
+          "K-d398b681"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-dbd6b2da",
+          "K-1911e86a",
+          "K-58877fa4",
+          "K-116601a4",
+          "K-5097afae",
+          "K-8e49d3b8",
+          "K-e01a8db3",
+          "K-c33a05ee",
+          "K-24b3bdf1",
+          "K-6b983152",
+          "K-0a9d5779",
+          "K-750985c9",
+          "K-d5f0918f",
+          "K-f6e0dac6",
+          "K-6caa3a53",
+          "K-f5fd559f",
+          "K-d55a9679",
+          "K-3e3ec617",
+          "K-7a9550c8",
+          "K-9154d241",
+          "K-ebb06c34",
+          "K-eb0ce9df",
+          "K-53fd90dd",
+          "K-c59d36ba",
+          "K-295e0897",
+          "K-f9562eac",
+          "K-81dce0d8"
+        ],
+        "tokens": 2106,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-e9744f86",
+          "K-72d03d82",
+          "K-8b12aa56",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-20ab8e8e",
+          "K-5726f975",
+          "K-cebaccb0",
+          "K-82989614",
+          "K-1c46e9f8",
+          "K-9fb0e5d3",
+          "K-7410a7a0",
+          "K-c9e50aa1",
+          "K-1a7e5ff1",
+          "K-8aa6a19d",
+          "K-e552537e",
+          "K-0289f811",
+          "K-517aea0d",
+          "K-a02dc96f",
+          "K-06940955",
+          "K-2d2f2af1",
+          "K-a32f0183",
+          "K-ef402548",
+          "K-02febdba",
+          "K-8b250572",
+          "K-50891544",
+          "K-05d5938d",
+          "K-7065ea3f",
+          "K-8275c990",
+          "K-218187b3",
+          "K-8ac0d8df",
+          "K-9fc0d205",
+          "K-21394d34",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-81df992c"
+        ],
+        "tokens": 2110,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

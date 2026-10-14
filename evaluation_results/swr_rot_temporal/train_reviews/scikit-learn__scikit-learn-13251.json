@@ -1,0 +1,82 @@
+{
+  "id": "scikit-learn__scikit-learn-13251",
+  "findings": [
+    {
+      "rule_id": "undefined-isolation-score-normalization",
+      "severity": "medium",
+      "title": "Zero average path length makes one-sample forests produce NaN scores",
+      "explanation": "The corrected helper returns 0 for leaf sizes 0 and 1, 1 for size 2, and the logarithmic approximation for larger sizes, consistently for integer scalars and arrays. However, IsolationForest scoring also uses _average_path_length(self.max_samples_) as its normalization denominator. For an accepted max_samples=1 configuration, every tree consists of a single root leaf: the accumulated depth is zero after the leaf correction, and the normalizer is now zero too. Consequently, score_samples evaluates 2 ** (-0 / 0) and returns NaN rather than finite anomaly scores. Training on just one sample reaches the same condition with the default sample limit. Numeric contamination additionally derives its fitted threshold from these NaN scores. For example, fitting IsolationForest(max_samples=1, contamination=0.1, random_state=0) on [[0.0], [1.0]] and scoring those rows triggers this regression. The added tests verify the helper's corrected boundary values but do not exercise this downstream normalization.",
+      "path": "sklearn/ensemble/iforest.py",
+      "line": 442,
+      "evidence": "if n_samples_leaf <= 1:\n            return 0.",
+      "fix": "Keep the corrected average-path-length values, but explicitly handle a zero scoring normalizer. Use a defined normalized depth for this degenerate forest, yielding finite neutral scores such as -0.5 rather than performing 0/0.",
+      "test": "Add end-to-end regressions for a multi-row training set with max_samples=1 and for a single-row training set with the default max_samples. Exercise both numeric and automatic contamination; assert finite score_samples and decision_function results, a finite fitted offset where applicable, and the chosen neutral score. Also include array leaf size 0 in the helper boundary test.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/ensemble/iforest.py",
+          "line": 440,
+          "symbol": "_average_path_length"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-369",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "outlier-contamination-invalid-tie-acceptance",
+      "severity": "medium",
+      "title": "The tie check can accept an incorrectly predicted all-outlier training set",
+      "explanation": "For sorted scores s and an expected count k, a percentile at k/n lies between indices k-1 and k. With strict outlier thresholding, a legitimate tie-induced shortfall to m < k requires s[m:k+1] to be constant; the helper's fewer-outliers branch correctly checks that interval. However, ties cannot increase the count beyond k under these semantics. The new greater-outliers branch nevertheless accepts some such results. For example, decision=[-2., -2., -1., -1.], expected_outliers=2, and num_outliers=4 are consistent with predictions obtained by thresholding these decisions at zero. The helper examines sorted_decision[2:5], obtains [-1., -1.], and passes. There is no tie across the expected boundary: s[1] != s[2], and the correct percentile cutoff would produce exactly two outliers. The example scales directly to the actual 300-sample check: 30 scores of -2 followed by 270 scores of -1 incorrectly predict 300 outliers but pass the helper. The old exact-count assertion rejected this result. Even under an inclusive-threshold interpretation, the interval explaining an excess would start at k-1 and end before m, not the implemented k:m+1. The newly added unit test covers only m < k and therefore misses this false acceptance.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 1534,
+      "evidence": "    else:\n        start = expected_outliers\n        end = num_outliers + 1\n\n    # ensure that all values in the 'critical area' are tied,\n    # leading to the observed discrepancy between provided\n    # and actual contamination levels.\n    sorted_decision = np.sort(decision)\n    msg = ('The number of predicted outliers is not equal to the expected '\n           'number of outliers and this difference is not explained by the '\n           'number of ties is the decision_function values')\n    assert",
+      "fix": "Reject num_outliers > expected_outliers for the strict percentile-threshold contract. Preserve the fewer-outliers interval, and verify prediction/decision agreement after refitting with the explicit contamination rather than relying only on the earlier fit's agreement check.",
+      "test": "Assert that check_outlier_corruption(4, 2, np.array([-2., -2., -1., -1.])) raises AssertionError. Add an integration regression with 300 samples, contamination=0.1, 30 decisions of -2 and 270 of -1, and predictions obtained by strict thresholding at zero; check_outliers_train must reject it. Retain a valid shortfall case such as decisions [-1., 0., 0., 1.], predicted count 1, and expected count 2.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1614,
+          "symbol": "check_outliers_train"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1527,
+          "symbol": "check_outlier_corruption"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      1
+    ],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 47534,
+  "llm_calls": 6,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-13251.json",
+  "borrowed_sha256": "f9fa5f38514f3287918e86818564ea72737cb6e8f971c1de4a586d49985d6bc2"
+}

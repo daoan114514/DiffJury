@@ -1,0 +1,55 @@
+{
+  "id": "sympy__sympy-416",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "multiset-partitions-unhashable-cache-key",
+      "severity": "medium",
+      "title": "Tuple cache keys reject multiset elements that are themselves lists",
+      "explanation": "Replacing the string cache key with nested tuples introduces an element-hashability requirement. For example, multiset_partitions([[1], [2], [2]], 2) reaches visit with a partition such as [[[1], [2]], [[2]]]. Its canonical key contains lists, so cache.has_key(canonical) raises TypeError instead of yielding partitions. The previous str(ps) key could represent this partition without hashing its elements. The integer-only added regression exercises duplicate suppression but cannot detect this failure. The supplied excerpt does not include the function's documentation or complete input normalization, so the documented scope of unhashable inputs could not be independently verified; the cache-level incompatibility is established directly by the changed code. Filtering None in the forward and backward visit sites does not itself discard valid partitions, and block-order-sensitive deduplication already existed in the string-key implementation.",
+      "path": "sympy/utilities/iterables.py",
+      "line": 750,
+      "evidence": "        canonical = tuple(tuple(j) for j in ps)\n        if not cache.has_key(canonical):\n            cache[canonical] = 1",
+      "fix": "Preserve support for unhashable elements, for example by constructing hashable partition keys from equality-class identifiers rather than the elements themselves, or by using equality-based duplicate detection for unhashable keys.",
+      "test": "Add a regression invoking list(multiset_partitions([[1], [2], [2]], 2)) and assert the two partitions [[[1], [2]], [[2]]] and [[[1]], [[2], [2]]] are returned without TypeError or None. Also exercise unhashable repeated elements with larger n and m to traverse both f and b.",
+      "confidence": 0.7799999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 756,
+          "symbol": "f calls visit"
+        },
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 749,
+          "symbol": "visit constructs and looks up the cache key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

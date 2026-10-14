@@ -1,0 +1,46 @@
+{
+  "id": "scikit-learn__scikit-learn-12708",
+  "findings": [
+    {
+      "rule_id": "svm-distance-normalization-kernel",
+      "severity": "medium",
+      "title": "Qualify coef_ normalization as available only for linear kernels",
+      "explanation": "The new instruction applies unconditionally, but SVC and NuSVC expose coef_ only when kernel='linear'. For example, a fitted binary SVC with the default RBF kernel can return decision_function values, but following the documented normalization instruction raises AttributeError when accessing coef_. For nonlinear kernels, the separating hyperplane is in the kernel feature space, not generally the input space; its norm must be obtained from the dual coefficients and kernel evaluations rather than coef_. The documentation should distinguish these configurations instead of promising that coef_ provides exact distances for every supported kernel.",
+      "path": "sklearn/svm/base.py",
+      "line": 547,
+      "evidence": "If the exact distances are required, divide the function values by the norm of the weight vector (``coef_``).",
+      "fix": "State that coef_ normalization is available for linear kernels. Clarify that raw nonlinear-kernel scores concern a hyperplane in feature space and require the corresponding feature-space weight norm for distance normalization.",
+      "test": "Check the revised wording against fitted binary SVC models with linear and RBF kernels: both return decision scores, but only the linear model exposes coef_.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/svm/base.py",
+          "line": 530,
+          "symbol": "BaseSVC.decision_function"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1059",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 12227,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-12708.json",
+  "borrowed_sha256": "ec7bba7750fd152596a2d7a3c74c1dd2112b513ac56ec9977c612a656b45033f"
+}

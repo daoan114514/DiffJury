@@ -1,0 +1,122 @@
+{
+  "id": "matplotlib__matplotlib-5224",
+  "findings": [
+    {
+      "rule_id": "directory-parent-permissions",
+      "severity": "medium",
+      "title": "Python 3.7+ no longer applies the requested mode to the newly created immediate parent",
+      "explanation": "On Python 3.7 and later, os.makedirs applies mode only to its leaf; newly created intermediate directories receive 0777 masked by umask. The old implementation first called os.makedirs on os.path.split(newdir)[0] with the requested mode, making the immediate parent a separately protected leaf. For a concrete reproduction, start with /tmp/job absent and call mkdirs('/tmp/job/private', 0o700) under umask 000. Previously both job and private were 0700; the replacement creates job as 0777 and private as 0700. Another local user with access to /tmp can consequently rename /tmp/job/private and replace that entry, despite being unable to access the private directory's contents directly. This requires neither attacker-controlled function arguments nor a preexisting malicious symlink. Under umask 022 the parent instead becomes 0755, exposing directory-entry names but not allowing replacement. The source is the caller's path and restrictive mode; the sink is recursive directory creation, and the missing control is preservation of the immediate parent's requested permissions. This is a permission exposure, not an existing-directory compatibility exception. Existing-directory symlink handling does not establish a separate new vulnerability here.",
+      "path": "lib/matplotlib/cbook.py",
+      "line": 1017,
+      "evidence": "        os.makedirs(newdir, mode=mode, exist_ok=True)",
+      "fix": "Preserve the previous permission behavior by explicitly creating the immediate parent with the supplied mode before creating the final directory, while tolerating an already existing directory without changing its permissions. Apply restrictive permissions at creation rather than repairing them afterward with chmod, which would leave an exposure window.",
+      "test": "On Python 3.7+, temporarily set umask to 000, invoke mkdirs with mode 0700 for an absent two-level path beneath an existing parent, restore umask in a finally block, and assert that both newly created directories have mode 0700. Repeat with umask 022. In an isolated multi-user filesystem test, verify that a second UID cannot rename or replace the final directory through its immediate parent.",
+      "confidence": 0.83,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1017,
+          "symbol": "mkdirs('/tmp/job/private', 0o700) → os.makedirs(newdir, mode=mode, exist_ok=True) → recursive os.makedirs('/tmp/job') → os.mkdir('/tmp/job', 0o777)"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-732",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "mkdirs-existing-directory-mode",
+      "severity": "medium",
+      "title": "Existing directories with different permissions raise on Python 3.2–3.4.0",
+      "explanation": "The new Python 3 branch relies on exist_ok=True to accept every existing directory. On Python 3.2 through 3.4.0, os.makedirs still raises OSError with EEXIST when an existing directory's mode differs from the requested mode after applying the umask. For example, with umask 022, create an absolute directory with mode 0700 and then call mkdirs(path) with the default mode 0777: the old implementation returned immediately and preserved 0700, while the new branch raises because the expected mode is 0755. These runtimes enter the changed branch through six.PY3; repository support declarations were not supplied, so this finding is limited to those runtime versions rather than assuming that every historical Python 3 version is supported. Python 3.4.1 and later removed this mode-mismatch check.",
+      "path": "lib/matplotlib/cbook.py",
+      "line": 1017,
+      "evidence": "        os.makedirs(newdir, mode=mode, exist_ok=True)",
+      "fix": "Preserve the existing-path fast path, and retain the previous EEXIST recovery for an existing directory so that a concurrent creation with a different mode is also accepted on affected runtimes.",
+      "test": "On Python 3.2 or 3.3, temporarily set umask to 022, create an absolute temporary subdirectory with mode 0700, and call mkdirs(path) using its default mode. Assert no exception and unchanged permissions; restore the umask in finally. Also test concurrent creation producing EEXIST with an existing directory. No relevant tests or support declarations were included in the supplied evidence.",
+      "confidence": 0.84,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1016,
+          "symbol": "mkdirs"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1017,
+          "symbol": "os.makedirs(newdir, mode=mode, exist_ok=True)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "mkdirs-existing-relative-path",
+      "severity": "medium",
+      "title": "Existing single-component relative directories now fail on Python 2",
+      "explanation": "On the Python 2 branch, calling mkdirs('cache') when the current directory already contains a directory named cache previously returned without error because the outer os.path.exists(newdir) check skipped all creation. The new implementation always splits the path, producing ('', 'cache'). Its first iteration passes the empty string to _make_leaf; os.path.exists('') is false, so os.makedirs('') raises OSError with ENOENT. The EEXIST handler cannot suppress this error. The helper's reference to thispart is not itself defective here: the closure contains the same value supplied as its argument during each synchronous call. Empty and nonexistent single-component relative paths already failed in the old Python 2 implementation; the regression specifically affects existing paths.",
+      "path": "lib/matplotlib/cbook.py",
+      "line": 1031,
+      "evidence": "    parts = os.path.split(newdir)\n    for i in range(1, len(parts) + 1):\n        thispart = os.path.join(*parts[:i])\n        _make_leaf(thispart, mode)",
+      "fix": "Restore the outer existing-path check before splitting the path in the Python 2 branch. This preserves the previous behavior without changing intermediate-directory creation.",
+      "test": "On Python 2, enter an isolated temporary working directory, create a directory named 'cache', and call mkdirs('cache') twice. Assert that both calls return without raising and that cache remains a directory. The supplied diff contains no tests; this reproduction follows directly from os.path.split('cache') yielding an empty first component.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1031,
+          "symbol": "mkdirs"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1034,
+          "symbol": "_make_leaf(thispart, mode)"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1025,
+          "symbol": "os.makedirs(thispart, mode)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      2
+    ],
+    "neutral": [
+      0,
+      1
+    ],
+    "missed": []
+  },
+  "tokens": 22376,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-5224.json",
+  "borrowed_sha256": "1dc7bfc3163d454816323d3802e1acca7ad769cd6d3d91a05498896ee1654546"
+}

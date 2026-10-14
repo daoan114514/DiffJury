@@ -1,0 +1,104 @@
+{
+  "id": "sympy__sympy-1749",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REBUILD-DUMMY-IDENTITY",
+      "severity": "medium",
+      "title": "Rebuilding Dummy atoms changes their identity and splits repeated variables",
+      "explanation": "Dummy is an atom with empty args, but unlike Symbol its constructor accepts no arguments and creates a fresh dummy. Consequently, rebuild(Dummy('d', positive=True)) successfully returns a different symbol without the original name or assumptions; the exception fallback does not preserve it. A concrete counterexample is d = Dummy('d'); expr = Basic.__new__(Add, d, d). rebuild(expr) constructs a separate Dummy for each occurrence, producing a sum of two independent symbols instead of the expected canonical expression 2*d. This violates the utility's canonicalization contract by changing the mathematical expression, not merely its representation. The added integer-only test does not exercise a successfully reconstructible atom with identity-bearing metadata.",
+      "path": "sympy/rules/rl.py",
+      "line": 156,
+      "evidence": "return type(expr)(*map(rebuild, expr.args))",
+      "fix": "Preserve atomic SymPy expressions before invoking their constructors, while continuing to recursively reconstruct non-atomic expressions. In particular, return Dummy atoms unchanged rather than calling Dummy().",
+      "test": "Assert that rebuild(d) is d for d = Dummy('d', positive=True), and that rebuild(Basic.__new__(Add, d, d)) == 2*d with exactly the original dummy in its free_symbols.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 148,
+          "symbol": "rebuild"
+        },
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 156,
+          "symbol": "rebuild (recursive argument reconstruction and constructor invocation)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-FALSE-REQUIREMENT-BYPASS",
+      "severity": "low",
+      "title": "An explicitly false assumption makes the rewrite unconditional",
+      "explanation": "The guard conflates an omitted requirement (None) with an explicitly false requirement. For example, rl = rewriterule(x, x + 1, [x], assume=False); list(rl(S(5))) produces a rewrite rather than an empty result: False skips the entire assumption check, and execution reaches target substitution and yield. This violates the contract that assume specifies an additional requirement. The existing simple-condition test establishes that this source and input match, but the added assumption test covers only a positive Q.integer predicate, not a constant false requirement. This counterexample does not depend on substitution ordering, rebuild behavior, or ask's handling of unknown predicates because ask is never called.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 46,
+      "evidence": "if (assume and not ask(assume.xreplace(match), assumptions)):",
+      "fix": "Distinguish absence from falsity with an explicit None check. Normalize or explicitly handle Boolean requirements before calling xreplace, so False rejects every match rather than disabling filtering.",
+      "test": "Add a regression test using rl = rewriterule(x, x + 1, [x], assume=False) and assert list(rl(S(5))) == []. Also assert that assume=None retains the unconditional rewrite, and cover a symbolic false requirement if supported by the assumptions API.",
+      "confidence": 0.8799999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 41,
+          "symbol": "rewrite_rl"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 46,
+          "symbol": "assumption guard"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 48,
+          "symbol": "target substitution"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 51,
+          "symbol": "yield expr2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

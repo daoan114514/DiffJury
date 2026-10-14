@@ -1,0 +1,51 @@
+{
+  "id": "scikit-learn__scikit-learn-31119",
+  "findings": [
+    {
+      "rule_id": "sample-weight-support-introspection",
+      "severity": "medium",
+      "title": "Removing explicit sample_weight breaks weighted nested bagging",
+      "explanation": "The changed estimators still accept sample_weight through **fit_params, but no longer advertise it to has_fit_parameter. With metadata routing disabled, Bagging's estimator-building path uses that signature-based check to decide whether its base estimator supports sample weights. Consequently, BaggingClassifier(estimator=BaggingClassifier(), n_estimators=2).fit(X, y, sample_weight=np.ones(len(y))) now rejects the inner estimator as not supporting sample weights, whereas the previous explicit sample_weight signature passed the check. Using VotingClassifier or StackingClassifier as the weighted base estimator has the same problem because their signatures also changed. This is a keyword-call regression, not the scheduled removal of deprecated positional calls. The pop/check/reinsert changes otherwise preserve direct keyword forwarding: omitted weights and explicit None remain omitted downstream, non-None weights are reinserted, and Bagging retains its weight validation. Routing-enabled execution follows metadata routing rather than this legacy support check. The updated Voting tests exercise direct keyword fitting and unsupported leaf estimators, but do not exercise this nested signature-dependent consumer.",
+      "path": "sklearn/ensemble/_bagging.py",
+      "line": 344,
+      "evidence": "def fit(self, X, y, **fit_params):",
+      "fix": "Preserve an explicit keyword-only sample_weight parameter until signature-based consumers are made compatible, or update those consumers to recognize the affected ensembles' actual sample-weight support without treating arbitrary **fit_params estimators as supporting weights.",
+      "test": "With enable_metadata_routing=False, fit an outer BaggingClassifier using an inner BaggingClassifier and nonuniform keyword sample weights; assert fitting succeeds and weights reach the inner estimator. Repeat with VotingClassifier and StackingClassifier bases, and retain the rejection test for a genuinely unsupported estimator such as KNeighborsClassifier. Cover routing-enabled behavior separately with leaf estimators requesting sample_weight.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/ensemble/_bagging.py",
+          "line": 344,
+          "symbol": "BaseBagging.fit"
+        },
+        {
+          "path": "sklearn/ensemble/_bagging.py",
+          "line": 393,
+          "symbol": "self._fit(X, y, max_samples=self.max_samples, **fit_params)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- COMPATIBILITY",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 34831,
+  "llm_calls": 5
+}

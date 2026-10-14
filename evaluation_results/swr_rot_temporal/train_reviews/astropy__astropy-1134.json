@@ -1,0 +1,44 @@
+{
+  "id": "astropy__astropy-1134",
+  "findings": [
+    {
+      "rule_id": "test-mask-identity-comparison",
+      "severity": "medium",
+      "title": "Boolean identity checks make the mask initialization test fail",
+      "explanation": "The MaskedColumn masks being tested are NumPy Boolean masks, not the Python True and False singletons. An array mask containing only False satisfies the old np.all(mask == False) assertion, but mask is False evaluates to the scalar False regardless of its contents; np.all(False) therefore fails. Likewise, an all-True mask fails the new identity comparison with True. Even NumPy's scalar nomask value is np.bool_, not Python False, so identity does not handle that representation either. Consequently, correct mask initialization now fails at line 149, and the subsequent mask-copy assertions are never reached. This finding concerns the fully visible assertion changes; the omitted production regrouping hunks cannot be conclusively checked from their summaries and are not claimed to be defective.",
+      "path": "astropy/table/tests/test_masked.py",
+      "line": 149,
+      "evidence": "assert np.all(self.a.mask is False)\n        assert np.all(self.b.mask is True)\n        assert np.all(self.c.mask is False)",
+      "fix": "Restore elementwise comparisons, or use assert not np.any(self.a.mask), assert np.all(self.b.mask), and assert not np.any(self.c.mask).",
+      "test": "Run TestMaskedColumnInit.test_set_mask_and_not_ref against the real fixture. Verify that the unmasked a/c masks and all-masked b mask pass, and that mutating d.mask still leaves the original d_mask unchanged.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/table/tests/test_masked.py",
+          "line": 147,
+          "symbol": "TestMaskedColumnInit.test_set_mask_and_not_ref"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 76779,
+  "llm_calls": 5
+}

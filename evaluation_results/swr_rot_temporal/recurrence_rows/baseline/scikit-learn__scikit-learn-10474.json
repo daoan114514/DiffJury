@@ -1,0 +1,50 @@
+{
+  "id": "scikit-learn__scikit-learn-10474",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "python-invalid-conditional-suite",
+      "severity": "high",
+      "title": "The added empty conditional prevents estimator_checks from importing",
+      "explanation": "The added `if hasattr():` at line 228 has no indented body: `yield check_fit2d_predict1d` on line 229 remains at the same indentation as the conditional. Python therefore raises IndentationError while parsing the module, before any estimator checks can execute. Importing sklearn.utils.estimator_checks, including importing check_estimator, fails regardless of the estimator supplied. This is one root-cause defect, not separate import and execution findings. Merely indenting the yield would not fix the change completely because hasattr() also requires two arguments. The separate switch to transform-presence detection does not establish an independently reproducible regression from the supplied evidence.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 228,
+      "evidence": "    if isinstance(estimator, ClusterMixin):\n        for check in _yield_clustering_checks(name, estimator):\n            yield check\n    if hasattr():\n    yield check_fit2d_predict1d",
+      "fix": "Remove the stray `if hasattr():` to preserve the existing unconditional yield. If a conditional is intended, supply its actual predicate and indent its body.",
+      "test": "Run `python -m py_compile sklearn/utils/estimator_checks.py`; the changed file fails with IndentationError and the corrected file must compile successfully. Also verify `from sklearn.utils.estimator_checks import check_estimator` succeeds in the project's supported environment.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 228,
+          "symbol": "_yield_all_checks (module parsing fails before execution)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

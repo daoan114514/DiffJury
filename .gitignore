@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.db
+.env
+.pytest_cache/
+
+evaluation_data/swrbench/repos/
+evaluation_data/swrbench/raw/
+evaluation_results/**/*.db
+
+# Development process files: fake-model smoke runs, agent handoff notes and
+# logs, integrity checksums, intermediate admission checks, process metadata.
+evaluation_results/*_fake/
+evaluation_results/CODEX_PROGRESS*.md
+evaluation_results/codex_round2_*
+evaluation_results/*checksums*.json
+evaluation_results/admission_*_initial.json
+evaluation_results/admission_*_v[0-9].json
+evaluation_results/admission_*_fake.json
+evaluation_results/admission_*.log
+evaluation_results/**/process.json
+evaluation_results/**/restart_reason.json
+docs/CODEX_HANDOFF*.md

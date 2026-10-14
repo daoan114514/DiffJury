@@ -1,0 +1,136 @@
+{
+  "id": "matplotlib__matplotlib-17105",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 17105,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 65321,
+  "llm_calls": 6,
+  "input_tokens": 59748,
+  "output_tokens": 2853,
+  "total_tokens": 62601,
+  "instruction_calls": 6,
+  "instruction_tokens": 6595,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 2,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2603,
+      "knowledge_ids": [
+        "K-db90d837"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2484,
+      "knowledge_ids": [
+        "K-db90d837"
+      ],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-db90d837"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-db90d837"
+        ],
+        "tokens": 113,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

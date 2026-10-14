@@ -1,0 +1,99 @@
+{
+  "id": "sympy__sympy-14145",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "representation-consumers",
+      "severity": "medium",
+      "title": "Variadic ImageSet domains are ignored by iteration and membership",
+      "explanation": "For ImageSet(Lambda((x,y), (x,y)), FiniteSet(1), FiniteSet(2)), iteration calls the two-argument Lambda with only 1 and raises an arity exception; contains((1,2)) tests the solution tuple against FiniteSet(1) and returns false. The previous ProductSet domain retained both coordinates. base_set still returns only args[1].",
+      "path": "sympy/sets/fancysets.py",
+      "line": 277,
+      "evidence": "return Basic.__new__(cls, flambda, *sets)",
+      "fix": "Normalize variadic domains to a product for consumers and unpack coordinates when invoking the Lambda, preserving legacy ProductSet behavior.",
+      "test": "Compare iteration and membership for equivalent variadic and ProductSet images.",
+      "confidence": 0.85,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:fbcea1d0fc2d9c45",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sympy/sets/fancysets.py\", \"start_line\": 269, \"end_line\": 460, \"content\": \"    def __new__(cls, flambda, *sets):\\n        if not isinstance(flambda, Lambda):\\n            raise ValueError('first argument must be a Lambda')\\n        if flambda is S.IdentityFunction and len(sets) == 1:\\n            return sets[0]\\n        if not flambda.expr.free_symbols or not flambda.expr.args:\\n            return FiniteSet(flambda.expr)\\n\\n        return Basic.__new__(cls, flambda, *sets)\\n\\n    lamda = property(lambda self: self.args[0])\\n    base_set = property(lambda self: self.args[1])\\n\\n    def __iter__(self):\\n        already_seen = set()\\n        for i in self.base_set:\\n            val = self.lamda(i)\\n            if val in already_seen:\\n                continue\\n            else:\\n                already_seen.add(val)\\n                yield val\\n\\n    def _is_multivariate(self):\\n        return len(self.lamda.variables) > 1\\n\\n    def _contains(self, other):\\n        from sympy.matrices import Matrix\\n        from sympy.solvers.solveset import solveset, linsolve\\n        from sympy.utilities.iterables import is_sequence, iterable, cartes\\n        L = self.lamda\\n        if is_sequence(other):\\n            if not is_sequence(L.expr):\\n                return S.false\\n            if len(L.expr) != len(other):\\n                raise ValueError(filldedent('''\\n    Dimensions of other and output of Lambda are different.'''))\\n        elif iterable(other):\\n                raise ValueError(filldedent('''\\n    `other` should be an ordered object like a Tuple.'''))\\n\\n        solns = None\\n        if self._is_multivariate():\\n            if not is_sequence(L.expr):\\n                # exprs -> (numer, denom) and check again\\n                # XXX this is a bad idea -- make the user\\n                # remap self to desired form\\n                return other.as_numer_denom() in self.func(\\n                    Lambda(L.variables, L.expr.as_numer_denom()), self.base_set)\\n   "
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sympy/sets/fancysets.py",
+          "line": 282,
+          "symbol": "ImageSet.__iter__"
+        },
+        {
+          "path": "sympy/sets/fancysets.py",
+          "line": 295,
+          "symbol": "ImageSet._contains"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

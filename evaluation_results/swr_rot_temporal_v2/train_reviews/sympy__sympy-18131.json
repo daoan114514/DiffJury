@@ -1,0 +1,95 @@
+{
+  "id": "sympy__sympy-18131",
+  "findings": [
+    {
+      "rule_id": "incorrect-density-outside-support",
+      "severity": "medium",
+      "title": "Reciprocal density returns one above its upper support bound",
+      "explanation": "For Reciprocal('x', 5, 30), the added PDF evaluates to 0 at x=4, 1/(10*(log(30)-log(5))) at x=10, and 1 at x=31. The last value must be zero because the declared support is [5, 30]. The added public density assertion at test_continuous_rv.py:959 explicitly expects this same incorrect branch, so it encodes rather than detects the defect. Although integrating only over the declared support gives the correct normalization for finite valid parameters, that does not make the exposed density correct: integrating the returned PDF over the entire real line diverges because it remains one above b. Support-aware probability or expectation calculations can therefore pass while direct density evaluation is wrong.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3219,
+      "evidence": "            (S.One, (x > b)))",
+      "fix": "Return S.Zero in the branch x > b, and update the symbolic test and constructor documentation to expect zero rather than one.",
+      "test": "Construct Reciprocal('x', 5, 30) through sympy.stats and assert density values at 4, 5, 10, 30, and 31, including zero at 31. Integrate the exposed density over the entire real line and assert that the result is one.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/tests/test_continuous_rv.py",
+          "line": 959,
+          "symbol": "test_reciprocal: density(X)(x)"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3214,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "non-normalizable-parameter-accepted",
+      "severity": "low",
+      "title": "An infinite upper endpoint is accepted despite producing a zero-mass distribution",
+      "explanation": "The new checks accept a=5 and b=oo: both 5 > 0 and 5 < oo are true, and the validation message explicitly includes +oo. However, a reciprocal distribution requires a finite upper endpoint for its logarithmic normalization. With these parameters, log(b)-log(a) is infinite, so the PDF is zero at every finite point in its declared support [5, oo); its integral over that support is zero rather than one. This failure is independent of the erroneous above-b branch and cannot be corrected by framework support masking. The added tests exercise neither invalid parameters nor normalization for this accepted boundary.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3211,
+      "evidence": "        _value_check((a < b),\n        \"Parameter b must be in range (%s, +oo]. b = %s\"%(a, b))",
+      "fix": "Reject a provably infinite upper endpoint, enforcing 0 < a < b < oo while preserving the framework's treatment of undecidable symbolic parameter constraints. Correct the validation message accordingly.",
+      "test": "Assert that Reciprocal('x', 5, oo) raises ValueError. Also cover nonpositive a, equal endpoints, and reversed endpoints, while retaining successful construction with symbolic parameters whose validity is undecidable.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3209,
+          "symbol": "ReciprocalDistribution.check"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3205,
+          "symbol": "ReciprocalDistribution.set"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3218,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      1
+    ],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 26184,
+  "llm_calls": 5
+}

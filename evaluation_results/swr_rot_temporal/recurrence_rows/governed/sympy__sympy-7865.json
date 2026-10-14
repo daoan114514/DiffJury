@@ -1,0 +1,88 @@
+{
+  "id": "sympy__sympy-7865",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "test-missing-assert",
+      "severity": "low",
+      "title": "The new intersection equality test discards its result",
+      "explanation": "Lines 253–254 evaluate an equality without asserting it, so an incorrect result merely produces False and the test passes. The membership assertion at line 144 does not enforce the same contract: it checks that zero is excluded, but not that other integers are retained. For example, an incorrect EmptySet result would satisfy that membership assertion while failing the intended equality. This is a demonstrated ineffective-test defect, not a demonstrated production regression. The production rewrite implements the valid identity X ∩ (A \\ B) = (X ∩ A) \\ B, also applicable to multiple or nested complements. The supplied hunk does not include surrounding args normalization or simplification helpers, so it does not establish an args-type failure or a recursive-termination defect.",
+      "path": "sympy/sets/tests/test_sets.py",
+      "line": 253,
+      "evidence": "    Intersection(S.Reals, S.Integers - FiniteSet(0)) == \\\n            Complement(Intersection(S.Reals, S.Integers), FiniteSet(0))",
+      "fix": "Prepend assert to the equality expression so a mismatched intersection result fails the test.",
+      "test": "Run test_intersection with the equality asserted. Verify that replacing the left-hand result with EmptySet makes the test fail, whereas the zero-exclusion check alone would pass. Also assert that a representative retained integer, such as 1, belongs to the actual intersection.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/tests/test_sets.py",
+          "line": 253,
+          "symbol": "test_intersection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

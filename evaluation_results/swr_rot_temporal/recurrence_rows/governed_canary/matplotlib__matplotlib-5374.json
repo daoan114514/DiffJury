@@ -1,0 +1,82 @@
+{
+  "id": "matplotlib__matplotlib-5374",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "mailmap-alias-normalization",
+      "severity": "low",
+      "title": "Preserve email normalization for Levi Kilcher's mixed-case alias",
+      "explanation": "The removed entry explicitly mapped `Levi Kilcher <Levi.Kilcher@nrel.gov>` to `Levi Kilcher <levi.kilcher@nrel.gov>`. The replacement uses Git's single-email mailmap form, which replaces the name but leaves the input email unchanged. Consequently, the historical identity explicitly covered by the old entry now retains `Levi.Kilcher@nrel.gov` instead of producing the previous lowercase canonical email. Case-insensitive mailmap matching does not fix this: it determines whether an entry matches, not whether a name-only entry rewrites the email. This is a demonstrable loss of existing normalization, not an inference about the contributor's preferred address. Other apparent naming or preference concerns cannot be established from the supplied diff, and omitted lines are not treated as deleted.",
+      "path": ".mailmap",
+      "line": 36,
+      "evidence": "Levi Kilcher <levi.kilcher@nrel.gov>",
+      "fix": "Retain an email-rewriting entry, such as `Levi Kilcher <levi.kilcher@nrel.gov> <Levi.Kilcher@nrel.gov>`, alongside the name-only entry.",
+      "test": "Run `git check-mailmap 'Levi Kilcher <Levi.Kilcher@nrel.gov>'` with the updated mailmap and assert that the result is `Levi Kilcher <levi.kilcher@nrel.gov>`. Also verify that the lowercase input continues to map to the same canonical identity.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-178",
+      "applied_rules": [
+        "K-b98d0791"
+      ]
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-b98d0791"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

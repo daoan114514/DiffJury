@@ -1,0 +1,132 @@
+{
+  "id": "sympy__sympy-2044",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "piecewise-candidate-condition-mutation",
+      "severity": "medium",
+      "title": "Preserve the original branch condition for every candidate root",
+      "explanation": "The assignment replaces the branch condition with the condition evaluated for the first candidate. Subsequent candidates therefore no longer get checked against the original condition. A concrete reproducer is solve(Piecewise((x**2 - 1, x > 0), (1, True)), x), whose correct result is [1]. The polynomial branch supplies candidates -1 and 1. If 1 is processed first, cond becomes true and the subsequent -1 is also accepted, producing [-1, 1]. If -1 is processed first, cond becomes false and the valid candidate 1 cannot recover the original x > 0 condition. With a native Python False, the next iteration additionally attempts False.subs(...); with a symbolic false, the false condition remains false. Thus neither candidate order preserves the solution contract. This defect does not depend on alleging that symbolic booleans fail Python identity checks: the original condition is lost regardless of its substituted boolean representation. The new regression test has only one candidate per branch, so it cannot expose this state leakage. These outcomes follow statically from the changed loop; execution and boolean-representation inspection were unavailable in this no-tools review.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1089,
+      "evidence": "for candidate in candidates:\n                if candidate in result:\n                    continue\n                cond = cond is True or cond.subs(symbol, candidate)\n                if cond is not False:",
+      "fix": "Keep cond unchanged throughout the candidate loop. Store its substitution in a separate candidate_cond variable and use that variable for filtering and conditional-result construction.",
+      "test": "Assert solve(Piecewise((x**2 - 1, x > 0), (1, True)), x) == [1]. Add the complementary x < 0 case expecting [-1], so both truth values and multiple candidate roots are exercised without relying on candidate ordering.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1086,
+          "symbol": "_solve: Piecewise candidate loop"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1089,
+          "symbol": "_solve: condition substitution"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "piecewise-unresolved-precedence",
+      "severity": "medium",
+      "title": "Include unresolved earlier-branch exclusions in conditional solutions",
+      "explanation": "The changed previous-piece check rejects a candidate only when an earlier condition substitutes to literal True. An unresolved earlier condition is now ignored, while the constructed result includes only the current branch's condition. For real symbols x and y, solve(Piecewise((1, x < y), (x - 2, True)), x) consequently returns [2]: the first branch supplies no roots, the second supplies 2, the earlier condition becomes the unresolved relational 2 < y, and the current True condition makes the result wrapper collapse to 2. This is incorrect for y = 3, because the original Piecewise expression at x = 2 selects its first branch and equals 1, not zero. The candidate is valid only when y <= 2; it should be represented conditionally, for example Piecewise((2, y <= 2), (S.NaN, True)). The unresolved relation is not a Python True value; this finding concerns the missing exclusion in the returned condition, not an unverified mismatch between symbolic and Python boolean constants. The newly added test resolves both conditions through y's positive assumption and therefore does not exercise unresolved precedence. The result above is derived from the changed code rather than an executed test.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1099,
+      "evidence": "if other_cond.subs(symbol, candidate) is True:\n                            matches_other_piece = True\n                            break\n                    if not matches_other_piece:\n                        result.add(Piecewise(\n                            (candidate, cond is True or cond.doit()),\n                            (S.NaN, True)\n                        ))",
+      "fix": "Build each candidate's effective condition from its own substituted branch condition AND the negations of all preceding substituted branch conditions. Discard definitely false effective conditions and retain unresolved exclusions in the returned Piecewise.",
+      "test": "Solve Piecewise((1, x < y), (x - 2, True)) for x with x and y real. Assert that the result permits 2 for y = 1 and y = 2 but excludes it for y = 3. Also assert the symbolic conditional result, so an unconditional [2] cannot pass.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1091,
+          "symbol": "_solve: previous Piecewise branch exclusion"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1099,
+          "symbol": "_solve: substituted previous condition check"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1103,
+          "symbol": "_solve: conditional solution construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

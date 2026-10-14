@@ -1,0 +1,227 @@
+{
+  "id": "scikit-learn__scikit-learn-8567",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "fitted-posterior-parameter-consistency",
+      "severity": "medium",
+      "title": "Final covariance still uses the discarded precision update",
+      "explanation": "The change preserves the precisions used to calculate coef_, but the covariance calculation at lines 238–239 still uses the local alpha_ and lambda_ after their update. Consequently, the coefficient mean and covariance no longer describe the same posterior. A concrete iteration-limit counterexample is BayesianRidge(n_iter=1, fit_intercept=False) fitted on X=[[1.0], [0.0]], y=[1.0, 0.0], with default hyperparameters. Initially alpha is approximately 4 and lambda is 1, giving coef_=0.8 and the newly stored precisions approximately (4, 1). The update produces alpha approximately 29.99855 and lambda approximately 1.249999. The changed-line covariance expression therefore produces an unscaled factor approximately 0.960002 instead of the 0.8 required by the stored precisions. With the existing posterior scaling by the updated local alpha, sigma_ is approximately 0.0320015 rather than 1/(4+1)=0.2. Predictive uncertainty consequently combines this covariance with the stored noise precision: at x=1 its standard deviation is approximately 0.5310 instead of sqrt(0.2+0.25)=0.6708. A single positive iteration is sufficient; no zero-iteration or invalid-parameter assumption is needed. The convergence exit has the same ordering because the precisions are updated before the exit and covariance is calculated afterward. The added intercept-only assertion can pass while this uncertainty regression remains. The supplied excerpt does not contain the complete score calculation, so no independent score defect is asserted.",
+      "path": "sklearn/linear_model/bayes.py",
+      "line": 206,
+      "evidence": "            self.alpha_ = alpha_\n            self.lambda_ = lambda_\n\n            # Update alpha and lambda\n...\n        sigma_ = np.dot(Vh.T,\n                        Vh / (eigen_vals_ + lambda_ / alpha_)[:, np.newaxis])",
+      "fix": "Use self.alpha_ and self.lambda_ consistently in both the final covariance denominator and its precision scaling, preserving the parameters that generated the final coefficients.",
+      "test": "Add the one-iteration example above and assert sigma_ equals inv(self.alpha_ * X.T.dot(X) + self.lambda_ * I). Assert coefficients equal Ridge(alpha=self.lambda_/self.alpha_, fit_intercept=False) and assert predict(return_std=True) matches the resulting posterior variance plus 1/self.alpha_. Repeat the covariance invariant for a normally converged fit.",
+      "confidence": 0.8899999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 206,
+          "symbol": "BayesianRidge.fit: preserve coefficient precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 209,
+          "symbol": "BayesianRidge.fit: update local precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 238,
+          "symbol": "BayesianRidge.fit: construct posterior covariance"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0289f811",
+      "K-02febdba",
+      "K-04a42f60",
+      "K-05d5938d",
+      "K-06940955",
+      "K-0a9d5779",
+      "K-116601a4",
+      "K-1911e86a",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2d2f2af1",
+      "K-2fcf8cc0",
+      "K-3e3ec617",
+      "K-50891544",
+      "K-5097afae",
+      "K-517aea0d",
+      "K-53fd90dd",
+      "K-5726f975",
+      "K-58877fa4",
+      "K-5da5b627",
+      "K-6b983152",
+      "K-6caa3a53",
+      "K-7065ea3f",
+      "K-72d03d82",
+      "K-7410a7a0",
+      "K-750985c9",
+      "K-7a9550c8",
+      "K-81dce0d8",
+      "K-81df992c",
+      "K-8275c990",
+      "K-82989614",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8ac0d8df",
+      "K-8b12aa56",
+      "K-8b250572",
+      "K-8e49d3b8",
+      "K-9154d241",
+      "K-9fb0e5d3",
+      "K-9fc0d205",
+      "K-a02dc96f",
+      "K-a32f0183",
+      "K-c33a05ee",
+      "K-c59d36ba",
+      "K-c9e50aa1",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d55a9679",
+      "K-d5f0918f",
+      "K-dbd6b2da",
+      "K-e01a8db3",
+      "K-e552537e",
+      "K-e9744f86",
+      "K-eb0ce9df",
+      "K-ebb06c34",
+      "K-ef402548",
+      "K-f5fd559f",
+      "K-f6e0dac6",
+      "K-f9562eac"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-d398b681",
+          "K-04a42f60"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-53fd90dd",
+          "K-81dce0d8",
+          "K-dbd6b2da",
+          "K-f9562eac",
+          "K-e01a8db3",
+          "K-24b3bdf1",
+          "K-58877fa4",
+          "K-f6e0dac6",
+          "K-d55a9679",
+          "K-750985c9",
+          "K-6b983152",
+          "K-5097afae",
+          "K-c33a05ee",
+          "K-8e49d3b8",
+          "K-1911e86a",
+          "K-0a9d5779",
+          "K-d5f0918f",
+          "K-3e3ec617",
+          "K-9154d241",
+          "K-6caa3a53",
+          "K-c59d36ba",
+          "K-116601a4",
+          "K-ebb06c34",
+          "K-eb0ce9df",
+          "K-295e0897",
+          "K-f5fd559f",
+          "K-7a9550c8"
+        ],
+        "tokens": 2106,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-e9744f86",
+          "K-72d03d82",
+          "K-8b12aa56",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-e552537e",
+          "K-20ab8e8e",
+          "K-5726f975",
+          "K-cebaccb0",
+          "K-82989614",
+          "K-1c46e9f8",
+          "K-9fb0e5d3",
+          "K-7410a7a0",
+          "K-c9e50aa1",
+          "K-1a7e5ff1",
+          "K-9fc0d205",
+          "K-8ac0d8df",
+          "K-8aa6a19d",
+          "K-06940955",
+          "K-2d2f2af1",
+          "K-8b250572",
+          "K-7065ea3f",
+          "K-8275c990",
+          "K-50891544",
+          "K-218187b3",
+          "K-0289f811",
+          "K-02febdba",
+          "K-ef402548",
+          "K-a02dc96f",
+          "K-a32f0183",
+          "K-517aea0d",
+          "K-21394d34",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-81df992c",
+          "K-05d5938d"
+        ],
+        "tokens": 2110,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

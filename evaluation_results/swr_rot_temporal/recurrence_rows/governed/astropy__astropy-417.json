@@ -1,0 +1,94 @@
+{
+  "id": "astropy__astropy-417",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-helper-reference",
+      "severity": "medium",
+      "title": "New test calls color_text instead of _color_text",
+      "explanation": "The extracted helper is defined as `_color_text` at console.py:55, and `color_print` invokes `_color_text` at console.py:144. The new test instead evaluates `console.color_text(\"foo\", \"green\")`. With no public alias, this raises AttributeError before checking the ANSI output, failing the test rather than exercising the extracted implementation. No public alias is shown in the supplied evidence; repository-wide alias verification was not possible under the no-tools constraint. The extraction itself preserves the previous color mapping, default-color fallback, and formatting expression. The existing color_print branches still bypass coloring for empty/None colors and non-terminal streams, so those paths show no behavioral regression.",
+      "path": "astropy/utils/tests/test_console.py",
+      "line": 11,
+      "evidence": "    assert console.color_text(\"foo\", \"green\") == u'\\033[0;32mfoo\\033[0m'",
+      "fix": "Change the test to call console._color_text, matching the extracted helper and its production caller.",
+      "test": "Run test_color_text and verify that it executes the real helper and returns exactly '\\033[0;32mfoo\\033[0m' without AttributeError.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/utils/tests/test_console.py",
+          "line": 11,
+          "symbol": "test_color_text -> console.color_text"
+        },
+        {
+          "path": "astropy/utils/console.py",
+          "line": 55,
+          "symbol": "_color_text"
+        },
+        {
+          "path": "astropy/utils/console.py",
+          "line": 144,
+          "symbol": "color_print -> _color_text"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

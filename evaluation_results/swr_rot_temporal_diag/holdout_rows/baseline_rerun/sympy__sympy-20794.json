@@ -1,0 +1,179 @@
+{
+  "id": "sympy__sympy-20794",
+  "repository": "sympy/sympy",
+  "pull_request": 20794,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 268361,
+  "llm_calls": 14,
+  "input_tokens": 118819,
+  "output_tokens": 4435,
+  "total_tokens": 123254,
+  "instruction_calls": 14,
+  "instruction_tokens": 32767,
+  "model_roles": {
+    "lead": 3,
+    "security": 5,
+    "correctness-reliability": 5,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 2,
+  "revision_requests": 2,
+  "revision_results": 2,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {}
+}

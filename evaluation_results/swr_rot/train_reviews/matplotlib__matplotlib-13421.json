@@ -1,0 +1,112 @@
+{
+  "id": "matplotlib__matplotlib-13421",
+  "findings": [
+    {
+      "rule_id": "incorrect-release-document-destination",
+      "severity": "medium",
+      "title": "API change fragments are merged into the wrong document",
+      "explanation": "When preparing a release, step 2 directs the maintainer to merge API change fragments into doc//whats_new.rst. That path resolves to doc/whats_new.rst, not doc/api/api_changes.rst, whose existing release content and newly enabled next_api_changes toctree are shown in this change. Following these instructions and then commenting out the API toctree leaves the current API changes absent from the intended release document.",
+      "path": "doc/devel/release_guide.rst",
+      "line": 75,
+      "evidence": "     :file:`doc//whats_new.rst`",
+      "fix": "Change the merge destination to doc/api/api_changes.rst.",
+      "test": "Walk through the archive and merge steps with one next_api_changes fragment; after disabling the next API changes toctree, verify that the fragment's content appears in the built API changes page.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "rst-admonition-parsed-as-comment",
+      "severity": "low",
+      "title": "New notes and warning are comments rather than rendered admonitions",
+      "explanation": "The new '.. note' blocks at lines 11 and 51 and '.. warning' block at line 202 omit the directive terminator '::'. In reStructuredText, these forms are explicit comments, so their indented bodies are omitted from rendered output rather than displayed as admonitions. Readers therefore do not see the remote-name assumptions, GitHub authentication guidance, or the warning about moving branches away from the release tag. The enabled '.. note::' in doc/api/api_changes.rst demonstrates the correct syntax.",
+      "path": "doc/devel/release_guide.rst",
+      "line": 11,
+      "evidence": ".. note",
+      "fix": "Use '.. note::' at lines 11 and 51 and '.. warning::' at line 202.",
+      "test": "Render the release guide and assert that all three admonition bodies are present in the HTML, including the branch-bumping warning.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-build-option-assignment",
+      "severity": "low",
+      "title": "The documentation build command assigns a different Make variable",
+      "explanation": "The previous command supplied the build options through 'O=-n$(nproc)'. The replacement 'O-n=$(nproc)' is valid Make variable-assignment syntax, but assigns a variable named 'O-n'; it does not assign O or pass an -n option. Consequently, following the new command drops the O settings requested by the previous instruction rather than preserving the documented build invocation. This is not a shell syntax error and need not cause the build itself to fail.",
+      "path": "doc/devel/release_guide.rst",
+      "line": 82,
+      "evidence": "  make -Cdoc O-n=$(nproc) html latexpdf",
+      "fix": "Restore the O= assignment and independently verify the intended option string against the documentation build's supported options.",
+      "test": "Compare the Make variable assignments produced by the old and corrected invocations and verify that the documentation build receives the intended options through O, not through a variable named O-n.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-688",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "inconsistent-doi-edit-target",
+      "severity": "low",
+      "title": "The DOI editing command still targets the old citation template",
+      "explanation": "The changed instruction says to add the DOI to doc/citing.rst, but its immediately following command sequence still runs 'emacs doc/_templates/citing.html' at line 181. A maintainer following the executable example edits a different file and does not perform the newly specified update to doc/citing.rst. The prose change introduces a contradiction with the retained example.",
+      "path": "doc/devel/release_guide.rst",
+      "line": 177,
+      "evidence": "<https://zenodo.org/>`__ and edit :file:`doc/citing.rst` with DOI link",
+      "fix": "Update the accompanying editor command to 'emacs doc/citing.rst' so that the instructions and example identify the same destination.",
+      "test": "Follow the DOI command sequence on a release documentation branch and verify that the resulting commit changes doc/citing.rst with the new DOI.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      2
+    ],
+    "false_positives": [
+      1,
+      3
+    ],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 27035,
+  "llm_calls": 5
+}

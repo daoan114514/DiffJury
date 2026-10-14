@@ -1,0 +1,99 @@
+{
+  "id": "astropy__astropy-4979",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "get-sun-distance-broadcasting",
+      "severity": "medium",
+      "title": "Keeping the distance axis breaks vectorized get_sun output shapes",
+      "explanation": "For Time(['2016-01-01', '2016-01-02']), earth_p and earth_v have shape (2, 3), but the changed reduction makes dsun have shape (2, 1); invlorentz remains shape (2,). Keeping that extra axis is useful for earth_p/dsun, but not for the scalar distance argument or the subsequent Cartesian component multiplication. Even if ERFA returns the intended properdir shape (2, 3), multiplying dsun by properdir[..., 0] broadcasts (2, 1) against (2,) to produce (2, 2), pairing every distance with every direction rather than returning two coordinates. If ERFA broadcasts the distance argument first, the expansion occurs earlier; if it rejects that argument shape, the same previously valid input instead fails. CartesianRepresentation and GCRS(obstime=time) do not undo this cross-product. Previously, dsun had shape (2,), so the component multiplication preserved the input shape. The scalar case does not independently establish an introduced regression: the old reshape(-1, 1) already promoted the direction input. Multidimensional inputs likewise require the distance to retain exactly time.shape outside normalization. The velocity-unit conversion, barycentric velocity selection, reciprocal Lorentz factor sqrt(1-v²), and paired velocity/direction sign changes do not establish a separate numerical defect. The relaxed transformation assertion does not test the get_sun output-shape invariant, and the supplied evidence does not establish a separate numerical regression concealed by its tolerance. The local ERFA wrapper was not supplied, so this finding rests on the downstream NumPy multiplication, not an assertion about its implementation.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 162,
+      "evidence": "dsun = np.sqrt(np.sum(earth_p**2, axis=-1, keepdims=True))\ninvlorentz = (1-np.sum(earth_v**2, axis=-1))**0.5\nproperdir = erfa.ab(earth_p/dsun, -earth_v, dsun, invlorentz)\n\nx = -dsun*properdir[..., 0] * u.AU\ny = -dsun*properdir[..., 1] * u.AU",
+      "fix": "Compute dsun without keepdims, and introduce the trailing singleton axis only for normalization: earth_p / dsun[..., np.newaxis]. Pass the unexpanded dsun to erfa.ab and retain it for the Cartesian component multiplications.",
+      "test": "Call get_sun with two distinct dates and assert result.shape == time.shape and result.cartesian.xyz.shape == (3, 2). Compare each vectorized coordinate with the corresponding individual-date calculation. Also exercise scalar, empty, singleton, and multidimensional Time inputs, checking coordinate and obstime shape consistency.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 162,
+          "symbol": "get_sun: distance calculation"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 164,
+          "symbol": "get_sun: erfa.ab"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 166,
+          "symbol": "get_sun: Cartesian component calculation"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "get_sun: SkyCoord(cartrep, frame=GCRS(obstime=time))"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

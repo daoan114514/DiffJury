@@ -1,0 +1,61 @@
+{
+  "id": "scikit-learn__scikit-learn-8567",
+  "findings": [
+    {
+      "rule_id": "fitted-state-consistency",
+      "severity": "medium",
+      "title": "Preserved precisions no longer match the fitted posterior covariance",
+      "explanation": "The final iteration calculates coef_ using the pre-update alpha_ and lambda_, which the new assignments correctly preserve. However, the subsequent hyperparameter update still changes the local variables before either convergence termination or iteration exhaustion. After the loop, the covariance calculation continues to use those updated locals rather than the preserved fitted attributes. Consequently, coef_, alpha_, and lambda_ describe one iteration while sigma_ describes the next. A concrete configuration is BayesianRidge(n_iter=1) fitted to X=[[-1], [1]], y=[-1, 1], with default priors. The preserved precisions are approximately alpha_=1 and lambda_=1, and coef_=2/3. Their posterior covariance should be approximately 1/(1*2+1)=1/3, but the update produces local alpha_ approximately 6 and lambda_ approximately 1.5, yielding sigma_ approximately 1/(6*2+1.5)=0.074074. Thus uncertainty calculations using the exposed covariance and preserved noise precision mix iteration states. The added Ridge intercept assertion does not inspect sigma_ or predictive uncertainty and cannot detect this regression. No independent score-calculation defect is asserted: the supplied diff does not establish the complete score calculation.",
+      "path": "sklearn/linear_model/bayes.py",
+      "line": 206,
+      "evidence": "            self.alpha_ = alpha_\n            self.lambda_ = lambda_\n\n            # Update alpha and lambda\n...\n        self.coef_ = coef_\n        sigma_ = np.dot(Vh.T,\n                        Vh / (eigen_vals_ + lambda_ / alpha_)[:, np.newaxis])",
+      "fix": "Use the preserved self.alpha_ and self.lambda_ throughout the final covariance construction, including its precision scaling, so that the covariance corresponds to the same posterior as self.coef_.",
+      "test": "Fit BayesianRidge(n_iter=1) to X=[[-1], [1]], y=[-1, 1]. Assert sigma_ equals inverse(self.alpha_ * X.T.dot(X) + self.lambda_ * identity). Also assert predict([[1]], return_std=True) returns variance equal to that posterior covariance plus 1/self.alpha_. Extend the Ridge comparison to assert coefficients as well as the intercept.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 206,
+          "symbol": "BayesianRidge.fit: preserve coefficient-generating precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 209,
+          "symbol": "BayesianRidge.fit: update local precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 234,
+          "symbol": "BayesianRidge.fit: terminate iteration"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 238,
+          "symbol": "BayesianRidge.fit: construct posterior covariance using updated locals"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15522,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-8567.json",
+  "borrowed_sha256": "d2151fa41d4c7ff483626b40eea139534bd805ae5725fe78e785d43335e3e76b"
+}

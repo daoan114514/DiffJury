@@ -1,0 +1,55 @@
+{
+  "id": "scikit-learn__scikit-learn-12915",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "numerical-correctness",
+      "severity": "medium",
+      "title": "Zero-weight samples can now make sigmoid calibration's objective NaN",
+      "explanation": "A finite, extreme decision score on a zero-weight sample can now disrupt calibration of the remaining samples. For example, use df=[-1., 1., 1e6], y=[0, 1, 0], and sample_weight=[1., 1., 0.]. The Bayesian targets are [0.25, 2/3, 0.25]. At the initial parameters A=0, B=log(1.5), the objective is finite and its gradient directs BFGS toward negative A. At an ordinary trial step A=-5/12, B=log(1.5)-7/60, the last sample's probability rounds to exactly one. The changed expression therefore produces an infinite loss for that sample, and line 449 multiplies it by zero, producing NaN. The previous tiny-adjusted logarithms produced a finite loss, so that sample contributed exactly zero. Passing this NaN objective to fmin_bfgs disrupts line-search/convergence and can return premature calibration parameters despite the two positive-weight samples having a finite, readily attainable optimum. This is a weighted-objective regression, not merely intentional infinite loss for an incorrectly predicted positive-weight sample.",
+      "path": "sklearn/calibration.py",
+      "line": 447,
+      "evidence": "l = -(xlogy(T, P) + xlogy(T1, 1. - P))\n        if sample_weight is not None:\n            return (sample_weight * l).sum()",
+      "fix": "Exclude zero-weight contributions before evaluating or multiplying potentially infinite losses. Prefer calculating the sigmoid cross-entropy from the logits with a stable logaddexp formulation, which also keeps the objective finite for finite logits.",
+      "test": "Run _sigmoid_calibration(np.array([-1., 1., 1e6]), np.array([0, 1, 0]), sample_weight=np.array([1., 1., 0.])). Assert finite parameters and probabilities for the two positive-weight samples close to [0.25, 2/3]. Compare with the pre-change objective by temporarily replacing calibration.xlogy with lambda x, p: x * np.log(p + np.finfo(float).tiny); restore it afterward. Also directly assert that the weighted objective at A=-5/12, B=log(1.5)-7/60 is finite. No claim about existing test coverage or supported SciPy versions is made because those files were not supplied and tools were unavailable.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/calibration.py",
+          "line": 447,
+          "symbol": "_sigmoid_calibration.objective"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 449,
+          "symbol": "_sigmoid_calibration.objective: weighted objective returned to fmin_bfgs"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

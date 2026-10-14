@@ -1,0 +1,75 @@
+{
+  "id": "matplotlib__matplotlib-7831",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "plotting-axis-color-correspondence",
+      "severity": "low",
+      "title": "Axis-coloring helper leaves axis labels and tick marks black",
+      "explanation": "With the default Matplotlib settings, the example plots the left curve in red and the right curve in blue, but color_y_axis changes only the tick-label Text objects. The 'exp' and 'sin' axis labels remain black because set_ylabel no longer receives a color, and the tick marks remain black because the original tick_params calls were removed. This loses the original example's explicit correspondence between each curve and its axis label, ticks, and tick labels. It is observable on the initial render and does not depend on resizing, tick regeneration, or layout clipping.",
+      "path": "examples/api/two_scales.py",
+      "line": 75,
+      "evidence": "    for t in ax.get_yticklabels():\n        t.set_color(color)",
+      "fix": "Have color_y_axis call ax.yaxis.label.set_color(color) and ax.tick_params(axis='y', colors=color), replacing the tick-label-only loop.",
+      "test": "Run the example with default settings and an Agg backend, draw the canvas, and assert that each axis's ylabel, visible y tick marks, and y tick labels have the same normalized color as its plotted curve.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 69,
+          "symbol": "two_scales(ax, t, s1, s2, 'r', 'b')"
+        },
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 55,
+          "symbol": "ax1.set_ylabel('exp')"
+        },
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 58,
+          "symbol": "ax2.set_ylabel('sin')"
+        },
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 78,
+          "symbol": "color_y_axis(ax1, 'r')"
+        },
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 79,
+          "symbol": "color_y_axis(ax2, 'b')"
+        },
+        {
+          "path": "examples/api/two_scales.py",
+          "line": 73,
+          "symbol": "color_y_axis"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

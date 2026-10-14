@@ -1,0 +1,172 @@
+{
+  "id": "scikit-learn__scikit-learn-11509",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "subprocess-test-environment-mismatch",
+      "severity": "medium",
+      "title": "The child can test a different Python and scikit-learn installation",
+      "explanation": "The module list comes from the parent's sklearn.__path__, but the child executable is resolved as 'python' through PATH and its package search path is not tied to the parent's sklearn installation. For example, running /opt/venv/bin/python -m pytest with /usr/bin ahead of the virtual environment in PATH launches the system Python for this check. If that interpreter has another scikit-learn installed, the test imports that copy instead of the copy under test; if it lacks scikit-learn, the resulting import failure becomes a skip. Package selection can also differ with the same interpreter when a test runner inserts a checkout into the parent's sys.path while running outside that checkout: this process-local insertion is not inherited by the child, which can import an installed release. A clean child installation can therefore conceal warnings in the tested checkout.",
+      "path": "sklearn/tests/test_init.py",
+      "line": 39,
+      "evidence": "        pkgs = pkgutil.iter_modules(path=sklearn.__path__, prefix='sklearn.')\n        import_modules = '; '.join(['import ' + modname\n                                    for _, modname, _ in pkgs\n                                    if not modname.startswith('_')])\n\n        message = subprocess.check_output(['python', '-Wdefault',\n                                           '-c', import_modules],\n                                          stderr=subprocess.STDOUT)",
+      "fix": "Use sys.executable and explicitly make the parent's scikit-learn package location available to the child. Verify that the child resolves sklearn to the intended package before evaluating its import warnings.",
+      "test": "Run the check with the parent interpreter selected by absolute path while PATH selects another Python, and with the checkout added only to the parent's sys.path from an unrelated working directory. Assert that the child uses the parent's interpreter and resolves sklearn.__file__ to the same package location.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 34,
+          "symbol": "pkgutil.iter_modules using parent sklearn.__path__"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 39,
+          "symbol": "subprocess.check_output using PATH-resolved python"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "warning-filter-unrelated-category",
+      "severity": "medium",
+      "title": "Substring exclusions silently discard unexpected warning categories",
+      "explanation": "The filter removes entire output lines based on message or filename substrings, rather than checking the warning category and the specific allowed warning. For example, importing a module that calls warnings.warn('pytest integration is unavailable', UserWarning) emits a diagnostic containing both 'UserWarning' and 'pytest'. That diagnostic is discarded by line 47, even though the documented exemption is for DeprecationWarning due to pytest. Its source line also contains 'pytest' and is discarded when present. The remaining output contains no 'Warning', so the test passes rather than detecting this unexpected UserWarning. The 'oldnumeric' exclusion has the same category-independent behavior.",
+      "path": "sklearn/tests/test_init.py",
+      "line": 47,
+      "evidence": "        message = '\\n'.join([line for line in message.splitlines()\n                             if not (  # ignore ImportWarning\n                                     \"ImportWarning\" in line or\n                                     # ignore DeprecationWarning due to pytest\n                                     \"pytest\" in line or\n                                     # ignore DeprecationWarnings due to\n                                     # numpy.oldnumeric\n                                     \"oldn",
+      "fix": "Apply precise warnings.filterwarnings rules in the child using the intended category, module, and message constraints, then fail on remaining warnings. Do not discard arbitrary diagnostic lines merely because they mention a dependency.",
+      "test": "Import a fixture module that emits UserWarning messages containing 'pytest' and 'oldnumeric' and assert that both are rejected. Separately verify that only the intended dependency DeprecationWarnings are exempted.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 39,
+          "symbol": "subprocess.check_output collecting warning diagnostics"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 43,
+          "symbol": "line-based warning exclusions"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 54,
+          "symbol": "assert 'Warning' not in message"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-error-to-skip",
+      "severity": "medium",
+      "title": "Import failures and failed warning assertions are converted into skips",
+      "explanation": "The try block includes both subprocess execution and the assertions. An unexpected UserWarning produces output containing 'Warning', causing AssertionError at line 54; AssertionError is an Exception, so the handler converts this regression into a skipped test. Likewise, an import that raises an exception makes the child exit nonzero, causing subprocess.check_output to raise CalledProcessError, which is also converted into a skip. Thus neither warning regressions nor import failures fail the suite. The module filter does not prevent private-module failures either: names returned with the 'sklearn.' prefix never start with '_', so every enumerated private module also reaches the child.",
+      "path": "sklearn/tests/test_init.py",
+      "line": 57,
+      "evidence": "        assert 'Warning' not in message\n        assert 'Error' not in message\n\n    except Exception as e:\n        pytest.skip('soft-failed test_import_sklearn_no_warnings.\\n'\n                    ' %s' % e)",
+      "fix": "Allow assertion failures and CalledProcessError to fail the test. If an explicitly unsupported environment must be skipped, check that specific prerequisite separately rather than catching every Exception around the test.",
+      "test": "Exercise the test with a targeted module that emits an unexpected UserWarning and then with one that raises RuntimeError during import. Assert that both cases produce a failed test, not a skipped test, and that the import traceback is available in the failure diagnostics.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 30,
+          "symbol": "test_import_sklearn_no_warnings"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 39,
+          "symbol": "subprocess.check_output"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 54,
+          "symbol": "warning-output assertion"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 58,
+          "symbol": "pytest.skip"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

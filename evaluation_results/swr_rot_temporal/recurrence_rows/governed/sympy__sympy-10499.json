@@ -1,0 +1,127 @@
+{
+  "id": "sympy__sympy-10499",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "backend-input-compatibility",
+      "severity": "medium",
+      "title": "NumPy Abs no longer accepts array-like lists",
+      "explanation": "The removed NumPy translation resolved Abs to numpy.abs, which converts array-like inputs to arrays. Assigning built-in abs instead removes that conversion. A concrete reproducer is f = lambdify(x, Abs(x), modules='numpy'); f([-1, 2]). Previously this returned an ndarray containing [1, 2]; now built-in abs raises TypeError because lists do not implement __abs__. NumPy ndarray inputs remain functional, but an input accepted by the previous NumPy backend is rejected. The added Abs tests only pass scalar integers and complex numbers, so they do not detect this regression.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 150,
+      "evidence": "namespace['Abs'] = abs",
+      "fix": "Preserve NumPy's Abs translation to numpy.abs, and install built-in abs only for backends that need it rather than overwriting every backend's Abs binding.",
+      "test": "Create lambdify(x, Abs(x), modules='numpy') and call it with [-1, 2] and a tuple of complex values. Assert that the results match numpy.abs for those inputs; retain ndarray and scalar coverage.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 154,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 150,
+          "symbol": "_import"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "backend-numerical-precision",
+      "severity": "medium",
+      "title": "Replacing mpmath.fabs loses arbitrary precision for Python complex inputs",
+      "explanation": "The removed mpmath translation bound Abs to mpmath.fabs. That function converts its argument to an mpmath number before computing the magnitude. Built-in abs instead dispatches directly to Python complex.__abs__, calculating and returning a machine-precision float. For example, inside mpmath.workdps(50), f = lambdify(x, Abs(x), modules='mpmath'); f(1+1j) previously returned an mpf approximation to sqrt(2) at 50 decimal digits, but now returns the float 1.4142135623730951. The input's components are exact integers, so this is lost computation precision, not precision already missing from the input. Passing an mpmath.mpc still works because its __abs__ uses mpmath, but that does not protect previously accepted Python complex inputs. The new tests omit the mpmath backend and use 3+4j, whose exactly representable magnitude would also conceal this regression.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 150,
+      "evidence": "namespace['Abs'] = abs",
+      "fix": "Retain the mpmath Abs-to-fabs translation and avoid overwriting that backend-specific binding with built-in abs.",
+      "test": "Under mpmath.workdps(50), evaluate lambdify(x, Abs(x), modules='mpmath') at 1+1j. Assert that the result is an mpf and agrees with mpmath.sqrt(2) at the active precision. Also check mpc inputs to preserve their existing behavior.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 154,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 150,
+          "symbol": "_import"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

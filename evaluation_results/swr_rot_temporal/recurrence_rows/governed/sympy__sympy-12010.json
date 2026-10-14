@@ -1,0 +1,137 @@
+{
+  "id": "sympy__sympy-12010",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "ignore-iterator-exhaustion",
+      "severity": "medium",
+      "title": "Single-use ignore iterators stop excluding symbols after consumption",
+      "explanation": "The public parameter is documented as an iterable of Symbols, but discovery iterates over the same object separately for every repeated expression. A supported single-use iterator therefore loses its exclusions. A minimal reproducer is `cse([x + y, x + y, x + y], ignore=iter([y]))`. The first occurrence is recorded; the second occurrence consumes y and rejects the substitution; the third occurrence finds the iterator exhausted and enters the for-else branch, adding x + y to to_eliminate. Consequently, the result contains a replacement for x + y, whereas `ignore=(y,)` correctly produces no replacements. This violates the new option's exclusion contract, rather than breaking an existing default call. The added test uses a replayable tuple and therefore cannot detect this defect, although it does establish exclusion and continued extraction for that tuple.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 452,
+      "evidence": "                for ign in ignore:\n                    if ign in expr.free_symbols:\n                        break\n                else:\n                    to_eliminate.add(expr)\n                    return",
+      "fix": "Materialize ignore into a tuple or frozenset once at the tree_cse boundary, before discovery starts, so both direct tree_cse calls and public cse calls support single-use iterables.",
+      "test": "Assert that cse([x + y] * 3, ignore=iter([y])) equals cse([x + y] * 3, ignore=(y,)) and contains no replacements. Also run the existing eligible-subexpression example with a generator-based ignore value to verify that exclusion does not prevent extracting sqrt(x + 1).",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 687,
+          "symbol": "cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 410,
+          "symbol": "tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 451,
+          "symbol": "_find_repeated"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-691",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "ignored-subexpression-retraversal",
+      "severity": "medium",
+      "title": "Rejected repeated expressions are recursively rediscovered on every occurrence",
+      "explanation": "Previously, every expression already present in seen_subexp returned immediately. The new branch returns only when the expression is eligible for elimination; an expression containing an ignored symbol falls through and traverses its arguments again, even though its first occurrence already discovered every eligible descendant. Consider `e = y; for _ in range(n): e = Function('f')(e, e)`, followed by `cse(e, ignore=(y,))`. This expression has only n distinct compound nodes, all containing y. Every repeated compound node is rejected and rediscovered, so discovery follows the full binary expansion: approximately 2^(n+1)-1 node visits, versus 2n+1 visits under the previous seen-expression shortcut. For n=20, that is roughly two million discovery calls instead of 41, before accounting for repeated free_symbols calculations. No output requirement necessitates rediscovering descendants of an already-seen node. This is an avoidable exponential cost on the new ignore path, not a regression for calls leaving ignore empty. The added shallow test verifies useful extraction but does not exercise this repeated rejected-subtree case.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 454,
+      "evidence": "            if expr in seen_subexp:\n                for ign in ignore:\n                    if ign in expr.free_symbols:\n                        break\n                else:\n                    to_eliminate.add(expr)\n                    return\n\n            seen_subexp.add(expr)",
+      "fix": "Return unconditionally after handling an already-seen expression; only the addition to to_eliminate should depend on ignore. Continue traversing descendants on the first occurrence, preserving discovery of eligible subexpressions.",
+      "test": "Profile or count _find_repeated calls for the nested f(e, e) family with ignore=(y,) and assert growth proportional to the number of distinct nodes rather than the expanded tree. Retain the existing sqrt(x + 1) extraction assertion to verify that the unconditional repeated-node return does not suppress eligible descendants.",
+      "confidence": 0.82,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 687,
+          "symbol": "cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 410,
+          "symbol": "tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 451,
+          "symbol": "_find_repeated"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

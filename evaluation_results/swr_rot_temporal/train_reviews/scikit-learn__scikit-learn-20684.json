@@ -1,0 +1,56 @@
+{
+  "id": "scikit-learn__scikit-learn-20684",
+  "findings": [
+    {
+      "rule_id": "incorrect-delegated-method-availability",
+      "severity": "medium",
+      "title": "Gate predict on predict rather than predict_proba",
+      "explanation": "The availability predicate checks predict_proba, but the exposed method delegates to predict. A supported classifier such as LinearSVC implements predict and decision_function but not predict_proba. Consequently, InductiveClusterer(AgglomerativeClustering(n_clusters=2), LinearSVC()).fit(X) succeeds for suitable two-cluster data, but accessing or calling predict raises AttributeError: the availability check rejects the method before its body runs. Previously, if_delegate_has_method checked the decorated method's own name on classifier_, so predict was available after fitting this classifier. The regression occurs both before and after fitting because _classifier_has checks the supplied classifier before fitting and classifier_ afterward. Exposing supported methods before fitting is an intentional consequence of the new fallback; check_is_fitted then correctly rejects calls on a freshly constructed wrapper. The decision_function predicate matches its delegate and does not exhibit this mismatch. check_is_fitted cannot remedy the predict regression because execution never reaches it. It also does not establish that a fit completed successfully merely because fitted-suffix attributes exist, but the supplied diff does not establish a newly introduced partial-fit defect. The formatting changes do not affect behavior.",
+      "path": "examples/cluster/plot_inductive_clustering.py",
+      "line": 64,
+      "evidence": "    @available_if(_classifier_has(\"predict_proba\"))\n    def predict(self, X):\n        check_is_fitted(self)\n        return self.classifier_.predict(X)",
+      "fix": "Change the predict decorator to @available_if(_classifier_has(\"predict\")); retain the fitted-state check and the before-fit fallback.",
+      "test": "Construct the real wrapper with AgglomerativeClustering(n_clusters=2) and LinearSVC using a small, nonempty two-cluster dataset. Before fitting, assert that predict and decision_function are available and that calling either raises NotFittedError. After fitting, assert that wrapper.predict(X) equals classifier_.predict(X), and that wrapper.decision_function(X) equals classifier_.decision_function(X). Also retain a RandomForestClassifier case verifying that decision_function remains unavailable while predict works.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/cluster/plot_inductive_clustering.py",
+          "line": 64,
+          "symbol": "InductiveClusterer.predict availability predicate"
+        },
+        {
+          "path": "examples/cluster/plot_inductive_clustering.py",
+          "line": 45,
+          "symbol": "_classifier_has"
+        },
+        {
+          "path": "examples/cluster/plot_inductive_clustering.py",
+          "line": 67,
+          "symbol": "classifier_.predict (unreachable when predict_proba is absent)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 19100,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-20684.json",
+  "borrowed_sha256": "02745a7f2124a5d7b44ac1873112dd4be5a542de4045ae61bae7142ea17e4716"
+}

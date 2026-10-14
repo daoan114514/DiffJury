@@ -1,0 +1,75 @@
+{
+  "id": "scikit-learn__scikit-learn-398",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "entropy-concavity",
+      "severity": "medium",
+      "title": "The log approximation makes informative splits score worse than their parent",
+      "explanation": "The piecewise-linear logarithm breaks entropy's concavity, not merely its numerical precision. Consider a node containing 12 samples of each of two classes, with a candidate split producing class counts (7, 5) and (5, 7). These are valid positive probabilities on the changed tree path. The unsplit criterion is approximately log(2) = 0.693147. For each child, fast_log2(7/12) is approximately -5/6 and fast_log2(5/12) is approximately -4/3, giving entropy (25/24)*log(2) = 0.722028. The unchanged sample weighting therefore ranks this informative split worse than the unsplit node. Exact entropy gives 0.679193 for the split, correctly below 0.693147. This violates the nonnegative information-gain invariant and introduces incorrect split ordering. The documented intentional approximation does not explain away this structural reversal. Generated tree code establishes both calls to fast_log and the weighting; omitted source and split-selection hunks prevent verifying the final fitted-tree outcome or source/generated-code consistency beyond those visible statements. Gini's added positive-count guards preserve its result for valid nonnegative counts; no independent wrapper-boundary, test-assertion, or performance defect is established by the supplied evidence.",
+      "path": "sklearn/utils/_fast_math.h",
+      "line": 38,
+      "evidence": "return exponent - 1 + 2*(mantissa - .5);",
+      "fix": "Retain the exact logarithm in the entropy criterion, or use an approximation whose resulting entropy preserves concavity across approximation intervals.",
+      "test": "Exercise the real entropy criterion with parent counts (12, 12) and child counts (7, 5)/(5, 7). Assert that the weighted child score is below the parent score. Add boundary cases with class probabilities immediately on either side of 0.5 to detect the artificial entropy increase at that approximation breakpoint.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tree/_tree.c",
+          "line": 4997,
+          "symbol": "_find_best_split calls criterion.eval"
+        },
+        {
+          "path": "sklearn/tree/_tree.c",
+          "line": 3615,
+          "symbol": "Entropy_eval calls fast_log for left-class probabilities"
+        },
+        {
+          "path": "sklearn/tree/_tree.c",
+          "line": 3637,
+          "symbol": "Entropy_eval calls fast_log for right-class probabilities"
+        },
+        {
+          "path": "sklearn/tree/_tree.c",
+          "line": 3668,
+          "symbol": "Entropy_eval returns sample-weighted child entropy"
+        },
+        {
+          "path": "sklearn/utils/_fast_math.h",
+          "line": 46,
+          "symbol": "fast_log"
+        },
+        {
+          "path": "sklearn/utils/_fast_math.h",
+          "line": 38,
+          "symbol": "fast_log2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

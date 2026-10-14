@@ -1,0 +1,55 @@
+{
+  "id": "scikit-learn__scikit-learn-3925",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "gallery-tooltip-attribute-escaping",
+      "severity": "low",
+      "title": "Escape snippet text before embedding it in the tooltip attribute",
+      "explanation": "The replacement markup interpolates snippet text directly into a double-quoted HTML attribute. For example, passing snippet='Fit a \"linear\" model' to _thumbnail_div generates tooltip=\"Fit a \"linear\" model\", so the browser terminates the tooltip value after 'Fit a '. The new stylesheet displays attr(tooltip), making the gallery description visibly truncated. Previously, the snippet appeared as paragraph text, where double quotes did not terminate its containing markup. The changed interpolation contains no attribute escaping.",
+      "path": "doc/sphinxext/gen_rst.py",
+      "line": 575,
+      "evidence": "    <div class=\"thumbnailContainer\" tooltip=\"{}\">\n\n\"\"\".format(snippet))",
+      "fix": "HTML-escape snippet with quote escaping enabled before interpolating it into the tooltip attribute, using an escaping implementation compatible with the supported Python versions.",
+      "test": "Generate a thumbnail through _thumbnail_div with a snippet containing double quotes, ampersands, and angle brackets. Parse the generated HTML and assert that the tooltip attribute equals the complete original snippet and that the snippet creates no additional attributes or elements.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 573,
+          "symbol": "_thumbnail_div"
+        },
+        {
+          "path": "doc/themes/scikit-learn/static/gallery.css",
+          "line": 35,
+          "symbol": "*[tooltip]:hover:after — content: attr(tooltip)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

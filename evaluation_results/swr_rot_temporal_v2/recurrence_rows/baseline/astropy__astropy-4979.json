@@ -1,0 +1,65 @@
+{
+  "id": "astropy__astropy-4979",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "get-sun-distance-broadcasting",
+      "severity": "medium",
+      "title": "Retaining the distance axis introduces unintended dimensions in vector Sun coordinates",
+      "explanation": "For a Time vector containing two distinct times, earth_p has shape (2, 3), but the changed reduction gives dsun shape (2, 1). This trailing axis is useful for normalizing earth_p, but dsun is subsequently reused as the scalar distance argument to erfa.ab and in Cartesian component multiplication. Even if ab returns the intended direction shape (2, 3), multiplying dsun by properdir[..., 0], which has shape (2,), produces a (2, 2) component array instead of (2,). Thus the ordinary vector-return contract is broken independently of whether ab itself expands the inputs. Under ordinary gufunc broadcasting, the extra axis also expands the ab result. Off-diagonal coordinates combine distances and directions from different times. For scalar input the retained distance has shape (1,), so this calculation produces length-one components; whether that differs from the baseline depends on the wrapper's treatment of the previous (1, 3) direction input. For multidimensional input, the same multiplication introduces unwanted axes or incompatible broadcasting: for example, an intended direction shape (2, 3, 3) produces component shape (2, 3), which cannot multiply dsun of shape (2, 3, 1). The prior reshape already failed for some multidimensional inputs, so that existing limitation is not a separate finding. The barycentric velocity selection, conversion to units of c, square-root inverse Lorentz factor, and paired direction/velocity sign reversal are consistent with the intended aberration correction; no numerical defect is established here. The supplied material does not include the ERFA implementation or documentation, so its exact broadcasting behavior and the justification for the relaxed transformation tolerance cannot be independently verified. The modified route-comparison assertion does not explicitly assert the returned coordinate shape and therefore does not protect this invariant.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 162,
+      "evidence": "dsun = np.sqrt(np.sum(earth_p**2, axis=-1, keepdims=True))",
+      "fix": "Keep dsun in the Time input shape by reducing without keepdims. Add an axis only for direction normalization, using earth_p / dsun[..., np.newaxis]. Pass the unexpanded dsun to erfa.ab and use it for all three Cartesian component multiplications.",
+      "test": "Call the real get_sun implementation with a Time vector containing two well-separated dates. Assert result.shape == time.shape and compare each returned position against a separate call for its corresponding date, including distance. Repeat with multidimensional Time inputs, including shapes (1, 2) and (2, 3), and assert no cross-product expansion or broadcasting exception. Add a scalar case that explicitly checks the intended scalar return contract. Keep these shape and per-time assertions separate from the relaxed transformation-route tolerance.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 162,
+          "symbol": "get_sun: distance reduction"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 164,
+          "symbol": "get_sun: erfa.ab"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 166,
+          "symbol": "get_sun: Cartesian component multiplication"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "get_sun: SkyCoord construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,142 @@
+{
+  "id": "astropy__astropy-444",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "distortion-coordinate-arity",
+      "severity": "medium",
+      "title": "Two-dimensional distortion methods now require the WCS axis count",
+      "explanation": "The shared converter now accepts separate coordinates only when their count matches self.naxis. That is appropriate for the WCS transformations, but not for the intrinsically two-dimensional distortion transformations. For example, create w = WCS(naxis=3), assign w.sip = Sip(np.zeros((3, 3)), np.zeros((3, 3)), None, None, [0, 0]), and call w.sip_pix2foc([1.0], [2.0], 0). Previously, the unconditional three-argument branch assembled the two coordinate columns and called Sip.pix2foc. Now this documented two-axis call raises TypeError before reaching that transformation because 3 != self.naxis + 1. The packed equivalent remains accepted. The same arity restriction affects pix2foc, p4_pix2foc, det2im, and sip_foc2pix on non-two-dimensional WCS objects. The new three-dimensional test exercises only wcs_pix2sky, not these two-dimensional consumers.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 848,
+      "evidence": "elif len(args) == self.naxis + 1:",
+      "fix": "Give the converter an explicit coordinate dimensionality: use self.naxis for WCS transformations and 2 for distortion transformations.",
+      "test": "Attach a zero-coefficient Sip object to WCS(naxis=3), call sip_pix2foc with separate x, y, and origin arguments, and assert its coordinate values equal the packed two-column call. Cover the other two-dimensional distortion wrappers on non-two-dimensional WCS objects as well.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1167,
+          "symbol": "WCS.sip_pix2foc"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1175,
+          "symbol": "self._array_converter(self.sip.pix2foc, None, *args)"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 848,
+          "symbol": "WCS._array_converter"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-argument-count-diagnostic",
+      "severity": "low",
+      "title": "Invalid-arity errors report the expected count as the supplied count",
+      "explanation": "Both replacement fields use argument index 0, so len(args) is ignored. For example, WCS().wcs_pix2world() now raises 'Expected 2 or 3 arguments, 3 given', although no arguments were supplied. Before the change, the same call correctly reported '0 given'. This also produces contradictory diagnostics when a higher-dimensional WCS receives an invalid number of arguments.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 873,
+      "evidence": "\"Expected 2 or {0} arguments, {0} given\".format(\n                self.naxis + 1, len(args)))",
+      "fix": "Change the final replacement field to {1}, preserving len(args) as the reported supplied count.",
+      "test": "Call WCS().wcs_pix2world() and assert that the TypeError reports '0 given'; also test an invalid arity on WCS(naxis=3) to distinguish the expected and supplied counts.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 873,
+          "symbol": "WCS._array_converter invalid-arity exception"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": [
+        "K-ce7e81ce"
+      ]
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-1cc8d780",
+      "K-2dfe0413",
+      "K-3bfbed4b",
+      "K-67701866",
+      "K-9e6b3c79",
+      "K-b36de422",
+      "K-ce7e81ce"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ce7e81ce",
+          "K-b36de422",
+          "K-67701866",
+          "K-1cc8d780",
+          "K-2dfe0413",
+          "K-9e6b3c79"
+        ],
+        "tokens": 366,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bfbed4b"
+        ],
+        "tokens": 117,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

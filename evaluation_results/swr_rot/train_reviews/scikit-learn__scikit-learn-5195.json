@@ -1,0 +1,49 @@
+{
+  "id": "scikit-learn__scikit-learn-5195",
+  "findings": [
+    {
+      "rule_id": "documentation-artifact-reference",
+      "severity": "medium",
+      "title": "PDF navigation links to a different filename than dist installs",
+      "explanation": "The new dist recipe copies the PDF to `_build/html/stable/_downloads/scikit-learn-docs.pdf`, but the new navigation entry requests `_downloads/user_guide.pdf`. Even when the copy succeeds, the navigation link does not address the distributed PDF; without a separately provided file or alias, clicking it returns a missing resource. `pathto` adjusts the relative URL, not the requested filename. This finding is limited to the explicit filename mismatch: the supplied context lacks the Sphinx configuration, complete `_thumbnail_div` implementation, and complete index edits, so separate output-directory, undefined-variable, literal-newline, or index-content-loss claims cannot be established.",
+      "path": "doc/themes/scikit-learn/layout.html",
+      "line": 83,
+      "evidence": "<li><a href=\"{{ pathto('_downloads/user_guide.pdf', 1) }}\">PDF documentation</a></li>\ncp _build/latex/user_guide.pdf _build/html/stable/_downloads/scikit-learn-docs.pdf",
+      "fix": "Use the same PDF filename in the distribution recipe and navigation link, and place it under the actual HTML output's `_downloads` directory.",
+      "test": "Build the distribution into a clean output directory, extract the PDF navigation href from both the root page and a nested page, and assert that each resolves to the PDF installed by dist.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/Makefile",
+          "line": 102,
+          "symbol": "dist: html latexpdf"
+        },
+        {
+          "path": "doc/themes/scikit-learn/layout.html",
+          "line": 83,
+          "symbol": "PDF documentation navigation link"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 58954,
+  "llm_calls": 5
+}

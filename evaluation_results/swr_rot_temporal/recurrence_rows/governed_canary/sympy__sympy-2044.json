@@ -1,0 +1,181 @@
+{
+  "id": "sympy__sympy-2044",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "piecewise-candidate-condition-state",
+      "severity": "medium",
+      "title": "Substituting into cond overwrites the condition for subsequent roots",
+      "explanation": "The branch condition is reassigned inside the candidate loop, so only the first candidate is tested against the original condition. Consider solve(Piecewise((x**2 - 1, x > 0), (1, True)), x), whose only valid solution is 1. The polynomial branch supplies candidates -1 and 1. If -1 is visited first, cond becomes False and remains False for candidate 1, losing the valid solution. If 1 is visited first, cond becomes True and the invalid candidate -1 is also accepted. Thus the defect does not depend on candidate ordering. This is a code-derived counterexample, not a runtime observation. The added regression test has only one root per branch and therefore cannot detect condition state leaking between candidates.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1089,
+      "evidence": "cond = cond is True or cond.subs(symbol, candidate)",
+      "fix": "Preserve the original branch condition and compute a separate candidate_cond for each candidate. Use that local value for both acceptance and construction of the conditional solution.",
+      "test": "Add a regression asserting solve(Piecewise((x**2 - 1, x > 0), (1, True)), x) == [1]. Also test x < 0 with the same polynomial so both acceptance and rejection of subsequent candidates are exercised.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1086,
+          "symbol": "_solve: for candidate in candidates"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1089,
+          "symbol": "_solve: overwrite branch condition"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1103,
+          "symbol": "_solve: add accepted candidate"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "piecewise-symbolic-precedence",
+      "severity": "medium",
+      "title": "Unknown earlier conditions are discarded instead of guarding later solutions",
+      "explanation": "An unresolved earlier condition is not identical to True, so the changed exclusion check permits the later candidate without recording the earlier branch's precedence. For unconstrained symbols x and y, consider solve(Piecewise((1, y > 0), (x, True)), x). The first branch has no roots; the second supplies candidate 0. Substituting x=0 into the earlier condition leaves y > 0 unresolved, so line 1099 does not exclude the candidate. The new result construction uses only the current branch's True condition and therefore adds an unconditional 0. This is invalid when y=1, where the original expression is identically 1 and has no solution. The solution must instead be guarded by y <= 0. This incorrect return is code-derived: the shown path explicitly adds Piecewise((0, True), (NaN, True)) and disables branch checking. The positive-parameter regression exercises resolved inequalities, not unresolved earlier conditions or overlapping branches, so it does not cover this case.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1099,
+      "evidence": "if other_cond.subs(symbol, candidate) is True:",
+      "fix": "Include the negation of every earlier branch condition, after candidate substitution, in the candidate's effective guard. Reject a definitely false effective guard and preserve unresolved guards in the returned Piecewise rather than treating them as absent.",
+      "test": "Use y without assumptions and solve Piecewise((1, y > 0), (x, True)) for x. Assert the returned zero is conditional on y <= 0; specializing y=1 must yield no valid solution, while specializing y=-1 must yield 0. Include an overlapping-condition case to verify first-match precedence.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1093,
+          "symbol": "_solve: initialize matches_other_piece"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1099,
+          "symbol": "_solve: test previous branch condition"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1103,
+          "symbol": "_solve: construct solution using only current condition"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1107,
+          "symbol": "_solve: disable checking"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-93a099ce",
+          "K-2ec8eae2",
+          "K-2b42cad0",
+          "K-09474f0c",
+          "K-ad16cdc6",
+          "K-b5e72943"
+        ],
+        "tokens": 404,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-25a05e81",
+          "K-83dfddfe",
+          "K-e820d88f"
+        ],
+        "tokens": 646,
+        "budget": 600,
+        "dropped": [
+          "K-4073d146",
+          "K-0faed540",
+          "K-e13d441c",
+          "K-e172ac33",
+          "K-c01df042",
+          "K-524f3b73",
+          "K-46b8b947"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

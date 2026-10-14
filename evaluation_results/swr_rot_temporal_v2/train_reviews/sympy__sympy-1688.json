@@ -1,0 +1,46 @@
+{
+  "id": "sympy__sympy-1688",
+  "findings": [
+    {
+      "rule_id": "test-quality.expected-failure-masks-supported-inference",
+      "severity": "low",
+      "title": "XFAIL also suppresses regressions in the supported triangular implication",
+      "explanation": "The expected-failure decorator covers the direct query at line 90 as well as the sum queries. The direct implication is independently supported by the added known_facts rule and by both generated representations: lower_triangular implies triangular. A regression that makes this direct query return None would therefore be accepted as an expected failure rather than fail the suite. Moreover, whenever the first sum assertion fails, execution never reaches the direct implication assertion. This prevents the new test from protecting an inference that this change actually implements; it does not establish that the sum inference is implemented or that current predicate evaluation is incorrect.",
+      "path": "sympy/assumptions/tests/test_matrices.py",
+      "line": 84,
+      "evidence": "@XFAIL\ndef test_non_trivial_implies():\n    X = MatrixSymbol('X', 3, 3)\n    Y = MatrixSymbol('Y', 3, 3)\n    assert ask(Q.lower_triangular(X+Y), Q.lower_triangular(X) &\n               Q.lower_triangular(Y))\n    assert ask(Q.triangular(X), Q.lower_triangular(X))",
+      "fix": "Move the direct lower_triangular-to-triangular assertion into a separate test without XFAIL. Keep expected failures limited to the unsupported sum queries.",
+      "test": "In an ordinary test, construct a square MatrixSymbol X and assert ask(Q.triangular(X), Q.lower_triangular(X)) is True. Verify that removing the corresponding implication from the source and regenerated facts makes this test fail normally, not become an expected failure.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/assumptions/tests/test_matrices.py",
+          "line": 90,
+          "symbol": "test_non_trivial_implies"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 23282,
+  "llm_calls": 5
+}

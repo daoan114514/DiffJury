@@ -1,0 +1,42 @@
+{
+  "kept": 978,
+  "skipped": {
+    "no added lines": 20,
+    "diff too large": 2
+  },
+  "change_points": 940,
+  "unlocated": 84,
+  "excluded_from_functional": 20,
+  "splits": {
+    "train": {
+      "cases": 456,
+      "functional_dataset_cases": 442,
+      "functional_dataset_defect_prs": 126,
+      "with_change_points": 246,
+      "functional_labels": 144,
+      "high_risk_labels": 72,
+      "evolvability_labels": 313,
+      "created_2024_or_later": 49
+    },
+    "validation": {
+      "cases": 142,
+      "functional_dataset_cases": 140,
+      "functional_dataset_defect_prs": 40,
+      "with_change_points": 70,
+      "functional_labels": 44,
+      "high_risk_labels": 24,
+      "evolvability_labels": 63,
+      "created_2024_or_later": 15
+    },
+    "holdout": {
+      "cases": 380,
+      "functional_dataset_cases": 376,
+      "functional_dataset_defect_prs": 87,
+      "with_change_points": 175,
+      "functional_labels": 93,
+      "high_risk_labels": 47,
+      "evolvability_labels": 199,
+      "created_2024_or_later": 26
+    }
+  }
+}

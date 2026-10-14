@@ -1,0 +1,94 @@
+{
+  "id": "matplotlib__matplotlib-7279",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "plugin-class-instance-mismatch",
+      "severity": "medium",
+      "title": "matplotlib.test() instantiates already-instantiated Nose plugins",
+      "explanation": "With the test data and dependencies installed, calling matplotlib.test() now fails before running any tests. _get_extra_test_plugins() returns plugin classes, but line 1594 appends instances of Nose's built-in plugins. Consequently, line 1596 calls each built-in instance as though it were a constructor, raising TypeError because those instances are not callable. Previously, PluginManager received the already-instantiated plugins directly. The same mixed list is also assigned to multiprocess._instantiate_plugins, which requires constructors for child-process initialization; fixing only the PluginManager comprehension would therefore leave the multiprocessing path broken. In contrast, tests.py receives only the classes returned by _get_extra_test_plugins(), passes those classes to multiprocessing, and constructs instances for nose.main, so that entry point does not have this mismatch.",
+      "path": "lib/matplotlib/__init__.py",
+      "line": 1596,
+      "evidence": "plugins = _get_extra_test_plugins()\n        plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])\n\n        manager = PluginManager(plugins=[x() for x in plugins])",
+      "fix": "Keep plugins uniformly as classes: replace the extension with plugins.extend(nose.plugins.builtin.plugins). Instantiate that list only when constructing PluginManager, and retain the class list for multiprocess._instantiate_plugins.",
+      "test": "Exercise matplotlib.test() with installed test dependencies and a minimal selected test, asserting that execution reaches nose.run without TypeError. Also exercise multiprocessing initialization and assert that every entry in multiprocess._instantiate_plugins is a plugin constructor and creates a valid plugin instance.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1580,
+          "symbol": "test"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1573,
+          "symbol": "_get_extra_test_plugins"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1594,
+          "symbol": "test: append built-in plugin instances"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1596,
+          "symbol": "test: construct PluginManager"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-664",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "savefig-facecolor-override",
+      "severity": "medium",
+      "title": "JPEG compositing ignores per-call facecolor overrides",
+      "explanation": "The compositing background is selected directly from rcParams rather than the effective facecolor selected for this export. This makes a valid translucent facecolor behave differently depending on whether it is configured globally or supplied to savefig. For example, export an otherwise empty figure with facecolor=(0, 0, 1, 0.5). When that value is set in savefig.facecolor, the rendered half-transparent blue patch is pasted onto blue and produces solid blue. When the same value is passed as savefig(..., facecolor=(0, 0, 1, 0.5)) while savefig.facecolor remains white, it is pasted onto white and produces approximately (127, 127, 255), before JPEG encoding. The explicit override therefore does not fully override the configuration. The new test covers only an rcParams-selected background and cannot detect this discrepancy.",
+      "path": "lib/matplotlib/backends/backend_agg.py",
+      "line": 599,
+      "evidence": "color = mcolors.colorConverter.to_rgb(\n                rcParams.get('savefig.facecolor', 'white'))",
+      "fix": "Select the JPEG matte from the effective export facecolor, respecting an explicit savefig facecolor override. Retain an explicit fallback policy for transparent or 'none' backgrounds rather than unconditionally reading rcParams.",
+      "test": "Save an empty figure twice: first with savefig.facecolor=(0, 0, 1, 0.5) in rc_context, then with savefig.facecolor='white' and the identical blue RGBA value passed explicitly to savefig. Decode both JPEGs and assert equivalent background colors within a small JPEG tolerance. Keep the existing transparent-image test to verify the transparent-background fallback.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/backends/backend_agg.py",
+          "line": 576,
+          "symbol": "FigureCanvasAgg.print_jpg"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

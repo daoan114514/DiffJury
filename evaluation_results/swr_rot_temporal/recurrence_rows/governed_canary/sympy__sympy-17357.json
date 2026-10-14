@@ -1,0 +1,124 @@
+{
+  "id": "sympy__sympy-17357",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "rewrite-depth-contract",
+      "severity": "medium",
+      "title": "Nested public rewrites disregard deep=False",
+      "explanation": "The new public rewrite starts another recursive traversal of the argument, even when the caller explicitly disabled deep rewriting. A minimal counterexample is csc(sin(x)).rewrite(cos, deep=False). Previously, the direct sin rewrite hook returned 1/cos(sin(x) - pi/2, evaluate=False), preserving the inner sin(x). The changed implementation constructs sin(sin(x)) and calls its public rewrite without a depth restriction. That call rewrites the inner sin(x) too, producing 1/cos(cos(x - pi/2, evaluate=False) - pi/2, evaluate=False). The outer rewrite's depth restriction cannot constrain this independent public rewrite call. The same omission occurs in the other changed hooks. The added issue-17349 test exercises only default-depth rewriting and does not detect this option regression.",
+      "path": "sympy/functions/elementary/trigonometric.py",
+      "line": 1770,
+      "evidence": "return 1 / sin(arg).rewrite(cos)",
+      "fix": "Preserve the outer rewrite's depth restriction when rewriting intermediate expressions, making the restriction available to the hooks if rewrite dispatch consumes it. Ensure handling of evaluated intermediates does not recursively transform the original argument when deep=False.",
+      "test": "Add a regression asserting csc(sin(x)).rewrite(cos, deep=False) == 1/cos(sin(x) - pi/2, evaluate=False), alongside a default-depth assertion that permits rewriting the inner sine. Add equivalent depth-restriction cases for the other changed hooks.",
+      "confidence": 0.7499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1769,
+          "symbol": "csc._eval_rewrite_as_cos"
+        },
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1770,
+          "symbol": "sin(arg).rewrite(cos)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-0faed540",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e13d441c",
+      "K-e172ac33",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ad16cdc6",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-09474f0c",
+          "K-b5e72943"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-b1da47ce",
+          "K-e172ac33",
+          "K-0faed540",
+          "K-e820d88f",
+          "K-e13d441c",
+          "K-ddb18739",
+          "K-4b143eb5"
+        ],
+        "tokens": 648,
+        "budget": 600,
+        "dropped": [
+          "K-0117d999"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

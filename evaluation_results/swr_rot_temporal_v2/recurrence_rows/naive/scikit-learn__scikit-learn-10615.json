@@ -1,0 +1,141 @@
+{
+  "id": "scikit-learn__scikit-learn-10615",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-incremental-mean-normalization",
+      "severity": "medium",
+      "title": "Incremental mean no longer normalizes the previous batch's sum",
+      "explanation": "The old equation divided both accumulated sums by updated_n: (last_mean[i] + new_mean[i]) / updated_n. The replacement divides only new_mean, although lines 306–309 have already converted both means to sums. For batches [[1], [3]] and [[5], [7]], the first pass correctly returns mean 2, variance 1, count 2. The second pass has last_mean=4, new_mean=12, and updated_n=4, so it returns mean 7 instead of 4; its variance is still correctly 5. Passing those returned statistics into a third batch [[9], [11]] produces mean 94/3 instead of 6 and variance 17/3 instead of 35/3, because the variance calculation now consumes the incorrect previous mean. Thus the error also corrupts variance on subsequent updates. This counterexample uses ordinary floating-point arrays and requires neither unusual dtypes nor aliasing. The first-pass return is unchanged, and the in-place mutation of previous statistics was already present in the old loop. Caller implementations, complete parameter declarations, and existing tests were not supplied, so their coverage and any additional dtype or aliasing regressions cannot be established from this evidence.",
+      "path": "sklearn/utils/sparsefuncs_fast.pyx",
+      "line": 314,
+      "evidence": "    updated_mean = last_mean + new_mean / updated_n",
+      "fix": "Restore normalization of the complete sum: updated_mean = (last_mean + new_mean) / updated_n.",
+      "test": "Exercise the sparse incremental statistics entry point with three successive batches [[1], [3]], [[5], [7]], and [[9], [11]], feeding each returned mean, variance, and count into the next call. Assert results (2, 1, 2), (4, 5, 4), and (6, 35/3, 6), respectively, and compare each update against statistics computed over all batches accumulated so far. Run for CSR and CSC inputs and supported floating-point dtypes.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/sparsefuncs_fast.pyx",
+          "line": 314,
+          "symbol": "_incr_mean_variance_axis0"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-04a42f60",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2fcf8cc0",
+      "K-5726f975",
+      "K-5da5b627",
+      "K-72d03d82",
+      "K-81df992c",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8b12aa56",
+      "K-9fc0d205",
+      "K-a32f0183",
+      "K-c59d36ba",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d5f0918f",
+      "K-e01a8db3",
+      "K-e9744f86",
+      "K-ebb06c34",
+      "K-ef402548"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-d398b681",
+          "K-04a42f60"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ebb06c34",
+          "K-24b3bdf1",
+          "K-d5f0918f",
+          "K-c59d36ba",
+          "K-295e0897",
+          "K-e01a8db3"
+        ],
+        "tokens": 497,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-72d03d82",
+          "K-8b12aa56",
+          "K-e9744f86",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-20ab8e8e",
+          "K-5726f975",
+          "K-cebaccb0",
+          "K-1c46e9f8",
+          "K-1a7e5ff1",
+          "K-9fc0d205",
+          "K-8aa6a19d",
+          "K-21394d34",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-81df992c",
+          "K-218187b3",
+          "K-a32f0183",
+          "K-ef402548"
+        ],
+        "tokens": 793,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

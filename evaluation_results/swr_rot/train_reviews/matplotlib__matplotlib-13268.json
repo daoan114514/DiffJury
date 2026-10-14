@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-13268",
+  "findings": [
+    {
+      "rule_id": "correctness-review",
+      "severity": "medium",
+      "title": "Clicks outside all radio-button targets raise ValueError",
+      "explanation": "For a click that passes the handler's early guards and is inside the axes but outside every label extent and circle, ii remains empty. The new unconditional min(ii, key=ii.get) raises ValueError ('min() arg is an empty sequence'). Previously, the loop simply finished without changing the selection or invoking callbacks. Thus ordinary clicks on unused space now generate an event-handler exception. With exactly one matching target, selection is unchanged. With multiple matching targets, the new code selects the candidate whose circle center is nearest in axes coordinates rather than the first matching candidate; equal-distance candidates retain the first-match behavior. That overlap behavior does not itself establish a defect, but none of these cases protects the empty-candidate path.",
+      "path": "lib/matplotlib/widgets.py",
+      "line": 1066,
+      "evidence": "        ii = {}\n        for i, (p, t) in enumerate(zip(self.circles, self.labels)):\n            if (t.get_window_extent().contains(event.x, event.y)\n                    or np.linalg.norm(pclicked - p.center) < p.radius):\n                ii[i] = np.linalg.norm(pclicked - p.center)\n        self.set_active(min(ii, key=ii.get))",
+      "fix": "Only call set_active when ii is nonempty, preserving the previous no-op behavior for clicks outside all targets.",
+      "test": "Create RadioButtons with two short labels and draw the canvas. Construct a left-button MouseEvent at an unused location inside its axes, such as axes coordinates (0.95, 0.95), verifying it lies outside both label extents and circles. Invoke the real click handler directly so callback exception handling cannot hide the failure. Assert that it returns without raising, value_selected remains unchanged, and no selection callback runs. Also cover a single matching target and overlapping targets, asserting the nearest candidate is selected and equal-distance ties select the first candidate.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1061,
+          "symbol": "RadioButtons click handler: initialize empty candidate dictionary"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1066,
+          "symbol": "min(ii, key=ii.get)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-248",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 10471,
+  "llm_calls": 5
+}

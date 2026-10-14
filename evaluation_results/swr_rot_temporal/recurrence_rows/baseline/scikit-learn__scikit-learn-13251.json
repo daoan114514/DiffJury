@@ -1,0 +1,94 @@
+{
+  "id": "scikit-learn__scikit-learn-13251",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-overcount-tie-boundaries",
+      "severity": "medium",
+      "title": "The overcount branch checks the wrong score interval",
+      "explanation": "When num_outliers exceeds expected_outliers, the tie must span sorted positions expected_outliers - 1 through num_outliers - 1. The new implementation instead checks positions expected_outliers through num_outliers, omitting the expected cutoff and including an unrelated following score. For example, check_outlier_corruption(3, 2, np.array([0., 1., 2., 2.])) passes because it examines [2., 2.], even though selecting exactly two outliers would not split any tie: the expected cutoff separates 1 from 2. Thus the replacement for the former exact-count assertion can newly accept an incorrect prediction count whose discrepancy is not explained by ties. Conversely, the documented tie case with scores [-2., -1., -1., 2.], three predictions below zero, and two expected outliers examines [-1., 2.] rather than the relevant [-1., -1.]. The added unit test exercises only the undercount branch.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 1534,
+      "evidence": "else:\n        start = expected_outliers\n        end = num_outliers + 1",
+      "fix": "For the overcount branch, use start = expected_outliers - 1 and end = num_outliers. Preserve the existing undercount interval.",
+      "test": "Add overcount tests asserting that (3, 2, [0., 1., 2., 2.]) raises AssertionError and that (3, 2, [-2., -1., -1., 2.]) passes. Retain the existing undercount tests.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1616,
+          "symbol": "check_outliers_train -> check_outlier_corruption"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1534,
+          "symbol": "check_outlier_corruption"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-193",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "skipped-contamination-validation",
+      "severity": "medium",
+      "title": "Fit-predict contamination validation disappears without decision_function",
+      "explanation": "Previously, check_outliers_fit_predict rejected any incorrect contamination count. The new condition skips validation entirely when an estimator lacks decision_function, rather than allowing only discrepancies explained by tied scores. For the 300-sample check with expected_outliers = 30, a fit_predict result containing one -1 and 299 +1 labels now reaches no contamination assertion when decision_function is unavailable. This applies to the explicitly identified non-novelty LOF case and to other fit-predict-only detectors. The separate added LOF test checks only the iris dataset; it does not restore validation for the generated blob dataset or other estimators. Consequently, incorrect contamination behavior on those paths can newly pass the estimator check.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 2420,
+      "evidence": "if (num_outliers != expected_outliers and\n                hasattr(estimator, 'decision_function')):\n            decision = estimator.decision_function(X)\n            check_outlier_corruption(num_outliers, expected_outliers, decision)",
+      "fix": "Do not silently skip a mismatched count. Obtain training abnormality scores from negative_outlier_factor_ for LOF and apply the tie check; for estimators without an available score source, retain an explicit count assertion.",
+      "test": "Add a fit-predict-only estimator fixture with contamination and no decision_function that returns one outlier among 300 samples. Assert that check_outliers_fit_predict rejects it. Also exercise a non-novelty LOF training-score tie case to verify that legitimate ties remain accepted.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2384,
+          "symbol": "check_outliers_fit_predict"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2413,
+          "symbol": "estimator.fit_predict"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2420,
+          "symbol": "conditional contamination validation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

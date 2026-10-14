@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-287",
+  "findings": [
+    {
+      "rule_id": "missing-test-assertion",
+      "severity": "medium",
+      "title": "Root-power transformation tests discard every success comparison",
+      "explanation": "The five success checks in test_nth_power_roots_poly evaluate equality without asserting its result. Consequently, the test enforces only the invalid-input exceptions and that successful calls complete. For example, an implementation that returns the original f for every valid n would fail the expected n=2, 3, 4, and 12 transformations but still pass this test. This leaves the new transformation's coefficients and root multiplicities unverified by its dedicated regression test.",
+      "path": "sympy/polys/tests/test_polytools.py",
+      "line": 2104,
+      "evidence": "    nth_power_roots_poly(f, 1) == f\n    factor(nth_power_roots_poly(f, 2)) == f_2\n    factor(nth_power_roots_poly(f, 3)) == f_3\n    factor(nth_power_roots_poly(f, 4)) == f_4\n    factor(nth_power_roots_poly(f, 12)) == f_12",
+      "fix": "Add assert to all five success comparisons at lines 2099 and 2104–2107.",
+      "test": "Run test_nth_power_roots_poly with the corrected assertions. Verify that it fails if the valid-input implementation is temporarily changed to return f unchanged, while retaining its current invalid-input validation.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polytools.py",
+          "line": 2091,
+          "symbol": "test_nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4842,
+          "symbol": "nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 2751,
+          "symbol": "Poly.nth_power_roots_poly"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-252",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 73299,
+  "llm_calls": 6
+}

@@ -1,0 +1,191 @@
+{
+  "id": "sympy__sympy-755",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "BOOLEAN_LATEX_NOT_GROUPING",
+      "severity": "medium",
+      "title": "Negation loses the grouping of compound Boolean operands",
+      "explanation": "For Not(x & y), the new printer produces '\\neg x \\wedge y' instead of '\\neg \\left(x \\wedge y\\right)'. Negation binds to x alone in the rendered expression, changing the formula. For example, when x and y are both false, the original expression is true but the rendered formula is false. The same problem affects Not applied to Or, Implies, or Equivalent. The Boolean checks in the And and Or printers cannot prevent this: the parentheses must surround the operand inside _print_Not. Added tests cover only negation of an atomic symbol and therefore miss this regression. This counterexample is a static trace through the supplied printer code, not an executed test.",
+      "path": "sympy/printing/latex.py",
+      "line": 499,
+      "evidence": "return r\"\\neg %s\" % self._print(e.args[0])",
+      "fix": "Parenthesize compound operands of Not, preserving the current concise rendering for atomic operands.",
+      "test": "Assert latex(Not(x & y)) equals '\\neg \\left(x \\wedge y\\right)', and add corresponding cases for negated Or, Implies, and Equivalent.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 498,
+          "symbol": "LatexPrinter._print_Not"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 501,
+          "symbol": "LatexPrinter._print_And"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "BOOLEAN_LATEX_IMPLIES_GROUPING",
+      "severity": "medium",
+      "title": "Nested implication antecedents lose their parentheses",
+      "explanation": "Implies(Implies(x, y), z) is rendered as 'x \\Rightarrow y \\Rightarrow z'. This loses the explicit antecedent grouping and, under the usual right-associative interpretation, denotes Implies(x, Implies(y, z)) rather than the original expression. With x=false and z=false, the original expression is false while the right-associated formula is true. Neither operand is inspected or parenthesized by _print_Implies, so the grouping checks in And and Or do not protect this path. The added implication assertion covers only Implies(x, y), not either nesting position. This counterexample is derived directly from the supplied code without runtime execution.",
+      "path": "sympy/printing/latex.py",
+      "line": 532,
+      "evidence": "return r\"%s \\Rightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Apply precedence-aware parenthesization to implication operands, explicitly grouping a nested implication in the antecedent.",
+      "test": "Assert latex(Implies(Implies(x, y), z)) equals '\\left(x \\Rightarrow y\\right) \\Rightarrow z'; also test an implication nested in the consequent to ensure the two expression trees remain distinguishable.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 532,
+          "symbol": "LatexPrinter._print_Implies recursively printing its antecedent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "BOOLEAN_LATEX_EQUIVALENT_OPERAND_LOSS",
+      "severity": "medium",
+      "title": "Equivalent printing silently drops operands after the second",
+      "explanation": "Equivalent supports more than two operands, but this implementation prints only e.args[0] and e.args[1]. For e = Equivalent(x, y, z), let a, b, c = e.args: the output is latex(a) + ' \\Leftrightarrow ' + latex(b), with c entirely absent. Assigning a and b true and c false makes the displayed binary equivalence true while the original all-equivalent expression is false. This is operand loss, independent of argument ordering or Boolean flags. No Equivalent assertion was added, and the three-operand And/Or tests do not exercise this printer. The supplied material does not include Equivalent's constructor implementation, so its n-ary API behavior has not been independently checked against this checkout or executed here; the changed-line evidence proves the truncation for any three-argument Equivalent reaching this method.",
+      "path": "sympy/printing/latex.py",
+      "line": 535,
+      "evidence": "return r\"%s \\Leftrightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Render every Equivalent operand using a representation that preserves its all-operands-equal semantics, rather than assuming binary cardinality. For example, render a conjunction of explicitly grouped binary equivalences against one reference operand.",
+      "test": "Construct Equivalent(x, y, z), assert that its args contain all three symbols, and assert an exact semantically equivalent LaTeX representation containing all three. Include a four-operand case and retain a binary case.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 534,
+          "symbol": "LatexPrinter._print_Equivalent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-2b42cad0",
+      "K-4073d146",
+      "K-4b143eb5",
+      "K-524f3b73",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-ad16cdc6"
+        ],
+        "tokens": 286,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4073d146",
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-e172ac33",
+          "K-524f3b73"
+        ],
+        "tokens": 633,
+        "budget": 600,
+        "dropped": [
+          "K-83dfddfe",
+          "K-e820d88f",
+          "K-46b8b947",
+          "K-7ac64342",
+          "K-c01df042",
+          "K-0faed540",
+          "K-e13d441c"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

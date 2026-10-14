@@ -1,0 +1,127 @@
+{
+  "id": "sympy__sympy-13327",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "exponential-redundant-enumeration",
+      "severity": "medium",
+      "title": "Noncommutative enumeration performs exponentially many redundant multiplications",
+      "explanation": "The appended identity becomes another choice at every position in product(), even though inserting identities does not change a monomial. For a single noncommutative symbol a, itermonomials([a], 25) now constructs 2^25 products to return only 26 distinct expressions. The previous recursive implementation constructed the powers directly with linear enumeration work. Mixed variables amplify the same regression: for commutative x and noncommutative a, degree 20 enumerates 3^20 = 3,486,784,401 tuples although the result contains only 231 distinct monomials x**p*a**q with p+q <= 20. The old recursion already produced this particular mixed-variable result correctly. Thus moderate-degree inputs whose output is small become impractical. The added degree-zero-through-three tests verify result sets but cannot detect this computational regression. The commutative combinations branch does not have this identity-placement explosion.",
+      "path": "sympy/polys/monomials.py",
+      "line": 63,
+      "evidence": "return {Mul(*item) for item in product(variables, repeat=degree)}",
+      "fix": "Enumerate noncommutative words at each actual length without identity padding, and enumerate commutative factors separately using exponent combinations. Combine these factors within the total-degree limit so that commutative placements do not generate equivalent products repeatedly.",
+      "test": "Add a bounded-work regression for a single noncommutative symbol at degree 25 and for one commutative plus one noncommutative symbol at degree 20. Assert the exact power/product sets and instrument product construction to ensure work is proportional to the distinct output rather than 2^25 or 3^20.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 59,
+          "symbol": "itermonomials: append the identity to variables"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 63,
+          "symbol": "itermonomials: enumerate padded ordered products"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "invalid-executable-documentation",
+      "severity": "low",
+      "title": "The new noncommutative example cannot be sorted without a symbolic sort key",
+      "explanation": "The new doctest calls Python sorted() directly on a set containing symbolic expressions. Python sorting invokes relational comparisons between those expressions; SymPy symbolic inequalities do not provide a usable Boolean ordering, so this example raises TypeError instead of returning the documented list. Existing examples immediately above it explicitly pass monomial_key, but this example omits an ordering key. Its displayed output is also not SymPy's product representation: the mixed products print as x*a and x*b, not xa and xb. Consequently the newly added executable documentation fails even though the new low-degree enumeration assertions can pass.",
+      "path": "sympy/polys/monomials.py",
+      "line": 51,
+      "evidence": ">>> sorted(itermonomials([a, b, x], 2))",
+      "fix": "Use an explicit symbolic ordering key such as default_sort_key and regenerate the expected list, including the multiplication signs in x*a and x*b.",
+      "test": "Run the itermonomials doctests with the new noncommutative example included; require successful execution and an exact match to the regenerated output.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 50,
+          "symbol": "symbols: create noncommutative a and b"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 51,
+          "symbol": "sorted: compare symbolic monomials without a key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "id": "sympy__sympy-13327",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "PERF-REDUNDANT-MONOMIAL-ENUMERATION",
+      "severity": "medium",
+      "title": "Padding noncommutative words with identities causes exponential redundant work",
+      "explanation": "For a single noncommutative symbol a, itermonomials([a], 30) still has only 31 distinct results: 1, a, ..., a**30. However, line 59 appends 1 and line 63 enumerates all 2**30 = 1,073,741,824 length-30 tuples before set deduplication. Every tuple simplifies to one of those 31 powers. The previous implementation performed only 30 power/product constructions for this input. Mixed variables also suffer: for one commutative x and one noncommutative a at degree 20, the new branch enumerates 3**20 = 3,486,784,401 candidates for just 231 distinct monomials; the previous recursion performed 420 product constructions. Thus previously inexpensive, mathematically valid calls become impractically expensive. The added noncommutative and mixed tests stop at degree 3 and do not expose this amplification.",
+      "path": "sympy/polys/monomials.py",
+      "line": 63,
+      "evidence": "variables = list(variables) + [S(1)]\nif all(variable.is_commutative for variable in variables):\n    return {Mul(*item) for item in combinations_with_replacement(variables, degree)}\nelse:\n    return {Mul(*item) for item in product(variables, repeat=degree)}",
+      "fix": "Do not enumerate identity-padded noncommutative words. Generate words of each actual length from the noncommutative generators, and combine them with commutative monomials within the remaining degree budget. This preserves word order without enumerating permutations of identities or commutative factors.",
+      "test": "Add a regression for itermonomials([a], 30), with a noncommutative, asserting exactly {a**k for k in range(31)} and bounded candidate construction. Also benchmark itermonomials([x, a], 20), asserting 231 results and work proportional to the distinct commutative-monomial/noncommutative-word combinations rather than 3**20.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 59,
+          "symbol": "itermonomials: append identity to the generators"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 60,
+          "symbol": "itermonomials: select noncommutative branch"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 63,
+          "symbol": "itermonomials: enumerate padded words before deduplication"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-400",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "DOC-SYMBOLIC-SORT-COMPARISON",
+      "severity": "low",
+      "title": "The new executable example sorts symbolic expressions without a sorting key",
+      "explanation": "After defining a and b as noncommutative symbols, sorted(itermonomials([a, b, x], 2)) invokes symbolic less-than comparisons. These do not provide a Python total ordering: comparisons involving the noncommutative expressions can raise TypeError, and unresolved symbolic inequalities cannot be converted to booleans. Consequently, the example does not produce the documented list. The expected output also writes the mixed products as xa and xb, whereas their expression representations are x*a and x*b. The preceding examples explicitly supply a sorting key, but the new example omits one.",
+      "path": "sympy/polys/monomials.py",
+      "line": 51,
+      "evidence": ">>> a, b = symbols('a, b', commutative=False)\n>>> sorted(itermonomials([a, b, x], 2))\n[1, a, b, x, a**2, a*b, b*a, b**2, xa, xb, x**2]",
+      "fix": "Import and use default_sort_key for this example, then regenerate the expected list using the actual canonical expression representations and ordering.",
+      "test": "Run the documentation example as a doctest with explicit imports for symbols, default_sort_key, and itermonomials. Assert the exact generated list, including x*a and x*b.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 51,
+          "symbol": "itermonomials documentation: sorted without key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

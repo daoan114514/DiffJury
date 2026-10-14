@@ -1,0 +1,54 @@
+{
+  "id": "astropy__astropy-3129",
+  "findings": [
+    {
+      "rule_id": "python3-coverage-dictionary-iteration",
+      "severity": "medium",
+      "title": "Snapshot coverage keys before rewriting paths on Python 3",
+      "explanation": "Removing the Python 2 guard exposes this loop to Python 3 dictionary-view semantics. In coverage 3.x implementations such as coverage 3.7.1, CoverageData.lines is an ordinary dictionary, so lines.keys() returns a live view rather than the snapshot returned on Python 2. Replacing a temporary-path key with a source-path key therefore changes the dictionary being traversed. A minimal counterexample on current CPython is `d = {'/tmp/build/pkg/a.py': {1: None}}; for key in d.keys(): d['/source/pkg/a.py'] = d.pop(key)`, which raises RuntimeError ('dictionary keys changed during iteration'). Older Python 3 dictionary iteration can instead visit replacement entries or skip original entries; retaining the dictionary's size does not make this traversal safe. In a coverage-enabled run reaching _save_coverage, the exception occurs before cov.save(), preventing normal completion and coverage persistence. The former Python 2 guard avoided this newly introduced Python 3 failure. The removed 2to3 test only checked whether a syntax-conversion-dependent module could be imported; it did not exercise coverage saving and would not detect this regression. The supplied context does not include the dependency constraints or calling test-runner implementation, so the exact installed coverage version and upstream caller cannot be independently verified here.",
+      "path": "astropy/tests/helper.py",
+      "line": 326,
+      "evidence": "for key in d.lines.keys():\n        new_path = os.path.relpath(\n            os.path.realpath(key),\n            os.path.realpath(testing_path))\n        new_path = os.path.abspath(\n            os.path.join(rootdir, new_path))\n        d.lines[new_path] = d.lines.pop(key)",
+      "fix": "Iterate over a snapshot, for example `for key in list(d.lines):`, before replacing the dictionary keys.",
+      "test": "On Python 3 with the coverage version supported by this checkout, collect coverage for a real file underneath a temporary testing directory, then invoke the real _save_coverage path with a distinct source root. Assert that it completes, saves reloadable coverage data, preserves the recorded line numbers, replaces every temporary path exactly once, and leaves no temporary-path entries. Include multiple measured files to detect skipped or revisited entries.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/tests/helper.py",
+          "line": 324,
+          "symbol": "_save_coverage: obtain and harvest coverage data"
+        },
+        {
+          "path": "astropy/tests/helper.py",
+          "line": 326,
+          "symbol": "_save_coverage: iterate live keys while replacing entries"
+        },
+        {
+          "path": "astropy/tests/helper.py",
+          "line": 335,
+          "symbol": "cov.save: not reached if iteration raises"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-664",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 25645,
+  "llm_calls": 5
+}

@@ -1,0 +1,65 @@
+{
+  "id": "scikit-learn__scikit-learn-20889",
+  "findings": [
+    {
+      "rule_id": "documentation.invalid-role-markup",
+      "severity": "low",
+      "title": "Two function references use invalid reStructuredText delimiters",
+      "explanation": "The newly added miss_rate and fallout_rate references use apostrophes instead of the backticks required for interpreted-text roles. Consequently, these sequences render as literal text rather than function cross-references, exposing broken markup to changelog readers. This finding does not depend on whether those APIs exist. The supplied excerpt is insufficient to verify API availability or whether the correctly delimited sensitivity and specificity references resolve; no missing-API or build-failure claim is made.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 627,
+      "evidence": "- |Feature| Added :func:`sensitivity` , :func:`specificity` , :func:'miss_rate and :func:'fallout_rate'",
+      "fix": "Use :func:`miss_rate` and :func:`fallout_rate`, and verify the actual qualified API targets before publishing the entry.",
+      "test": "Render the changelog with Sphinx and verify that all four names are resolved function links, with no literal ':func:' markup remaining.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "documentation.incorrect-metric-definition",
+      "severity": "low",
+      "title": "The entry describes normalized rates as confusion-matrix counts",
+      "explanation": "The added description says the named metrics calculate true positives, true negatives, false negatives, and false positives, respectively. Conventionally, these metrics calculate rates: sensitivity = TP/(TP+FN), specificity = TN/(TN+FP), miss rate = FN/(TP+FN), and fallout rate = FP/(FP+TN). For example, TP=10, FN=5, TN=20, FP=5 produces rates 2/3, 0.8, 1/3, and 0.2—not counts 10, 20, 5, and 5. The wording therefore misleads readers about what the advertised metrics measure. Repository implementations were not supplied, so their actual outputs and availability cannot be verified; this finding concerns the definitions of the named metrics in the entry.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 628,
+      "evidence": "to calculate the 'True Positives', 'True Negatives', 'False Negatives' and 'False Positives' repectively.",
+      "fix": "Describe the outputs as the true-positive rate, true-negative rate, false-negative rate, and false-positive rate, respectively, after confirming that this matches the actual APIs.",
+      "test": "Check the entry against the public API documentation and verify the documented rates using a confusion matrix with TP=10, FN=5, TN=20, and FP=5.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1059",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 10689,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-20889.json",
+  "borrowed_sha256": "7e51c608f5395ddbf336ec18724efc5c8d56071f2a77547720652b9a284b24de"
+}

@@ -1,0 +1,46 @@
+{
+  "id": "astropy__astropy-417",
+  "findings": [
+    {
+      "rule_id": "undefined-test-helper",
+      "severity": "medium",
+      "title": "New color-text test calls the wrong helper name",
+      "explanation": "The extraction defines `_color_text`, and `color_print` calls that private helper, but the new test calls `console.color_text`. No public alias or export resolving that discrepancy is introduced by the supplied change. Running `test_color_text` therefore raises AttributeError before evaluating its assertion, failing the suite rather than testing ANSI formatting. The production extraction otherwise preserves the previous formatting: the mapping and escape sequence are identical, empty and None colors still bypass wrapping in color_print, and unknown colors still use '0;39'. The actionable regression is the mismatched test symbol, not a demonstrated change to the existing public color_print API.",
+      "path": "astropy/utils/tests/test_console.py",
+      "line": 11,
+      "evidence": "    assert console.color_text(\"foo\", \"green\") == u'\\033[0;32mfoo\\033[0m'\n\n# astropy/utils/console.py:55\n def _color_text(text, color):\n\n# astropy/utils/console.py:144\n                write(_color_text(msg, color))",
+      "fix": "Change the assertion to call console._color_text, matching the implemented private helper. If a public color_text API is intended instead, expose that name explicitly and update the internal call consistently.",
+      "test": "Run test_color_text after correcting the reference and verify that it reaches the assertion and returns exactly '\\033[0;32mfoo\\033[0m'.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/utils/tests/test_console.py",
+          "line": 10,
+          "symbol": "test_color_text"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-248",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 17681,
+  "llm_calls": 5
+}

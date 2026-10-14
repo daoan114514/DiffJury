@@ -1,0 +1,104 @@
+{
+  "id": "matplotlib__matplotlib-5195",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "qt-binding-availability",
+      "severity": "medium",
+      "title": "PySide causes test-module collection to fail instead of skipping incompatible Qt tests",
+      "explanation": "With the supported PySide/Qt4 binding selected by qt_compat, QtCore does not expose PYQT_VERSION_STR; that attribute is specific to PyQt. The new attribute access therefore raises AttributeError. The surrounding handler catches only ImportError, so importing test_backend_qt4 aborts before knownfailureif or switch_backend can run. Previously, successfully importing the PySide-backed Qt4 backend set HAS_QT=True without accessing this PyQt-specific attribute. The identical access in test_backend_qt5 also prevents that module from safely rejecting the selected Qt4 binding, and that module is now included in the default suite.",
+      "path": "lib/matplotlib/tests/test_backend_qt4.py",
+      "line": 28,
+      "evidence": "py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])\nif py_qt_ver != 4:\n    HAS_QT = False\nelse:\n    HAS_QT = True\nexcept ImportError:\n    HAS_QT = False",
+      "fix": "Determine availability using the binding identity exported by qt_compat, explicitly treating PySide as a supported Qt4 binding and as incompatible with Qt5 tests. Do not assume every supported QtCore implementation exposes a PyQt version attribute.",
+      "test": "Select PySide with the Qt4 backend and import both test modules through the test collector. Assert that collection succeeds, Qt4 tests remain eligible to run, and Qt5 tests are marked unavailable rather than raising AttributeError.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 19,
+          "symbol": "module-level import of QtCore from matplotlib.backends.qt_compat"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 28,
+          "symbol": "module-level PYQT_VERSION_STR access"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-7282b084",
+      "K-7843f755",
+      "K-81147535",
+      "K-9cb4cdef",
+      "K-a22efd33",
+      "K-f05a0a7d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-9cb4cdef",
+          "K-7843f755",
+          "K-f05a0a7d"
+        ],
+        "tokens": 222,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a22efd33",
+          "K-81147535",
+          "K-7282b084"
+        ],
+        "tokens": 235,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

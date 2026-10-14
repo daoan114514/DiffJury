@@ -1,0 +1,164 @@
+{
+  "id": "astropy__astropy-6422",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "nonportable-warning-filename-assertion",
+      "severity": "medium",
+      "title": "New warning-location assertions fail on Windows",
+      "explanation": "Both added assertions (lines 292 and 322) require forward slashes in the warning filename. With stacklevel=2, warnings.warn attributes the warning to the frame calling the decorated function, which is the intended behavior for these direct test calls. However, normally imported modules on Windows have filenames containing backslashes, such as '\\\\utils\\\\tests\\\\test_decorators.py'. Consequently, both tests fail on Windows even though caller attribution is correct. The changelog describes the implemented direct-caller behavior; its grammatical issues do not constitute a correctness defect.",
+      "path": "astropy/utils/tests/test_decorators.py",
+      "line": 292,
+      "evidence": "assert 'utils/tests/test_decorators.py' in str(w[0].filename)",
+      "fix": "Update both assertions to use os.path.join('utils', 'tests', 'test_decorators.py'), or compare normalized filenames against the test module's filename.",
+      "test": "Run test_deprecated_argument and test_deprecated_argument_in_kwargs on Windows. Both must pass while still asserting that the warning is attributed to test_decorators.py rather than decorators.py.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/utils/tests/test_decorators.py",
+          "line": 289,
+          "symbol": "test_deprecated_argument: method(clobber=1)"
+        },
+        {
+          "path": "astropy/utils/decorators.py",
+          "line": 482,
+          "symbol": "warnings.warn(..., AstropyDeprecationWarning, stacklevel=2)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-758",
+      "applied_rules": [
+        "K-5cfed8c0"
+      ]
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0528b9a8",
+      "K-063ee88d",
+      "K-09aa8545",
+      "K-0f3086e4",
+      "K-10f071ed",
+      "K-1a7292bd",
+      "K-1bbd8c27",
+      "K-1f0dc278",
+      "K-200d328d",
+      "K-2b350bbf",
+      "K-2b35c92b",
+      "K-30246d94",
+      "K-39909304",
+      "K-3b47c9b6",
+      "K-3c9cd8b8",
+      "K-533c203b",
+      "K-5ab72cf5",
+      "K-5cfed8c0",
+      "K-6b2f7727",
+      "K-728891cc",
+      "K-915119d5",
+      "K-94ced832",
+      "K-984ea536",
+      "K-997796e9",
+      "K-9bff7ae1",
+      "K-a0373828",
+      "K-c9c94b8c",
+      "K-d6e0428e",
+      "K-d70ab557",
+      "K-d9d0df1c",
+      "K-e974c513",
+      "K-f8360044",
+      "K-fc5b6f35",
+      "K-ff9e463d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-5ab72cf5",
+          "K-9bff7ae1",
+          "K-d6e0428e"
+        ],
+        "tokens": 129,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-984ea536",
+          "K-fc5b6f35",
+          "K-f8360044",
+          "K-5cfed8c0",
+          "K-1bbd8c27",
+          "K-2b350bbf",
+          "K-ff9e463d",
+          "K-09aa8545",
+          "K-10f071ed",
+          "K-063ee88d",
+          "K-3c9cd8b8",
+          "K-0f3086e4",
+          "K-0528b9a8",
+          "K-3b47c9b6",
+          "K-39909304",
+          "K-200d328d",
+          "K-1f0dc278",
+          "K-6b2f7727",
+          "K-533c203b",
+          "K-915119d5",
+          "K-d70ab557",
+          "K-1a7292bd",
+          "K-d9d0df1c"
+        ],
+        "tokens": 1680,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-2b35c92b"
+        ],
+        "tokens": 78,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-94ced832",
+          "K-997796e9",
+          "K-30246d94",
+          "K-728891cc",
+          "K-a0373828",
+          "K-e974c513",
+          "K-c9c94b8c"
+        ],
+        "tokens": 502,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "id": "matplotlib__matplotlib-27128",
+  "findings": [
+    {
+      "rule_id": "font-decorator-pytest-metadata-loss",
+      "severity": "medium",
+      "title": "The outer wrapper discards parametrization and figure-comparison metadata",
+      "explanation": "Both changed tests apply skipif_font_missing outside pytest.mark.parametrize. In test_font_fallback_chinese, check_figures_equal is applied first, then the family/file parametrization, then this new decorator. In test__get_fontmap, the two-argument function is parametrized before this decorator. The decorator returns a fresh wrapper without copying the wrapped callable's attributes or exposing __wrapped__. Consequently, pytest collects a callable whose visible signature is only (family_name), with none of the underlying parametrize marks. It does not generate the WenQuanYi/Noto cases and instead requests family_name as a fixture, producing a fixture-not-found setup failure on the intended parametrized path. The first test also loses the metadata carried by the check_figures_equal wrapper, so figure-comparison parametrization is not preserved either.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 480,
+      "evidence": "def decorator(func):\n        def wrapper(family_name):\n            for font in fonts:\n                fp = fm.FontProperties(family=[font])\n                found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")\n                return func(family_name)\n        return wrapper",
+      "fix": "Apply functools.wraps(func) to the wrapper so pytest marks, __wrapped__, and the callable's discoverable signature survive. Also fix argument forwarding separately; preserving metadata alone does not make the current wrapper compatible with these tests.",
+      "test": "Collect both changed tests through pytest and assert that both family/file cases are present, that the figure-comparison extension cases remain present, and that collection/execution does not request family_name as an unparametrized fixture.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 63,
+          "symbol": "check_figures_equal"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 59,
+          "symbol": "pytest.mark.parametrize"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 58,
+          "symbol": "skipif_font_missing"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 487,
+          "symbol": "decorator returns replacement wrapper"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 81,
+          "symbol": "pytest.mark.parametrize for test__get_fontmap"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 80,
+          "symbol": "skipif_font_missing for test__get_fontmap"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "font-availability-basename-comparison",
+      "severity": "medium",
+      "title": "Font filenames are compared with family names, so installed fonts are skipped",
+      "explanation": "fm.findfont returns a font-file path, not a family name; with its default fallback behavior, it also returns a fallback font path when the requested family is absent. Path(...).name therefore produces a filename such as 'wqy-zenhei.ttc' or 'NotoSansCJK-Regular.ttc'. Neither is an element of the supplied ['WenQuanYi Zen Hei', 'Noto Sans CJK JP'] list. Whenever the wrapper is invoked, an installed WenQuanYi font still causes pytest.skip rather than executing the test. The removed checks correctly distinguished these representations by testing the case-specific filename substring ('wqy-zenhei' or 'NotoSansCJK') against the returned basename. The new comparison makes availability testing incorrect independently of the pytest collection defects.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 484,
+      "evidence": "found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")",
+      "fix": "Determine availability using family resolution without fallback, handling the missing-font result explicitly, or preserve the previous case-specific filename-substring checks. For these parametrized tests, check the current case's family rather than requiring unrelated cases' fonts.",
+      "test": "Exercise the real decorator with an available bundled family such as 'DejaVu Sans' and assert that the body runs; exercise a nonexistent family and assert that it skips instead of accepting the fallback font. Also verify that an installed Chinese font executes its corresponding parametrized case.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 58,
+          "symbol": "skipif_font_missing(['WenQuanYi Zen Hei', 'Noto Sans CJK JP'])"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 480,
+          "symbol": "wrapper"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 483,
+          "symbol": "fm.findfont"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "font-decorator-return-inside-loop",
+      "severity": "low",
+      "title": "Returning inside the font loop ignores later fonts and suppresses empty-list tests",
+      "explanation": "The function invocation is inside the for loop. For fonts=[], the loop executes zero times and the wrapper silently returns None without running the test, although there is no missing font. This provides a direct counterexample unaffected by font lookup or pytest metadata. For a nonempty list whose first comparison passes, execution returns after checking only the first font, contrary to the documented requirement to skip if any specified font is missing. A concrete current-code example is ['DejaVu Sans', 'DejaVuSans.ttf', 'Definitely Missing']: the first lookup resolves to the bundled DejaVuSans.ttf basename, membership succeeds, and the body runs without checking the missing family. Correcting availability detection would still leave this early-return defect.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 486,
+      "evidence": "for font in fonts:\n                fp = fm.FontProperties(family=[font])\n                found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")\n                return func(family_name)",
+      "fix": "Move the wrapped-function invocation after the loop so all requested fonts are checked and an empty list executes the callable normally.",
+      "test": "Assert that an empty font list invokes the body exactly once and preserves its return value. With availability detection corrected, assert that an available first font followed by a missing font skips without invoking the body, and that multiple available fonts invoke it exactly once.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 470,
+          "symbol": "skipif_font_missing"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 481,
+          "symbol": "for font in fonts"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 486,
+          "symbol": "return func(family_name)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 24867,
+  "llm_calls": 5
+}

@@ -1,0 +1,153 @@
+{
+  "id": "sympy__sympy-7614",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "ellipse-evolute-center",
+      "severity": "medium",
+      "title": "The evolute ignores the ellipse center",
+      "explanation": "For an ellipse parametrized by (h + a*cos(t), k + b*sin(t)), let q = a²*sin²(t) + b²*cos²(t). Adding the curvature-radius normal vector (-q*cos(t)/a, -q*sin(t)/b) gives the evolute parametrization (h + (a²-b²)*cos³(t)/a, k + (b²-a²)*sin³(t)/b). Consequently, an implicit equation must use x-h and y-k. The new method uses x and y directly. For the documented Ellipse(Point(1, 0), 3, 2), t=0 gives the actual evolute cusp (8/3, 0), but substituting it into the returned expression gives 4 - 5**(2/3), not zero. Conversely, the returned equation includes (5/3, 0), the cusp of the origin-centered ellipse. The documented example therefore codifies the same incorrect translation. The parameters are documented as axis labels, not center-relative coordinates, and converting them with _symbol does not subtract the center. In the equal-radius algebraic limit, the evolute degenerates to the center; the same omitted translation would instead place it at the origin. This is the same defect, not a separate claim about whether equal-radius construction dispatches to Circle.",
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1216,
+      "evidence": "        return (self.hradius*x)**Rational(2, 3) + \\\n        (self.vradius*y)**Rational(2, 3) -\\\n        (self.hradius**2 - self.vradius**2)**Rational(2, 3)",
+      "fix": "Use center-relative coordinates x - self.center.x and y - self.center.y in the returned equation, while also choosing real fractional-power branches.",
+      "test": "For Ellipse(Point(1, 0), 3, 2), substitute the actual cusp (8/3, 0) and assert that the expression is zero. Also test a translated vertical-major-axis ellipse, such as Ellipse(Point(1, 2), 2, 3), at its cusp (-3/2, 2), and verify translation covariance.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/ellipse.py",
+          "line": 1190,
+          "symbol": "Ellipse.evolute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "ellipse-evolute-real-branches",
+      "severity": "medium",
+      "title": "Principal fractional powers exclude real evolute cusps",
+      "explanation": "The real evolute identity requires real cube roots squared, not principal complex powers. In SymPy, a negative real number raised to Rational(2, 3) has the principal value |z|**(2/3)*exp(2*pi*I/3). This breaks the method even for origin-centered ellipses, independently of the missing translation. For Ellipse(Point(0, 0), 3, 2), the evolute parametrization gives the left cusp (-5/3, 0) and lower cusp (0, -5/2). Either substitution yields (-5)**(2/3) - 5**(2/3), which is nonzero. For the vertical-major-axis Ellipse(Point(0, 0), 2, 3), the right cusp is (5/2, 0) and the upper cusp is (0, 5/3); either substitution yields 5**(2/3) - (-5)**(2/3), also nonzero. Here the negative radius-squared difference additionally makes the right-hand term complex. Thus the returned expression does not describe the full real evolute for either axis orientation. Setting the radii equal makes the right-hand term zero, so there is no separate negative-difference branch defect in that degenerate limit.",
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1218,
+      "evidence": "        return (self.hradius*x)**Rational(2, 3) + \\\n        (self.vradius*y)**Rational(2, 3) -\\\n        (self.hradius**2 - self.vradius**2)**Rational(2, 3)",
+      "fix": "Represent each two-thirds power with the real branch, for example Abs(self.hradius*(x-self.center.x))**Rational(2, 3) + Abs(self.vradius*(y-self.center.y))**Rational(2, 3) - Abs(self.hradius**2-self.vradius**2)**Rational(2, 3) for real coordinates.",
+      "test": "For origin-centered ellipses with radii (3, 2) and (2, 3), substitute all four evolute cusps and require zero. Also substitute an interior parametrized point, such as t=pi/4, to verify that both terms use real branches rather than merely special-casing the negative radius difference.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/ellipse.py",
+          "line": 1190,
+          "symbol": "Ellipse.evolute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-b5e72943",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-93a099ce"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-c01df042",
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-25a05e81",
+          "K-e172ac33"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-524f3b73",
+          "K-e820d88f",
+          "K-7ac64342",
+          "K-e13d441c",
+          "K-83dfddfe",
+          "K-4073d146"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

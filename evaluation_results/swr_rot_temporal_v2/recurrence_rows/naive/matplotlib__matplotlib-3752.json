@@ -1,0 +1,153 @@
+{
+  "id": "matplotlib__matplotlib-3752",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-01024c7a",
+      "K-0304254e",
+      "K-04cc185c",
+      "K-0584087c",
+      "K-0c8a636b",
+      "K-0d0eb6bb",
+      "K-18185de5",
+      "K-1c4c395f",
+      "K-1cd6e028",
+      "K-276bc9e3",
+      "K-2f0cda36",
+      "K-2f6df4e1",
+      "K-373ceb0d",
+      "K-3a4c1dfe",
+      "K-3d110084",
+      "K-3dd53bb0",
+      "K-475d59c2",
+      "K-501c2e6b",
+      "K-554337f7",
+      "K-5ac45b56",
+      "K-74cc7af4",
+      "K-767b1b8c",
+      "K-76e1d833",
+      "K-7baab940",
+      "K-83f0b31d",
+      "K-8d71bf5d",
+      "K-8ebb1030",
+      "K-93879fa5",
+      "K-94773538",
+      "K-a7a9b3d1",
+      "K-a9ffb7d6",
+      "K-aae7ebac",
+      "K-ac4af83c",
+      "K-b6f385be",
+      "K-b9077688",
+      "K-bdf4de72",
+      "K-caf264d7",
+      "K-d55a2bac",
+      "K-d9467d98",
+      "K-e3d89590",
+      "K-e545c79a",
+      "K-ea85db56",
+      "K-f31ad068",
+      "K-f3829dd8",
+      "K-f49b7d36",
+      "K-f659e55a",
+      "K-fdb1e5fa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-8ebb1030",
+          "K-8d71bf5d",
+          "K-f659e55a",
+          "K-18185de5"
+        ],
+        "tokens": 144,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-276bc9e3",
+          "K-5ac45b56",
+          "K-d9467d98",
+          "K-f31ad068",
+          "K-1c4c395f",
+          "K-554337f7",
+          "K-83f0b31d",
+          "K-94773538",
+          "K-767b1b8c",
+          "K-d55a2bac",
+          "K-7baab940",
+          "K-bdf4de72",
+          "K-a9ffb7d6",
+          "K-76e1d833",
+          "K-f3829dd8",
+          "K-1cd6e028",
+          "K-b6f385be",
+          "K-04cc185c",
+          "K-caf264d7",
+          "K-3dd53bb0",
+          "K-01024c7a",
+          "K-0c8a636b",
+          "K-aae7ebac",
+          "K-fdb1e5fa",
+          "K-74cc7af4",
+          "K-0d0eb6bb",
+          "K-0304254e"
+        ],
+        "tokens": 1848,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-ea85db56",
+          "K-93879fa5",
+          "K-501c2e6b",
+          "K-f49b7d36"
+        ],
+        "tokens": 144,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-475d59c2",
+          "K-3a4c1dfe",
+          "K-ac4af83c",
+          "K-e3d89590",
+          "K-2f0cda36",
+          "K-e545c79a",
+          "K-3d110084",
+          "K-a7a9b3d1",
+          "K-b9077688",
+          "K-373ceb0d",
+          "K-2f6df4e1",
+          "K-0584087c"
+        ],
+        "tokens": 795,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

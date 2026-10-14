@@ -1,0 +1,94 @@
+{
+  "id": "sympy__sympy-12010",
+  "findings": [
+    {
+      "rule_id": "single-pass-ignore-iterator",
+      "severity": "medium",
+      "title": "Single-pass ignore iterators are exhausted before subsequent candidates are checked",
+      "explanation": "The documented ignore argument accepts an iterable, but the new loop consumes that iterable separately for each repeated expression. A concrete counterexample is cse([sin(x), sin(x), sin(y), sin(y)], ignore=iter([y])). The second sin(x) consumes y, finds that it is not a free symbol, and permits the substitution. When the second sin(y) is encountered, the iterator is exhausted, so the loop's else branch also permits sin(y). The resulting substitutions include (x1, sin(y)), whereas only sin(x) should be extracted and both sin(y) outputs should remain unchanged. Passing the equivalent tuple (y,) does not have this problem. No normalization is present in the changed forwarding or checking code. The added test uses a tuple and therefore cannot detect this violation of the iterable contract.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 452,
+      "evidence": "for ign in ignore:\n    if ign in expr.free_symbols:\n        break\nelse:\n    to_eliminate.add(expr)\n    return",
+      "fix": "Materialize ignore into a reusable tuple or frozenset once at tree_cse entry, before traversing candidates, so both direct tree_cse callers and cse callers accept single-pass iterables correctly.",
+      "test": "Compare cse([sin(x), sin(x), sin(y), sin(y)], ignore=iter([y])) with the tuple-based result. Assert exactly one replacement for sin(x), no replacement containing y, and reduced expressions [x0, x0, sin(y), sin(y)]. Also exercise direct tree_cse with a single-pass iterator.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 600,
+          "symbol": "cse: documented iterable ignore argument"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 688,
+          "symbol": "cse: forwards ignore to tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 452,
+          "symbol": "tree_cse: repeated-expression ignore check"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-664",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "ignored-dag-repeated-traversal",
+      "severity": "medium",
+      "title": "Ignored repeated parents lose traversal pruning and expand shared DAGs exponentially",
+      "explanation": "Previously every repeated non-atomic expression returned immediately. The changed code returns only when the repeated expression is eligible for elimination; a repeated expression containing an ignored symbol falls through and traverses its children again, even after those descendants have already been examined repeatedly. A concrete family is E0 = y and E(k+1) = f(Ek, Ek), using an undefined two-argument SymPy Function f and shared child objects, with ignore=(y,). Every non-atomic node contains y, so every duplicate takes the non-returning branch. Repeated-expression discovery consequently follows both children at every occurrence: depth n causes 2^(n+1)-1 expression visits despite only n+1 distinct expression nodes. At depth 25 this is over 67 million visits, versus approximately 51 discovery visits with the former duplicate-pruning path. Repeated free_symbols calculations add further work. Eligible-descendant extraction requires examining a blocked parent's descendants again when it first becomes repeated, but does not require expanding them on every subsequent occurrence. The added test contains no deeply shared ignored-parent structure and does not constrain this amplification.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 453,
+      "evidence": "if expr in seen_subexp:\n    for ign in ignore:\n        if ign in expr.free_symbols:\n            break\n    else:\n        to_eliminate.add(expr)\n        return\n\nseen_subexp.add(expr)",
+      "fix": "Memoize ignore eligibility and repeated-descendant discovery for shared nodes. Allow the first repeated ignored parent to expose eligible repeated descendants, but prune subsequent visits after that work has been completed. Ensure eligibility computation itself does not repeatedly expand the same shared subtrees.",
+      "test": "Build the shared family E0=y, E(k+1)=f(Ek, Ek), call the real tree_cse path with ignore=(y,), and instrument discovery visits to assert growth bounded by the number of distinct DAG nodes rather than expanded occurrences. Separately assert that repeated ignored parents containing an eligible descendant such as sin(x) still extract that descendant.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 688,
+          "symbol": "cse: invokes tree_cse with ignore"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 451,
+          "symbol": "tree_cse: repeated-expression discovery"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 459,
+          "symbol": "tree_cse: ignored duplicates fall through to descendant traversal"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 23717,
+  "llm_calls": 5
+}

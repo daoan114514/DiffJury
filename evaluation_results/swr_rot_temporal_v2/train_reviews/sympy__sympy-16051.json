@@ -1,0 +1,124 @@
+{
+  "id": "sympy__sympy-16051",
+  "findings": [
+    {
+      "rule_id": "symbolic-positivity-truth-evaluation",
+      "severity": "medium",
+      "title": "Preserve undecidable positivity in expint branch evaluation",
+      "explanation": "An integer assumption does not imply a known sign. For k = Symbol('k', integer=True), evaluating expint(k, exp_polar(2*pi*I)) reaches the nonzero branch-factor case with nu.is_integer true, but k > 0 remains a symbolic relational. The new `not` invokes its Boolean conversion and raises TypeError instead of leaving expint unevaluated. The previous comparison `(nu > 0) != True` returned without evaluating the relational's truth value. Neither the zero-branch-factor guard nor the integer assumption prevents this input.",
+      "path": "sympy/functions/special/error_functions.py",
+      "line": 1221,
+      "evidence": "if nu.is_integer:\n    if not nu > 0:\n        return",
+      "fix": "Retain a definite-truth comparison, such as the previous `(nu > 0) != True`, rather than coercing an unresolved relational to bool.",
+      "test": "Construct k with integer=True but no sign assumption and evaluate expint(k, exp_polar(2*pi*I)). Assert that construction succeeds and remains symbolic. Also cover positive, zero, and negative integer orders. This counterexample was derived statically; no execution tools were available.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/error_functions.py",
+          "line": 1218,
+          "symbol": "expint.eval: nonzero extracted branch factor"
+        },
+        {
+          "path": "sympy/functions/special/error_functions.py",
+          "line": 1221,
+          "symbol": "expint.eval: positivity guard"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "codegen-none-token-compatibility",
+      "severity": "medium",
+      "title": "Keep optional AST fields compatible with the NoneToken sentinel",
+      "explanation": "These AST fields use `none`, a NoneToken that compares equal to Python None but is not identical to it. Token._construct still returns `cls.defaults.get(attr, none)` for an omitted/Python-None argument (ast.py:191-192); the change does not migrate optional fields to actual Python None. Consequently, an Element constructed without strides now enters the strided branch and attempts to iterate NoneToken in `zip(elem.indices, elem.strides)`, raising TypeError. Giving strides but omitting offset instead attempts to add NoneToken to the index. The same mismatch affects the other changed printer checks: uninitialized declarations enter initialization branches, plain Python/Fortran Print nodes enter formatting branches, Fortran sum_ emits omitted optional arguments, and use nodes attempt to iterate omitted rename/only fields. The changed Variable and Declaration doctests also incorrectly expect the sentinel default to satisfy `is None`.",
+      "path": "sympy/printing/ccode.py",
+      "line": 527,
+      "evidence": "if elem.strides is None:\n    if elem.offset is not None:\n        raise ValueError(\"Expected strides when offset is given\")\n    idxs = ']['.join(map(lambda arg: self._print(arg),\n                         elem.indices))\nelse:\n    global_idx = sum([i*s for i, s in zip(elem.indices, elem.strides)])\n    if elem.offset is not None:\n        global_idx += elem.offset",
+      "fix": "Use NoneToken-aware absence checks throughout the changed printers, either retaining the previous equality checks or explicitly recognizing both Python None and the AST sentinel. Keep the doctests aligned with the sentinel representation rather than changing their assertions to identity with Python None.",
+      "test": "Print Element('a', (1, 2)) as C and assert `a[1][2]`; also test explicit strides with omitted offset. Exercise uninitialized C/Fortran declarations, Print with omitted format/file, and Fortran sum_/use with omitted optional fields. Verify Variable('x').as_Declaration().variable.value and Declaration('z').variable.value against `none`: each should compare equal to None but fail `is None`. Run both modified doctests. These checks were derived from the sentinel contract and unchanged default-resolution expression; execution was unavailable.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/codegen/ast.py",
+          "line": 191,
+          "symbol": "Token._construct: omitted-value default resolution"
+        },
+        {
+          "path": "sympy/printing/ccode.py",
+          "line": 526,
+          "symbol": "C89CodePrinter._print_Element"
+        },
+        {
+          "path": "sympy/printing/ccode.py",
+          "line": 533,
+          "symbol": "C89CodePrinter._print_Element: iteration of omitted strides"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "undecidable-set-membership",
+      "severity": "medium",
+      "title": "Do not coerce undecidable containment while simplifying finite-set unions",
+      "explanation": "Consider x = Symbol('x', real=True) and Union(FiniteSet(0, x), Interval(0, oo)). Containment of 0 is definitely true, so the preceding `any` guard enters this branch. Containment of x is the unresolved relational x >= 0. The new list comprehension attempts `not` on that relational and raises TypeError. Previously, `b.contains(x) != True` retained x without requiring its membership to be decidable. The guard establishes that at least one element is contained, not that containment is decidable for every element.",
+      "path": "sympy/sets/handlers/union.py",
+      "line": 113,
+      "evidence": "if any(b.contains(x) == True for x in a):\n    return set((\n        FiniteSet(*[x for x in a if not b.contains(x)]), b))",
+      "fix": "Remove only elements whose containment is definitely true; restore `b.contains(x) != True` or an equivalent explicit definite-truth check.",
+      "test": "Evaluate Union(FiniteSet(0, x), Interval(0, oo)) with a sign-unknown real x. Assert no exception and equality to Union(FiniteSet(x), Interval(0, oo)). Include a membership expression with multiple unresolved conditions to ensure unknown elements are retained rather than silently discarded. No execution tools were available.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 110,
+          "symbol": "union_sets(FiniteSet, Set)"
+        },
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 113,
+          "symbol": "union_sets: residual finite-set construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 55523,
+  "llm_calls": 6
+}

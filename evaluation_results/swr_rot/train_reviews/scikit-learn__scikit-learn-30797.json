@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-30797",
+  "findings": [
+    {
+      "rule_id": "BASH_CONDITIONAL_MISSING_DELIMITER",
+      "severity": "medium",
+      "title": "Restore whitespace before the upload condition's closing brackets",
+      "explanation": "The changed condition is invalid Bash syntax. In `\"workflow_dispatch\"]]`, the adjacent brackets become part of the comparison's right-hand word rather than the separate `]]` token required to close `[[`. The parser therefore reaches `;` without a closing conditional delimiter. Any invocation that executes or sources build_tools/github/upload_anaconda.sh fails while parsing this condition, regardless of GITHUB_EVENT_NAME; scheduled and manually dispatched uploads cannot reach the organization/token selection or upload commands. The original condition separated the closing brackets with whitespace, so this failure is introduced by the edit rather than by intentionally removing Cirrus support.",
+      "path": "build_tools/github/upload_anaconda.sh",
+      "line": 7,
+      "evidence": "        || \"$GITHUB_EVENT_NAME\" == \"workflow_dispatch\"]]; then",
+      "fix": "Insert whitespace before the closing delimiter: `|| \"$GITHUB_EVENT_NAME\" == \"workflow_dispatch\" ]]; then`.",
+      "test": "Run `bash -n build_tools/github/upload_anaconda.sh` and assert exit status zero. Exercise the script with upload commands stubbed for schedule, workflow_dispatch, and a non-nightly event, asserting that each selects the expected upload destination.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "build_tools/github/upload_anaconda.sh",
+          "line": 6,
+          "symbol": "top-level upload destination conditional"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1164",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 67021,
+  "llm_calls": 5
+}

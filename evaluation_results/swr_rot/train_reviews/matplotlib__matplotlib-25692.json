@@ -1,0 +1,95 @@
+{
+  "id": "matplotlib__matplotlib-25692",
+  "findings": [
+    {
+      "rule_id": "incorrect-mathtext-detection",
+      "severity": "medium",
+      "title": "Wrapping sends unmatched dollar signs and incomplete math expressions to the mathtext parser",
+      "explanation": "_get_wrapped_text measures successively longer space-separated prefixes, not just complete expressions. For example, wrapping 'This is $x + y$' first measures 'This is', then 'This is $x'. The new predicate marks the latter as mathtext, and the renderer's mathtext parser raises ValueError because its opening dollar delimiter has no closing delimiter. Thus even a valid complete expression can now fail during canvas.draw(), without needing a narrow figure. A literal unmatched-dollar string such as 'price $5' fails through the same path. Previously these measurements used ismath=False. Existing text preprocessing distinguishes balanced, unescaped dollar delimiters; merely finding '$' does not implement that rule. Escaped dollars also satisfy this new predicate, although they do not establish a math expression. The added test does not encounter an incomplete expression: its entire '$\\overline{\\mathrm{long}}$' expression is one space-separated token. TeX rendering is not implicated because _get_wrapped_text bypasses wrapping when usetex is enabled.",
+      "path": "lib/matplotlib/text.py",
+      "line": 646,
+      "evidence": "has_math = '$' in text",
+      "fix": "Apply the existing text-preprocessing rules to each candidate before measuring it, rather than treating any dollar character as proof of mathtext. Ensure incomplete prefixes are measured without invoking the mathtext parser. If wrapping must preserve expressions containing spaces, keep complete math spans together when choosing break positions.",
+      "test": "With the Agg backend, create a wide figure and fig.text(0, 0.5, 'This is $x + y$', wrap=True), then call fig.canvas.draw(); drawing must succeed and the text must remain unchanged when it fits. Add a literal unmatched-dollar case, 'price $5', and an escaped-dollar case, r'price \\$5', verifying successful drawing and widths consistent with normal text preprocessing. The existing test_mathwrap should remain as the complete single-token expression case.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 654,
+          "symbol": "Text._get_wrapped_text: constructs and measures successive space-separated prefixes"
+        },
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 646,
+          "symbol": "Text._get_rendered_text_width: classifies an incomplete prefix as mathtext"
+        },
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 648,
+          "symbol": "renderer.get_text_width_height_descent: ismath=True invokes mathtext parsing"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "wrap-ignores-parse-math",
+      "severity": "medium",
+      "title": "Wrapping interprets dollar-delimited text as math even when parse_math is disabled",
+      "explanation": "The new math flag depends only on the string and ignores the Text object's parse_math setting. For Text(..., parse_math=False, wrap=True), normal layout renders '$x$' literally, including both dollar signs, but _get_rendered_text_width now measures it as a math expression. A concrete width counterexample is to compare _get_rendered_text_width('$x$') against ceil(renderer.get_text_width_height_descent('$x$', text.get_fontproperties(), False)[0]) with the default Agg font: the new helper measures the mathematical x rather than the literal three-character string. Since _get_wrapped_text uses this width to decide line breaks, a line-width boundary between the mathematical and literal widths produces a line that is retained even though the rendered literal text exceeds the available width. Disabled parsing can also expose the unmatched-dollar failure described separately. The new regression test uses default parsing and therefore does not check this compatibility contract.",
+      "path": "lib/matplotlib/text.py",
+      "line": 651,
+      "evidence": "self._renderer.get_text_width_height_descent(\n            text,\n            self.get_fontproperties(),\n            has_math)",
+      "fix": "Use Text._preprocess_math to obtain the processed string and math flag for measurement, preserving parse_math=False and escaped-dollar handling. Retain the existing usetex wrapping bypass.",
+      "test": "Create an Agg Text with parse_math=False and wrap=True, draw it to initialize the renderer, and assert that _get_rendered_text_width('$x$') equals the rounded renderer width with ismath=False. Also exercise actual wrapping of a multiword literal-dollar string with an available width between its math and literal measurements, asserting line breaks determined by the literal widths.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 654,
+          "symbol": "Text._get_wrapped_text: selects line breaks using measured candidate widths"
+        },
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 646,
+          "symbol": "Text._get_rendered_text_width: computes has_math without consulting parse_math"
+        },
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 651,
+          "symbol": "renderer.get_text_width_height_descent: measures math despite literal rendering configuration"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15790,
+  "llm_calls": 5
+}

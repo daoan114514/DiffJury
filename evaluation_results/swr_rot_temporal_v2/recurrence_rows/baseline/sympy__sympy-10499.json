@@ -1,0 +1,89 @@
+{
+  "id": "sympy__sympy-10499",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "backend-abs-semantics",
+      "severity": "medium",
+      "title": "Built-in abs bypasses mpmath conversion and precision",
+      "explanation": "For modules='mpmath', this replaces the previous Abs-to-fabs translation with Python's built-in abs. mpmath.fabs converts Python numeric inputs into mpmath numbers before computing their magnitude; built-in abs computes Python complex magnitudes in double precision instead. For example, under mpmath.workdps(80), lambdify(x, Abs(x), modules='mpmath')(1+1j) now returns a Python float rather than an arbitrary-precision mpf approximation of sqrt(2). A more severe boundary example is complex(1.7e308, 1.7e308): built-in abs raises OverflowError because the magnitude exceeds the float range, whereas mpmath.fabs returns a finite mpf. Existing tests omit the mpmath backend and use the exactly representable magnitude of 3+4j, so they do not detect either regression.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 150,
+      "evidence": "namespace['Abs'] = abs",
+      "fix": "Retain the mpmath Abs-to-fabs translation and install built-in abs only as a fallback when the backend has not supplied Abs.",
+      "test": "At 80 decimal digits, invoke a real mpmath-backed lambdified Abs on 1+1j and assert that the result is an mpf and agrees with mpmath.sqrt(2) at that precision. Also evaluate complex(1.7e308, 1.7e308) and assert a finite result without an exception.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 154,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 150,
+          "symbol": "_import"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "backend-abs-input-compatibility",
+      "severity": "medium",
+      "title": "NumPy-backed Abs no longer accepts numeric sequences",
+      "explanation": "Previously, NUMPY_TRANSLATIONS mapped Abs to NumPy's abs, which accepts numeric lists and tuples and returns an ndarray. The unconditional assignment now resolves Abs to Python's built-in abs instead. Consequently, lambdify(x, Abs(x), modules='numpy')([-1, 2]) changes from returning an array containing [1, 2] to raising TypeError because lists have no __abs__ method. NumPy arrays themselves still work through ndarray.__abs__, so the new scalar-only Abs assertions do not expose the lost sequence-input behavior.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 150,
+      "evidence": "namespace['Abs'] = abs",
+      "fix": "Preserve the NumPy Abs-to-abs translation and use built-in abs only for backends without an appropriate Abs implementation.",
+      "test": "Invoke lambdify(x, Abs(x), modules='numpy') with [-1, 2] and (-1, 2), and assert ndarray results equal to [1, 2]. Retain scalar-complex and ndarray cases to verify that restoring the translation preserves those paths.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 154,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 150,
+          "symbol": "_import"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

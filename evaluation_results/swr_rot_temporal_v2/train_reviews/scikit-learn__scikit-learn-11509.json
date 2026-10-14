@@ -1,0 +1,112 @@
+{
+  "id": "scikit-learn__scikit-learn-11509",
+  "findings": [
+    {
+      "rule_id": "subprocess-tests-wrong-interpreter",
+      "severity": "medium",
+      "title": "The import check can test a different interpreter and scikit-learn installation",
+      "explanation": "Module discovery uses the parent's sklearn.__path__, but execution invokes the bare PATH-resolved command 'python' and passes only module names. Reproduce by running the tests with an explicit virtual-environment interpreter without activating that environment, from a directory outside the checkout: the virtual environment contains the candidate scikit-learn, while PATH resolves 'python' to a global interpreter containing a warning-free older installation with the same module names. The parent discovers candidate modules, but the child imports the global installation and can return empty output, making this test pass even when the candidate emits import warnings. Neither the command nor the generated import statements preserve or verify the parent package location. This false pass is independent of the exception-to-skip handler.",
+      "path": "sklearn/tests/test_init.py",
+      "line": 39,
+      "evidence": "        pkgs = pkgutil.iter_modules(path=sklearn.__path__, prefix='sklearn.')\n        import_modules = '; '.join(['import ' + modname\n                                    for _, modname, _ in pkgs\n                                    if not modname.startswith('_')])\n\n        message = subprocess.check_output(['python', '-Wdefault',\n                                           '-c', import_modules],\n                                          stderr=subprocess.STDOUT)",
+      "fix": "Launch the child with sys.executable rather than 'python'. Ensure its import path selects the same package under test, and verify the child sklearn.__file__ resolves to the expected installation before checking module imports.",
+      "test": "Run the test using an explicit virtual-environment interpreter while PATH points to a second interpreter with another scikit-learn installation. Verify that the child uses the parent interpreter and package location, and that an import warning introduced only in the candidate installation is detected.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 34,
+          "symbol": "pkgutil.iter_modules"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 35,
+          "symbol": "import_modules construction"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 39,
+          "symbol": "subprocess.check_output"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 54,
+          "symbol": "warning assertion"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-664",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-failure-converted-to-skip",
+      "severity": "medium",
+      "title": "The exception handler converts every detected import regression into a skip",
+      "explanation": "The try block includes both subprocess.check_output and the assertions. If a module emits an unfiltered warning such as 'UserWarning: import regression', the successful subprocess output reaches line 54 and raises AssertionError, which inherits from Exception. The handler catches it and calls pytest.skip, so pytest records a skipped test rather than a failure. Likewise, a module raising ImportError causes check_output to raise CalledProcessError, which is also caught and converted to a skip. Thus neither warning regressions nor import failures can fail this new test. Warning-line filtering does not prevent this counterexample: a plain UserWarning containing none of the excluded substrings survives filtering.",
+      "path": "sklearn/tests/test_init.py",
+      "line": 57,
+      "evidence": "        assert 'Warning' not in message\n        assert 'Error' not in message\n\n    except Exception as e:\n        pytest.skip('soft-failed test_import_sklearn_no_warnings.\\n'\n                    ' %s' % e)",
+      "fix": "Remove the broad exception-to-skip handler. Let assertion and subprocess failures fail the test, including captured subprocess output in the failure diagnostic. If a genuinely unsupported environment needs a skip, check that specific prerequisite separately before executing the import check.",
+      "test": "Exercise the test with a discovered module that emits 'UserWarning: import regression' and exits successfully, then with one that raises ImportError. Assert that pytest reports a failure in both cases, not a skip. Also verify that a warning-free import succeeds.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 30,
+          "symbol": "test_import_sklearn_no_warnings"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 39,
+          "symbol": "subprocess.check_output"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 54,
+          "symbol": "warning assertion"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 57,
+          "symbol": "except Exception"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 58,
+          "symbol": "pytest.skip"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 38445,
+  "llm_calls": 6,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\scikit-learn__scikit-learn-11509.json",
+  "borrowed_sha256": "d982761c7c75a48e53b43e9766ccdfd09c1bd45dd0abb44186a5b25bb666229f"
+}

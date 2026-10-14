@@ -1,0 +1,137 @@
+{
+  "id": "sympy__sympy-20663",
+  "repository": "sympy/sympy",
+  "pull_request": 20663,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sympy/core/add.py",
+      "line": 633,
+      "cwe": "CWE-682",
+      "rule_id": "incorrect-zero-inference",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 80182,
+  "llm_calls": 5,
+  "input_tokens": 11173,
+  "output_tokens": 2834,
+  "total_tokens": 14007,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-5af1f6aa"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

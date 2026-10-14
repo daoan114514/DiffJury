@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-9376",
+  "findings": [
+    {
+      "rule_id": "correctness-review/prefix-sum-boundary",
+      "severity": "medium",
+      "title": "Index 1 incorrectly applies two cumulative increments",
+      "explanation": "The special case should apply only at index 0. At index 1, an individual gradient/proximal increment is cumulative_sums[1] - cumulative_sums[0], not cumulative_sums[1]. For sample_itr=2 and last_update_ind=1, the displayed loop visits index 1; the preceding assignment last_update_ind = sample_itr - 1 also produces this loop bound. A concrete helper-level counterexample is cumulative_sums=[1,2], cumulative_sums_prox=[0.25,0.5], sum_gradient[idx]=2, and weights[idx]=10. The previous index-1 calculation produces soft_threshold(10-2*1,0.25)=7.75; the changed calculation produces soft_threshold(10-2*2,0.5)=5.5. Thus it reapplies the increment represented by index 0 and changes both the gradient and proximal update. Index 0, in contrast, correctly needs the full cumulative value and now avoids the previous negative-index access; that improvement is not a defect. The supplied excerpt does not contain initialization/accumulation sites, complete reset logic, callers, or tests, so their exact implementation and end-to-end coverage cannot be independently verified in this no-tools review.",
+      "path": "sklearn/linear_model/sag_fast.pyx",
+      "line": 617,
+      "evidence": "if lagged_ind > 1:\n    grad_step = (cumulative_sums[lagged_ind]\n       - cumulative_sums[lagged_ind - 1])\n    prox_step = (cumulative_sums_prox[lagged_ind]\n       - cumulative_sums_prox[lagged_ind - 1])\nelse:\n    grad_step = cumulative_sums[lagged_ind]\n    prox_step = cumulative_sums_prox[lagged_ind]",
+      "fix": "Change the condition to lagged_ind > 0, preserving the full cumulative value only for index 0.",
+      "test": "Exercise the real per-step proximal-update branch with nonzero cumulative entries at indices 0 and 1, sample_itr=2, and last_update_ind=1. Assert that the update uses only the difference between entries 1 and 0, matching an explicit non-lagged reference. Also exercise sample_itr=1 with last_update_ind=0 to verify that index 0 uses its full value without accessing index -1. Cover the reset path that assigns last_update_ind=sample_itr-1.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/sag_fast.pyx",
+          "line": 615,
+          "symbol": "lagged_update"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-193",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12695,
+  "llm_calls": 5
+}

@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-16637",
+  "findings": [
+    {
+      "rule_id": "parallel-bounded-entity-distance",
+      "severity": "medium",
+      "title": "Distance to a disjoint parallel segment or ray raises ValueError",
+      "explanation": "For Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1)) and either Segment3D(Point3D(0, 0, 1), Point3D(1, 0, 1)) or Ray3D with those same points, the mathematical distance is 1. The initial intersection check returns [], so execution enters the new bounded-entity branch. The supporting line is also parallel and disjoint: its point has z=1 for every parameter, and the intersection solver returns [] for the constant equation 1=0. Unpacking that empty result at line 287 deterministically raises ValueError instead of returning 1. Previously, the normal-projection calculation returned 1 for both entities. The added tests cover nonparallel segments on either side of the intersection, intersecting segments, and rays directed toward or away from the plane, but none exercises a disjoint parallel segment or ray.",
+      "path": "sympy/geometry/plane.py",
+      "line": 287,
+      "evidence": "if isinstance(o, (Segment3D, Ray3D)):\n    a, b = o.p1, o.p2\n    pi, = self.intersection(Line3D(a, b))",
+      "fix": "Store the supporting-line intersection before unpacking it. If it is empty, return self.distance(a), since every point of a parallel segment or ray has the same distance to the plane; otherwise continue with the existing endpoint-selection logic.",
+      "test": "For the z=0 plane, assert that distance to the segment from (0,0,1) to (1,0,1) and to the ray with the same source and second point both equals 1 without raising. Retain the existing crossing and closest-endpoint tests, and include parallel entities contained in the plane with expected distance 0.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 282,
+          "symbol": "Plane.distance: initial intersection check does not return for a disjoint entity"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 287,
+          "symbol": "Plane.distance: intersect and unpack the supporting line"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 407,
+          "symbol": "Plane.intersection: solve((a - p1).dot(n), t), returning [] when there is no solution"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 19869,
+  "llm_calls": 5
+}

@@ -1,0 +1,165 @@
+{
+  "id": "sympy__sympy-287",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "inexact-domain-is-not-necessarily-numerical",
+      "severity": "medium",
+      "title": "Symbolic coefficients over an inexact domain are incorrectly sent to nroots()",
+      "explanation": "An inexact coefficient domain does not imply that every coefficient can be evaluated numerically. For example, roots(Poly(x - y, x, domain='RR[y]')) is a valid symbolic linear-root request, previously handled by roots_linear() with result {y: 1}. RR[y] (and its associated fraction field) is inexact but contains the unresolved symbol y. The new branch sends this polynomial to nroots(), whose numerical coefficient conversion cannot evaluate y and raises a domain/conversion error instead of returning the symbolic root. The degree-one fallback is now unreachable for this input. The new inexact-root tests exercise only numerical coefficients and do not cover this distinction.",
+      "path": "sympy/polys/polyroots.py",
+      "line": 508,
+      "evidence": "if not f.get_domain().is_Exact:\n            for r in f.nroots():\n                _update_dict(result, r, 1)\n        elif f.degree() == 1:",
+      "fix": "Restrict the nroots() dispatch to numerical ground coefficient domains, rather than all inexact domains. Preserve the symbolic root algorithms for polynomial rings and fraction fields containing unresolved coefficient symbols.",
+      "test": "Add a regression invoking roots(Poly(x - y, x, domain='RR[y]')) and assert that it returns {y: 1} without raising. Also cover a quadratic with symbolic coefficients over RR[y], while retaining the existing numerical RR-domain tests.",
+      "confidence": 0.73,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polyroots.py",
+          "line": 508,
+          "symbol": "roots"
+        },
+        {
+          "path": "sympy/polys/polyroots.py",
+          "line": 509,
+          "symbol": "f.nroots"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "discarded-test-comparisons",
+      "severity": "medium",
+      "title": "All new nth-power polynomial result checks discard their comparisons",
+      "explanation": "The five successful-result checks are bare equality expressions rather than assertions. Python evaluates and discards their Boolean results, so the test succeeds even when every expected polynomial is wrong. For example, an implementation that validates n and rejects multivariate input but otherwise returns the original polynomial would pass this test: its results for n=2, 3, 4, and 12 would all differ from the expected values, yet none of those differences fails the test. Only the exception behavior is actually enforced.",
+      "path": "sympy/polys/tests/test_polytools.py",
+      "line": 2099,
+      "evidence": "nth_power_roots_poly(f, 1) == f\n\n    raises(ValueError, \"nth_power_roots_poly(f, 0)\")\n    raises(ValueError, \"nth_power_roots_poly(f, x)\")\n\n    factor(nth_power_roots_poly(f, 2)) == f_2\n    factor(nth_power_roots_poly(f, 3)) == f_3\n    factor(nth_power_roots_poly(f, 4)) == f_4\n    factor(nth_power_roots_poly(f, 12)) == f_12",
+      "fix": "Add assert to each of the five equality checks.",
+      "test": "Run test_nth_power_roots_poly after adding assertions, and verify that temporarily returning F unchanged from the wrapper makes the successful-result checks fail.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polytools.py",
+          "line": 2091,
+          "symbol": "test_nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4871,
+          "symbol": "nth_power_roots_poly"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-561",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-4ff368df",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-7b0b7360",
+      "K-93a099ce",
+      "K-95f8bd01",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-ddb18739",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-93a099ce",
+          "K-09474f0c",
+          "K-ad16cdc6",
+          "K-2b42cad0"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa",
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-e820d88f",
+          "K-7ac64342",
+          "K-7b0b7360",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce"
+        ],
+        "tokens": 647,
+        "budget": 600,
+        "dropped": [
+          "K-d0414ebb",
+          "K-83dfddfe",
+          "K-25a05e81",
+          "K-0faed540",
+          "K-e172ac33",
+          "K-e13d441c"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

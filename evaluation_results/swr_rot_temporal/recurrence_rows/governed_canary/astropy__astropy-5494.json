@@ -1,0 +1,148 @@
+{
+  "id": "astropy__astropy-5494",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "ignored-coordinate-system-argument",
+      "severity": "medium",
+      "title": "The new coordsys argument never affects the region file",
+      "explanation": "The public signature introduces coordsys=None, and its documentation says radesys is used only when coordsys is unspecified. However, the output statement always uses self.wcs.radesys. The changed test provides a concrete counterexample: passing coordsys='FK5' to an ICRS WCS still writes ICRS. Consequently, callers cannot select the documented coordinate-system declaration. The assertion at test_wcs.py:624 enshrines this defect instead of validating the new argument. Separately, the change from append to overwrite does replace an existing file, but the second-call assertion that the file still has four lines explicitly supports replacement behavior; that intentional change is not reported as a separate defect.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "Write the explicitly supplied coordsys when it is not None, and select the default only when it is omitted. Change the second test assertion to expect 'FK5\\n'.",
+      "test": "Use the existing ICRS fixture: verify that the default call writes ICRS, then call footprint_to_file with coordsys='FK5' and verify that it writes FK5 and preserves the requested red color.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/tests/test_wcs.py",
+          "line": 618,
+          "symbol": "w.footprint_to_file(testfile, coordsys='FK5', color='red')"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "coordinate-system declaration"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "missing-non-equatorial-coordinate-system-fallback",
+      "severity": "medium",
+      "title": "An empty RADESYS removes the coordinate declaration for linear WCS footprints",
+      "explanation": "RADESYS describes an equatorial reference system and is empty for supported non-equatorial WCS configurations. For example, a two-dimensional linear WCS with CTYPE1=CTYPE2='LINEAR', CRPIX=(1,1), CRVAL=(1000,2000), CDELT=(2,2), and image dimensions 10 by 10 has world-coordinate corners ranging from (1000,2000) to (1018,2018). Previously, footprint_to_file emitted 'linear', allowing DS9 to interpret these values as linear world coordinates. The changed statement emits an empty line instead. Without a coordinate-system declaration, DS9 defaults to physical coordinates and interprets those same values as image positions, placing the footprint incorrectly. There is no guard or fallback before the polygon is written. The added test covers only an equatorial ICRS WCS, so it does not exercise this regression.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "When coordsys is omitted, choose a valid DS9 declaration appropriate to the WCS rather than assuming RADESYS is populated. Preserve the former 'linear' declaration for linear WCS configurations, and honor explicit overrides.",
+      "test": "Construct the linear WCS described above, write its footprint, and assert that the file declares 'linear' and contains its world-coordinate corners rather than leaving the declaration blank. Also cover a Galactic WCS with a 'galactic' declaration to verify non-equatorial default selection.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "coordinate-system declaration from self.wcs.radesys"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2666,
+          "symbol": "self.calc_footprint().tofile"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-1cc8d780",
+      "K-3bfbed4b",
+      "K-67701866",
+      "K-9e6b3c79",
+      "K-b36de422",
+      "K-ce7e81ce"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ce7e81ce",
+          "K-b36de422",
+          "K-9e6b3c79",
+          "K-1cc8d780",
+          "K-67701866"
+        ],
+        "tokens": 312,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bfbed4b"
+        ],
+        "tokens": 117,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

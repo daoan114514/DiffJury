@@ -1,0 +1,184 @@
+{
+  "id": "sympy__sympy-15278",
+  "findings": [
+    {
+      "rule_id": "regression-test-call-signature",
+      "severity": "medium",
+      "title": "Empty-shape regression test passes an unsupported keyword to Array.zeros",
+      "explanation": "Array.zeros accepts shape dimensions as variadic positional arguments, not a shape keyword. The added call therefore raises TypeError for the unexpected keyword argument before reaching the changed reduce initializer. The regression test fails instead of exercising the newly supported empty dimension sequence. The empty-shape call for this API is Array.zeros(), which should construct the rank-zero array and reach the assertion.",
+      "path": "sympy/tensor/array/tests/test_immutable_ndim_array.py",
+      "line": 394,
+      "evidence": "arr = Array.zeros(shape=())",
+      "fix": "Use Array.zeros() or Array.zeros(*()) to exercise the empty positional shape without changing the public method signature.",
+      "test": "Run test_zeros_without_shape with Array.zeros() and retain the exact Array(0) assertion. Confirm the corrected test fails with the previous reduce implementation and passes with the new S.One initializer.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/array/tests/test_immutable_ndim_array.py",
+          "line": 393,
+          "symbol": "test_zeros_without_shape"
+        },
+        {
+          "path": "sympy/tensor/array/tests/test_immutable_ndim_array.py",
+          "line": 394,
+          "symbol": "Array.zeros"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "tensor-metric-axis-order",
+      "severity": "medium",
+      "title": "Raising or lowering the third axis also transposes unrelated axes",
+      "explanation": "The metric contraction places the newly transformed axis first, followed by the remaining original axes. Swapping axis zero with the original position does not restore their order when that position exceeds one. A concrete counterexample is T(i,j,k), with replacement {T(i,j,k): Array(range(8)).reshape(2,2,2), L: diag(1,-1)}, requesting [i,j,-k]. Calling the changed matching helper directly with that array, free_ind1=[i,j,-k], and free_ind2=[i,j,k] returns [[[0,-1],[4,-5]],[[2,-3],[6,-7]]], whereas lowering only k must return [[[0,-1],[2,-3]],[[4,-5],[6,-7]]]. At position two, the contraction produces axis order [k,i,j]; the swap changes it to [j,i,k], not [i,j,k]. The final index permutation is the identity because free_ind2 has already been updated to the requested variances, so it cannot correct this corruption. This affects otherwise valid rank-three and higher replacements independently of the spinor TODO.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2714,
+      "evidence": "permu[0], permu[pos] = permu[pos], permu[0]",
+      "fix": "Move the leading transformed axis back to its original position while preserving the relative order of every other axis. Use the permutation list(range(1, pos + 1)) + [0] + list(range(pos + 1, len(free_ind1))) instead of a swap.",
+      "test": "Add a regression for T(i,j,k) with eight distinct components and diag(1,-1), requesting [i,j,-k], and assert the expected array above. Exercise the matching helper directly as well as replace_with_arrays. Also cover raising axis two and transforming the last axis of a rank-four tensor.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2725,
+          "symbol": "contract_and_permute(metric, array, pos)"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2712,
+          "symbol": "tensorcontraction"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2715,
+          "symbol": "permutedims"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "tensor-metric-index-type",
+      "severity": "medium",
+      "title": "Reordered mixed-type indices select the metric of the wrong index type",
+      "explanation": "pos2up and pos2down contain positions in free_ind2, but index_types1 contains types in free_ind1 order. Those coordinate systems differ when the requested indices are reordered. For distinct index types L and M, let i belong to L, j belong to M, and H have slot types [L,M]. Use replacement {H(i,j): [[1,2],[3,4]], L: diag(1,2), M: diag(3,4)} and request [j,-i]. The matching helper receives free_ind1=[j,-i] and free_ind2=[i,j], records pos2down=[0], and then selects index_types1[0], which is M, to lower i. Its actual result is [[3,12],[6,16]], rather than the correct [[1,6],[2,8]]. This counterexample can be reproduced directly through the changed helper and does not depend on omitted extraction details. There is no guard preventing the incorrect calculation when the two types have equal dimensions; when their dimensions differ, the wrong metric instead makes the contraction incompatible. The raising loop has the same position/type mismatch.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2724,
+      "evidence": "metric = replacement_dict[index_types1[pos]]",
+      "fix": "Associate each recorded source-axis position with the tensor index type of the index being transformed, or retrieve its type from free_ind2[pos]. Apply this correction to both the raising and lowering loops.",
+      "test": "Add the two-type example above and assert [[1,6],[2,8]] for requested order [j,-i]. Test the inverse-metric raising counterpart, unequal type dimensions, and a rank-three mixed-type permutation with a variance change on source axis zero to isolate this defect from the separate axis-restoration defect.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2688,
+          "symbol": "free2remaining.index(-index1)"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2694,
+          "symbol": "pos2down.append(pos2)"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2724,
+          "symbol": "replacement_dict[index_types1[pos]]"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2725,
+          "symbol": "contract_and_permute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-discovery-and-execution",
+      "severity": "medium",
+      "title": "Warning decorator executes tests at import and replaces them with None",
+      "explanation": "The decorator calls f() immediately and implicitly returns None. Consequently, applying @filter_warnings_decorator executes each decorated legacy component-data test during module import and binds its test_* name to None. These names are no longer callable test functions and cannot be discovered normally by the test runner. Test selection cannot prevent their execution or their legacy component-data setup, including execution of the optional NumPy test. Furthermore, an assertion or dependency-related exception escaping any decorated test aborts module import instead of being reported as an individual test failure. This is separate from the intended suppression of deprecation warnings: the suppression must happen when a discoverable wrapper is invoked, not when the module is imported.",
+      "path": "sympy/tensor/tests/test_tensor.py",
+      "line": 23,
+      "evidence": "def filter_warnings_decorator(f):\n    with warnings.catch_warnings():\n        warnings.filterwarnings(\"ignore\", category=SymPyDeprecationWarning)\n        f()",
+      "fix": "Return a callable wrapper, preserving the test name with functools.wraps, and place catch_warnings, filterwarnings, and the invocation of f inside that wrapper.",
+      "test": "Decorate a function that records invocations. Assert decoration does not invoke it, the returned object is callable, and invoking it executes the function under warning suppression. Also verify collection retains the decorated legacy tests and that importing the module alone does not execute them.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 1303,
+          "symbol": "@filter_warnings_decorator applied to test_valued_tensor_iter"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 20,
+          "symbol": "filter_warnings_decorator"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 23,
+          "symbol": "f"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 105793,
+  "llm_calls": 6
+}

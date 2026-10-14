@@ -1,0 +1,124 @@
+{
+  "id": "sympy__sympy-15849",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "printer-settings-preservation",
+      "severity": "medium",
+      "title": "Higher-order LaTeX fallback discards the active printer settings",
+      "explanation": "The new fallback creates a default LatexPrinter rather than using the current printer. A concrete counterexample is t = dynamicsymbols._t; omega = dynamicsymbols('omega'); VectorLatexPrinter({'symbol_names': {t: r'\\tau'}}).doprint(t + omega.diff(t, 5)). The standalone t is rendered as \\tau, but the derivative's denominator and function argument are rendered as t, incorrectly displaying the same symbol with two names in one expression. Orders one through four use the specialized dot branches; order five enters this new fallback. The added tests assert default output for orders two through five and therefore do not detect settings loss or inconsistent rendering inside a surrounding expression. Test execution and the availability of a module-level AppliedUndef import cannot be confirmed from the supplied hunks without tools; neither is reported as a separate defect.",
+      "path": "sympy/physics/vector/printing.py",
+      "line": 153,
+      "evidence": "return LatexPrinter().doprint(der_expr)",
+      "fix": "Delegate to super(VectorLatexPrinter, self)._print_Derivative(der_expr) so the standard derivative implementation retains the active settings and recursive printer dispatch.",
+      "test": "Print a fifth-order dynamicsymbol derivative, both alone and added to t, using symbol_names={dynamicsymbols._t: r'\\tau'}. Assert that the denominator, function argument, and standalone symbol all use \\tau. Retain the existing default-output assertions for orders one through five.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/vector/printing.py",
+          "line": 153,
+          "symbol": "VectorLatexPrinter._print_Derivative"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0faed540",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-4073d146",
+      "K-524f3b73",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e13d441c",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-2ec8eae2",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-b5e72943"
+        ],
+        "tokens": 343,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4073d146",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-e172ac33",
+          "K-0faed540",
+          "K-524f3b73",
+          "K-c01df042",
+          "K-e13d441c",
+          "K-ddb18739"
+        ],
+        "tokens": 613,
+        "budget": 600,
+        "dropped": [
+          "K-e820d88f",
+          "K-4b143eb5",
+          "K-0117d999",
+          "K-7b0b7360",
+          "K-25a05e81",
+          "K-46b8b947"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

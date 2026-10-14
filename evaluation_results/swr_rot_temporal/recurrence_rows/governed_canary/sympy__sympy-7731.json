@@ -1,0 +1,98 @@
+{
+  "id": "sympy__sympy-7731",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "git-failure-diagnostics",
+      "severity": "low",
+      "title": "Git deployment failures lose their actionable diagnostics",
+      "explanation": "If cloning fails because the deployment token has expired, Git emits its authentication failure on stderr and returns nonzero. Line 44 now discards that diagnostic, leaving only the preceding 'Cloning repository' message and any subsequent shell errors. Likewise, line 48 now hides errors from adding the remote, such as an existing origin or a failure to write the repository configuration. Before this change, both commands discarded stdout but preserved stderr; afterward, both preserve stdout and discard stderr. Neither redirection changes the commands' exit statuses or the script's existing failure-handling behavior. Successful quiet cloning and remote addition ordinarily produce no stdout, so the concrete regression is lost failure information rather than newly exposed normal output. This makes failed documentation deployments harder to diagnose.",
+      "path": "bin/build_doc.sh",
+      "line": 44,
+      "evidence": "git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/sympy/sympy_doc.git  gh-pages 2>/dev/null\n...\ngit remote add origin https://${GH_TOKEN}@github.com/sympy/sympy_doc.git 2>/dev/null",
+      "fix": "Preserve useful Git failure diagnostics while redacting the token and credential-bearing URL. If stderr must be captured, emit sanitized diagnostics on failure and preserve the original exit status.",
+      "test": "Run the deployment Git commands against a controlled authentication-failure endpoint and a repository where origin already exists. Verify that each failure produces an actionable, credential-free diagnostic and retains the same nonzero exit status as before the patch.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "bin/build_doc.sh",
+          "line": 43,
+          "symbol": "echo deployment progress"
+        },
+        {
+          "path": "bin/build_doc.sh",
+          "line": 44,
+          "symbol": "git clone"
+        },
+        {
+          "path": "bin/build_doc.sh",
+          "line": 48,
+          "symbol": "git remote add origin"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-778",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-9f4e51f5"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-9f4e51f5"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-13017",
+  "findings": [
+    {
+      "rule_id": "symbol-validation-checks-presence-not-value",
+      "severity": "medium",
+      "title": "Symbol validation now accepts symbolic constants as unknowns",
+      "explanation": "SymPy expressions expose is_Symbol and is_Function even when both flags are False. Consequently, the new hasattr check accepts S.One as a supplied unknown. For the concrete call linsolve(Matrix([[1, 2]]), S.One), the augmented matrix has a unique solution of 2; the solver returns {(2,)} without needing any free-parameter replacement. This reports a solution for a supplied constant that cannot take the value 2. Before the change, evaluating S.One.is_Symbol or S.One.is_Function produced False and linsolve raised ValueError. The same validation bypass applies to other non-Symbol, non-Function SymPy expressions. There is no subsequent check on the unique-solution path to restore the previous input contract.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1271,
+      "evidence": "    if not any([hasattr(symbols[0], attr) for attr in ['is_Symbol', 'is_Function']]):",
+      "fix": "Check the truth values of is_Symbol and is_Function, using getattr with a False default to preserve rejection of objects lacking those attributes.",
+      "test": "Assert that linsolve(Matrix([[1, 2]]), S.One) and linsolve(Matrix([[1, 2]]), x + 1) raise ValueError, while the corresponding call with x returns {(2,)}. Exercise the real linsolve path rather than mocking its validation.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1271,
+          "symbol": "linsolve"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1293,
+          "symbol": "A.gauss_jordan_solve"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1302,
+          "symbol": "linsolve return"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 17923,
+  "llm_calls": 5
+}

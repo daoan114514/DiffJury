@@ -1,0 +1,55 @@
+{
+  "id": "scikit-learn__scikit-learn-8567",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "fitted-state-consistency",
+      "severity": "medium",
+      "title": "Saved precisions no longer agree with the posterior covariance",
+      "explanation": "The change saves the precisions used to calculate coef_ before updating the local alpha_ and lambda_. On either convergence or iteration exhaustion, covariance construction still uses the updated locals at lines 238–239. Consequently, the exposed precisions and coefficients now agree, but sigma_ no longer represents the posterior defined by those precisions. The required invariant is sigma_ = inverse(alpha_ * X.T @ X + lambda_ * I), using the preprocessed training matrix and estimator attributes. A concrete exhaustion case is BayesianRidge(n_iter=1, fit_intercept=False).fit([[1.], [1.]], [0., 2.]). With default initialization and priors, the saved precisions are approximately 1 and 1, while the updated locals are approximately 0.6 and 1.5. The required covariance is therefore approximately 1/3, but covariance computed from the updated locals is approximately 1/2.7. Predictive uncertainty then combines this covariance with noise precision from a different iteration. Before this change, the exposed precisions and covariance used the same updated values; their newly introduced disagreement is distinct from the pre-existing coefficient/update ordering problem. The added intercept-only assertion does not inspect covariance or predictive variance and therefore misses this regression. The supplied diff does not establish an independent scores_ defect.",
+      "path": "sklearn/linear_model/bayes.py",
+      "line": 206,
+      "evidence": "            self.alpha_ = alpha_\n            self.lambda_ = lambda_\n\n            # Update alpha and lambda\n...\n        self.coef_ = coef_\n        sigma_ = np.dot(Vh.T,\n                        Vh / (eigen_vals_ + lambda_ / alpha_)[:, np.newaxis])",
+      "fix": "Construct and scale the final covariance using self.alpha_ and self.lambda_, the precisions retained for the final coefficients, rather than the subsequently updated local variables.",
+      "test": "Add a regression using X=[[1.], [1.]], y=[0., 2.], fit_intercept=False, and n_iter=1. Assert sigma_ equals inverse(model.alpha_ * X.T @ X + model.lambda_ * I). For a prediction at x=[1.], also assert the returned variance equals x @ expected_sigma @ x.T + 1/model.alpha_. Repeat the covariance invariant for a normally converged fit, and assert coefficient equality with Ridge rather than only intercept equality.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 206,
+          "symbol": "BayesianRidge.fit"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 238,
+          "symbol": "BayesianRidge.fit covariance construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

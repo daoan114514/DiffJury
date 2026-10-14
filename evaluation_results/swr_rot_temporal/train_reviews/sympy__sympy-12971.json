@@ -1,0 +1,59 @@
+{
+  "id": "sympy__sympy-12971",
+  "findings": [
+    {
+      "rule_id": "noncommuting-derivative-removal",
+      "severity": "medium",
+      "title": "Removing an interior differentiation variable is invalid for differentiation with respect to derivatives",
+      "explanation": "The new membership check treats every differentiation variable as commuting with the integration variable. SymPy also permits differentiation with respect to an unevaluated derivative, for which this assumption fails. Concrete reproducer: define f = Function('f'), p = Derivative(f(x), x), and integrand = Derivative(f(x), x, p, evaluate=False). In the derivative argument representation used here, integrand.args is (f(x), x, p). The integrand evaluates to 1: differentiating f(x) by x gives p, and differentiating p by itself gives 1. Therefore its integral must be x plus a constant. The changed rule selects DerivativeRule because x occurs anywhere in diff_variables; its evaluator removes x and returns Derivative(f(x), p), which evaluates to 0. Differentiating that result by x gives 0 rather than the integrand's value 1. Previously, this input did not enter DerivativeRule because its final differentiation variable was p; the constant-rule result evaluates to x. The added tests cover only ordinary symbol derivatives and do not exercise this noncommuting case.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 888,
+      "evidence": "if integral.symbol in diff_variables:\n            return DerivativeRule(*integral)",
+      "fix": "Only remove an interior integration-variable derivative when it commutes with all subsequent differentiation operations. Preserve the terminal-variable case, and evaluate or leave the integral unevaluated when subsequent differentiation variables are derivative objects and commutation cannot be established.",
+      "test": "Add a regression using p = Derivative(f(x), x) and integrand = Derivative(f(x), x, p, evaluate=False). Assert integrand.doit() == 1 and diff(manualintegrate(integrand, x).doit(), x).doit() == 1. Also retain the ordinary-symbol mixed and repeated derivative tests.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 881,
+          "symbol": "derivative_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1163,
+          "symbol": "eval_derivativerule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1169,
+          "symbol": "diff_vars.index(symbol)"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1171,
+          "symbol": "sympy.Derivative"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 21710,
+  "llm_calls": 5
+}

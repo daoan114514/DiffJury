@@ -1,0 +1,106 @@
+{
+  "id": "astropy__astropy-6422",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "platform-dependent-warning-filename",
+      "severity": "medium",
+      "title": "New warning filename assertions fail with native Windows paths",
+      "explanation": "Both added assertions require forward slashes in the warning filename. On Windows, when pytest loads this module using a native path such as C:\\repo\\astropy\\utils\\tests\\test_decorators.py, warnings records that filename from the caller's code object. The literal substring 'utils/tests/test_decorators.py' is absent from that string, so both assertions fail even when warning attribution is correct. This is a deterministic mismatch for the stated filename representation, not a claim that a Windows test run was performed. The production change passes stacklevel=2 to the warning emitted from the decorator wrapper, selecting its caller; these assertions incorrectly conflate correct caller attribution with POSIX path formatting.",
+      "path": "astropy/utils/tests/test_decorators.py",
+      "line": 292,
+      "evidence": "292: assert 'utils/tests/test_decorators.py' in str(w[0].filename)\n322: assert 'utils/tests/test_decorators.py' in str(w[0].filename)",
+      "fix": "Replace both hard-coded substrings with os.path.join('utils', 'tests', 'test_decorators.py'), adding the import if needed, or compare normalized filenames consistently.",
+      "test": "Run test_deprecated_argument and test_deprecated_argument_in_kwargs on Windows with native backslash module filenames and verify both pass while still asserting attribution to test_decorators.py. Also retain a POSIX run.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/utils/tests/test_decorators.py",
+          "line": 289,
+          "symbol": "test_deprecated_argument: method(clobber=1)"
+        },
+        {
+          "path": "astropy/utils/decorators.py",
+          "line": 482,
+          "symbol": "deprecated_renamed_argument: warning emitted by decorator wrapper"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-758",
+      "applied_rules": [
+        "K-9e6b3c79"
+      ]
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-1cc8d780",
+      "K-3bfbed4b",
+      "K-9e6b3c79",
+      "K-ade3aa89",
+      "K-b36de422",
+      "K-ce7e81ce"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b36de422",
+          "K-9e6b3c79",
+          "K-1cc8d780",
+          "K-ce7e81ce",
+          "K-ade3aa89"
+        ],
+        "tokens": 311,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-3bfbed4b"
+        ],
+        "tokens": 117,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "matplotlib__matplotlib-2713",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 22415,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-2713.json",
+  "borrowed_sha256": "511f9f4a852e4ee4b784658b82aeb54812580d70dfa6c58ae6f42330772eef4a"
+}

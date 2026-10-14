@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-17476",
+  "findings": [
+    {
+      "rule_id": "API_BACKWARD_COMPATIBILITY",
+      "severity": "medium",
+      "title": "Collector no longer accepts the existing group keyword",
+      "explanation": "The public constructor previously accepted `Collector(pcgs, pc_series, relative_order, group=None, pc_presentation=None)`. Renaming `group` to `FreeGroup` breaks existing consumers that supply their custom free group by keyword. For any otherwise valid constructor inputs and compatible free group F, the previously valid call `Collector(pcgs, pc_series, relative_order, group=F)` now raises `TypeError: Collector.__init__() got an unexpected keyword argument 'group'` during argument binding, before initialization. No alias or keyword adapter exists in the supplied constructor. Positional custom-group arguments and the new `FreeGroup=F` spelling retain the same assignment behavior at line 77; the regression is specifically the old keyword contract. Repository callers and tests were not available in this tool-free review, so no in-repository affected caller or custom-group test coverage could be verified. The signature change and Python argument-binding failure are established directly by the supplied diff. The unchanged handling of pc_presentation is not an introduced defect, and the documentation edits provide no demonstrated additional functional or build failure.",
+      "path": "sympy/combinatorics/pc_groups.py",
+      "line": 57,
+      "evidence": "def __init__(self, pcgs, pc_series, relative_order, FreeGroup=None, pc_presentation=None):",
+      "fix": "Preserve the existing `group` parameter and its assignment semantics. If the new spelling is necessary, accept it as an additional alias while retaining `group` compatibility and explicitly handling conflicting arguments.",
+      "test": "Using valid polycyclic sequence, series, and relative orders, construct a compatible custom free group with distinct generator names. Invoke the real constructor with `group=F` and assert that construction succeeds, `collector.free_group is F`, and its symbol index and relators use F. Also test positional custom-group construction and default construction; if an alias is added, test both keyword spellings and conflict handling.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/combinatorics/pc_groups.py",
+          "line": 57,
+          "symbol": "Collector.__init__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 31507,
+  "llm_calls": 5
+}

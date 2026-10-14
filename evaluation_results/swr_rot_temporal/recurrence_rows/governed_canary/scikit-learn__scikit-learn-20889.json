@@ -1,0 +1,112 @@
+{
+  "id": "scikit-learn__scikit-learn-20889",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "documentation-invalid-role-syntax",
+      "severity": "low",
+      "title": "Use backticks for the miss_rate and fallout_rate function roles",
+      "explanation": "The added entry uses apostrophes after `:func:` for miss_rate and fallout_rate. reStructuredText interpreted-text roles require backtick-delimited content, as used for sensitivity and specificity on the same line. Consequently, the malformed portions render as literal text rather than function cross-references. This defect is independent of whether the referenced APIs exist; their availability and the resolution of the other references cannot be confirmed from the supplied diff.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 627,
+      "evidence": "- |Feature| Added :func:`sensitivity` , :func:`specificity` , :func:'miss_rate and :func:'fallout_rate'",
+      "fix": "Replace the apostrophe-delimited fragments with :func:`miss_rate` and :func:`fallout_rate`, using the actual qualified API targets if needed.",
+      "test": "Render the entry with the project's documentation toolchain and verify that all four names produce function references, with no literal ':func:' fragments remaining.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "documentation-metric-definition",
+      "severity": "low",
+      "title": "Describe normalized rates rather than confusion-matrix counts",
+      "explanation": "The entry says these functions calculate true-positive, true-negative, false-negative, and false-positive counts respectively. Those are not the standard definitions of the named metrics: sensitivity is TP/(TP+FN), specificity is TN/(TN+FP), miss rate is FN/(TP+FN), and fallout rate is FP/(TN+FP). For example, TP=8, FN=2, TN=9, and FP=1 yield rates 0.8, 0.9, 0.2, and 0.1, not counts 8, 9, 2, and 1. The description therefore gives readers an incorrect output contract. This finding concerns the documented metric definitions, not an inferred implementation change or verified API behavior.",
+      "path": "doc/whats_new/v1.0.rst",
+      "line": 628,
+      "evidence": "  to calculate the 'True Positives', 'True Negatives', 'False Negatives' and 'False Positives' repectively.",
+      "fix": "Describe the outputs as the true-positive rate, true-negative rate, false-negative rate, and false-positive rate respectively, rather than the corresponding counts.",
+      "test": "Check the revised entry against a confusion matrix with TP=8, FN=2, TN=9, and FP=1; the documented quantities should correspond to 0.8, 0.9, 0.2, and 0.1.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-15a64966",
+      "K-21a33670",
+      "K-780def96",
+      "K-d07491c7"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-780def96"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-15a64966",
+          "K-d07491c7",
+          "K-21a33670"
+        ],
+        "tokens": 234,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "matplotlib__matplotlib-8591",
+  "findings": [
+    {
+      "rule_id": "categorical-unicode-fallback",
+      "severity": "medium",
+      "title": "Unicode fallback crashes on mixed numeric categories in Python 2 / NumPy 1.8.0",
+      "explanation": "On Python 2.7 with NumPy 1.8.0, UnitData([u'Ж', 1]) now raises AttributeError instead of creating categories for 'Ж' and '1'. The new <= 1.8.0 guard includes NumPy 1.8.0, which the previous test exclusions explicitly treated as supported. In shim_array, str(u'Ж') raises UnicodeEncodeError, causing the fallback to process the original list. Although the Unicode element supports encode(), the integer does not, so the fallback raises AttributeError: 'int' object has no attribute 'encode'. Previously, UnitData._set_seq_locs passed this mixed input directly to np.array(data, dtype=np.unicode), which supports Unicode/numeric coercion in NumPy 1.8.0. StrCategoryConverter.convert reaches the same failure for mixed non-ASCII labels and numbers. Removing the old-NumPy exclusions does not protect against this exception: the existing separate Unicode and mixed-input cases need a combined non-ASCII/numeric regression case.",
+      "path": "lib/matplotlib/category.py",
+      "line": 29,
+      "evidence": "            data = [d.encode('utf-8', 'ignore').decode('utf-8')\n                    for d in data]",
+      "fix": "Restrict the compatibility branch to NumPy versions strictly below 1.8.0, matching the previous support boundary. Also make fallback coercion accept non-string elements rather than calling encode() unconditionally if mixed inputs are intended to work on older NumPy.",
+      "test": "Run a regression test under Python 2.7 with NumPy 1.8.0 that constructs UnitData([u'Ж', 1]) and asserts seq == [u'1', u'Ж'] and locs == [0, 1]. Exercise StrCategoryConverter.convert with the same mixed input and an appropriate mapping, asserting the numeric locations rather than accepting an exception.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/category.py",
+          "line": 103,
+          "symbol": "UnitData._set_seq_locs"
+        },
+        {
+          "path": "lib/matplotlib/category.py",
+          "line": 19,
+          "symbol": "shim_array"
+        },
+        {
+          "path": "lib/matplotlib/category.py",
+          "line": 29,
+          "symbol": "UnicodeEncodeError fallback"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 19001,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-8591.json",
+  "borrowed_sha256": "3a807a48efa5848773d43d0133d901e7b88193b9a356648e107becc490927fc1"
+}

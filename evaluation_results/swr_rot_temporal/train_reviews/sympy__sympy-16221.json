@@ -1,0 +1,59 @@
+{
+  "id": "sympy__sympy-16221",
+  "findings": [
+    {
+      "rule_id": "printer-nested-doprint-return-contract",
+      "severity": "medium",
+      "title": "Array handlers break the supported human=False printing mode",
+      "explanation": "The new handlers recursively call doprint where they need expression strings. CodePrinter.doprint returns a (number_symbols, unsupported, code) tuple when human=False. Consequently, mathematica_code(ImmutableDenseNDimArray([1, 2]), human=False) makes the dense handler return that tuple to the outer doprint, which expects a string and calls splitlines(), raising AttributeError. The sparse handler instead interpolates the returned tuples into its output, producing Python tuple/set representations rather than valid Mathematica code. Mutable arrays reach the same handlers through the printer's conversion to immutable arrays. This is a defect in the newly added array support; the existing matrix implementation is not the subject of this finding. The added tests exercise all four classes only with default settings and fully populated numeric data, so they do not detect this failure.",
+      "path": "sympy/printing/mathematica.py",
+      "line": 164,
+      "evidence": "return self.doprint(expr.tolist())\nreturn '{} -> {}'.format(self.doprint(pos), self.doprint(val))\nreturn self.doprint(expr.shape)",
+      "fix": "Use self._print rather than self.doprint for the nested list, coordinates, values, and shape. This preserves string return values and leaves result packaging and printer-state ownership to the outermost doprint.",
+      "test": "Parameterize over mutable and immutable dense and sparse classes with human=False. Assert the exact returned metadata tuple and code: dense [1, 2] should return (set(), set(), '{1, 2}'); sparse {(1,): x} with shape (3,) should return (set(), set(), 'SparseArray[{{2} -> x}, {3}]'). Include an empty sparse array to exercise dimension printing independently of rules.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/mathematica.py",
+          "line": 163,
+          "symbol": "MCodePrinter._print_ImmutableDenseNDimArray"
+        },
+        {
+          "path": "sympy/printing/mathematica.py",
+          "line": 164,
+          "symbol": "recursive CodePrinter.doprint call"
+        },
+        {
+          "path": "sympy/printing/mathematica.py",
+          "line": 179,
+          "symbol": "MCodePrinter._print_ImmutableSparseNDimArray.print_rule"
+        },
+        {
+          "path": "sympy/printing/mathematica.py",
+          "line": 200,
+          "symbol": "MCodePrinter._print_ImmutableSparseNDimArray.print_dims"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 25203,
+  "llm_calls": 5
+}

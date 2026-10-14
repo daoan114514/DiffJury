@@ -1,0 +1,133 @@
+{
+  "id": "matplotlib__matplotlib-5195",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "optional-binding-collection",
+      "severity": "medium",
+      "title": "PySide installations fail Qt4 test collection",
+      "explanation": "The Qt4 backend supports PySide, whose QtCore module does not expose PyQt's PYQT_VERSION_STR attribute. When qt_compat selects PySide, this new expression raises AttributeError during module import. The surrounding handler catches only ImportError, so collection fails rather than running or skipping the tests. This is newly introduced: previously, successful imports set HAS_QT to True without requiring a PyQt-specific attribute. test_backend_qt4 is already in default_test_modules, so ordinary default test discovery is affected even without the newly added Qt5 module. Importing another test module does not make this attribute valid or independently reset the already imported qt_compat binding.",
+      "path": "lib/matplotlib/tests/test_backend_qt4.py",
+      "line": 28,
+      "evidence": "py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])",
+      "fix": "Determine the selected binding using qt_compat's binding identifier instead of a PyQt-only version attribute. Treat supported PySide as a Qt4 binding, and apply the corresponding binding-aware check in the Qt5 module.",
+      "test": "In a supported PySide-only environment, import test_backend_qt4 and run default test collection. Assert that import succeeds and the Qt4 tests remain eligible rather than raising AttributeError.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1431,
+          "symbol": "default_test_modules"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 19,
+          "symbol": "from matplotlib.backends.qt_compat import QtCore"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 28,
+          "symbol": "module-level binding-version detection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "python2-unicode-expectations",
+      "severity": "medium",
+      "title": "Replacing unichr with chr breaks Unicode expectations on Python 2",
+      "explanation": "On supported Python 2.7 with PyQt5 selected, chr(193) produces the byte string '\\xc1', not the Unicode character u'\\u00c1' previously produced by unichr(193). The uppercase Unicode key event therefore no longer matches its expected Unicode value; the analogous lowercase change produces '\\xe1' instead of u'\\u00e1'. The modifier-order expectation has the same problem and can additionally fail during implicit ASCII decoding when concatenating the non-ASCII byte with a Unicode prefix. On Python 3, chr has the intended Unicode behavior, so this is a Python-version compatibility regression. Adding this module to default_test_modules exposes the changed expectations to default test runs whenever the Qt5 binding is selected.",
+      "path": "lib/matplotlib/tests/test_backend_qt5.py",
+      "line": 106,
+      "evidence": "chr(193))\n...\nchr(225))\n...\n'ctrl+alt+super+' + chr(225))",
+      "fix": "Use six.unichr for all three expectations, or use explicit Unicode literals such as u'\\u00c1' and u'\\u00e1'.",
+      "test": "Run test_unicode_upper, test_unicode_lower, and test_modifier_order on Python 2.7 with PyQt5 selected, as well as on Python 3. Assert Unicode event values u'\\u00c1', u'\\u00e1', and u'ctrl+alt+super+\\u00e1' respectively.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1432,
+          "symbol": "default_test_modules"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt5.py",
+          "line": 103,
+          "symbol": "test_unicode_upper"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt5.py",
+          "line": 106,
+          "symbol": "Unicode key expectation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

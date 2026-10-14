@@ -1,0 +1,15 @@
+{
+  "id": "astropy__astropy-692",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": [
+      0,
+      1
+    ]
+  },
+  "tokens": 19577,
+  "llm_calls": 5
+}

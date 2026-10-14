@@ -1,0 +1,85 @@
+{
+  "id": "scikit-learn__scikit-learn-3030",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-75ffcebf",
+      "K-900623ee",
+      "K-95d752ab",
+      "K-9f32c0f2",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f0b9d1e9",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-900623ee",
+          "K-75ffcebf",
+          "K-95d752ab",
+          "K-c43a8094",
+          "K-542e4ee3",
+          "K-f463a446",
+          "K-f0b9d1e9",
+          "K-0466258e"
+        ],
+        "tokens": 556,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-21a33670",
+          "K-d07491c7",
+          "K-340b5726",
+          "K-ecc8b51d",
+          "K-9f32c0f2"
+        ],
+        "tokens": 330,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

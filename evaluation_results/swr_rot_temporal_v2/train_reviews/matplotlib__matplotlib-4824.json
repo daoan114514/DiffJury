@@ -1,0 +1,79 @@
+{
+  "id": "matplotlib__matplotlib-4824",
+  "findings": [
+    {
+      "rule_id": "input-ownership",
+      "severity": "medium",
+      "title": "In-place clipping mutates caller arrays and rejects read-only inputs",
+      "explanation": "For an unmasked NumPy array, ma.asarray preserves the backing storage and filled() returns the underlying data rather than a copy. np.atleast_1d does not detach that storage. Consequently, BoundaryNorm([0, 1, 2], 2, clip=True)(a), with a = np.array([-1., 0.5, 3.]), now changes a to [0., 0.5, 2.]. If a.flags.writeable is False, the same call instead raises ValueError because clipping writes into a. Previously np.clip was called without out, so it neither modified the input nor required writable storage. The clipping change should affect normalization results, not ownership or writability requirements for caller inputs. The added clipping tests use scalars and lists, which do not expose this shared-storage path. The unchanged upper-end result of Ncmap, including the added ISSUE comment, is a pre-existing clipping defect and is not the basis of this finding.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1277,
+      "evidence": "_x = ma.asarray(x)\nmask = ma.getmaskarray(_x)\nxx = np.atleast_1d(_x.filled(self.vmax + 1))\nif clip:\n    np.clip(xx, self.vmin, self.vmax, out=xx)",
+      "fix": "Clip into a separate array, for example by assigning xx = np.clip(xx, self.vmin, self.vmax), rather than writing through potentially borrowed storage.",
+      "test": "Call BoundaryNorm with clip=True on writable and read-only unmasked float arrays containing values below and above the boundaries. Assert that both calls return the expected indices without changing the inputs or raising. Include a multidimensional array and a masked array with an all-false mask to cover other storage-sharing cases.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1270,
+          "symbol": "BoundaryNorm.__call__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-669",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "masked-scalar-shape",
+      "severity": "low",
+      "title": "Masked scalar normalization now returns a length-one array",
+      "explanation": "For x = np.ma.array(0.5, mask=True) and BoundaryNorm([0, 1, 2], 2), the previous non-interpolating path allocated iret with shape () and returned a zero-dimensional masked result. The new np.atleast_1d allocation gives iret shape (1,), and the scalar conversion branch is skipped because mask is true. Thus the public call now returns a masked array of shape (1,) instead of (). This changes the scalar-versus-array contract even though the mask remains correct. Ordinary unmasked scalars are explicitly converted to Python integers, and multidimensional arrays retain their shape; the regression is specifically the masked scalar branch, which none of the added scalar or interpolation assertions exercises.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1278,
+      "evidence": "iret = np.atleast_1d(np.zeros(_x.shape, dtype=np.int16))\n...\nret = ma.array(iret, mask=mask)\nif _x.shape == () and not mask:\n    ret = int(ret[0])",
+      "fix": "Handle all zero-dimensional inputs when restoring the result shape: return the masked scalar element when the input is masked, and retain the Python integer conversion for unmasked scalars.",
+      "test": "Pass a zero-dimensional masked array to BoundaryNorm with matching bin/color counts and assert that the result is masked and has shape (). Repeat with interpolation and clip=True, while retaining the existing Python-integer assertions for unmasked scalars.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1270,
+          "symbol": "BoundaryNorm.__call__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1
+    ],
+    "neutral": [],
+    "missed": [
+      0,
+      1
+    ]
+  },
+  "tokens": 22576,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-4824.json",
+  "borrowed_sha256": "0b51651e476dfdacd650fa00cd90eed3148aac54b9fbb7561feb046ebc7ef59e"
+}

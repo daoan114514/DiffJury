@@ -1,0 +1,64 @@
+{
+  "id": "scikit-learn__scikit-learn-18033",
+  "findings": [
+    {
+      "rule_id": "documentation-command-correctness",
+      "severity": "medium",
+      "title": "Run the Miniforge installer from the mounted directory",
+      "explanation": "Following these commands on a fresh host downloads the installer into the host's arm64 directory and mounts that directory at /io. However, the Docker command does not set a working directory: the Ubuntu container starts in /, not the host shell's current directory. Consequently, `bash Miniforge3-Linux-aarch64.sh` fails with 'No such file or directory', because the installer is at /io/Miniforge3-Linux-aarch64.sh. Miniforge is never installed, so the subsequent /io/miniforge3/bin/conda initialization also fails. This is missing directory setup, not one of the compiler or package dependencies that the instructions explicitly ask users to install. The bind mount correctly preserves files under /io across replacement containers, and the explicit conda-init/source sequence can restore shell initialization once installation succeeds; neither fixes this initial path mismatch.",
+      "path": "doc/developers/advanced_installation.rst",
+      "line": 472,
+      "evidence": "    bash Miniforge3-Linux-aarch64.sh",
+      "fix": "Use `bash /io/Miniforge3-Linux-aarch64.sh`, add `cd /io` before invoking the installer, or set `-w /io` on the Docker command.",
+      "test": "Follow the documented commands in a fresh Ubuntu ARM64 container with the host directory mounted at /io. Confirm that the installer launches and installs into /io/miniforge3. Replace the container with another using the same mount, then run the documented conda-init/source commands and verify that conda is available.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/developers/advanced_installation.rst",
+          "line": 459,
+          "symbol": "pushd arm64"
+        },
+        {
+          "path": "doc/developers/advanced_installation.rst",
+          "line": 460,
+          "symbol": "wget Miniforge installer into the host working directory"
+        },
+        {
+          "path": "doc/developers/advanced_installation.rst",
+          "line": 467,
+          "symbol": "docker run -v`pwd`:/io --rm -it arm64v8/ubuntu /bin/bash"
+        },
+        {
+          "path": "doc/developers/advanced_installation.rst",
+          "line": 472,
+          "symbol": "bash Miniforge3-Linux-aarch64.sh"
+        },
+        {
+          "path": "doc/developers/advanced_installation.rst",
+          "line": 478,
+          "symbol": "/io/miniforge3/bin/conda init"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 15830,
+  "llm_calls": 5
+}

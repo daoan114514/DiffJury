@@ -1,0 +1,40 @@
+{
+  "id": "astropy__astropy-6422",
+  "findings": [
+    {
+      "rule_id": "platform-dependent-warning-filename-assertion",
+      "severity": "medium",
+      "title": "New warning filename assertions fail with Windows path separators",
+      "explanation": "At the changed warnings.warn site, stacklevel=1 identifies the warning-emitting decorator wrapper and stacklevel=2 identifies its immediate caller. For the direct function and bound-method calls in these tests, that correctly attributes the warning to test_decorators.py. However, the added assertion assumes the reported filename uses forward slashes. On Windows, a test code object's filename can be C:\\checkout\\astropy\\utils\\tests\\test_decorators.py; the substring 'utils/tests/test_decorators.py' is absent, so the assertion fails despite correct caller attribution. The same regression appears in the assertion added at line 322. Converting the filename to str does not normalize its separators.",
+      "path": "astropy/utils/tests/test_decorators.py",
+      "line": 292,
+      "evidence": "assert 'utils/tests/test_decorators.py' in str(w[0].filename)",
+      "fix": "Update both assertions to compare normalized paths, preferably os.path.normcase(os.path.abspath(w[0].filename)) against os.path.normcase(os.path.abspath(__file__)), so they still verify the actual caller file without assuming a separator.",
+      "test": "Run test_deprecated_argument and test_deprecated_argument_in_kwargs on Windows with backslash-separated test filenames. Both must pass while still rejecting a warning attributed to astropy/utils/decorators.py.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-758",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": [
+      1
+    ]
+  },
+  "tokens": 11932,
+  "llm_calls": 5
+}

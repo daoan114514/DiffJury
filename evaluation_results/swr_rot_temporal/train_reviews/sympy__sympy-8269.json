@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-8269",
+  "findings": [
+    {
+      "rule_id": "minmax-scalar-validation",
+      "severity": "high",
+      "title": "Min and Max call a set-only method on scalar expressions",
+      "explanation": "The pre-filter receives scalar SymPy expressions, not sets. Ordinary numeric arguments are normalized to Integer expressions; Integer, Symbol, and ordinary arithmetic Expr arguments do not implement Set.is_subset. Consequently, Min(1, 2) and Max(1, 2), previously returning 1 and 2, now raise AttributeError at this line. Min(x, 1) also fails for both an unconstrained Symbol and a Symbol declared real. Non-real inputs such as I now raise AttributeError rather than the established comparability ValueError, and infinity inputs fail before the existing identity/absorbing-element handling below the check. The return semantics of is_subset cannot help these cases because attribute lookup fails before the operation executes. The old `is_real is False` predicate deliberately allowed unknown realness; a set-containment operation is not a compatible replacement. These are reproducible examples, not executed results: surrounding source and existing test files were not supplied, and no tools were available to inspect their coverage.",
+      "path": "sympy/functions/elementary/miscellaneous.py",
+      "line": 334,
+      "evidence": "if not arg.is_subset(S.Reals) or arg is S.ComplexInfinity:",
+      "fix": "Restore `(arg.is_real is False) or (arg is S.ComplexInfinity)` so validation uses the scalar assumptions API and preserves acceptance of unknown realness.",
+      "test": "Run the real public constructors: assert Min(1, 2) == 1 and Max(1, 2) == 2; assert Min(x, 1) and Max(x, 1) construct successfully for both Symbol('x') and Symbol('x', real=True); assert Min(I, 1) and Max(I, 1) raise ValueError; assert Min(1, oo) == 1, Max(1, oo) == oo, Min(1, -oo) == -oo, and Max(1, -oo) == 1. The numeric case alone reproduces the new AttributeError. Preserve empty-argument identity behavior as well.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/miscellaneous.py",
+          "line": 334,
+          "symbol": "MinMaxBase._new_args_filter"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 11875,
+  "llm_calls": 5
+}

@@ -1,0 +1,121 @@
+{
+  "id": "sympy__sympy-7865",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "test-missing-assert",
+      "severity": "low",
+      "title": "The new intersection equality check discards its result",
+      "explanation": "The equality at lines 253–254 is evaluated but never asserted, so an incorrect result does not fail this test unless evaluating it raises an exception. The separate membership assertion at line 144 only verifies that zero is excluded. For example, an erroneous result of EmptySet would satisfy that membership assertion while failing the intended equality, and the added equality expression would silently discard False. Thus the tests do not independently verify preservation of the remaining integers. The supplied production hunk implements the mathematically valid identity X ∩ (A \\ B) = (X ∩ A) \\ B, but it does not include the surrounding evaluation logic needed to establish the type of args, duplicate normalization, or termination with multiple complements; no runtime defect in those aspects is established by the available evidence.",
+      "path": "sympy/sets/tests/test_sets.py",
+      "line": 253,
+      "evidence": "    Intersection(S.Reals, S.Integers - FiniteSet(0)) == \\\n            Complement(Intersection(S.Reals, S.Integers), FiniteSet(0))",
+      "fix": "Prefix the equality expression with assert.",
+      "test": "Run test_intersection with the assertion restored and verify that an incorrect empty intersection fails the equality assertion even though zero remains excluded. Also assert that 1 belongs to the result and Rational(1, 2) does not.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/tests/test_sets.py",
+          "line": 253,
+          "symbol": "test_intersection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-561",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0faed540",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-d0414ebb",
+      "K-e13d441c"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-ad16cdc6",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-b5e72943"
+        ],
+        "tokens": 286,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-83dfddfe",
+          "K-25a05e81",
+          "K-e13d441c",
+          "K-0faed540",
+          "K-4b143eb5",
+          "K-b1da47ce",
+          "K-c01df042"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-ddb18739",
+          "K-e820d88f",
+          "K-0117d999",
+          "K-46b8b947",
+          "K-e172ac33"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

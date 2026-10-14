@@ -1,0 +1,166 @@
+{
+  "id": "sympy__sympy-9856",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-factorial-rewrite-at-nonpositive-start",
+      "severity": "medium",
+      "title": "Factorial rewrite loses values at nonpositive integer starting points",
+      "explanation": "Integer assumptions alone do not make the factorial quotient valid under SymPy's pole evaluation. A concrete supported input is rf(-1, 1), whose existing product evaluation returns -1. Rewriting rf(-1, 1, evaluate=False) as factorial instead constructs factorial(-1)/factorial(-2): both factorials evaluate to zoo, and their quotient becomes nan. Equivalently, the new symbolic rewrite of rf(n, k), with n and k integer, fails when specialized simultaneously to n=-1 and k=1. No existing guard excludes this starting point. The added assertion at test_comb_factorials.py lines 52–53 checks exactly the unrestricted quotient rather than verifying its value at a pole, and the documentation advertises the same unrestricted integer domain.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 511,
+      "evidence": "        if x.is_integer and k.is_integer:\n            return factorial(k + x - 1) / factorial(x - 1)",
+      "fix": "Restrict the factorial quotient to a domain where its denominator is not a factorial pole, and handle nonpositive starting points with a separate correct formula or leave them unreduced. Ensure symbolic rewrites do not advertise validity for unrestricted integer starting points.",
+      "test": "Assert that rf(-1, 1, evaluate=False).rewrite(factorial) preserves -1, and test simultaneous specialization of an integer-symbol rewrite to n=-1, k=1. Include n=0, k=0 and n=0, k=-1, whose original values are 1 and -1.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 510,
+          "symbol": "RisingFactorial._eval_rewrite_as_factorial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 475,
+          "symbol": "RisingFactorial.eval (positive integer order)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-negative-order-binomial-rewrite",
+      "severity": "medium",
+      "title": "Binomial rewrite produces NaN for supported negative orders",
+      "explanation": "The guard accepts every integer order, including negative integers. For an ordinary symbol x and integer symbol k, rf(x, k).subs(k, -1) evaluates to 1/(x - 1), whereas rf(x, k).rewrite(binomial).subs(k, -1) evaluates factorial(-1)*binomial(x - 2, -1). SymPy evaluates these factors as zoo and 0, respectively, so the rewritten result is nan. This is introduced by the new rewrite; the existing negative-order evaluation explicitly computes the reciprocal product. The added test checks only the symbolic expression's structure and never specializes k to a negative value. The unrestricted integer k in the documentation example also includes this failing domain.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 515,
+      "evidence": "        if k.is_integer:\n            return factorial(k) * binomial(x + k - 1, k)",
+      "fix": "Require a provably nonnegative order for this binomial formula, or supply a separate value-preserving negative-order formula. Leave the expression unchanged when the required sign is unknown.",
+      "test": "With x an ordinary symbol and k an integer symbol, compare specialization at k=-1 and k=-2 before and after rewriting. Assert the results equal 1/(x-1) and 1/((x-1)*(x-2)), respectively, rather than nan. Also test rf(x, -1, evaluate=False).rewrite(binomial).",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 514,
+          "symbol": "RisingFactorial._eval_rewrite_as_binomial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 494,
+          "symbol": "RisingFactorial.eval (negative integer order)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "scalar-rewrites-ignore-polynomial-rising-factorial-contract",
+      "severity": "medium",
+      "title": "New scalar rewrites do not preserve polynomial rising factorials",
+      "explanation": "RisingFactorial explicitly supports a distinct polynomial contract: the existing evaluator shifts the polynomial's variable, rather than adding integers to its value. For an ordinary symbol y and a positive integer symbol k, rf(y**3, k).subs(k, 2) is the documented polynomial y**3*(y+1)**3. The new binomial rewrite instead gives factorial(2)*binomial(y**3+1, 2), mathematically y**3*(y**3+1). At y=2 the original polynomial is 216, while the rewrite is 72; neither negative orders nor poles are involved. The factorial rewrite has the same defect when the polynomial variable is integer-assumed: its guard accepts x=n**3 and produces factorial(n**3+k-1)/factorial(n**3-1), yielding 72 at n=2, k=2 instead of 216. These new helpers ignore the polynomial branch already present in eval. The added rewrite assertions use only a degree-one starting expression, so they do not exercise this documented behavior.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 516,
+      "evidence": "        if k.is_integer:\n            return factorial(k) * binomial(x + k - 1, k)",
+      "fix": "Do not apply scalar factorial/binomial identities to starting expressions that use RisingFactorial's higher-degree univariate polynomial semantics. Preserve the original expression for those inputs, or implement a rewrite that respects variable shifts.",
+      "test": "Construct rf(y**3, k) with k positive and integer, rewrite to binomial before substituting k=2, and compare its value at y=2 against the original value 216. Repeat for the factorial rewrite with an integer-assumed polynomial variable. Keep the order symbolic until after rewriting so the test actually reaches the new helpers.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 514,
+          "symbol": "RisingFactorial._eval_rewrite_as_binomial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 510,
+          "symbol": "RisingFactorial._eval_rewrite_as_factorial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 478,
+          "symbol": "RisingFactorial.eval (univariate polynomial variable-shift product)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "id": "sympy__sympy-14145",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "imageset-fallback-variable-capture",
+      "severity": "medium",
+      "title": "The new Lambda fallback captures free parameters named x",
+      "explanation": "The fallback now accepts Lambda objects but reconstructs them using the fixed symbol _x, which is Symbol('x'). A Lambda can already contain that symbol as a free parameter. For example, function_sets(Lambda(y, x + y), S.Integers) reaches this fallback and constructs ImageSet(Lambda(x, 2*x), S.Integers), losing the free parameter x. The public imageset path delegates through Set._eval_imageset and SetExpr._eval_func to this dispatcher for unsupported domains. Previously, Set._eval_imageset returned ImageSet(f, self), preserving the original Lambda. Thus imageset(Lambda(y, x + y), S.Integers) changes from a parameter-dependent translation of the integers to the even integers. The finite, empty, union, and intersection handlers are relocated implementations; this defect is specifically in the newly Lambda-enabled generic fallback.",
+      "path": "sympy/sets/dispatchers.py",
+      "line": 256,
+      "evidence": "@dispatch(FunctionUnion, Set)\ndef function_sets(f, x):\n    return ImageSet(Lambda(_x, f(_x)), x)",
+      "fix": "Give Lambda its own generic Set handler that returns ImageSet(f, domain) unchanged. Keep construction of a Lambda from a FunctionClass separate, using a fresh bound variable where necessary.",
+      "test": "Create distinct symbols x and y and assert that function_sets(Lambda(y, x + y), S.Integers) and imageset(Lambda(y, x + y), S.Integers) retain x as a free symbol and preserve the original mapping. Also test imageset(lambda y: x + y, S.Integers), which already uses collision avoidance before reaching this fallback.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2122,
+          "symbol": "imageset"
+        },
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 555,
+          "symbol": "Set._eval_imageset"
+        },
+        {
+          "path": "sympy/sets/dispatchers.py",
+          "line": 257,
+          "symbol": "function_sets"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "active-debugger-in-library-code",
+      "severity": "medium",
+      "title": "Unexpected operation results enter an interactive debugger",
+      "explanation": "When dispatch_on_operation returns a non-Set result, apply_operation now invokes pdb.set_trace() before the existing assertion. This changes an error path from raising an exception into an interactive debugging session. In applications with an open stdin, the affected worker can block awaiting debugger commands; the debugger also permits inspection of process state and execution of Python commands through that console. Production library error handling should not expose an interactive debugger.",
+      "path": "sympy/sets/setexpr.py",
+      "line": 127,
+      "evidence": "    if not isinstance(out, Set):\n        import pdb; pdb.set_trace()",
+      "fix": "Remove the pdb.set_trace() branch and retain the assertion, or raise an explicit exception for a non-Set dispatch result.",
+      "test": "Stub dispatch_on_operation to return a non-Set value and verify apply_operation promptly raises an exception without invoking pdb.set_trace or reading stdin.",
+      "confidence": 0.8799999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/setexpr.py",
+          "line": 125,
+          "symbol": "apply_operation -> dispatch_on_operation"
+        },
+        {
+          "path": "sympy/sets/setexpr.py",
+          "line": 127,
+          "symbol": "apply_operation -> pdb.set_trace"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-489",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "imageset-multivariate-variable-capture",
+      "severity": "medium",
+      "title": "Multivariate callable conversion binds existing free x1 and x2 parameters",
+      "explanation": "Unlike the single-domain callable conversion, the new multiple-domain branch creates ordinary symbols x1, x2, and so on without checking the callable's free parameters. With x1 = Symbol('x1'), imageset(lambda a, b: a + b + x1, Interval(1, 2), Interval(2, 3)) constructs Lambda((x1, x2), 2*x1 + x2). The captured x1 parameter disappears, so the mapping no longer represents the supplied callable. For example, the intended image after substituting the free parameter x1 = 10 is [13, 15], whereas the constructed mapping has image [4, 7] and no remaining parameter to substitute. The multiple-domain path returns ImageSet directly, so no dispatch or later guard restores the lost free symbol.",
+      "path": "sympy/sets/sets.py",
+      "line": 2107,
+      "evidence": "var = [Symbol('x%i' % (i+1)) for i in range(len(set_list))]\n                expr = f(*var)\n            f = Lambda(var, expr)",
+      "fix": "Evaluate multivariate callables using fresh Dummy arguments, or extend the single-variable collision-avoidance logic to generate bound symbols distinct from every free parameter in the resulting expression.",
+      "test": "Add a multiple-domain callable test closing over Symbol('x1') and Symbol('x2'). Assert that both parameters remain free and that applying the resulting Lambda to concrete arguments matches the original callable. For lambda a, b: a + b + x1, applying the mapping to (1, 2) must produce x1 + 3, not 4.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2107,
+          "symbol": "imageset"
+        },
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2109,
+          "symbol": "Lambda construction"
+        },
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2138,
+          "symbol": "ImageSet construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-2ec8eae2",
+      "K-380e8210",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-9f4e51f5",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e172ac33",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-ad16cdc6",
+          "K-b5e72943",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-2ec8eae2",
+          "K-9f4e51f5"
+        ],
+        "tokens": 463,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb",
+          "K-e820d88f",
+          "K-e172ac33",
+          "K-25a05e81"
+        ],
+        "tokens": 647,
+        "budget": 600,
+        "dropped": [
+          "K-83dfddfe",
+          "K-7ac64342",
+          "K-524f3b73",
+          "K-5af1f6aa",
+          "K-0faed540",
+          "K-4073d146",
+          "K-e13d441c",
+          "K-46b8b947"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

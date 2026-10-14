@@ -1,0 +1,70 @@
+{
+  "id": "sympy__sympy-15278",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "test-decorator-execution",
+      "severity": "medium",
+      "title": "Warning-filter decorator executes tests during import and replaces them with None",
+      "explanation": "Applying @filter_warnings_decorator calls f() immediately while the module is being imported. The decorator has no return statement, so Python binds each decorated test name to None instead of a callable. For example, test_valued_tensor_iter executes its valued-tensor setup and assertions during import and then becomes undiscoverable as a test. The same problem affects the decorated contraction, variance-conversion, metric-inverse, and other valued-tensor tests. Their assertions run outside normal test invocation: test selection cannot control their execution, and an assertion or other exception aborts module import/collection rather than being reported as an individual test failure. Warning suppression should wrap invocation, not trigger invocation during decoration.",
+      "path": "sympy/tensor/tests/test_tensor.py",
+      "line": 23,
+      "evidence": "def filter_warnings_decorator(f):\n    with warnings.catch_warnings():\n        warnings.filterwarnings(\"ignore\", category=SymPyDeprecationWarning)\n        f()",
+      "fix": "Return a functools.wraps(f)-decorated wrapper that enters warnings.catch_warnings(), installs the filter, and returns f(*args, **kwargs) only when the wrapper is invoked.",
+      "test": "Decorate a function that records calls and emits SymPyDeprecationWarning. Assert decoration leaves the call record empty and returns a callable; invoke it and assert one call, the original return value, warning suppression, and restoration of warning filters. Also verify collection includes test_valued_tensor_iter and the other decorated tests.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 1306,
+          "symbol": "@filter_warnings_decorator on test_valued_tensor_iter"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 20,
+          "symbol": "filter_warnings_decorator"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 23,
+          "symbol": "f()"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 1307,
+          "symbol": "test_valued_tensor_iter"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 1308,
+          "symbol": "_get_valued_base_test_variables"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-691",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

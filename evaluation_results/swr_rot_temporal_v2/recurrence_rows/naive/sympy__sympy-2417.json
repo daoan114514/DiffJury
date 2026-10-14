@@ -1,0 +1,143 @@
+{
+  "id": "sympy__sympy-2417",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "ci-system-package-privileges",
+      "severity": "medium",
+      "title": "Elevate each Sage package-management command",
+      "explanation": "The new TEST_SAGE matrix entry reaches this block in a normal Travis Python job, whose shell runs as the unprivileged travis user. Neither this block nor its individual commands provides privilege escalation. Adding a system repository, updating the system APT indexes, and installing a system package require root privileges, so the Sage setup fails before the new test command can run. Elevating only the first command would not elevate the subsequent commands.",
+      "path": ".travis.yml",
+      "line": 65,
+      "evidence": "apt-add-repository -y ppa:aims/sagemath;\n      apt-get update;\n      apt-get install sagemath-upstream-binary;",
+      "fix": "Use sudo for all three system package-management commands, or execute the entire setup block through an explicitly privileged wrapper.",
+      "test": "Run the TEST_SAGE setup as a non-root user on the supported Travis image and assert that repository setup, index refresh, and package installation all succeed and that sage -v runs afterward.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".travis.yml",
+          "line": 43,
+          "symbol": "matrix.include TEST_SAGE job"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 64,
+          "symbol": "before_install TEST_SAGE branch"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 65,
+          "symbol": "system repository and package setup"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-269",
+      "applied_rules": [
+        "K-3262d616"
+      ]
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-00bc9d17",
+      "K-0bbe1015",
+      "K-0fbbf738",
+      "K-2436b487",
+      "K-251fab07",
+      "K-3262d616",
+      "K-46d9d9f2",
+      "K-4e1559a1",
+      "K-659408f9",
+      "K-765402dd",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-88c09c66",
+      "K-99e65698",
+      "K-9fe3253b",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a9ea6942",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-cb01c870",
+      "K-cf4ba613"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-0fbbf738",
+          "K-cb01c870",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-c1f97abd",
+          "K-847c7cac",
+          "K-c621f945",
+          "K-251fab07",
+          "K-99e65698",
+          "K-2436b487",
+          "K-0bbe1015"
+        ],
+        "tokens": 401,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-765402dd",
+          "K-7de8581d",
+          "K-cf4ba613",
+          "K-a9ea6942",
+          "K-a1e29320"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-9fe3253b",
+          "K-a527e894",
+          "K-4e1559a1"
+        ],
+        "tokens": 125,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

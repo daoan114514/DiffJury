@@ -1,0 +1,89 @@
+{
+  "id": "scikit-learn__scikit-learn-3925",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "html-attribute-context-escaping",
+      "severity": "medium",
+      "title": "Escape example snippets before interpolating them into the tooltip attribute",
+      "explanation": "The change moves snippet text from a raw HTML paragraph into a double-quoted HTML attribute without adding attribute-context escaping. A concrete call to _thumbnail_div with snippet='An example \" onmouseover=\"alert(1)' generates <div class=\"thumbnailContainer\" tooltip=\"An example \" onmouseover=\"alert(1)\">, introducing an executable event handler. Previously the same text appeared inside <p> and remained inert text; injection using raw HTML markup was already possible there and is not a newly introduced issue. Ordinary quoted prose also prematurely terminates the tooltip value. The relevant boundary is example-description text becoming HTML syntax consumed by documentation visitors, not a demonstrated remotely writable input. In the supplied evidence, the source can be traced only to the snippet argument: it is passed directly to str.format at line 575, and the resulting string is returned as part of a raw HTML directive. Upstream snippet construction and escaping are not included, so this finding establishes the helper's unsafe handling of literal quotes rather than claiming a verified remote attacker-to-publication path.",
+      "path": "doc/sphinxext/gen_rst.py",
+      "line": 573,
+      "evidence": "    <div class=\"thumbnailContainer\" tooltip=\"{}\">\n\n\"\"\".format(snippet))",
+      "fix": "Encode snippet for a double-quoted HTML attribute at this interpolation boundary, including quotes, ampersands, and angle brackets. Use an HTML escaping function with quote escaping enabled; avoid relying on escaping intended only for paragraph text.",
+      "test": "Call _thumbnail_div with ordinary quoted prose and with 'An example \" onmouseover=\"alert(1)'. Parse the generated opening div and assert that tooltip retains the complete original text and that no onmouseover attribute exists. Also test ampersands, angle brackets, and empty text.",
+      "confidence": 0.7699999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 573,
+          "symbol": "_thumbnail_div: snippet is interpolated into a double-quoted attribute in a raw HTML directive"
+        },
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 592,
+          "symbol": "_thumbnail_div: returns ''.join(out)"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

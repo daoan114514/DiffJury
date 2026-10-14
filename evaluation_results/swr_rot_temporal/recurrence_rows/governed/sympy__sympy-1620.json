@@ -1,0 +1,98 @@
+{
+  "id": "sympy__sympy-1620",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "symbolic-root-reality",
+      "severity": "medium",
+      "title": "Delta expansion now assumes that roots with unknown reality are real",
+      "explanation": "Take x real and a real, nonzero parameter whose sign is unspecified, and simplify DiracDelta(x**2 - a) with respect to x. Its roots are ±sqrt(a), whose is_real values are None; their derivative values ±2*sqrt(a) are nonzero. The changed condition therefore produces (DiracDelta(x - sqrt(a)) + DiracDelta(x + sqrt(a)))/(2*Abs(sqrt(a))). Previously, the unknown root reality prevented this expansion. This is not an unconditional identity under the supplied assumptions: a = -1 is permitted, and the original expression is DiracDelta(x**2 + 1), which is zero as a distribution on the real line, whereas the expansion introduces DiracDelta(x - I) and DiracDelta(x + I), which are not real-line delta distributions. The expansion should remain conditional on a > 0, or the original expression should remain unevaluated. The nonzero assumption deliberately excludes the pre-existing repeated-root/zero-derivative limitation. deltaintegrate also consumes this expansion and recursively integrates it, so the invalid assumption propagates into integration results. The new helper tests exercise fixed real nonlinear roots and unknown symbolic linear shifts, but not this unknown-real nonlinear-root case; moving the other tests is not independently a defect. The local imports preserve the previous sympy.integrals integrate/Integral entry points and occur at function execution rather than module initialization, so the shown import refactor does not introduce a separate recursive-integration or import-cycle defect.",
+      "path": "sympy/functions/special/delta_functions.py",
+      "line": 110,
+      "evidence": "if r.is_real is not False and not darg.subs(x, r).is_zero:\n                    result += DiracDelta(x - r)/abs(darg.subs(x, r))",
+      "fix": "Require provably real roots before applying the real-root delta identity, retaining the original expression when reality is unknown; alternatively, implement an explicitly conditional expansion with appropriate parameter-domain guards.",
+      "test": "Create x with real=True and a with real=True, nonzero=True. Assert that DiracDelta(x**2 - a).simplify(x) does not unconditionally expand into deltas at ±sqrt(a). Check the negative specialization a=-1 against the zero real-line distribution, and separately verify that a positive parameter still expands correctly. Exercise the same expressions through public integrate as well as deltaintegrate.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/deltafunctions.py",
+          "line": 137,
+          "symbol": "deltaintegrate: h = f.simplify(x)"
+        },
+        {
+          "path": "sympy/functions/special/delta_functions.py",
+          "line": 110,
+          "symbol": "DiracDelta.simplify: root-reality check and expansion"
+        },
+        {
+          "path": "sympy/integrals/deltafunctions.py",
+          "line": 148,
+          "symbol": "deltaintegrate: integrate(h, x)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

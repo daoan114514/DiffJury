@@ -1,0 +1,65 @@
+{
+  "id": "sympy__sympy-13017",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "symbol-property-validation",
+      "severity": "medium",
+      "title": "Attribute-presence validation accepts numeric constants as solution variables",
+      "explanation": "SymPy expressions expose is_Symbol and is_Function even when both properties are false. Consequently, linsolve(Matrix([[0, 0]]), S.One) passes the new validation: S.One has both attributes. The previous predicate rejected it with ValueError. For this one-variable degenerate system, gauss_jordan_solve produces one free parameter, and the replacement at line 1299 maps that parameter to S.One, so the function returns {(1,)} instead of rejecting the invalid variable. This replaces an unrestricted free variable with a fixed numeric value and returns an incomplete representation of the solution set. Merely checking attribute presence therefore does not preserve the public symbols-or-functions input contract. The simultaneous substitution itself is not an independent defect: it preserves ordinary free-symbol replacements and avoids the cascading replacements possible with the former sequential implementation when supplied symbol names overlap generated parameter names.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1271,
+      "evidence": "if not any([hasattr(symbols[0], attr) for attr in ['is_Symbol', 'is_Function']]):",
+      "fix": "Check the truth values of is_Symbol and is_Function, using guarded attribute access, rather than whether those attributes exist.",
+      "test": "Assert that linsolve(Matrix([[0, 0]]), S.One) raises ValueError, while linsolve(Matrix([[0, 0]]), x) returns FiniteSet((x,)). Include an ordinary underdetermined system with multiple free symbols to verify the simultaneous replacement remains correct.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1271,
+          "symbol": "linsolve"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1293,
+          "symbol": "linsolve"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1299,
+          "symbol": "linsolve"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1302,
+          "symbol": "linsolve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

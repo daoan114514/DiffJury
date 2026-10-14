@@ -1,0 +1,344 @@
+{
+  "id": "scikit-learn__scikit-learn-259",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "nan-regression-test-wrong-input",
+      "severity": "medium",
+      "title": "The NaN regression test fits the unchanged fixture instead of Xnan",
+      "explanation": "The test creates and modifies Xnan, but calls fit(X, Y1). The NaN-bearing array never reaches the changed validation path. If setup succeeds and the existing finite fixture fits normally, the @raises(ValueError) expectation fails because fit receives no NaN. If assigning NaN to the fixture's inferred dtype itself raises ValueError, the decorator can instead pass on that unrelated setup exception. Neither outcome verifies rejection of NaN by LogisticRegression.fit or protects against the reported backend infinite loop.",
+      "path": "scikits/learn/linear_model/tests/test_logistic.py",
+      "line": 74,
+      "evidence": "@raises(ValueError)\ndef test_nan():\n    \"\"\"Test proper NaN handling.\n\n    Regression test for Issue #252: fit used to go into an infinite loop.\n    \"\"\"\n    Xnan = np.array(X)\n    Xnan[0, 1] = np.nan\n    logistic.LogisticRegression().fit(X, Y1)",
+      "fix": "Construct Xnan with an explicit floating dtype, insert the NaN, and pass Xnan to fit. Scope assert_raises to the fit call so setup exceptions cannot satisfy the test.",
+      "test": "Use Xnan = np.array(X, dtype=np.float64), assert that the intended element is NaN, and assert_raises(ValueError, logistic.LogisticRegression().fit, Xnan, Y1). Verify separately that the unchanged finite fixture fits successfully.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 67,
+          "symbol": "test_nan"
+        },
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 74,
+          "symbol": "LogisticRegression.fit(X, Y1)"
+        },
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "sparse-validation-data-access",
+      "severity": "medium",
+      "title": "Finite validation breaks supported sparse inputs by calling the data array",
+      "explanation": "For SciPy CSR, CSC, and COO matrices, data is an ndarray attribute, not a method. For example, safe_asanyarray(sp.csr_matrix([[1.0]])) now reaches X.data() and raises TypeError instead of returning the sparse matrix. atleast2d_or_csr encounters the same failure before its existing tocsr() conversion. Other supported representations also need consideration: DOK has no data attribute, and LIL stores nested row data rather than a flat numeric array. Thus the new shared validation rejects valid sparse inputs independently of whether the LibLinear backend supports them.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 8,
+      "evidence": "if sp.issparse(X):\n        X = X.data()",
+      "fix": "Inspect sparse stored values without calling data. Normalize formats without flat numeric storage to CSR for validation, while preserving safe_asanyarray's original return-format behavior.",
+      "test": "Pass finite CSR, CSC, COO, LIL, and DOK matrices through both helpers and assert successful conversion or preservation as appropriate. Also verify that stored NaN and infinity produce ValueError rather than TypeError or AttributeError.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 16,
+          "symbol": "safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "assert_all_finite(X)"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 8,
+          "symbol": "X.data()"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "finite-validation-reduction-overflow",
+      "severity": "medium",
+      "title": "Summation rejects finite arrays when the reduction overflows",
+      "explanation": "Finiteness of the sum is not equivalent to finiteness of the elements. For X = np.array([3e38, 3e38], dtype=np.float32), both elements are finite, but np.sum(X) overflows to infinity. Consequently safe_asanyarray(X, dtype=np.float64) now raises ValueError even though the previous implementation successfully converted these finite values to float64. The problem also remains after conversion for float64 inputs such as [1e308, 1e308]. This is a concrete false rejection of valid data, rather than merely a theoretical limitation of very large arrays.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 12,
+      "evidence": "if not np.isfinite(np.sum(X)):\n        raise ValueError(\"array contains NaN or infinity\")",
+      "fix": "Check element finiteness directly, or retain the sum as a fast path and perform an elementwise finiteness check when the sum is nonfinite. Reject only when an actual element is nonfinite.",
+      "test": "Assert that finite float32 [3e38, 3e38] with requested float64 conversion and finite float64 [1e308, 1e308] are accepted. Separately assert rejection of NaN, positive infinity, and negative infinity.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 16,
+          "symbol": "safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "assert_all_finite(X)"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "np.isfinite(np.sum(X))"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "validate-after-requested-dtype-conversion",
+      "severity": "medium",
+      "title": "Validation before conversion rejects previously accepted numeric strings",
+      "explanation": "BaseLibLinear.fit previously converted X directly with np.asanyarray(X, dtype=np.float64, order='C'). Numeric-string inputs such as [['0', '1'], ['1', '0'], ['1', '1']] therefore became valid floating-point feature arrays. The replacement calls assert_all_finite on the original input before applying dtype conversion. np.sum on this string array raises a type error, so LogisticRegression.fit now fails before reaching the conversion or backend even though every feature is convertible and finite.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 17,
+      "evidence": "def safe_asanyarray(X, dtype=None, order=None):\n    assert_all_finite(X)",
+      "fix": "For dense inputs, perform the requested array and dtype conversion first, then validate the converted values before returning them or calling the backend.",
+      "test": "Fit LogisticRegression on numeric-string features and labels [0, 1, 1], and compare against fitting the equivalent float64 array. Add a converted 'nan' input and assert that validation raises ValueError.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit: safe_asanyarray(X, dtype=np.float64, order='C')"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray: assert_all_finite(X)"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "np.sum(X)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0289f811",
+      "K-02febdba",
+      "K-04a42f60",
+      "K-05d5938d",
+      "K-06940955",
+      "K-0a9d5779",
+      "K-116601a4",
+      "K-1911e86a",
+      "K-1a7e5ff1",
+      "K-1c46e9f8",
+      "K-20ab8e8e",
+      "K-21394d34",
+      "K-218187b3",
+      "K-24b3bdf1",
+      "K-295e0897",
+      "K-2d2f2af1",
+      "K-2fcf8cc0",
+      "K-3e3ec617",
+      "K-50891544",
+      "K-5097afae",
+      "K-517aea0d",
+      "K-53fd90dd",
+      "K-5726f975",
+      "K-58877fa4",
+      "K-5da5b627",
+      "K-6b983152",
+      "K-6caa3a53",
+      "K-7065ea3f",
+      "K-72d03d82",
+      "K-7410a7a0",
+      "K-750985c9",
+      "K-7a9550c8",
+      "K-81dce0d8",
+      "K-81df992c",
+      "K-8275c990",
+      "K-82989614",
+      "K-82db73bd",
+      "K-8aa6a19d",
+      "K-8ac0d8df",
+      "K-8b12aa56",
+      "K-8b250572",
+      "K-8e49d3b8",
+      "K-9154d241",
+      "K-9fb0e5d3",
+      "K-9fc0d205",
+      "K-a02dc96f",
+      "K-a32f0183",
+      "K-c33a05ee",
+      "K-c59d36ba",
+      "K-c9e50aa1",
+      "K-cebaccb0",
+      "K-d398b681",
+      "K-d55a9679",
+      "K-d5f0918f",
+      "K-dbd6b2da",
+      "K-e01a8db3",
+      "K-e552537e",
+      "K-e9744f86",
+      "K-eb0ce9df",
+      "K-ebb06c34",
+      "K-ef402548",
+      "K-f5fd559f",
+      "K-f6e0dac6",
+      "K-f9562eac"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-04a42f60",
+          "K-d398b681"
+        ],
+        "tokens": 99,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58877fa4",
+          "K-1911e86a",
+          "K-c33a05ee",
+          "K-d55a9679",
+          "K-24b3bdf1",
+          "K-8e49d3b8",
+          "K-5097afae",
+          "K-750985c9",
+          "K-e01a8db3",
+          "K-f9562eac",
+          "K-c59d36ba",
+          "K-81dce0d8",
+          "K-ebb06c34",
+          "K-53fd90dd",
+          "K-9154d241",
+          "K-f6e0dac6",
+          "K-0a9d5779",
+          "K-6b983152",
+          "K-d5f0918f",
+          "K-3e3ec617",
+          "K-116601a4",
+          "K-eb0ce9df",
+          "K-7a9550c8",
+          "K-295e0897",
+          "K-f5fd559f",
+          "K-6caa3a53",
+          "K-dbd6b2da"
+        ],
+        "tokens": 2106,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-8b12aa56",
+          "K-72d03d82",
+          "K-e9744f86",
+          "K-82db73bd"
+        ],
+        "tokens": 149,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-e552537e",
+          "K-20ab8e8e",
+          "K-5726f975",
+          "K-02febdba",
+          "K-cebaccb0",
+          "K-82989614",
+          "K-1c46e9f8",
+          "K-9fb0e5d3",
+          "K-7410a7a0",
+          "K-c9e50aa1",
+          "K-1a7e5ff1",
+          "K-81df992c",
+          "K-8b250572",
+          "K-06940955",
+          "K-8275c990",
+          "K-9fc0d205",
+          "K-8ac0d8df",
+          "K-8aa6a19d",
+          "K-05d5938d",
+          "K-50891544",
+          "K-a02dc96f",
+          "K-7065ea3f",
+          "K-ef402548",
+          "K-2d2f2af1",
+          "K-0289f811",
+          "K-517aea0d",
+          "K-21394d34",
+          "K-2fcf8cc0",
+          "K-5da5b627",
+          "K-218187b3",
+          "K-a32f0183"
+        ],
+        "tokens": 2110,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

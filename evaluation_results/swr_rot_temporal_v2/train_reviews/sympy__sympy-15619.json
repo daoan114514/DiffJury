@@ -1,0 +1,96 @@
+{
+  "id": "sympy__sympy-15619",
+  "findings": [
+    {
+      "rule_id": "complex-gaussian-comparison",
+      "severity": "medium",
+      "title": "Complex Gaussian integrands now raise an invalid-comparison exception",
+      "explanation": "manualintegrate(exp(I*x**2), x) reaches the newly installed special_function_rule and matches ErfRule with a=I, b=0, c=0. eval_erf constructs the condition a < 0 before constructing Piecewise; SymPy rejects I < 0 with TypeError because I is non-real. The wildcard only requires a to be nonzero, so no guard excludes this input. The old unsupported-Gaussian path could retain an unevaluated Integral, whereas the new evaluator raises instead of returning an integration result. All added Gaussian tests have real numeric coefficients, so they do not exercise this failure.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1453,
+      "evidence": "sympy.erf((-2*a*symbol - b)/(2*sympy.sqrt(-a))), a < 0),",
+      "fix": "Avoid ordering a coefficient unless it is known real. For a non-real coefficient, use a complex-valid Gaussian antiderivative directly, or decline this rule and preserve the unevaluated-integral fallback.",
+      "test": "Call manualintegrate(exp(I*x**2), x) and manualintegrate(exp((1 + I)*x**2), x). Assert neither raises; if evaluated, assert the derivative equals the input. Retain tests for positive and negative real coefficients.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 364,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1450,
+          "symbol": "eval_erf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-fresnel-normalization",
+      "severity": "medium",
+      "title": "Negative quadratic coefficients produce a sign-reversed antiderivative",
+      "explanation": "For the reachable input f = cos(1 + x - x**2), special_function_rule matches a=-1, b=1, c=1. eval_fresnelc then returns i*sqrt(pi/2)*(cos(5/4)*fresnelc(z) - sin(5/4)*fresnels(z)), where z=i*(2*x-1)/sqrt(2*pi). The prefactor multiplied by z.diff(x) is -1, not 1. Differentiating the returned expression consequently gives -cos(1 + x - x**2), rather than f. The analogous normalization in eval_fresnels has the same defect. This is not a logarithmic branch constant: the derivative itself has the wrong sign. The new Fresnel tests use only positive quadratic coefficients and cannot detect this case.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1459,
+      "evidence": "return sympy.sqrt(sympy.pi/(2*a)) * (\n        sympy.cos(b**2/(4*a) - c)*sympy.fresnelc((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)) +\n        sympy.sin(b**2/(4*a) - c)*sympy.fresnels((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)))",
+      "fix": "Use sqrt(2*a*pi)/(2*a) as the prefactor in both Fresnel evaluators, so it is explicitly the reciprocal of the argument's derivative, rather than independently taking the principal square root of pi/(2*a).",
+      "test": "With real x, compute F = manualintegrate(cos(1 + x - x**2), x) and assert simplify(F.diff(x) - cos(1 + x - x**2)) == 0. Add the corresponding sine case and positive-coefficient cases.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 366,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1458,
+          "symbol": "eval_fresnelc"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 54590,
+  "llm_calls": 6
+}

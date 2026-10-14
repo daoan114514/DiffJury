@@ -1,0 +1,62 @@
+{
+  "id": "scikit-learn__scikit-learn-25900",
+  "findings": [
+    {
+      "rule_id": "unsupported-documented-parameter-value",
+      "severity": "medium",
+      "title": "The recommended calibration method is not supported",
+      "explanation": "The new recommendation tells readers to use method=\"logistic\", but this same document explicitly lists the supported CalibratedClassifierCV method values as \"sigmoid\" and \"isotonic\" at lines 184–185. Following the recommendation therefore supplies an unsupported parameter rather than enabling the intended sigmoid calibration. Implementation evidence was not supplied, but the recommendation directly contradicts the documented API contract.",
+      "path": "doc/modules/calibration.rst",
+      "line": 244,
+      "evidence": "`method=\"logistic\"` which is a strictly monotonic transformation and thus keeps",
+      "fix": "Replace \"logistic\" with the supported value \"sigmoid\", and separately qualify the ranking-preservation guarantee.",
+      "test": "Instantiate CalibratedClassifierCV using the method value recommended in this note and fit it on a small binary dataset; verify that fitting succeeds.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "invalid-latex-text-escaping",
+      "severity": "low",
+      "title": "The unescaped underscore breaks the LaTeX form of the calibration formula",
+      "explanation": "The change removes the escape from the underscore inside \\text{predict_proba}. In LaTeX, \\text switches its contents to text mode, where a raw underscore is not an ordinary printable character. Consequently, the LaTeX/PDF documentation path produces a 'Missing $ inserted' error rather than correctly rendering the method name. This finding concerns LaTeX output, not an unverified claim about the browser's MathJax rendering.",
+      "path": "doc/modules/calibration.rst",
+      "line": 50,
+      "evidence": "*conditional event probability* :math:`P(Y=1|\\text{predict_proba})`) on the y-axis",
+      "fix": "Restore the escaped underscore: \\text{predict\\_proba}.",
+      "test": "Compile the formula through the documentation's LaTeX/PDF output, or a minimal amsmath document containing it, and verify that it compiles without errors and displays predict_proba literally.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 34322,
+  "llm_calls": 5
+}

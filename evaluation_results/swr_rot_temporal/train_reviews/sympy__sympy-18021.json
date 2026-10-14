@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-18021",
+  "findings": [
+    {
+      "rule_id": "permutation-self-swap-compatibility",
+      "severity": "low",
+      "title": "Previously valid identity swaps now raise an exception",
+      "explanation": "For example, eye(2).permute_rows([[0, 0]]) previously returned the unchanged matrix: the explicit mapping construction swapped mapping[0] with itself. The new path passes the pair directly to Permutation as a cycle, whose cycle construction rejects repeated elements with ValueError. The same regression affects columns and both directions, including a self-swap within an otherwise valid swap sequence. The public method still describes its input as a list of swaps, and swapping an index with itself was previously supported. Documenting cycle composition and its ordering does not explicitly deprecate this no-op input. The invariant_factors changes avoid internally generating this case, but do not protect external callers. Those pivot-selection changes otherwise preserve behavior: an already-nonzero initial pivot needs no permutation, while a zero pivot still selects the first nonzero entry in its column or row.",
+      "path": "sympy/matrices/common.py",
+      "line": 1940,
+      "evidence": "perm = Permutation(perm, size=max_index)",
+      "fix": "Normalize two-element self-swaps to singleton cycles, or remove them before constructing the permutation, while retaining the documented composition order for other cycles.",
+      "test": "Assert that eye(2).permute_rows([[0, 0]]) and the corresponding column call return eye(2) in both directions. Also test a sequence containing a self-swap and overlapping genuine swaps, asserting that removing the self-swap does not change the result.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1960,
+          "symbol": "MatrixOperations.permute_rows"
+        },
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1812,
+          "symbol": "MatrixOperations.permute"
+        },
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1940,
+          "symbol": "Permutation constructor"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 25600,
+  "llm_calls": 5
+}

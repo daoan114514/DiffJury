@@ -1,0 +1,59 @@
+{
+  "id": "scikit-learn__scikit-learn-18655",
+  "findings": [
+    {
+      "rule_id": "api-compatibility",
+      "severity": "low",
+      "title": "The documented last_n dimensions are reversed",
+      "explanation": "The new public documentation instructs callers to supply last_n with n_samples entries for axis=0 and n_features entries for axis=1, but the implementation requires the opposite. For the non-square matrix used in the added test (60 samples, 4 features), following the axis=0 documentation means passing 60 counts alongside four means and variances; the new equal-size validation immediately raises ValueError. Conversely, the test demonstrates that four counts work for axis=0. For axis=1, the validation requires 60 counts, not the documented four. Counts must correspond one-to-one with the means and variances being updated. This is a documentation regression that directs consumers to invalid inputs, rather than a defect in the axis-dependent numerical implementation.",
+      "path": "sklearn/utils/sparsefuncs.py",
+      "line": 132,
+      "evidence": "        Should be of shape (n_samples,) if axis=0 or\n        (n_features,) if axis=1.",
+      "fix": "Document last_n as shape (n_features,) for axis=0 and (n_samples,) for axis=1. Describe its values as previously observed sample counts per feature or feature counts per sample, rather than referring to weights that this function does not accept.",
+      "test": "Use a non-square matrix in a documentation example or contract test, parameterized over both axes and CSR/CSC formats. Initialize all three accumulators with length X.shape[1 - axis], then assert the returned counts have that length and equal X.shape[axis] after the first update. Ensure the documented initialization matches this example.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/tests/test_sparsefuncs.py",
+          "line": 168,
+          "symbol": "test_incr_mean_variance_axis_dim_mismatch"
+        },
+        {
+          "path": "sklearn/utils/tests/test_sparsefuncs.py",
+          "line": 177,
+          "symbol": "incr_mean_variance_axis(X, axis=0, **kwargs)"
+        },
+        {
+          "path": "sklearn/utils/sparsefuncs.py",
+          "line": 159,
+          "symbol": "incr_mean_variance_axis accumulator-size validation"
+        },
+        {
+          "path": "sklearn/utils/sparsefuncs.py",
+          "line": 164,
+          "symbol": "incr_mean_variance_axis axis-dependent dimension validation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 23391,
+  "llm_calls": 5
+}

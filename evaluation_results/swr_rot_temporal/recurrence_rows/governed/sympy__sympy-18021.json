@@ -1,0 +1,98 @@
+{
+  "id": "sympy__sympy-18021",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "public-api-identity-swap-regression",
+      "severity": "medium",
+      "title": "Previously supported identity swaps now raise ValueError",
+      "explanation": "For a nonempty matrix, a valid in-range swap with equal endpoints was previously a no-op: the old mapping construction executed mapping[i], mapping[i] = mapping[i], mapping[i]. For example, Matrix([[1], [2]]).permute_rows([[0, 0]]) previously returned the unchanged matrix. The new branch passes [[0, 0]] directly to Permutation, whose cycle representation rejects duplicate elements within a cycle with ValueError. The existing bounds check accepts both zeros, so it does not prevent this exception. This affects both orientations and directions, including identity swaps embedded among otherwise valid swaps. The guards added to invariant_factors at lines 113 and 117 avoid that function's identity swaps, but do not preserve the public permute/permute_rows/permute_cols contract. This is distinct from the intended addition of arbitrary cycles: previously supported two-element swaps regress. Overlapping nonidentity swaps retain their old composition order: [[0, 1], [0, 2]] produces the selection mapping [2, 0, 1] forward and [1, 2, 0] backward, given the constructor's cycle composition and the matrix's index-selection semantics. Flat array and Permutation inputs still take the direct-construction path, and an empty list still constructs an identity permutation. The inclusive dimension-bound check is unchanged and is not a new defect.",
+      "path": "sympy/matrices/common.py",
+      "line": 1940,
+      "evidence": "if perm and not isinstance(perm, Permutation) and \\\n    isinstance(perm[0], Iterable):\n    if direction == 'forward':\n        perm = list(reversed(perm))\n    perm = Permutation(perm, size=max_index)",
+      "fix": "After validating bounds, normalize two-element cycles with identical endpoints to no-ops before passing the cycle list to Permutation. Preserve rejection of genuinely malformed longer cycles and retain the new composition order.",
+      "test": "Assert that [[0, 0]] and [[n-1, n-1]] leave a nonempty matrix unchanged for both orientations and directions. Assert that identity swaps interspersed with overlapping nonidentity swaps produce the same result as omitting them, and that repeated distinct-endpoint swaps cancel. Also cover empty input, flat array and Permutation inputs, overlapping longer cycles, and invariant_factors with an already nonzero top-left pivot. Verify separately that indices equal to the dimension are not normalized into valid identity swaps.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1960,
+          "symbol": "MatrixOperations.permute_rows"
+        },
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1812,
+          "symbol": "MatrixOperations.permute"
+        },
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1940,
+          "symbol": "Permutation construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

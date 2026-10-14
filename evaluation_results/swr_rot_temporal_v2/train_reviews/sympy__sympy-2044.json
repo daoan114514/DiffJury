@@ -1,0 +1,94 @@
+{
+  "id": "sympy__sympy-2044",
+  "findings": [
+    {
+      "rule_id": "piecewise-candidate-condition-contamination",
+      "severity": "medium",
+      "title": "Rebinding the branch condition applies the first root's guard to subsequent roots",
+      "explanation": "The assignment mutates cond for the remainder of the candidate loop instead of evaluating each candidate against the original branch condition. Consider Piecewise((x**2 - 1, x > y), (1, True)), with unconstrained y. Its roots should be -1 guarded by y < -1 and 1 guarded by y < 1. If candidates are traversed as [-1, 1], the first substitution changes cond to -1 > y. The next substitution cannot change that expression because x is already absent, so both returned roots receive the guard y < -1. Specializing the results at y = 0 therefore loses the valid root 1. Reversing the candidate order instead gives both roots the guard y < 1 and incorrectly admits -1 at y = 0. Thus the defect does not depend on candidate ordering or on the representation of resolved Boolean values: these substituted conditions remain symbolic. The added positive-parameter regression has only one root per branch and does not exercise this mutation across candidates.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1089,
+      "evidence": "cond = cond is True or cond.subs(symbol, candidate)",
+      "fix": "Keep cond unchanged throughout the candidate loop. Store the substituted condition in a candidate-local variable and use that variable for filtering and conditional result construction.",
+      "test": "Solve Piecewise((x**2 - 1, x > y), (1, True)) for x and assert that the guards for -1 and 1 are respectively y < -1 and y < 1. Specialize the returned solutions at y = 0 and assert that the only non-NaN root is 1. Also test the concrete condition x > 0 to cover resolved false and true substitutions across multiple roots.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1086,
+          "symbol": "_solve: iterate branch candidates"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1089,
+          "symbol": "_solve: overwrite branch condition"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1104,
+          "symbol": "_solve: attach overwritten condition to result"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "piecewise-unresolved-precedence-guard",
+      "severity": "medium",
+      "title": "Later-piece solutions omit exclusion guards for unresolved earlier conditions",
+      "explanation": "The changed identity check treats an unresolved earlier-piece condition as not matching, but the new conditional result includes only the current branch condition. For Piecewise((x - 1, y > 0), (x - 2, True)), with unconstrained y, the first branch produces 1 guarded by y > 0. The second branch produces candidate 2; substituting x = 2 into the earlier condition leaves y > 0, which is not the Python singleton True, so matches_other_piece remains false. Because the current condition is True, the newly constructed Piecewise simplifies to unconditional 2. The result therefore admits 2 even when y = 1, although the original expression then equals x - 1 and is nonzero at x = 2. The correct guard for 2 is y <= 0. This derivation does not assume how the repository represents resolved Boolean values: the earlier condition remains an unresolved relational expression. The new test uses a positive parameter and does not cover unresolved earlier conditions or conditional branch precedence.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1099,
+      "evidence": "if other_cond.subs(symbol, candidate) is True:\n                            matches_other_piece = True\n                            break\n                    if not matches_other_piece:\n                        result.add(Piecewise(\n                            (candidate, cond is True or cond.doit()),\n                            (S.NaN, True)\n                        ))",
+      "fix": "For each candidate, combine its substituted current condition with the negation of every substituted earlier-piece condition. Reject a definitely false combined guard, return an unconditional candidate only for a definitely true guard, and otherwise retain the combined symbolic guard.",
+      "test": "Solve Piecewise((x - 1, y > 0), (x - 2, True)) for x. Assert that 1 is guarded by y > 0 and 2 by y <= 0; specializing at y = 1 must leave only 1, and specializing at y = 0 must leave only 2.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1086,
+          "symbol": "_solve: iterate later-branch candidates"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1099,
+          "symbol": "_solve: test earlier-piece condition"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1103,
+          "symbol": "_solve: construct result without earlier-piece exclusions"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 20281,
+  "llm_calls": 5
+}

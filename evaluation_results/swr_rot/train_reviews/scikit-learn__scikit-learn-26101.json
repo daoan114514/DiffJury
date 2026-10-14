@@ -1,0 +1,54 @@
+{
+  "id": "scikit-learn__scikit-learn-26101",
+  "findings": [
+    {
+      "rule_id": "unnecessary-per-point-tree-scan",
+      "severity": "medium",
+      "title": "Skip the full-tree maximum calculation when epsilon is nonzero",
+      "explanation": "For allow_single_cluster=True with one selected root cluster and nonzero cluster_selection_epsilon, the old implementation only filtered the tree by child ID for each root-labelled point. The replacement additionally filters the entire tree by parent ID and reduces the result with max(), even though threshold uses 1 / cluster_selection_epsilon and discards that maximum. A flat single-cluster condensed tree, with N leaf rows parented by the root, exercises this path for all N points; this is reachable when min_cluster_size equals the sample count and single-cluster selection is enabled. With M tree rows and P points represented by the root, this introduces P*M additional comparisons, plus repeated allocation and reduction of the root's outgoing lambda values. For a flat 10,000-point tree, that is 100 million additional parent comparisons and 100 million lambda values copied and reduced. The old path was already quadratic, but the change adds another full-tree pass and reduction per point on this supported configuration without affecting its output.",
+      "path": "sklearn/cluster/_hdbscan/_tree.pyx",
+      "line": 472,
+      "evidence": "max_child_lambda = lambda_array[parent_array == cluster].max()\n            threshold = (\n                1 / cluster_selection_epsilon if cluster_selection_epsilon != 0.0\n                else max_child_lambda\n            )",
+      "fix": "Compute the maximum only when cluster_selection_epsilon is zero. Prefer computing the single-cluster threshold once outside the per-point loop, since the root cluster and epsilon are invariant.",
+      "test": "Exercise HDBSCAN with allow_single_cluster=True, min_cluster_size equal to the sample count, and nonzero cluster_selection_epsilon. Verify labels remain unchanged and benchmark increasing sample counts against the previous implementation; the nonzero-epsilon path should perform no parent-lambda maximum calculation. Retain a zero-epsilon test to verify the maximum-based threshold remains correct.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/cluster/_hdbscan/_tree.pyx",
+          "line": 465,
+          "symbol": "do_labelling: per-point loop"
+        },
+        {
+          "path": "sklearn/cluster/_hdbscan/_tree.pyx",
+          "line": 470,
+          "symbol": "do_labelling: single-root-cluster branch"
+        },
+        {
+          "path": "sklearn/cluster/_hdbscan/_tree.pyx",
+          "line": 472,
+          "symbol": "do_labelling: unconditional parent filtering and maximum"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [
+      0
+    ],
+    "missed": []
+  },
+  "tokens": 17685,
+  "llm_calls": 5
+}

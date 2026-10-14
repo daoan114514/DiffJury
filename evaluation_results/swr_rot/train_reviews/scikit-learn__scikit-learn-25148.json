@@ -1,0 +1,85 @@
+{
+  "id": "scikit-learn__scikit-learn-25148",
+  "findings": [
+    {
+      "rule_id": "probability-normalization",
+      "severity": "low",
+      "title": "All-infinite distances produce NaN probability rows",
+      "explanation": "The new normalization divides by zero when every computed distance in a row is infinite. This is reachable even with finite supported decision-function output: use a one-bit classifier with code_book_ = [[-1.0], [1.0]] and an estimator returning float64 1e200. Squaring the decision value in euclidean_distances overflows, yielding [inf, inf]. The added expression computes inverse weights [0, 0] and then returns [NaN, NaN]. The epsilon protects zero distances, but does not protect a zero normalization total. This is a defect in the newly exposed probability result, not a claim that the pre-existing distance decoder handled extreme scores accurately. It directly violates the normalization invariant asserted by the new test: np.sum(proba, axis=1) is NaN rather than 1. The Iris/LinearSVC fixture does not exercise this finite extreme-score boundary.",
+      "path": "sklearn/multiclass.py",
+      "line": 1050,
+      "evidence": "proba = (1.0 / (dist + eps)) / np.sum(1.0 / (dist + eps), axis=1)[:, np.newaxis]",
+      "fix": "Use a numerically stable distance computation or explicitly handle rows whose inverse-distance total is zero, with a documented finite fallback rather than returning NaNs.",
+      "test": "Exercise predict_proba through a fitted OutputCodeClassifier whose decision_function returns finite 1e200 values. Assert that every returned value is finite and nonnegative and every row sums to one. Include ordinary and exact-zero-distance rows to verify the fallback does not alter those cases.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1028,
+          "symbol": "OutputCodeClassifier.predict_proba"
+        },
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1047,
+          "symbol": "euclidean_distances"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "prediction-equivalence",
+      "severity": "low",
+      "title": "Probability rounding changes previously distinguishable predictions",
+      "explanation": "The new argmax decoder is not numerically equivalent to the former distance argmin. A supported counterexample is a two-class classifier with classes [10, 20], one decision-function estimator, code_book_ = [[-1.0], [1.0]], and decision_function(X) returning float64 2**-53. This codebook is attainable with code_size=0.5. The Euclidean distances are [1.0, 1.0 - 2**-53], so the old decoder returns class 20. Adding eps=1e-16 rounds both distances to exactly 1.0, producing probabilities [0.5, 0.5]; the new decoder returns class 10. Thus a non-tied nearest-code decision becomes a tie, violating preservation of existing predictions. The Iris regression test does not exercise this near-boundary input and compares class indices directly to labels, which only works for its consecutive zero-based targets. Exact distance ties and zero distances themselves are not demonstrated failures here; this counterexample specifically involves distinct nonzero distances.",
+      "path": "sklearn/multiclass.py",
+      "line": 1066,
+      "evidence": "pred = self.predict_proba(X).argmax(axis=1)",
+      "fix": "Preserve the original distance-argmin implementation of predict rather than decoding rounded normalized probabilities. Merely changing the epsilon does not generally guarantee that probability normalization preserves every floating-point distinction.",
+      "test": "Fit a two-class, one-bit OutputCodeClassifier using a deterministic estimator whose decision_function returns float64 2**-53, arrange code_book_ as [[-1.0], [1.0]], and use labels [10, 20]. Assert that predict returns 20 and equals classes_[euclidean_distances(binary_predictions, code_book_).argmin(axis=1)]. Also retain separate tests for exact ties, zero distances, and a predict_proba-only underlying estimator.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1066,
+          "symbol": "OutputCodeClassifier.predict"
+        },
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1050,
+          "symbol": "OutputCodeClassifier.predict_proba"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [
+      1
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 22845,
+  "llm_calls": 5
+}

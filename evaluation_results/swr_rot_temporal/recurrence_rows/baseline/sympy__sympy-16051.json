@@ -1,0 +1,89 @@
+{
+  "id": "sympy__sympy-16051",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "symbolic-comparison-truth-coercion",
+      "severity": "medium",
+      "title": "Branch-cut evaluation of expint now raises for symbolic integer orders",
+      "explanation": "The integer-order branch accepts orders whose sign is unknown. For example, let nu = Symbol('nu', integer=True) and z = Symbol('z', positive=True), and construct expint(nu, z*exp_polar(2*pi*I)). Extracting the argument's branch factor gives a nonzero winding number, and nu.is_integer selects this branch. The relation nu > 0 remains undecidable. Previously, (nu > 0) != True caused evaluation to return without simplifying, preserving the supported symbolic expression. The replacement instead invokes the relation's Boolean conversion and raises TypeError. The existing integer assumption does not establish positivity.",
+      "path": "sympy/functions/special/error_functions.py",
+      "line": 1221,
+      "evidence": "if not nu > 0:",
+      "fix": "Preserve a definite-truth test, such as `if (nu > 0) != True:`, rather than coercing the symbolic relation to bool.",
+      "test": "Add a regression test in sympy/functions/special/tests/test_error_functions.py constructing expint with an integer symbol of unknown sign and an argument containing exp_polar(2*pi*I). Assert that construction succeeds and preserves the unevaluated expression; also retain positive- and nonpositive-integer branch cases.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/error_functions.py",
+          "line": 1218,
+          "symbol": "expint.eval: nonzero branch-factor handling"
+        },
+        {
+          "path": "sympy/functions/special/error_functions.py",
+          "line": 1221,
+          "symbol": "expint.eval: integer-order positivity guard"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "symbolic-containment-truth-coercion",
+      "severity": "medium",
+      "title": "Finite-set union cleanup raises on undecidable membership",
+      "explanation": "The guard on line 111 only establishes that at least one element is definitely contained in b; it does not establish decidable membership for every element. A concrete input to this handler is a = FiniteSet(1, x), with x a real symbol, and b = Interval(0, oo). Membership of 1 is True, so the cleanup runs, while membership of x is the undecidable relation x >= 0. Previously, comparing that relation with True retained x and removed only 1, returning the equivalent union of FiniteSet(x) and b. The new comprehension calls bool on x >= 0 and raises TypeError instead. Thus a mixed finite set containing both a known member and a symbolic member no longer passes this cleanup.",
+      "path": "sympy/sets/handlers/union.py",
+      "line": 113,
+      "evidence": "FiniteSet(*[x for x in a if not b.contains(x)]), b))",
+      "fix": "Keep elements unless containment is definitely true, restoring `b.contains(x) != True` or using an equivalent explicit definite-truth check.",
+      "test": "Add a regression test for this registered finite-set/set handler with FiniteSet(1, x), x real, and Interval(0, oo). Assert that the result retains FiniteSet(x), removes the known contained element 1, and does not raise. Also exercise the public Union construction so dispatch and any preceding simplification remain covered.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 111,
+          "symbol": "union_sets: definite-membership guard"
+        },
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 113,
+          "symbol": "union_sets: finite-set membership filtering"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

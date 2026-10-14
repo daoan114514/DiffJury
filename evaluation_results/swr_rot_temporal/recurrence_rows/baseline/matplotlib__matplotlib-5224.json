@@ -1,0 +1,70 @@
+{
+  "id": "matplotlib__matplotlib-5224",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "mkdirs-existing-relative-directory",
+      "severity": "medium",
+      "title": "Python 2 mkdirs now fails for existing single-component relative directories",
+      "explanation": "In the explicitly retained Python 2 fallback (six.PY3 is false), removing the original whole-path existence check makes existing directories such as '.' or 'output' fail. For mkdirs('.'), os.path.split('.') returns ('', '.'); the first iteration assigns thispart = '' and calls _make_leaf('', mode). os.path.exists('') is false, so os.makedirs('', mode) raises OSError with errno.ENOENT, which the handler re-raises. Previously os.path.exists('.') was true and the function returned successfully without attempting creation. The same regression occurs for an existing directory named 'output' without a trailing slash. This is not a new failure for a missing single-component path, which already encountered the empty parent in the old implementation. The reference to thispart itself is a valid closure reference: the helper is called synchronously after that variable is assigned, so it does not introduce a NameError.",
+      "path": "lib/matplotlib/cbook.py",
+      "line": 1031,
+      "evidence": "    parts = os.path.split(newdir)\n    for i in range(1, len(parts) + 1):\n        thispart = os.path.join(*parts[:i])\n        _make_leaf(thispart, mode)",
+      "fix": "Restore the original whole-path existence guard before splitting the path in the Python 2 fallback. This preserves the previous successful no-op for existing paths.",
+      "test": "Add a focused regression test on the Python 2 fallback: in a temporary working directory, create 'output', then call mkdirs('output') and mkdirs('.'). Assert both return without exception and leave the existing directories and their modes unchanged. These calls succeeded before the change and now raise ENOENT. No existing test coverage was supplied for inspection.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1016,
+          "symbol": "mkdirs: six.PY3 is false, selecting the Python 2 fallback"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1031,
+          "symbol": "mkdirs: os.path.split('.') produces an empty parent"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1034,
+          "symbol": "mkdirs: _make_leaf('', mode)"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1025,
+          "symbol": "_make_leaf: os.makedirs('', mode) raises ENOENT"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1028,
+          "symbol": "_make_leaf: ENOENT is re-raised"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

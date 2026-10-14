@@ -1,0 +1,46 @@
+{
+  "id": "scikit-learn__scikit-learn-3065",
+  "findings": [
+    {
+      "rule_id": "REL-EMPTY-EXCEPT",
+      "severity": "medium",
+      "title": "Python 2 HTTP failures are replaced by an uncaught AttributeError",
+      "explanation": "On Python 2, the new import binds `urllib` to `urllib2`. If `_get_data` encounters an HTTP error or a connection failure, `urllib.urlopen(url)` raises HTTPError or URLError. The new bare exception handler catches that genuine network failure and then evaluates `urllib.request.urlopen(url)`, but Python 2's urllib2 module has no `request` attribute. The result is AttributeError instead of the original network exception. Previously, the network exception propagated unchanged and could be handled by the HTTPError/URLError handlers in `embed_code_links`; those handlers cannot catch the replacement AttributeError. Thus a recoverable documentation-link retrieval failure now escapes error recovery. This is introduced by the fallback, not an unchanged Python 3 incompatibility.",
+      "path": "doc/sphinxext/gen_rst.py",
+      "line": 77,
+      "evidence": "        try:\n            resp = urllib.urlopen(url)\n            encoding = resp.headers.dict.get('content-encoding', 'plain')\n        except:\n            resp = urllib.request.urlopen(url)",
+      "fix": "Select the Python-version-specific urlopen function during import, then invoke it outside any compatibility fallback. Normalize header access separately and allow HTTPError and URLError to propagate unchanged.",
+      "test": "On Python 2.7, run `_get_data` against a local HTTP server returning 404 and assert that HTTPError, not AttributeError, is raised. Also inject URLError from urlopen and assert it propagates without a second request. Exercise the documentation-link recovery path and assert its existing network-error handler completes without aborting.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 69,
+          "symbol": "_get_data"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 79965,
+  "llm_calls": 5
+}

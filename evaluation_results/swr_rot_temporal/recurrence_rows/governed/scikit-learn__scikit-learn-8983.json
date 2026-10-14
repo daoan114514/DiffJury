@@ -1,0 +1,84 @@
+{
+  "id": "scikit-learn__scikit-learn-8983",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "PY-SYNTAX-ERROR",
+      "severity": "medium",
+      "title": "Remove the extra comma that prevents the example from parsing",
+      "explanation": "The added scatter call contains two consecutive commas after y, leaving an empty argument, which is invalid Python syntax. Running or importing this example raises SyntaxError while parsing the module, before imports, model fitting, or plotting can execute. This is introduced by the change: the removed call, plt.scatter(X, y, label=\"Samples\"), was syntactically valid. The failure is independent of installed dependencies or plotting backend. No additional functional regression is established by the other plotting edits. The scanner's print(__doc__) warning is not a new defect: the identical statement was removed from below the imports and relocated to line 20, preserving the example's existing documentation output on successful execution.",
+      "path": "examples/model_selection/plot_underfitting_overfitting.py",
+      "line": 63,
+      "evidence": "    plt.scatter(X, y, , edgecolor='b', s=20, label=\"Samples\")",
+      "fix": "Remove the extra comma: plt.scatter(X, y, edgecolor='b', s=20, label=\"Samples\").",
+      "test": "Compile the complete example with Python's compile() or py_compile to verify it parses without importing dependencies; then execute it with the project's supported dependencies and a noninteractive Matplotlib backend and verify that all three degree comparisons render.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/model_selection/plot_underfitting_overfitting.py",
+          "line": 63,
+          "symbol": "module parsing before execution"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

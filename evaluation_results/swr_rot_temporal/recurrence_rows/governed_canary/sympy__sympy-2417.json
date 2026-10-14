@@ -1,0 +1,98 @@
+{
+  "id": "sympy__sympy-2417",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "ci-system-package-privileges",
+      "severity": "medium",
+      "title": "Sage setup runs privileged package operations without sudo",
+      "explanation": "The added TEST_SAGE=\"true\" matrix entry activates this setup block. On Travis's standard non-root VM worker, adding an APT repository, updating system package indexes, and installing system packages require privilege escalation. None of these commands has it, so Sage setup fails before the new test command can run. The supplied excerpt does not establish a root execution override or show existing privilege-escalation conventions; this finding applies to the standard Travis execution identity.",
+      "path": ".travis.yml",
+      "line": 65,
+      "evidence": "      apt-add-repository -y ppa:aims/sagemath;\n      apt-get update;\n      apt-get install sagemath-upstream-binary;",
+      "fix": "Apply sudo independently to apt-add-repository, apt-get update, and apt-get install, or use a supported privileged package-install mechanism.",
+      "test": "Run the Sage matrix job under the normal non-root Travis identity and verify all three setup operations succeed and execution reaches sage -python bin/test sympy/external/tests/test_sage.py.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".travis.yml",
+          "line": 43,
+          "symbol": "matrix.include: TEST_SAGE=\"true\""
+        },
+        {
+          "path": ".travis.yml",
+          "line": 64,
+          "symbol": "before_install: TEST_SAGE branch"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 65,
+          "symbol": "apt-add-repository"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-269",
+      "applied_rules": [
+        "K-f2fcea7d"
+      ]
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-f2fcea7d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

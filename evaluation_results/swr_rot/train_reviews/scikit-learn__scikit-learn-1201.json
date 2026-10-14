@@ -1,0 +1,119 @@
+{
+  "id": "scikit-learn__scikit-learn-1201",
+  "findings": [
+    {
+      "rule_id": "outlier-sentinel-used-as-class-index",
+      "severity": "medium",
+      "title": "Outlier labels outside the class-index range fail before restoration",
+      "explanation": "The new prediction path indexes classes_ with every mode before restoring outlier labels. An outlier mode is a configured label, not an encoded class index. For example, fit RadiusNeighborsClassifier(radius=0.1, outlier_label=99) on X=[[0], [10]], y=[10, 20], then predict [[100]]. The outlier mode 99 causes classes_.take([99]) to raise IndexError because there are only two classes; the restoration below it is never reached. Previously, returning the integer mode returned [99]. This breaks the existing numeric outlier-label contract. The supplied context does not include the preceding sentinel-construction code or tests, so those portions cannot be independently inspected; the failing changed operation is directly reproducible with classes_=[10,20] and modes=[99].",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 317,
+      "evidence": "prediction = self.classes_.take(modes)\n        if self.outlier_label:\n            # reset outlier label\n            prediction[modes == outlier_label] = self.outlier_label",
+      "fix": "Use the actual outlier-row mask to exclude outliers from classes_.take, then assign the configured outlier label to those rows.",
+      "test": "Fit on [[0], [10]] with labels [10, 20], radius=0.1 and outlier_label=99. Assert that predicting [[0], [100]] returns [10, 99] without raising. Exercise both uniform and distance weighting.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 315,
+          "symbol": "RadiusNeighborsClassifier.predict"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-129",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "outlier-mask-collides-with-encoded-class",
+      "severity": "medium",
+      "title": "Outlier restoration can overwrite valid inlier predictions",
+      "explanation": "After fitting now encodes labels as 0..n_classes-1, comparing modes to an outlier label no longer identifies only outlier rows. For labels [10,20], class 20 has encoded mode 1. With outlier_label=1, the restoration replaces every legitimate class-20 prediction with 1. A concrete mixed query is training X=[[0],[10]], y=[10,20], radius=0.1, outlier_label=1 and predicting [[10],[100]]: both modes are 1, classes_.take produces [20,20], and the changed assignment produces [1,1] instead of [20,1]. The old modes used original labels, so the inlier mode was 20 and did not collide with sentinel 1. This is a new consequence of the fit-time encoding, not the existing limitations around falsey outlier labels.",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 320,
+      "evidence": "self.classes_, self._y = unique(y, return_inverse=True)\n            prediction[modes == outlier_label] = self.outlier_label",
+      "fix": "Restore labels using the outlier indices determined from empty neighbor lists, rather than equality between a class mode and the sentinel.",
+      "test": "Fit labels [10,20] at [[0],[10]] with radius=0.1 and outlier_label=1. Assert predictions for [[10],[100]] are exactly [20,1]. Repeat with distance weighting and with a query containing only the inlier.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 320,
+          "symbol": "RadiusNeighborsClassifier.predict"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "outlier-label-coerced-to-training-label-dtype",
+      "severity": "low",
+      "title": "The training-label dtype can silently change the configured outlier label",
+      "explanation": "classes_.take creates the prediction array with the training-label dtype, whereas the previous return explicitly produced an integer array. Assigning an outlier label into this new array can therefore lose its value. For example, fit on X=[[0],[10]] with y=np.array([False,True]), radius=0.1 and outlier_label=-1, then predict [[100]]. Mode -1 is a valid negative index, so take returns a Boolean array; assigning -1 into it produces True instead of the configured -1. The previous integer-mode return preserved -1. The same issue affects unsigned labels with a negative outlier label, resulting in wrapping or an assignment error depending on NumPy version. No test files are supplied in this review context, so coverage of these dtype boundaries cannot be verified.",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 320,
+      "evidence": "prediction = self.classes_.take(modes)\n        if self.outlier_label:\n            # reset outlier label\n            prediction[modes == outlier_label] = self.outlier_label",
+      "fix": "When outliers are present, allocate predictions with a dtype that preserves both class labels and the configured outlier label, and fill outlier rows separately.",
+      "test": "Fit Boolean labels [False,True] with outlier_label=-1 and predict a point outside every radius. Assert that its prediction equals -1, not True. Add an unsigned-integer-label case and assert that -1 is preserved without wrapping or raising.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 317,
+          "symbol": "RadiusNeighborsClassifier.predict"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-681",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 21359,
+  "llm_calls": 5
+}

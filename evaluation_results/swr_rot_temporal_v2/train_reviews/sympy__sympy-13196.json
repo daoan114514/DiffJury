@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-13196",
+  "findings": [
+    {
+      "rule_id": "generated-expression-precedence",
+      "severity": "medium",
+      "title": "Parenthesize the division emitted for log2",
+      "explanation": "The new handler renders a function node as an unparenthesized division. Enclosing printers treat log2 as a function, rather than a division, when deciding whether parentheses are needed. Consequently, composing this expansion with a reciprocal or power changes its meaning. For example, x/log2(y) produces x/mpmath.log(y)/mpmath.log(2). At x=1 and y=4, this evaluates to approximately 1.0406844905 instead of 0.5. Likewise, squaring the emitted fragment binds the exponent to the denominator rather than to the complete logarithm ratio. These results follow directly from Python operator precedence; they were not tool-executed.\n\nAtomic and compound arguments themselves are enclosed safely: log2(x+y), log2(x*y), and log2(x/y) produce mpmath.log(x+y)/mpmath.log(2), mpmath.log(x*y)/mpmath.log(2), and mpmath.log(x/y)/mpmath.log(2). The corresponding log1p expansions are mpmath.log(x+y+1), mpmath.log(x*y+1), and mpmath.log(x/y+1), which preserve grouping for these arguments. The defect occurs when the log2 result is composed into a larger expression, and persists at high precision.\n\nThe removed type-to-callable replace passes the function argument to its callback, so the previous implementation reduced these atomic/compound log2 and log1p nodes to their arguments rewritten with log. That was already a separate semantic defect; this finding concerns the newly introduced mismatch between the emitted division and the original function node's precedence, not a claim that the old implementation computed logarithms correctly.\n\nThe changed map removes PythonCodePrinter._kf as its source, while the following setattr loop can still overwrite explicit handlers for names present in MpmathPrinter._kf. The supplied evidence does not contain the map definitions, so no additional supported-function or dispatch regression is asserted. Similarly, log1p cancellation for very small inputs deserves coverage, but is not established here as an independent introduced precision defect. The relaxed sin test permits either float or mpf and does not test either new handler or their composition; no separate return-type regression is demonstrated.",
+      "path": "sympy/printing/pycode.py",
+      "line": 232,
+      "evidence": "return '{0}({1})/{0}(2)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Wrap the complete emitted ratio in parentheses, or emit the single function call mpmath.log(argument, 2), so callers can safely treat the result as a function expression.",
+      "test": "Exercise the real mpmath lambdify path with x/log2(y) at (1, 4), expecting 0.5, and log2(x)**2 at x=4, expecting 4. Include atomic, sum, product, and quotient arguments and repeat at elevated mpmath precision. Assert numerical results rather than only accepted return types.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 231,
+          "symbol": "MpmathPrinter._print_log2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 16270,
+  "llm_calls": 5
+}

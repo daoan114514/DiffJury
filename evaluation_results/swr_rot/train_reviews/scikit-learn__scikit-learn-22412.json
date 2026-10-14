@@ -1,0 +1,90 @@
+{
+  "id": "scikit-learn__scikit-learn-22412",
+  "findings": [
+    {
+      "rule_id": "REL-SAMPLE-COUNT-TYPE",
+      "severity": "medium",
+      "title": "Preallocation rejects unsigned sample-count arrays on NumPy 1.x",
+      "explanation": "A supported array-like input such as n_samples=np.array([2, 3], dtype=np.uint64), with centers=[[0., 0.], [1., 1.]], fails on NumPy 1.x. Python's sum starts with the integer 0; adding a numpy.uint64 scalar promotes the result to numpy.float64 in these versions, so sum(n_samples_per_center) is 5.0 rather than an integer. Passing that value as a shape dimension raises TypeError. Previously each unsigned count was accepted as an integer size by generator.normal and list repetition, and concatenation produced the five requested samples. Both new allocations use the problematic sum. This is an input compatibility regression, not a change in the generated normal values or shuffle ordering.",
+      "path": "sklearn/datasets/_samples_generator.py",
+      "line": 943,
+      "evidence": "X = np.empty(shape=(sum(n_samples_per_center), n_features), dtype=np.float64)\ny = np.empty(shape=(sum(n_samples_per_center),), dtype=np.int64)",
+      "fix": "Compute an integer total once, for example sum(int(n) for n in n_samples_per_center), and reuse it for both allocation shapes.",
+      "test": "On a supported NumPy 1.x environment, call make_blobs with np.array([2, 3], dtype=np.uint64), two explicit centers, and a fixed random_state. Assert shapes (5, 2) and (5,), cluster counts [2, 3], and identical results to the equivalent Python-list counts, with both shuffle settings.",
+      "confidence": 0.93,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/_samples_generator.py",
+          "line": 934,
+          "symbol": "make_blobs"
+        },
+        {
+          "path": "sklearn/datasets/_samples_generator.py",
+          "line": 943,
+          "symbol": "make_blobs"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "TEST-ABSOLUTE-MEMORY-BASELINE",
+      "severity": "medium",
+      "title": "Memory test compares whole-process RSS against output allocation size",
+      "explanation": "memory_profiler.memory_usage with a callable and max_usage=True reports the maximum absolute memory usage of the executing process, not the allocation increase attributable to make_blobs. The expected value here includes only X, y, and centers: 800,880,000 bytes, approximately 763.78 MiB, giving an assertion limit of 992.91 MiB. A test process retaining more than 229.13 MiB of unrelated resident memory therefore fails even with no temporary allocations. For example, retaining a touched 300 MiB array before running this test makes the final arrays alone exceed the limit. The preallocation itself does reduce the unshuffled allocation peak from approximately two feature matrices to one matrix plus one cluster-sized temporary; for these options that temporary is another 76.29 MiB, reducing the tolerable baseline further. The test consequently requires approximately 840 MiB of live data plus process overhead and can also exhaust constrained runners. Skipping when memory_profiler is unavailable and limiting iterations do not correct the measurement when the dependency is installed.",
+      "path": "sklearn/datasets/tests/test_samples_generator.py",
+      "line": 471,
+      "evidence": "actual_memory_usage, (X, y, c) = memory_profiler.memory_usage(\n        (partial(make_blobs, **blobs_opts), ()),\n        max_iterations=1,\n        max_usage=True,\n        retval=True,\n    )\nassert actual_memory_usage < calc_memory_useage_mb * 1.3",
+      "fix": "Measure the allocation increase relative to a baseline using the same measurement backend, preferably in an isolated process, and reduce the workload to a bounded allocation suitable for test runners. Include the largest cluster temporary in the expected incremental peak rather than treating process RSS as output bytes.",
+      "test": "Run the corrected memory check both with a clean baseline and with an unrelated touched allocation retained before measurement. Both runs should reach the same allocation-regression verdict. Verify that the check rejects the former list-and-concatenate implementation and passes the preallocated implementation without requiring an approximately 1 GiB test-process budget.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/tests/test_samples_generator.py",
+          "line": 438,
+          "symbol": "test_make_blobs_memory_usage"
+        },
+        {
+          "path": "sklearn/datasets/tests/test_samples_generator.py",
+          "line": 458,
+          "symbol": "memory_profiler.memory_usage"
+        },
+        {
+          "path": "sklearn/datasets/tests/test_samples_generator.py",
+          "line": 471,
+          "symbol": "test_make_blobs_memory_usage"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [
+      1
+    ],
+    "missed": []
+  },
+  "tokens": 24324,
+  "llm_calls": 5
+}

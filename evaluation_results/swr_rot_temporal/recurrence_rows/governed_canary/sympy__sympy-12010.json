@@ -1,0 +1,132 @@
+{
+  "id": "sympy__sympy-12010",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "cse-ignore-iterator-exhaustion",
+      "severity": "medium",
+      "title": "One-shot ignore iterables are exhausted during repeated-expression detection",
+      "explanation": "The documented iterable contract includes iterators, but each repeated expression traverses the same ignore object again. For cse([y**2, y**2, y**2], ignore=iter([y])), the second occurrence consumes y and correctly rejects the substitution. At the third occurrence, the iterator is exhausted, so the loop's else branch adds y**2 to to_eliminate. Rebuilding consequently returns ([(x0, y**2)], [x0, x0, x0]) instead of ([], [y**2, y**2, y**2]), violating the promise that substitutions cannot contain ignored symbols. cse forwards ignore unchanged into tree_cse. The new tuple-only test does not expose this failure. Existing positional parameters remain in their original order; the defect is specific to the new iterable handling.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 452,
+      "evidence": "                for ign in ignore:\n                    if ign in expr.free_symbols:\n                        break\n                else:\n                    to_eliminate.add(expr)\n                    return",
+      "fix": "Materialize ignore once at tree_cse entry, for example as a tuple or frozenset, before any expression traversal. Doing this in tree_cse also protects its direct callers and preserves traversal into eligible nested subexpressions.",
+      "test": "Assert that cse([y**2, y**2, y**2], ignore=iter([y])) returns no replacements and unchanged expressions. Also run the existing nested-subexpression example with a fresh one-shot iterator and assert that sqrt(x + 1) remains extractable while every replacement excludes y; retain the tuple and default-behavior checks.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 688,
+          "symbol": "cse forwards ignore to tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 410,
+          "symbol": "tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 452,
+          "symbol": "repeated-expression detection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-664",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-0faed540",
+      "K-25a05e81",
+      "K-2b42cad0",
+      "K-4b143eb5",
+      "K-5a649727",
+      "K-726d8aec",
+      "K-83dfddfe",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-d0414ebb",
+      "K-d8d1d0ae",
+      "K-e820d88f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-09474f0c",
+          "K-93a099ce",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-b5e72943"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-c01df042",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-4b143eb5",
+          "K-83dfddfe",
+          "K-25a05e81",
+          "K-b1da47ce",
+          "K-0faed540",
+          "K-e820d88f"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-4073d146",
+          "K-0117d999",
+          "K-e13d441c"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

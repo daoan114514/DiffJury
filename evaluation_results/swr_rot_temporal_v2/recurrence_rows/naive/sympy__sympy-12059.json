@@ -1,0 +1,100 @@
+{
+  "id": "sympy__sympy-12059",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-00bc9d17",
+      "K-0bbe1015",
+      "K-0fbbf738",
+      "K-2436b487",
+      "K-251fab07",
+      "K-46d9d9f2",
+      "K-4e1559a1",
+      "K-659408f9",
+      "K-765402dd",
+      "K-7de8581d",
+      "K-847c7cac",
+      "K-88c09c66",
+      "K-99e65698",
+      "K-9fe3253b",
+      "K-a1e29320",
+      "K-a527e894",
+      "K-a9ea6942",
+      "K-c1f97abd",
+      "K-c621f945",
+      "K-cb01c870",
+      "K-cf4ba613"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-46d9d9f2",
+          "K-659408f9",
+          "K-0fbbf738",
+          "K-cb01c870",
+          "K-88c09c66"
+        ],
+        "tokens": 170,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-847c7cac",
+          "K-c1f97abd",
+          "K-c621f945",
+          "K-251fab07",
+          "K-99e65698",
+          "K-2436b487",
+          "K-0bbe1015"
+        ],
+        "tokens": 401,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-765402dd",
+          "K-7de8581d",
+          "K-cf4ba613",
+          "K-a9ea6942",
+          "K-a1e29320"
+        ],
+        "tokens": 166,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-9fe3253b",
+          "K-a527e894",
+          "K-4e1559a1"
+        ],
+        "tokens": 125,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

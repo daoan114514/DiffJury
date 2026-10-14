@@ -1,0 +1,44 @@
+{
+  "id": "scikit-learn__scikit-learn-10615",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-incremental-mean-normalization",
+      "severity": "medium",
+      "title": "Subsequent batches return an incorrectly normalized mean",
+      "explanation": "After lines 306–309 unnormalize the statistics, let A = last_n * prior_mean, B = new_n * batch_mean, and N = last_n + new_n. The old loop computed (A + B) / N, but the new expression computes A + B / N because division takes precedence over addition. For a first batch [1, 1] followed by [3, 3], the first pass correctly returns mean=1, variance=0, count=2. The second pass has A=2, B=6, N=4 and returns mean=3.5 rather than the combined-data mean=2. The variance expression is algebraically unchanged: its correction reduces to last_n * new_n / N * (prior_mean - batch_mean)^2 before the final division by N, so this second pass still returns the correct variance=1. However, feeding the incorrect returned mean into subsequent passes also corrupts their variance calculations. The last_n == 0 early return is unchanged, which makes first-batch-only tests insufficient. Scaling last_mean and last_var in place was already done by the original loop; their mutation is not a newly introduced defect, and this counterexample requires no dtype change or aliasing.",
+      "path": "sklearn/utils/sparsefuncs_fast.pyx",
+      "line": 314,
+      "evidence": "updated_mean = last_mean + new_mean / updated_n",
+      "fix": "Restore normalization of the entire sum: updated_mean = (last_mean + new_mean) / updated_n.",
+      "test": "Exercise the real sparse incremental-statistics path for CSR and CSC inputs with batches [[1], [1]], [[3], [3]], and [[5], [5]]. After each update, compare the returned mean, variance, and count with statistics computed over all rows seen so far. Assert mean=2, variance=1, count=4 after the second batch and mean=3, variance=8/3, count=6 after the third. Include float32 and float64 inputs, copying prior arrays when needed because their in-place scaling predates this change.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,49 @@
+{
+  "id": "matplotlib__matplotlib-8375",
+  "findings": [
+    {
+      "rule_id": "ineffective-copy-isolation-test",
+      "severity": "medium",
+      "title": "The expected colormaps alias the original, so the test passes with a shared lookup table",
+      "explanation": "plt.cm.Reds is a module-level colormap object; repeated attribute accesses do not create independent colormaps. Consequently, cm, expected1, and expected2 refer to the same object. The initial call initializes its lookup table before copying. The subsequent expected-value setup overwrites that original object's bad, under, and over entries with blue, red, and magenta—the same final values assigned to cm2. The first assertion therefore compares the original lookup table with itself, and the second passes whether cm2 has an independent lookup table or shares the original table. In particular, removing the new __copy__ implementation and using the previous shallow-copy behavior still satisfies both assertions. The test also leaves the global Reds colormap modified. Thus the added test does not establish the mutable-state isolation that the production change is intended to provide.",
+      "path": "lib/matplotlib/tests/test_colors.py",
+      "line": 59,
+      "evidence": "    expected1 = plt.cm.Reds\n    expected2 = plt.cm.Reds\n    expected1([-1, 0, .5, np.nan, np.inf])\n    expected2([-1, 0, .5, np.nan, np.inf])\n    expected1.set_bad('y')\n    expected2.set_bad('b')\n    expected1.set_under('k')\n    expected2.set_under('r')\n    expected1.set_over('c')\n    expected2.set_over('m')\n\n    assert_array_equal(cm._lut, expected1._lut)\n    assert_array_equal(cm2._lut, expected2._lut)",
+      "fix": "Construct a local colormap instead of mutating plt.cm.Reds, and assert the original and copied colormaps' exact bad, under, and over outputs independently. Also assert that their initialized lookup tables do not share memory. Avoid constructing expected values by accessing the same global colormap.",
+      "test": "Run the revised test with an initialized local colormap: copy it, assign different special colors to each object, and verify both sets of outputs remain distinct. Confirm the test fails when the lookup-table copy is removed. Add an uninitialized-copy case that initializes and mutates the two objects separately, and confirm running either case leaves plt.cm.Reds unchanged.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_colors.py",
+          "line": 48,
+          "symbol": "test_colormap_copy"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 533,
+          "symbol": "Colormap.__copy__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-480",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [
+      0
+    ],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15666,
+  "llm_calls": 5
+}

@@ -1,0 +1,38 @@
+{
+  "id": "sympy__sympy-17672",
+  "findings": [
+    {
+      "rule_id": "incorrect-expint-series-expectation",
+      "severity": "medium",
+      "title": "The updated expint series expectation accepts an incorrect imaginary term",
+      "explanation": "For positive real x, expint(4, x) = integral_1^infinity exp(-x*t)/t**4 dt is real. Independently, the recurrence n*expint(n+1, x) = exp(-x) - x*expint(n, x) gives expint(4, x) = exp(-x)*(1/3 - x/6 + x**2/6) - x**3*expint(1, x)/6. Substituting expint(1, x) = -EulerGamma - log(x) + x - x**2/4 + ... reproduces the previous expected series exactly, with no imaginary coefficient. The new expectation instead requires an imaginary part -pi*x**3/6, which cannot be absorbed into O(x**6). Thus this test change blesses a mathematical regression rather than an equivalent branch representation. The negative-real Ei correction itself is justified: for a > 0, Ei(-a) is real, while Chi(-a) = Chi(a) + I*pi and Shi(-a) = -Shi(a), so subtracting I*pi restores the identity. Its Si, Ci, Chi, and Shi rewrite aliases share that correction. Positive, unknown-sign, and genuinely complex arguments do not enter the added is_negative branch and retain the previous behavior. The new right-hand limit is correctly EulerGamma, and the integral expectations follow from substituting t = log(x), yielding -(EulerGamma + log(p-1))/(p-1) for denominator x**p. Those valid expectations do not justify changing the independently real expint series.",
+      "path": "sympy/functions/special/tests/test_error_functions.py",
+      "line": 437,
+      "evidence": "z**3*(log(z)/6 - Rational(11, 36) + EulerGamma/6 - I*pi/6) - z**4/24 + \\",
+      "fix": "Restore the original expint series expectation and adjust the Ei rewrite/series branch handling so that the negative-real correction preserves the positive-axis expint expansion instead of introducing an additional branch constant.",
+      "test": "Add a positive-real symbol x and assert that expint(4, x).series(x, 0, 6) equals the original series without -I*pi*x**3/6. Also compare its coefficients with the expansion of exp(-x)*(1/3 - x/6 + x**2/6) - x**3*expint(1, x)/6, while retaining the negative-real Ei rewrite regression test.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 18333,
+  "llm_calls": 5
+}

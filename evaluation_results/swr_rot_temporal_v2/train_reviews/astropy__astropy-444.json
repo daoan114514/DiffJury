@@ -1,0 +1,54 @@
+{
+  "id": "astropy__astropy-444",
+  "findings": [
+    {
+      "rule_id": "fixed-dimensional-coordinate-dispatch",
+      "severity": "medium",
+      "title": "Two-dimensional distortion methods now reject separate coordinate arrays on higher-dimensional WCS objects",
+      "explanation": "The shared converter now selects the separate-array form using self.naxis, even for pix2foc, p4_pix2foc, and det2im, whose documented coordinate dimensionality remains fixed at two (their documentation still calls TWO_OR_MORE_ARGS('2', 8)). For example, construct w = WCS(naxis=3), which is explicitly supported by the added test, then call w.pix2foc(np.array([1.0]), np.array([2.0]), 0). Previously the len(args) == 3 branch assembled an N-by-2 coordinate array and invoked the two-dimensional distortion operation. Now neither len(args) == 2 nor len(args) == self.naxis + 1 matches, so the public method raises TypeError before invoking the operation. The same rejection affects p4_pix2foc and det2im. This is distinct from intentionally rejecting unsupported keywords: these are the documented positional arguments. The added three-dimensional test exercises only wcs_pix2sky, not these fixed-two-dimensional consumers of the shared converter.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 848,
+      "evidence": "elif len(args) == self.naxis + 1:",
+      "fix": "Allow the converter to receive the coordinate dimensionality explicitly. Pass two from fixed-two-dimensional distortion wrappers and self.naxis from the WCS transformations.",
+      "test": "With WCS(naxis=3), call pix2foc, p4_pix2foc, and det2im using separate x/y arrays and an origin. Assert that each succeeds and that its two returned arrays agree with the corresponding N-by-2 packed-array call. Retain the added three-dimensional WCS transformation test.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1088,
+          "symbol": "WCS.pix2foc"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1089,
+          "symbol": "WCS._array_converter"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 848,
+          "symbol": "WCS._array_converter separate-array dispatch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 35219,
+  "llm_calls": 5
+}

@@ -1,0 +1,54 @@
+{
+  "id": "sympy__sympy-13839",
+  "findings": [
+    {
+      "rule_id": "dimensional-consistency",
+      "severity": "medium",
+      "title": "Becquerel declares an extra dimension inconsistent with its reciprocal-time scale",
+      "explanation": "The new unit is declared with dimension nucleas_decays/time but scale factor 1/second. Nuclear decays are counted events, so the SI dimension of becquerel is reciprocal time; the event count is dimensionless. The added Dimension(\"nucleas_decays\") instead introduces a separately named dimension. Consequently, following the declared dimensions, becquerel*second has dimension nucleas_decays rather than being dimensionless, and becquerel does not have the same declared dimension as 1/second. This makes the new public unit mathematically inconsistent with its own scale factor and unsuitable for dimensional analysis as an SI reciprocal-time unit. This finding follows directly from the declarations; runtime conversion behavior and dimension-system registration could not be verified because no implementation files or tools were available.",
+      "path": "sympy/physics/units/definitions.py",
+      "line": 69,
+      "evidence": "becquerel = Bq = Quantity(\"becquerel\", nucleas_decays/time, 1/second)",
+      "fix": "Declare becquerel with the existing reciprocal-time dimension, such as frequency or 1/time. Do not introduce a separate physical dimension for the count of nuclear decays.",
+      "test": "Add a regression test using the actual dimensional-analysis and conversion APIs: assert that becquerel has the same dimensional dependencies as 1/second, that becquerel*second is dimensionless, and that converting becquerel to 1/second produces 1/second. Also assert that the public Bq alias is identical to becquerel.",
+      "confidence": 0.8799999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/units/dimensions.py",
+          "line": 273,
+          "symbol": "nucleas_decays = Dimension(\"nucleas_decays\")"
+        },
+        {
+          "path": "sympy/physics/units/definitions.py",
+          "line": 69,
+          "symbol": "becquerel"
+        },
+        {
+          "path": "sympy/physics/units/__init__.py",
+          "line": 119,
+          "symbol": "becquerel, Bq exports"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 15403,
+  "llm_calls": 5
+}

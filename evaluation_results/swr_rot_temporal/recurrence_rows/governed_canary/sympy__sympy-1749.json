@@ -1,0 +1,181 @@
+{
+  "id": "sympy__sympy-1749",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-REBUILD-ATOM-IDENTITY",
+      "severity": "medium",
+      "title": "Rebuilding a Dummy creates a different symbol",
+      "explanation": "The recursive reconstruction assumes that constructor arguments completely represent each expression. Dummy is a counterexample: its args are empty, but Dummy() succeeds and creates a fresh symbol with a new identity. Consequently, rebuild(Dummy('d')) is not equal to its input, and rebuilding separate occurrences of the same Dummy creates different symbols. For example, rebuilding Basic.__new__(Add, d, -d) should canonicalize to zero, but instead produces a difference of two distinct Dummies. The exception fallback does not protect this case because construction succeeds. The added test covers only reconstruction of an Add with integer children.",
+      "path": "sympy/rules/rl.py",
+      "line": 156,
+      "evidence": "return type(expr)(*map(rebuild, expr.args))",
+      "fix": "Return atomic or argument-free expressions unchanged before recursively reconstructing compound expressions. Preserve identity and metadata that are not represented in args.",
+      "test": "Create d = Dummy('d', positive=True) and assert rebuild(d) is d. Also assert rebuild(Basic.__new__(Add, d, -d)) == 0, ensuring repeated occurrences retain their shared identity. These reproduction checks were not executed because tools were unavailable.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 148,
+          "symbol": "rebuild"
+        },
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 156,
+          "symbol": "recursive constructor invocation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-FALSE-ASSUMPTION-BYPASS",
+      "severity": "medium",
+      "title": "An explicitly false rewrite requirement is treated as absent",
+      "explanation": "The truthiness check on assume bypasses the assumption filter when the supplied requirement is False or S.false. A constant-false requirement should reject every match, but rewriterule(x, x + 1, [x], assume=False) still yields a rewrite for S(5). This also affects Boolean requirements that simplify to false before the rule is created. Nonconstant requirements correctly reject both false and unknown ask results; the defect is specifically the initial guard conflating a false requirement with the default None. The added assumption test covers only a positive requirement established by runtime assumptions.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 46,
+      "evidence": "if (assume and not ask(assume.xreplace(match), assumptions)):",
+      "fix": "Distinguish an absent requirement using assume is not None, and normalize supported Boolean inputs before substitution and ask so Python False and SymPy false are both rejected.",
+      "test": "Assert list(rewriterule(x, x + 1, [x], assume=False)(S(5))) == [] and repeat with S.false. Cover a true requirement, a false predicate result, an unknown predicate result, and a predicate established by runtime assumptions. These reproduction checks were not executed because tools were unavailable.",
+      "confidence": 0.9099999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 41,
+          "symbol": "rewrite_rl"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 46,
+          "symbol": "assumption filter"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 51,
+          "symbol": "yield expr2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0117d999",
+      "K-09474f0c",
+      "K-2b42cad0",
+      "K-380e8210",
+      "K-4b143eb5",
+      "K-4ff368df",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-7ac64342",
+      "K-7b0b7360",
+      "K-93a099ce",
+      "K-9f4e51f5",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-d0414ebb",
+      "K-d8d1d0ae",
+      "K-ddb18739"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-b5e72943",
+          "K-93a099ce",
+          "K-ad16cdc6",
+          "K-09474f0c",
+          "K-2b42cad0",
+          "K-9f4e51f5"
+        ],
+        "tokens": 406,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa",
+          "K-4b143eb5",
+          "K-ddb18739",
+          "K-7ac64342",
+          "K-7b0b7360",
+          "K-726d8aec",
+          "K-0117d999",
+          "K-5a649727",
+          "K-b1da47ce",
+          "K-d0414ebb"
+        ],
+        "tokens": 648,
+        "budget": 600,
+        "dropped": [
+          "K-25a05e81",
+          "K-e820d88f",
+          "K-83dfddfe",
+          "K-0faed540",
+          "K-e172ac33",
+          "K-4073d146",
+          "K-46b8b947",
+          "K-c01df042",
+          "K-e13d441c"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

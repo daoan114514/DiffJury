@@ -1,0 +1,79 @@
+{
+  "id": "sympy__sympy-13196",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "generated-expression-precedence",
+      "severity": "medium",
+      "title": "Parenthesize the division emitted for log2",
+      "explanation": "The new printer emits a division for a SymPy function node without enclosing parentheses. Parent expression printers treat that node as a function, rather than as the division hidden in its printed representation. For example, log2(x)**2 emits mpmath.log(x)/mpmath.log(2)**mpmath.mpf(2), so evaluating at x=8 produces approximately 4.328085 instead of 9. The exponent applies only to the denominator. This is a new composition defect introduced by directly printing the quotient. The removed implementation was not a correct numerical baseline either: replace(log2, lambda arg: arg.rewrite(log)) rewrites the argument and removes the log2 wrapper, yielding x**2 in this example. Nevertheless, it did not introduce this hidden-division precedence problem. The changed test only checks the result type of sin(x)**2 and does not exercise log2 or its composition with enclosing expressions.",
+      "path": "sympy/printing/pycode.py",
+      "line": 232,
+      "evidence": "return '{0}({1})/{0}(2)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Return the entire quotient inside parentheses, so parent printers can safely treat the generated fragment as atomic.",
+      "test": "Lambdify log2(x)**2 with modules='mpmath', evaluate at x=8, and assert a result of 9 within mpmath precision. Also test a reciprocal containing log2(x), and assert that the emitted quotient is grouped.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 231,
+          "symbol": "MpmathPrinter._print_log2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "mpmath-intermediate-precision",
+      "severity": "medium",
+      "title": "The literal +1 evaluates log1p arguments at Python float precision",
+      "explanation": "The new implementation adds a Python integer to the evaluated argument before entering mpmath. With ordinary float arguments, this addition therefore occurs at Python float precision, regardless of mpmath's configured precision. A concrete compound expression is log1p(x+y): the generated code is mpmath.log(x + y+1). Under mpmath.workdps(50), passing x=y=2.0**-55 makes x+y equal 2**-54, but the subsequent Python addition rounds to 1.0, and the function returns exactly zero. The intended result is mpmath.log1p(mpmath.mpf(2)**-54), approximately 5.55111512312578255e-17. No validation guard prevents ordinary floats from reaching lambdify. The previous replacement actually removed the log1p wrapper and returned x+y in this example, so it was already imperfect; however, it retained the nonzero value rather than introducing this new rounding-to-zero failure. The existing _print_Integer implementation uses mpmath.mpf for symbolic integer constants, whereas this newly embedded literal bypasses that conversion. The modified sin result-type assertion exercises neither this addition nor high-precision evaluation.",
+      "path": "sympy/printing/pycode.py",
+      "line": 236,
+      "evidence": "return '{0}({1}+1)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Prefer emitting mpmath.log1p(argument), which preserves the small argument and avoids cancellation. At minimum, construct the addition using an mpmath constant rather than a raw Python literal.",
+      "test": "Within mpmath.workdps(50), lambdify log1p(x+y) with modules='mpmath', pass ordinary floats x=y=2.0**-55, and assert agreement with mpmath.log1p(mpmath.mpf(2)**-54), including a nonzero result.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 235,
+          "symbol": "MpmathPrinter._print_log1p"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

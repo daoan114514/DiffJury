@@ -1,0 +1,128 @@
+{
+  "id": "scikit-learn__scikit-learn-16841",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "likelihood-test-rank-indexing",
+      "severity": "low",
+      "title": "The shifted likelihood array makes the rank-one test assert rank two",
+      "explanation": "The changed comprehension stores likelihoods for ranks 1 through p-1, so ll[0] now represents rank 1 and ll[1] represents rank 2. The unchanged following assertion, assert ll[1] > ll.max() - .01 * n, therefore checks rank 2 instead of the rank-one likelihood it checked before this change. A regression that makes rank 2 maximize the likelihood while making rank 1 substantially worse would pass this assertion. This is an introduced test-indexing defect, independently of whether the existing fixture happens to put both likelihoods within the tolerance.",
+      "path": "sklearn/decomposition/tests/test_pca.py",
+      "line": 336,
+      "evidence": "ll = np.array([_assess_dimension(spect, k, n) for k in range(1, p)])",
+      "fix": "Update the following assertion to use ll[0], or explicitly associate each likelihood with its tested rank so dropping rank zero cannot silently shift the assertion.",
+      "test": "Keep the existing rank-one fixture and assert that the likelihood for rank 1 is within .01 * n of the maximum over valid ranks. Verify that lowering only the rank-one likelihood below that tolerance makes the test fail.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/tests/test_pca.py",
+          "line": 336,
+          "symbol": "test_infer_dim_1"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 31,
+          "symbol": "_assess_dimension"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-0a8093ab",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-542e4ee3",
+      "K-55026f2c",
+      "K-780def96",
+      "K-900623ee",
+      "K-95d752ab",
+      "K-9f32c0f2",
+      "K-9fbca2ff",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f0b9d1e9",
+      "K-f463a446"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-780def96",
+          "K-900623ee",
+          "K-f0b9d1e9",
+          "K-95d752ab",
+          "K-c43a8094",
+          "K-542e4ee3",
+          "K-0466258e",
+          "K-55026f2c",
+          "K-f463a446"
+        ],
+        "tokens": 619,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-9f32c0f2",
+          "K-ecc8b51d",
+          "K-2134f4e9",
+          "K-21a33670",
+          "K-9fbca2ff",
+          "K-340b5726",
+          "K-d07491c7",
+          "K-0a8093ab"
+        ],
+        "tokens": 508,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

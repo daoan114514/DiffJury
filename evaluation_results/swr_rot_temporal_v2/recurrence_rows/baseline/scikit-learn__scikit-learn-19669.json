@@ -1,0 +1,50 @@
+{
+  "id": "scikit-learn__scikit-learn-19669",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "test-quality",
+      "severity": "low",
+      "title": "Escape the cache path before using it as a pytest regex",
+      "explanation": "The new corruption test interpolates a filesystem path into pytest.raises(match=...), which treats the string as a regular expression rather than literal text. On Windows, a normal temporary directory beneath C:\\Users produces an invalid regex escape such as \\U. When the fetcher raises the intended corruption IOError, the assertion consequently fails with a regex error instead of accepting the correct message. POSIX temporary paths containing regex metacharacters can also cause mismatches. This introduces a platform-dependent test failure, independent of whether the corruption handler produces the intended text.",
+      "path": "sklearn/datasets/tests/test_kddcup99.py",
+      "line": 75,
+      "evidence": "    msg = (f\"The cache for fetch_kddcup99 is invalid, please \"\n           f\"delete {str(kddcup99_dir)} and run the fetch_kddcup99 again\")\n\n    with pytest.raises(IOError, match=msg):",
+      "fix": "Use match=re.escape(msg), or capture the IOError and assert str(exc_info.value) == msg.",
+      "test": "Run the corruption test on Windows with a temporary path beneath C:\\Users. Also run it with a POSIX temporary base directory containing literal brackets or parentheses; both should accept the exact expected corruption message.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/tests/test_kddcup99.py",
+          "line": 75,
+          "symbol": "test_corrupted_file_error_message"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-185",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

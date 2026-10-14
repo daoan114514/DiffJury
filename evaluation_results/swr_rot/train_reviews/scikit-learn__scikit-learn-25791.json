@@ -1,0 +1,59 @@
+{
+  "id": "scikit-learn__scikit-learn-25791",
+  "findings": [
+    {
+      "rule_id": "readonly-blas-mutation-target",
+      "severity": "medium",
+      "title": "Const mutation targets bypass writable-buffer checks in copy and scal",
+      "explanation": "Attacker-controlled source: a nonempty, contiguous float32 or float64 read-only buffer supplied as _copy_memview's y or _scal_memview's x. Missing control: const Cython memoryviews accept read-only buffers without requesting writable buffer acquisition. Previously, these arguments were non-const memoryviews, which rejected read-only buffers before calling BLAS. Sensitive sinks: scopy/dcopy write y, and sscal/dscal modify x in place. The new pointer casts discard const and allow these writes despite the buffer's read-only status. Minimal reproduction (explicitly unexecuted): `import numpy as np; from sklearn.utils._cython_blas import _copy_memview, _scal_memview; src = np.array([7.0], dtype=np.float64); dst = np.array([3.0], dtype=np.float64); dst.setflags(write=False); _copy_memview(src, dst)` is expected to change dst to [7.0] even though dst.flags.writeable remains False. Separately, `v = np.array([3.0], dtype=np.float64); v.setflags(write=False); _scal_memview(2.0, v)` is expected to change v to [6.0]. These NumPy arrays have writable backing memory but prohibit writes through their buffer contract, so the consequence is silent unauthorized mutation, not necessarily a fault. A distinct, explicitly unexecuted fault scenario is passing a nonempty `np.memmap(path, dtype=np.float64, mode='r', shape=(1,))` as either mutation target: BLAS then attempts to write an OS-protected mapping and can terminate the process with a memory-access fault. No remote exploit path is established. Casting away const for genuinely read-only BLAS inputs, such as _copy's source, does not have this problem; the defect is specifically applying it to writing arguments.",
+      "path": "sklearn/utils/_cython_blas.pyx",
+      "line": 78,
+      "evidence": "cpdef _copy_memview(const floating[::1] x, const floating[::1] y):\n    _copy(x.shape[0], &x[0], 1, &y[0], 1)\n\nscopy(&n, <float *> x, &incx, <float *> y, &incy)\ndcopy(&n, <double *> x, &incx, <double *> y, &incy)\n\ncpdef _scal_memview(floating alpha, const floating[::1] x):\n    _scal(x.shape[0], alpha, &x[0], 1)\n\nsscal(&n, &alpha, <float *> x, &incx)\ndscal(&n, &alpha, <double *> x, &incx)",
+      "fix": "Restore writable floating[::1] types for _copy_memview's y and _scal_memview's x. Restore floating* for _copy's destination and _scal's vector in both the .pyx definitions and .pxd declarations at lines 23 and 25, and remove the corresponding const-discarding casts. Retain const for _copy's read-only source.",
+      "test": "For both float32 and float64, pass nonempty arrays marked non-writeable as the copy destination and scal vector; assert rejection before BLAS and unchanged contents. Verify writable destinations still work and copying from a read-only source remains supported. Also test mode='r' memmap mutation targets in a subprocess, asserting clean rejection rather than process termination.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/_cython_blas.pyx",
+          "line": 78,
+          "symbol": "_copy_memview: accepts read-only y and passes &y[0] at line 79"
+        },
+        {
+          "path": "sklearn/utils/_cython_blas.pyx",
+          "line": 70,
+          "symbol": "_copy: casts away y's const qualifier and calls writing scopy/dcopy at lines 73/75"
+        },
+        {
+          "path": "sklearn/utils/_cython_blas.pyx",
+          "line": 90,
+          "symbol": "_scal_memview: accepts read-only x and passes &x[0] at line 91"
+        },
+        {
+          "path": "sklearn/utils/_cython_blas.pyx",
+          "line": 82,
+          "symbol": "_scal: casts away x's const qualifier and calls writing sscal/dscal at lines 85/87"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 99331,
+  "llm_calls": 13
+}

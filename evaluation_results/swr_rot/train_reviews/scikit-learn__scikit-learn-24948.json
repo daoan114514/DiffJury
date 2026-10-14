@@ -1,0 +1,56 @@
+{
+  "id": "scikit-learn__scikit-learn-24948",
+  "findings": [
+    {
+      "rule_id": "incorrect-heldout-deviance",
+      "severity": "medium",
+      "title": "Raw decision scores are not probabilities, and log_loss also changes the deviance scale",
+      "explanation": "GradientBoostingClassifier.staged_decision_function yields raw additive decision scores F, with shape (n_samples, 1) for this binary-classification example. These are log-odds, not probabilities; staged_predict_proba instead converts them using sigmoid(F). Passing F directly to log_loss treats those margins as positive-class probabilities and clips values outside the probability range rather than applying the sigmoid. A concrete counterexample is y_test=[0, 1] with staged margins=[[-2], [2]]: the old binary clf.loss_ returns approximately 0.253856, whereas the new expression returns approximately zero after clipping, falsely indicating essentially perfect predictions. Zero margins similarly represent probability 0.5 but are interpreted as probabilities near zero. There is a second normalization issue within this replacement: the old BinomialDeviance computes 2 * mean(logaddexp(0, F) - y*F), so even log_loss on correctly converted probabilities is only half the previous score. The training and OOB reference curves retain that deviance scale, while held-out and cross-validation scores using this helper no longer do. Consequently, the example can execute but plots incorrect and incomparable scores.",
+      "path": "examples/ensemble/plot_gradient_boosting_oob.py",
+      "line": 77,
+      "evidence": "    for i, y_pred in enumerate(clf.staged_decision_function(X_test)):\n        score[i] = log_loss(y_test, y_pred)",
+      "fix": "For this binary example, iterate over clf.staged_predict_proba(X_test) and assign score[i] = 2 * log_loss(y_test, y_pred), preserving both the probability contract and the previous deviance scale.",
+      "test": "Fit the example's classifier, invoke heldout_score, and compare every returned stage against 2 * log_loss(y_test, probabilities) from staged_predict_proba. Also independently compare against 2 * mean(logaddexp(0, margins) - y_test*margins) using flattened staged decision scores. Include negative margins, margins above one, and margins near zero; the [-2, 2] counterexample must produce approximately 0.253856 rather than approximately zero.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/ensemble/plot_gradient_boosting_oob.py",
+          "line": 74,
+          "symbol": "heldout_score"
+        },
+        {
+          "path": "examples/ensemble/plot_gradient_boosting_oob.py",
+          "line": 76,
+          "symbol": "clf.staged_decision_function"
+        },
+        {
+          "path": "examples/ensemble/plot_gradient_boosting_oob.py",
+          "line": 77,
+          "symbol": "log_loss"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": [
+      0
+    ]
+  },
+  "tokens": 11842,
+  "llm_calls": 5
+}

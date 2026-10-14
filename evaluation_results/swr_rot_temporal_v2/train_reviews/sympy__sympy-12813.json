@@ -1,0 +1,44 @@
+{
+  "id": "sympy__sympy-12813",
+  "findings": [
+    {
+      "rule_id": "test-execution-undefined-skip",
+      "severity": "medium",
+      "title": "Import skip for the new Travis branch in test_hyperexpand",
+      "explanation": "The updated test-helper import includes ON_TRAVIS but omits skip, which the new branch calls. When ON_TRAVIS is true and test_prudnikov_3 is executed, that call raises NameError instead of recording a skipped test unless skip is separately bound elsewhere in the module. The supplied evidence does not show such a binding. When ON_TRAVIS is false, the call is bypassed. The supplied diff does not include test_heurisch's imports or the helper definitions, so their bindings and helper semantics cannot be independently verified in this tool-free review.",
+      "path": "sympy/simplify/tests/test_hyperexpand.py",
+      "line": 733,
+      "evidence": "from sympy.utilities.pytest import XFAIL, raises, slow, ON_TRAVIS\n\n    if ON_TRAVIS:\n        # See https://github.com/sympy/sympy/pull/12795\n        skip(\"Too slow for travis.\")",
+      "fix": "Add skip to the sympy.utilities.pytest import, after confirming it is not already imported elsewhere in the module.",
+      "test": "Execute test_prudnikov_3 with the module's ON_TRAVIS set to true and slow tests enabled; assert that the runner records a skip rather than NameError. Also verify that setting ON_TRAVIS to false executes the existing assertions.",
+      "confidence": 0.73,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/tests/test_hyperexpand.py",
+          "line": 730,
+          "symbol": "test_prudnikov_3"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 12486,
+  "llm_calls": 5
+}

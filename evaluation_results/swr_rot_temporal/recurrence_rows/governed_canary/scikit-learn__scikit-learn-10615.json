@@ -1,0 +1,94 @@
+{
+  "id": "scikit-learn__scikit-learn-10615",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-incremental-mean-normalization",
+      "severity": "medium",
+      "title": "Subsequent batches leave the previous mean contribution unnormalized",
+      "explanation": "The previous formula was `(last_mean[i] + new_mean[i]) / updated_n`. After both means are multiplied by their batch counts, the new expression divides only `new_mean` by `updated_n`, because division takes precedence over addition. For one-feature batches containing [2] and then [4], the first pass correctly returns mean 2, variance 0, count 1. The second pass sets the unnormalized means to 2 and 4 and returns mean `2 + 4 / 2 = 4`, instead of 3. Its variance is initially still correct at 1 because the rewritten variance formula is algebraically equivalent to the original. However, feeding these returned statistics into a third batch [6] produces mean 10 and variance 14/9, instead of mean 4 and variance 8/3: the incorrect mean contaminates subsequent variance updates. The zero-count first-pass return is unchanged and does not protect subsequent passes. The in-place multiplications of the incoming statistics already existed in the scalar implementation, so that mutation is not a separate regression. This counterexample uses ordinary floating arrays and does not depend on dtype or shape edge cases. Full declarations and callers are absent from the supplied evidence, so no independent dtype, aliasing, or material allocation regression is established.",
+      "path": "sklearn/utils/sparsefuncs_fast.pyx",
+      "line": 314,
+      "evidence": "updated_mean = last_mean + new_mean / updated_n",
+      "fix": "Restore normalization of the entire sum: `updated_mean = (last_mean + new_mean) / updated_n`.",
+      "test": "Exercise the real sparse incremental-statistics path with successive one-feature batches [2], [4], and [6], passing each returned mean, variance, and count into the next call. Assert (mean, variance, count) equals (2, 0, 1), (3, 1, 2), and (4, 8/3, 3), respectively, within floating-point tolerance. Run for each supported floating dtype and sparse format.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/sparsefuncs_fast.pyx",
+          "line": 314,
+          "symbol": "_incr_mean_variance_axis0"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-d07491c7"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2134f4e9",
+          "K-21a33670",
+          "K-340b5726",
+          "K-d07491c7"
+        ],
+        "tokens": 291,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

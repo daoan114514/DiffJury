@@ -1,0 +1,114 @@
+{
+  "id": "sympy__sympy-755",
+  "findings": [
+    {
+      "rule_id": "boolean-latex-compound-negation",
+      "severity": "medium",
+      "title": "Compound negation loses its operand grouping",
+      "explanation": "An explicit Not node whose operand is x & y renders as `\\neg x \\wedge y`, rather than `\\neg \\left(x \\wedge y\\right)`. The printed formula means (!x) & y, not !(x & y); for x=false and y=false these have different truth values. A counterexample that does not depend on Boolean-constructor simplification is `latex(Basic.__new__(Not, x & y))`: the operand is the same conjunction already exercised by the added test at line 51, and line 499 prefixes its unparenthesized rendering with negation. This method does not inspect is_Boolean or is_Not, so neither property can protect compound operands. The added tests at lines 49–50 cover only atomic negation. The supplied context does not include the Boolean constructor implementation, so whether ordinary Not construction simplifies this particular expression cannot be independently verified here; preserving the explicit node avoids that assumption.",
+      "path": "sympy/printing/latex.py",
+      "line": 499,
+      "evidence": "        return r\"\\neg %s\" % self._print(e.args[0])",
+      "fix": "Parenthesize a negated compound Boolean operand, leaving atomic operands unparenthesized.",
+      "test": "Construct an explicit Not node over x & y, invoke latex, and assert `\\neg \\left(x \\wedge y\\right)`. Also exercise compound negation inside an outer conjunction or disjunction.",
+      "confidence": 0.8099999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 498,
+          "symbol": "LatexPrinter._print_Not"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 501,
+          "symbol": "LatexPrinter._print_And"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boolean-latex-nested-implication",
+      "severity": "medium",
+      "title": "Nested implications render without semantic grouping",
+      "explanation": "The implication printer concatenates both operands without parentheses. For an implication whose antecedent is another implication, it produces `x \\Rightarrow y \\Rightarrow z` instead of `\\left(x \\Rightarrow y\\right) \\Rightarrow z`. A constructor-independent counterexample is `latex(Basic.__new__(Implies, Basic.__new__(Implies, x, y), z))`. The inner and outer calls both execute line 532, yielding the stated output. The result is indistinguishable from the rendering of x => (y => z), although the expressions differ: with x=false, y=true, z=false, (x => y) => z is false and x => (y => z) is true. No is_Boolean/is_Not check or grouping helper is used on this path. The added implication test at line 56 has only atomic operands; it does not cover nested implications or equivalences. Constructor implementation and simplification rules are absent from the supplied context, so the explicit argument-preserving construction is used rather than assuming their behavior.",
+      "path": "sympy/printing/latex.py",
+      "line": 532,
+      "evidence": "        return r\"%s \\Rightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Apply Boolean precedence and associativity when rendering implication operands, including parentheses around an implication antecedent and around equivalence operands where needed. Apply corresponding grouping rules to _print_Equivalent.",
+      "test": "Assert distinct, correctly grouped renderings for explicit (x => y) => z and x => (y => z), and add mixed implication/equivalence operand cases.",
+      "confidence": 0.8899999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boolean-latex-equivalent-cardinality",
+      "severity": "medium",
+      "title": "Equivalent printer silently discards arguments after the second",
+      "explanation": "For an Equivalent node with three arguments, line 535 prints only args[0] and args[1], completely omitting args[2]. An explicit counterexample is `latex(Basic.__new__(Equivalent, x, y, z))`, which follows this method directly and produces `x \\Leftrightarrow y`. The required rendering must retain z and express that all three operands have the same truth value, for example `(x \\Leftrightarrow y) \\wedge (y \\Leftrightarrow z)`. With x=true, y=true, z=false, the printed two-operand equivalence is true while the three-operand equivalence is false. Neither Boolean property flags nor operand simplification is consulted in this printer. No Equivalent test is added in lines 49–56. The supplied context does not contain Equivalent's constructor implementation, so its ordinary cardinality validation and normalization cannot be independently verified here; the explicit construction establishes the argument-loss behavior for a retained three-argument node.",
+      "path": "sympy/printing/latex.py",
+      "line": 535,
+      "evidence": "        return r\"%s \\Leftrightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Render every retained Equivalent argument using an unambiguous all-equal representation, rather than indexing only the first two arguments.",
+      "test": "Add binary and three-argument Equivalent rendering tests. For the three-argument case, assert the complete expected formula, including every operand, and ensure its interpretation is all-equal rather than a left-associated chain of binary equivalences.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 534,
+          "symbol": "LatexPrinter._print_Equivalent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0,
+      1,
+      2
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 22926,
+  "llm_calls": 5
+}

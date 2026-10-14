@@ -1,0 +1,140 @@
+{
+  "id": "scikit-learn__scikit-learn-5195",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "artifact-link-mismatch",
+      "severity": "medium",
+      "title": "PDF navigation link does not name the distributed PDF",
+      "explanation": "The new dist recipe copies the PDF under the filename scikit-learn-docs.pdf, but the navigation requests _downloads/user_guide.pdf. pathto(..., 1) makes a resource URL relative to the current page; it does not translate the filename. In a distribution where this recipe supplies the PDF and no separate user_guide.pdf exists in the HTML downloads directory, clicking the new link therefore requests a missing artifact, even if both build prerequisites and the copy succeed. The supplied context does not contain the actual html/latexpdf target definitions or output-directory configuration, so source-path correctness and destination-directory creation cannot independently be verified here.",
+      "path": "doc/themes/scikit-learn/layout.html",
+      "line": 83,
+      "evidence": "<li><a href=\"{{ pathto('_downloads/user_guide.pdf', 1) }}\">PDF documentation</a></li>\ncp _build/latex/user_guide.pdf _build/html/stable/_downloads/scikit-learn-docs.pdf",
+      "fix": "Make the distribution recipe install the PDF at the exact resource path used by the navigation, under the configured HTML output root, or update the navigation and installation path together to use the same filename and directory.",
+      "test": "Build a clean distribution using the repository's configured HTML and LaTeX output directories. Resolve the PDF navigation URL from both a top-level page and a nested page, and assert that each resolves to the PDF installed by dist.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/Makefile",
+          "line": 104,
+          "symbol": "dist: html latexpdf"
+        },
+        {
+          "path": "doc/Makefile",
+          "line": 105,
+          "symbol": "PDF artifact copy"
+        },
+        {
+          "path": "doc/themes/scikit-learn/layout.html",
+          "line": 83,
+          "symbol": "pathto('_downloads/user_guide.pdf', 1)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0466258e",
+      "K-0a8093ab",
+      "K-15a64966",
+      "K-1eb25f52",
+      "K-2019c936",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-3b1a4f4d",
+      "K-542e4ee3",
+      "K-55026f2c",
+      "K-65899550",
+      "K-780def96",
+      "K-900623ee",
+      "K-91e5b509",
+      "K-95d752ab",
+      "K-9fbca2ff",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f0b9d1e9"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-2019c936",
+          "K-780def96",
+          "K-900623ee",
+          "K-542e4ee3",
+          "K-91e5b509",
+          "K-95d752ab",
+          "K-0466258e",
+          "K-55026f2c",
+          "K-f0b9d1e9",
+          "K-1eb25f52"
+        ],
+        "tokens": 613,
+        "budget": 600,
+        "dropped": [
+          "K-75ffcebf",
+          "K-9b25215d"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-15a64966",
+          "K-3b1a4f4d",
+          "K-d07491c7",
+          "K-21a33670",
+          "K-2134f4e9",
+          "K-9fbca2ff",
+          "K-340b5726",
+          "K-65899550",
+          "K-0a8093ab",
+          "K-ecc8b51d"
+        ],
+        "tokens": 643,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

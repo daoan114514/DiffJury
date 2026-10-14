@@ -1,0 +1,58 @@
+{
+  "id": "scikit-learn__scikit-learn-3065",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "REL-NETWORK-ERROR-FALLBACK",
+      "severity": "medium",
+      "title": "Python 2 HTTP failures escape the documentation-link error handlers",
+      "explanation": "On Python 2, the new import binds urllib to urllib2, which has urlopen but no request attribute. If urllib.urlopen(url) raises HTTPError (for example, a documentation server returns 404) or URLError (for example, DNS resolution fails), the bare except treats that operational failure as a Python-version mismatch and evaluates urllib.request.urlopen(url). This raises AttributeError instead of preserving the original network exception. The HTTPError/URLError handlers in embed_code_links consequently cannot handle the failure, turning a previously recoverable documentation-link retrieval error into an uncaught build-hook exception. On Python 3, the initial missing urllib.urlopen attribute legitimately selects urllib.request, so this particular regression affects Python 2. It is independent of response encoding: the failure occurs before reading either plain or gzip response data.",
+      "path": "doc/sphinxext/gen_rst.py",
+      "line": 76,
+      "evidence": "        try:\n            resp = urllib.urlopen(url)\n            encoding = resp.headers.dict.get('content-encoding', 'plain')\n        except:\n            resp = urllib.request.urlopen(url)",
+      "fix": "Select the urlopen implementation at import time and call it once without catching operational network exceptions. Read headers using the shared headers.get interface, allowing HTTPError and URLError to propagate unchanged to the existing handlers.",
+      "test": "Under Python 2, call _get_data against a local HTTP server returning 404 and assert that HTTPError, not AttributeError, propagates; separately inject URLError and assert its preservation. Exercise the documentation-link hook with those failures and verify that it reports the existing warning rather than aborting. Repeat on Python 3 and retain successful plain/gzip response coverage.",
+      "confidence": 0.99,
+      "evidence_refs": [
+        {
+          "evidence_id": "local-rule:3f1153bb3dd78cd8",
+          "tool": "local-rule-scanner",
+          "rule_id": "REL-EMPTY-EXCEPT",
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 76
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 69,
+          "symbol": "_get_data"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 1
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

@@ -1,0 +1,27 @@
+[13:21:36] attribution review failed: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-524/","title":"Error 524: A timeout occurred","status":52
+[13:21:38] attribution @25: {"reviews": 5, "accepted": 0, "false_positive": 1, "failed": 1}
+[13:35:03] attribution review failed: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-524/","title":"Error 524: A timeout occurred","status":52
+[13:37:06] attribution @50: {"reviews": 5, "accepted": 0, "false_positive": 0, "failed": 1}
+[13:52:51] attribution @75: {"reviews": 6, "accepted": 0, "false_positive": 0, "failed": 0}
+[14:10:45] attribution review failed: custom API returned HTTP 524: {"type":"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-524/","title":"Error 524: A timeout occurred","status":52
+[14:12:18] attribution review failed: [WinError 10054] 远程主机强迫关闭了一个现有的连接。
+[14:28:39] attribution review failed: custom JSON request failed: The read operation timed out
+[14:28:39] attribution @100: {"reviews": 3, "accepted": 0, "false_positive": 0, "failed": 3}
+[14:28:39] source validation @100
+[15:18:18] source validation @100: {"round_id": "100", "replay_limit": 120, "replays": 111, "round_replays": 111, "budget_consumed": 111, "entries": 22, "passed": 4, "neutral": 8, "harmful": 2, "failed": 7, "not_exposed": 0, "skipped": 1}
+[15:40:39] counterfactual @100: {"trials_considered": 44, "no_training_match": 1, "pairs": 20, "replay_limit": 40, "replays": 38, "applied": 15, "helpful": 2, "harmful": 0, "neutral": 13, "failed": 3, "not_exposed": 2}
+[15:40:39] maintenance @100: validation gate and release
+[16:02:34] maintenance @100 complete
+[16:10:07] attribution @125: {"reviews": 6, "accepted": 0, "false_positive": 1, "failed": 0}
+[16:18:50] attribution @150: {"reviews": 6, "accepted": 0, "false_positive": 1, "failed": 0}
+[16:30:27] attribution @175: {"reviews": 6, "accepted": 0, "false_positive": 0, "failed": 0}
+[16:37:37] attribution @200: {"reviews": 6, "accepted": 1, "false_positive": 0, "failed": 0}
+[16:37:37] source validation @200
+[17:38:42] source validation @200: {"round_id": "200", "replay_limit": 120, "replays": 115, "round_replays": 115, "budget_consumed": 115, "entries": 19, "passed": 3, "neutral": 9, "harmful": 3, "failed": 2, "not_exposed": 1, "skipped": 1}
+[17:46:11] counterfactual @200: {"trials_considered": 76, "no_training_match": 1, "pairs": 20, "replay_limit": 40, "replays": 40, "applied": 14, "helpful": 1, "harmful": 0, "neutral": 13, "failed": 0, "not_exposed": 6}
+[17:46:11] maintenance @200: validation gate and release
+[18:31:18] stopped: validation gate transport failure; resume this checkpoint
+[18:35:15] source validation @200
+[18:35:40] source validation @200: {"round_id": "200", "replay_limit": 120, "replays": 0, "round_replays": 115, "budget_consumed": 115, "entries": 0, "passed": 0, "neutral": 0, "harmful": 0, "failed": 0, "not_exposed": 0, "skipped": 0}
+[18:43:27] counterfactual @200: {"trials_considered": 72, "no_training_match": 1, "pairs": 20, "replay_limit": 40, "replays": 40, "applied": 9, "helpful": 1, "harmful": 0, "neutral": 8, "failed": 0, "not_exposed": 11}
+[18:43:27] maintenance @200: validation gate and release

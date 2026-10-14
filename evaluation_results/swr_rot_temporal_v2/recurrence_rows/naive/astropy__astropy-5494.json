@@ -1,0 +1,167 @@
+{
+  "id": "astropy__astropy-5494",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "WCS_COORDSYS_OVERRIDE_IGNORED",
+      "severity": "medium",
+      "title": "The new coordsys argument does not control the output",
+      "explanation": "The public signature accepts coordsys and its documentation says radesys is used only when coordsys is unspecified. However, the coordinate-system line always uses self.wcs.radesys. For the supplied test WCS, footprint_to_file(testfile, coordsys='FK5', color='red') therefore emits ICRS rather than the requested FK5. This also prevents callers from supplying a DS9-compatible coordinate-system name when radesys is unsuitable. The new test at line 624 explicitly expects ICRS after requesting FK5, so it endorses the defect instead of testing the documented override. The append-to-overwrite change is separately exercised by the four-line assertion; no independently supported overwrite defect is established by this diff.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "            f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "Select coordsys when it is explicitly supplied, and use self.wcs.radesys only when coordsys is None. Change the override test to expect 'FK5\\n'.",
+      "test": "Run the existing test with its second coordinate-system assertion changed to 'FK5\\n'; verify that the default call still emits ICRS and that the explicit override emits FK5.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/tests/test_wcs.py",
+          "line": 618,
+          "symbol": "test_footprint_to_file: w.footprint_to_file(testfile, coordsys='FK5', color='red')"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "coordinate-system serialization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0528b9a8",
+      "K-063ee88d",
+      "K-09aa8545",
+      "K-0f3086e4",
+      "K-10f071ed",
+      "K-1a7292bd",
+      "K-1bbd8c27",
+      "K-1f0dc278",
+      "K-200d328d",
+      "K-2b350bbf",
+      "K-2b35c92b",
+      "K-30246d94",
+      "K-39909304",
+      "K-3b47c9b6",
+      "K-3c9cd8b8",
+      "K-533c203b",
+      "K-5ab72cf5",
+      "K-5cfed8c0",
+      "K-6b2f7727",
+      "K-728891cc",
+      "K-915119d5",
+      "K-94ced832",
+      "K-984ea536",
+      "K-997796e9",
+      "K-9bff7ae1",
+      "K-a0373828",
+      "K-c9c94b8c",
+      "K-d6e0428e",
+      "K-d70ab557",
+      "K-d9d0df1c",
+      "K-e974c513",
+      "K-f8360044",
+      "K-fc5b6f35",
+      "K-ff9e463d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [
+          "K-5ab72cf5",
+          "K-9bff7ae1",
+          "K-d6e0428e"
+        ],
+        "tokens": 129,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-0528b9a8",
+          "K-3c9cd8b8",
+          "K-3b47c9b6",
+          "K-6b2f7727",
+          "K-5cfed8c0",
+          "K-984ea536",
+          "K-fc5b6f35",
+          "K-200d328d",
+          "K-2b350bbf",
+          "K-f8360044",
+          "K-09aa8545",
+          "K-1bbd8c27",
+          "K-063ee88d",
+          "K-ff9e463d",
+          "K-d70ab557",
+          "K-10f071ed",
+          "K-39909304",
+          "K-d9d0df1c",
+          "K-0f3086e4",
+          "K-1f0dc278",
+          "K-915119d5",
+          "K-1a7292bd",
+          "K-533c203b"
+        ],
+        "tokens": 1680,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [
+          "K-2b35c92b"
+        ],
+        "tokens": 78,
+        "budget": 1000000000,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-30246d94",
+          "K-728891cc",
+          "K-94ced832",
+          "K-997796e9",
+          "K-a0373828",
+          "K-e974c513",
+          "K-c9c94b8c"
+        ],
+        "tokens": 502,
+        "budget": 1000000000,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

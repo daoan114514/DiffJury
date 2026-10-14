@@ -1,0 +1,60 @@
+{
+  "id": "sympy__sympy-8264",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "outer-product-preserve-state-labels",
+      "severity": "medium",
+      "title": "Deep expansion changes the labels of already valid ket and bra arguments",
+      "explanation": "The new unconditional expand calls descend into the arguments of KetBase/BraBase instances, not just the surrounding linear combinations. For example, with symbolic x and y, let k = Ket((x + y)**2) and b = Bra('b'). Previously OuterProduct(k, b) stored k unchanged. The changed constructor expands its label and stores Ket(x**2 + 2*x*y + y**2) instead, so OuterProduct(k, b).ket == k becomes false. State labels are part of the symbolic state's identity; they are not scalar coefficients to distribute over. This changes an already supported input and breaks structural equality and substitutions targeting the original ket. The later type and dual-class checks do not prevent it, because the expanded object remains a Ket of the same class. The same issue affects bra labels. It can also cause unnecessary exponential work for an already supported labelled state such as Ket(product(x_i + y_i for i in range(n))), whose label now expands to 2**n terms during construction. The added tests only use atomic string labels and therefore do not exercise this regression.",
+      "path": "sympy/physics/quantum/operator.py",
+      "line": 397,
+      "evidence": "ket_expr = expand(args[0])\n        bra_expr = expand(args[1])",
+      "fix": "Preserve KetBase and BraBase objects as atomic operands when expanding surrounding sums and products. At minimum, bypass expansion for arguments that are already states and prevent recursive expansion into state labels for composite operands, for example through appropriately shallow expansion.",
+      "test": "Construct k = Ket((x + y)**2) and b = Bra((x + y)**2), then assert OuterProduct(k, b).ket == k and OuterProduct(k, b).bra == b. Also test scalar multiples and sums containing these labelled states to verify that distribution preserves the original state objects. Include a factored product label to ensure construction does not expand that label.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 391,
+          "symbol": "OuterProduct.__new__"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 397,
+          "symbol": "expand(args[0])"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 421,
+          "symbol": "Expr.__new__(cls, *(kets[0], bras[0]), **old_assumptions)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

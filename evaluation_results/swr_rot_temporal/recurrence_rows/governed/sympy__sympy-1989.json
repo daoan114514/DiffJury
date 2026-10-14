@@ -1,0 +1,93 @@
+{
+  "id": "sympy__sympy-1989",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "callable-lookup-truth-coercion",
+      "severity": "low",
+      "title": "Callable lookup now evaluates the truth value of local objects",
+      "explanation": "The new lookup calls bool() on a local object before checking whether it is callable. Truth-value support is not a precondition for calling an object. A minimal counterexample is a class F with __call__(self, arg) returning arg and __bool__(self) raising ValueError('truth undefined'). Set f = F(), x = Symbol('x'), local_dict = {'f': f, 'x': x}, global_dict = {'f': f}, and parse 'f x' with standard_transformations + (implicit_application,). Previously, _implicit_application retrieved f from global_dict, recognized it with callable(), and produced f(x), evaluating to x. Now _token_callable retrieves the same object from local_dict and raises ValueError at 'if not func', before application parentheses can be inserted. This breaks a previously successful expression even when the local and global bindings are identical. The two added tests exercise parenthesized powers using ordinary global SymPy functions; neither exercises local objects with nontrivial truth-value behavior.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 41,
+      "evidence": "func = local_dict.get(token[1])\n    if not func:\n        func = global_dict.get(token[1])",
+      "fix": "Resolve the binding by dictionary membership rather than truth value: use local_dict[token[1]] when the name is present locally, otherwise use global_dict.get(token[1]). This also preserves local namespace precedence for false-valued objects.",
+      "test": "Add a regression test using the callable F described above, bound in both dictionaries. Parse 'f x' with standard_transformations + (implicit_application,) and assert the result equals x without invoking F.__bool__. Also cover a false-valued local callable with no global binding using 'f**2(x)' and standard_transformations + (function_exponentiation,), asserting x**2.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 248,
+          "symbol": "_implicit_application"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 40,
+          "symbol": "_token_callable"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-5af1f6aa"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}

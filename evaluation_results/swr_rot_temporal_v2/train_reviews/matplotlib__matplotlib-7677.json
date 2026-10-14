@@ -1,0 +1,14 @@
+{
+  "id": "matplotlib__matplotlib-7677",
+  "findings": [],
+  "outcome": {
+    "hits": [],
+    "false_positives": [],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 8354,
+  "llm_calls": 5,
+  "borrowed_from": "C:\\Users\\卢佳尧\\Documents\\DiffJury\\evaluation_results\\swr_rot\\train_reviews\\matplotlib__matplotlib-7677.json",
+  "borrowed_sha256": "773fd3e7cd63dd9c179b3029e0cd9bf0dc8ad6fed94a19470e9cdaa9e25558d5"
+}

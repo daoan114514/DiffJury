@@ -1,0 +1,92 @@
+{
+  "id": "sympy__sympy-416",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-09474f0c",
+      "K-0faed540",
+      "K-2b42cad0",
+      "K-5a649727",
+      "K-5af1f6aa",
+      "K-726d8aec",
+      "K-93a099ce",
+      "K-ad16cdc6",
+      "K-b1da47ce",
+      "K-b5e72943",
+      "K-c01df042",
+      "K-d0414ebb",
+      "K-ddb18739",
+      "K-e13d441c",
+      "K-e172ac33"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-93a099ce",
+          "K-09474f0c",
+          "K-2b42cad0",
+          "K-ad16cdc6",
+          "K-b5e72943"
+        ],
+        "tokens": 347,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-5af1f6aa",
+          "K-726d8aec",
+          "K-5a649727",
+          "K-d0414ebb",
+          "K-b1da47ce",
+          "K-e172ac33",
+          "K-0faed540",
+          "K-c01df042",
+          "K-e13d441c",
+          "K-ddb18739"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-e820d88f",
+          "K-4b143eb5",
+          "K-0117d999",
+          "K-46b8b947"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

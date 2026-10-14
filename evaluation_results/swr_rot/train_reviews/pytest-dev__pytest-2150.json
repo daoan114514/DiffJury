@@ -1,0 +1,44 @@
+{
+  "id": "pytest-dev__pytest-2150",
+  "findings": [
+    {
+      "rule_id": "warning-diagnostic-repr-failure",
+      "severity": "low",
+      "title": "A warning's failing repr replaces the expected pytest failure",
+      "explanation": "When an unexpected warning is recorded, the new diagnostic formats a list containing the warning objects, invoking their __repr__ methods before pytest.fail is called. A concrete counterexample is a Warning subclass whose __repr__ raises RuntimeError: emit an instance inside pytest.warns(UserWarning), with no exception in the context body. The category-mismatch branch is reached, but formatting raises RuntimeError instead of the pytest.fail.Exception previously produced. Consequently, consumers catching pytest.fail.Exception no longer receive the expected failure, and the missing-warning diagnostic is lost. This is an unintended exception-handling change, distinct from the intentional expansion of diagnostic text.",
+      "path": "_pytest/recwarn.py",
+      "line": 229,
+      "evidence": "pytest.fail(\"DID NOT WARN. No warnings of type {0} was emitted. \"\n                                \"The list of emitted warnings is: {1}.\".format(\n                                    self.expected_warning,\n                                    [each.message for each in self]))",
+      "fix": "Use exception-safe representation of the recorded warning list, falling back to a placeholder when rendering fails, so diagnostic construction cannot prevent pytest.fail from executing.",
+      "test": "Define BrokenWarning(Warning) with __repr__ raising RuntimeError('broken repr'). Inside pytest.raises(pytest.fail.Exception), enter pytest.warns(UserWarning) and call warnings.warn(BrokenWarning('unexpected')). Assert that the caught exception is the expected pytest failure and its message retains the DID NOT WARN diagnostic.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "_pytest/recwarn.py",
+          "line": 224,
+          "symbol": "WarningsChecker.__exit__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-248",
+      "applied_rules": []
+    }
+  ],
+  "outcome": {
+    "hits": [],
+    "false_positives": [
+      0
+    ],
+    "neutral": [],
+    "missed": []
+  },
+  "tokens": 16646,
+  "llm_calls": 5
+}

@@ -1,0 +1,130 @@
+{
+  "id": "scikit-learn__scikit-learn-14817",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "doc-role-syntax",
+      "severity": "low",
+      "title": "Restore the missing colon in load_files' module reference",
+      "explanation": "The new `:mod` markup is missing the colon before the opening backtick. When the load_files docstring is rendered, this is not recognized as a Sphinx module role, leaving a stray `:mod` prefix rather than the intended module reference. The correctly formed role at line 105 confirms the intended syntax. This is a documentation regression, not a runtime defect; a build failure is not established. Compressed and omitted hunks cannot be fully verified from the supplied evidence, and unqualified method references are not treated as unresolved without their autodoc context.",
+      "path": "sklearn/datasets/base.py",
+      "line": 98,
+      "evidence": "    you will need to use the :mod`~sklearn.feature_extraction.text` module to",
+      "fix": "Replace `:mod`~sklearn.feature_extraction.text`` with the properly delimited role `:mod:`~sklearn.feature_extraction.text``.",
+      "test": "Render the load_files API documentation with Sphinx and verify that this sentence contains a module cross-reference to sklearn.feature_extraction.text and no literal ':mod' prefix.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-043047d8",
+      "K-0466258e",
+      "K-15a64966",
+      "K-1eb25f52",
+      "K-2019c936",
+      "K-2134f4e9",
+      "K-21a33670",
+      "K-340b5726",
+      "K-3b1a4f4d",
+      "K-542e4ee3",
+      "K-75ffcebf",
+      "K-900623ee",
+      "K-95d752ab",
+      "K-9b25215d",
+      "K-9f32c0f2",
+      "K-9fbca2ff",
+      "K-c1e264d7",
+      "K-c43a8094",
+      "K-d07491c7",
+      "K-ecc8b51d",
+      "K-f0b9d1e9"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-043047d8",
+          "K-2019c936",
+          "K-542e4ee3",
+          "K-95d752ab",
+          "K-900623ee",
+          "K-f0b9d1e9",
+          "K-0466258e",
+          "K-1eb25f52",
+          "K-75ffcebf",
+          "K-9b25215d",
+          "K-c43a8094"
+        ],
+        "tokens": 656,
+        "budget": 600,
+        "dropped": [
+          "K-91e5b509",
+          "K-55026f2c",
+          "K-f463a446"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-15a64966",
+          "K-3b1a4f4d",
+          "K-21a33670",
+          "K-d07491c7",
+          "K-2134f4e9",
+          "K-c1e264d7",
+          "K-9f32c0f2",
+          "K-9fbca2ff",
+          "K-340b5726",
+          "K-ecc8b51d"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-0a8093ab",
+          "K-65899550"
+        ]
+      }
+    ],
+    "attribution": null
+  }
+}

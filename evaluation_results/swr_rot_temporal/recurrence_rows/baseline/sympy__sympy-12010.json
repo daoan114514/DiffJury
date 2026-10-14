@@ -1,0 +1,60 @@
+{
+  "id": "sympy__sympy-12010",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "correctness.single-pass-iterable",
+      "severity": "medium",
+      "title": "Single-pass ignore iterables are exhausted during repeated-expression discovery",
+      "explanation": "The public API documents ignore as an iterable, but discovery repeatedly iterates the same object without materializing it. A concrete counterexample is cse([x + y, x + y, x + y], ignore=iter([y])). The first occurrence enters seen_subexp. At the second occurrence, the loop consumes y and correctly refuses to eliminate x + y. At the third occurrence, the iterator is exhausted, so the loop's else branch adds x + y to to_eliminate. Replacement rebuilding consequently emits a substitution containing y, violating the documented exclusion invariant. Passing ignore=(y,) instead keeps all three expressions un-substituted. This failure requires neither preprocessing nor an optimization-generated expression: it occurs on the ordinary discovery/rebuilding path. The added test uses only a reusable tuple, so it does not exercise the documented single-pass iterable case.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 452,
+      "evidence": "                for ign in ignore:\n                    if ign in expr.free_symbols:\n                        break\n                else:\n                    to_eliminate.add(expr)\n                    return",
+      "fix": "Materialize ignore once at the beginning of tree_cse, for example as a frozenset, so both public cse calls and direct tree_cse calls support single-pass iterables. Use that stable collection for every exclusion check while retaining traversal into ignored parents.",
+      "test": "Assert that cse([x + y, x + y, x + y], ignore=iter([y])) returns the same result as ignore=(y,), with no replacements. Also run the existing nested sqrt(x + 1) case with a generator-based ignore argument and assert that the eligible nested expression is extracted while no replacement RHS contains y.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 570,
+          "symbol": "cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 687,
+          "symbol": "cse forwards ignore to tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 452,
+          "symbol": "tree_cse repeated-subexpression discovery"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-664",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {}
+}

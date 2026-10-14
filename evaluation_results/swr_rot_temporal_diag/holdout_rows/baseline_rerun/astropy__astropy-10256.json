@@ -1,0 +1,206 @@
+{
+  "id": "astropy__astropy-10256",
+  "repository": "astropy/astropy",
+  "pull_request": 10256,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 146537,
+  "llm_calls": 16,
+  "input_tokens": 294456,
+  "output_tokens": 4421,
+  "total_tokens": 298877,
+  "instruction_calls": 16,
+  "instruction_tokens": 44835,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 8,
+    "security": 4,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 0,
+  "revision_requests": 4,
+  "revision_results": 4,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 2626,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2264
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3466,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3124
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 2626,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2264
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3466,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3124
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 2626,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2264
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 2626,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2264
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {}
+}

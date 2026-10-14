@@ -1,0 +1,94 @@
+{
+  "id": "sympy__sympy-15646",
+  "execution_success": true,
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  },
+  "findings": [
+    {
+      "rule_id": "unresolved-even-subsequence",
+      "severity": "medium",
+      "title": "An unresolved even subsequence raises AttributeError",
+      "explanation": "The new branch checks whether the odd-subsequence result L1 is None, but does not perform the equivalent check for L2. If L1 resolves and L2 is None, L1 != L2 is true and evaluating L2.is_comparable raises AttributeError. A concrete triggering sequence is (1 + (-1)**n)*(-1)**(n/2), with integer n: its values repeat 0, -2, 0, 2, so it has no ordinary limit and its accumulation interval is [-2, 2]. Substitution of the odd dummy simplifies the expression to zero. Substitution of the even dummy leaves 2*(-1)**(n/2), whose remaining oscillation is unresolved by _limit_seq; L2 is therefore None. The previous implementation evaluated the even subsequence first and returned None when it was unresolved, rather than dereferencing it. Returning None remains a valid failure result under the function's contract; throwing AttributeError does not. The added period-four test squares sin(pi*n/2), making both parity subsequences constant, and therefore does not exercise this failure. The new complex-decay tests exercise the absolute-value fallback, but that fallback is never reached when L1 is zero and L2 is unresolved.",
+      "path": "sympy/series/limitseq.py",
+      "line": 227,
+      "evidence": "L2 = _limit_seq(expr.xreplace({n: n2}), n2, trials)\n                if L1 != L2:\n                    if L1.is_comparable and L2.is_comparable:",
+      "fix": "Check L2 is not None before comparing results or accessing its attributes. If the even subsequence is unresolved, return None or enter the safe absolute-value fallback rather than constructing accumulation bounds.",
+      "test": "Add a regression invoking the real limit_seq on (1 + (-1)**n)*(-1)**(n/2), with integer n. Assert that the unsupported subsequence returns None without an exception; if period-four evaluation is implemented, assert AccumulationBounds(-2, 2) instead. Retain the existing resolved-parity and complex-decay tests.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 223,
+          "symbol": "limit_seq: _limit_seq on the odd subsequence"
+        },
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 225,
+          "symbol": "limit_seq: _limit_seq on the even subsequence"
+        },
+        {
+          "path": "sympy/series/limitseq.py",
+          "line": 227,
+          "symbol": "limit_seq: dereference of unresolved L2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-476",
+      "applied_rules": []
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  }
+}
