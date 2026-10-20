@@ -1,0 +1,244 @@
+{
+  "id": "scikit-learn__scikit-learn-25148",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 25148,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 108854,
+  "llm_calls": 5,
+  "input_tokens": 15619,
+  "output_tokens": 3609,
+  "total_tokens": 19228,
+  "instruction_calls": 5,
+  "instruction_tokens": 5238,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3093,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-a62a9e09",
+        "K-651ca0b6",
+        "K-3c8dfccb",
+        "K-0a2298e4",
+        "K-eb2105bb",
+        "K-2bba7006",
+        "K-24ae43fa",
+        "K-f32f49ff"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 817,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-0f45b787",
+        "K-3636a06a",
+        "K-184c93c6",
+        "K-9ecad403",
+        "K-94fa9fcb",
+        "K-feee072d",
+        "K-1617cbdc",
+        "K-fc6f5674",
+        "K-51e6bbd9"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-24ae43fa",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-651ca0b6",
+      "K-69a7f4ef",
+      "K-94fa9fcb",
+      "K-9ecad403",
+      "K-a62a9e09",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-a62a9e09",
+          "K-651ca0b6",
+          "K-3c8dfccb",
+          "K-0a2298e4",
+          "K-eb2105bb",
+          "K-2bba7006",
+          "K-24ae43fa",
+          "K-f32f49ff"
+        ],
+        "tokens": 603,
+        "budget": 600,
+        "dropped": [
+          "K-1c8d031b",
+          "K-60a0fdd6",
+          "K-c5fe4768",
+          "K-5388c8d9",
+          "K-4d5756a5",
+          "K-d3341a3f"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-0f45b787",
+          "K-3636a06a",
+          "K-184c93c6",
+          "K-9ecad403",
+          "K-94fa9fcb",
+          "K-feee072d",
+          "K-1617cbdc",
+          "K-fc6f5674",
+          "K-51e6bbd9"
+        ],
+        "tokens": 641,
+        "budget": 600,
+        "dropped": [
+          "K-6d7b0522",
+          "K-0f51ebe7",
+          "K-0f38f6b6",
+          "K-d8b204bc",
+          "K-791ded73",
+          "K-2968cdc5",
+          "K-f8f85333"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "prediction-regression-rounded-inverse-distances",
+      "severity": "low",
+      "title": "Probability rounding can change the predicted class near a distance tie",
+      "explanation": "The new predict path can turn distinct distances into equal probabilities and select the wrong class relative to the previous distance argmin. A concrete supported case is a binary estimator whose decision_function returns the float64 constant 2**-53, wrapped in OutputCodeClassifier with code_size=0.5 and a fitted code_book_ of [[-1.0], [1.0]] (obtainable with random_state=1). Fit with class labels [10, 20]. For each prediction, euclidean_distances produces [1.0, 0.9999999999999999]. The previous argmin selects index 1 and returns 20. Adding eps=1e-16 rounds both distances to 1.0, yielding probabilities [0.5, 0.5]; the new argmax selects index 0 and returns 10. These probabilities are finite, non-negative, normalized, and correctly ordered, so the normalization-only assertion does not detect the regression. Exact zero distances and exact ties are not themselves the demonstrated failure; it occurs when epsilon addition collapses a strict ordering. The existing Iris regression test does not exercise this near-tie case.",
+      "path": "sklearn/multiclass.py",
+      "line": 1066,
+      "evidence": "pred = self.predict_proba(X).argmax(axis=1)",
+      "fix": "Keep predict based on the original distance argmin rather than recovering the winning class from rounded probability estimates. The new predict_proba method can remain independently available.",
+      "test": "Fit a cloneable binary classifier implementing fit and decision_function, with decision_function returning np.full(n_samples, 2.0**-53, dtype=np.float64). Wrap it with OutputCodeClassifier(code_size=0.5, random_state=1), fit two samples labeled 10 and 20, and assert that predict returns 20, matching classes_[euclidean_distances(binary_predictions, code_book_).argmin(axis=1)]. Include the non-contiguous labels so the assertion also checks class mapping.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1066,
+          "symbol": "OutputCodeClassifier.predict"
+        },
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1046,
+          "symbol": "OutputCodeClassifier.predict_proba: obtain binary predictions"
+        },
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1047,
+          "symbol": "OutputCodeClassifier.predict_proba: euclidean_distances"
+        },
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1050,
+          "symbol": "OutputCodeClassifier.predict_proba: epsilon addition and inverse-distance normalization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

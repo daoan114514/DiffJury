@@ -1,0 +1,360 @@
+{
+  "id": "sympy__sympy-491",
+  "repository": "sympy/sympy",
+  "pull_request": 491,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 209461,
+  "llm_calls": 12,
+  "input_tokens": 215071,
+  "output_tokens": 5533,
+  "total_tokens": 220604,
+  "instruction_calls": 12,
+  "instruction_tokens": 13420,
+  "model_roles": {
+    "lead": 3,
+    "security": 4,
+    "correctness-reliability": 4,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 2,
+  "revision_results": 2,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2464,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-2b8fec11",
+        "K-7e90bf29",
+        "K-4f9662f0",
+        "K-a9677d2d",
+        "K-87ee2eda",
+        "K-b9cfc827",
+        "K-1f002951",
+        "K-a4c9356f",
+        "K-4feced24"
+      ],
+      "skills": [
+        "correctness-review",
+        "math-renderer-command-compatibility"
+      ],
+      "skill_body_tokens": 1558
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2464,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-2b8fec11",
+        "K-7e90bf29",
+        "K-4f9662f0",
+        "K-a9677d2d",
+        "K-87ee2eda",
+        "K-b9cfc827",
+        "K-1f002951",
+        "K-a4c9356f",
+        "K-4feced24"
+      ],
+      "skills": [
+        "correctness-review",
+        "math-renderer-command-compatibility"
+      ],
+      "skill_body_tokens": 1558
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2464,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-2b8fec11",
+        "K-7e90bf29",
+        "K-4f9662f0",
+        "K-a9677d2d",
+        "K-87ee2eda",
+        "K-b9cfc827",
+        "K-1f002951",
+        "K-a4c9356f",
+        "K-4feced24"
+      ],
+      "skills": [
+        "correctness-review",
+        "math-renderer-command-compatibility"
+      ],
+      "skill_body_tokens": 1558
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2464,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-2b8fec11",
+        "K-7e90bf29",
+        "K-4f9662f0",
+        "K-a9677d2d",
+        "K-87ee2eda",
+        "K-b9cfc827",
+        "K-1f002951",
+        "K-a4c9356f",
+        "K-4feced24"
+      ],
+      "skills": [
+        "correctness-review",
+        "math-renderer-command-compatibility"
+      ],
+      "skill_body_tokens": 1558
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 797,
+      "knowledge_ids": [
+        "K-a077c313",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-962b000c",
+        "K-9b028a49",
+        "K-7609a0f4",
+        "K-bc43ffcf",
+        "K-4e7d5d6b",
+        "K-119c9319",
+        "K-9d754682"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0096fe63",
+      "K-119c9319",
+      "K-1f002951",
+      "K-2b8fec11",
+      "K-4e7d5d6b",
+      "K-4f9662f0",
+      "K-4feced24",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-962b000c",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-9d754682",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-b9cfc827",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-2b8fec11",
+          "K-7e90bf29",
+          "K-4f9662f0",
+          "K-a9677d2d",
+          "K-87ee2eda",
+          "K-b9cfc827",
+          "K-1f002951",
+          "K-a4c9356f",
+          "K-4feced24"
+        ],
+        "tokens": 574,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-962b000c",
+          "K-9b028a49",
+          "K-7609a0f4",
+          "K-bc43ffcf",
+          "K-4e7d5d6b",
+          "K-119c9319",
+          "K-9d754682"
+        ],
+        "tokens": 621,
+        "budget": 600,
+        "dropped": [
+          "K-11de6ec1",
+          "K-03e5723b",
+          "K-d778c4a2",
+          "K-cde9c599",
+          "K-8184713c",
+          "K-60ce9e38",
+          "K-f00ce49b",
+          "K-8810c414",
+          "K-4e30e572",
+          "K-e4a5fbd0",
+          "K-be32699b",
+          "K-10578218",
+          "K-86d0b57a"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "insecure-http-executable-dependency",
+      "severity": "medium",
+      "title": "Load MathJax through an authenticated transport instead of HTTP",
+      "explanation": "The change enables the MathJax extension at doc/src/conf.py:24 and explicitly selects an HTTP JavaScript URL at line 30. The extension also supplies an HTTP default at doc/ext/mathjax.py:63–65. setup connects builder_inited to builder-inited, and builder_inited passes that URL to app.add_javascript at line 58. Consequently, generated HTML references executable content fetched by the reader's browser, not merely a resource downloaded during the documentation build. Where the HTTP request is permitted, a network intermediary can replace its response with JavaScript executing in the documentation page's origin. On HTTPS documentation pages, browsers normally block this active mixed content instead, preventing MathJax from loading. No particular sensitive data or authenticated documentation deployment is established by the supplied evidence.\n\nEscaping assessment: inline math uses self.encode(node['latex']) at line 23, and ordinary display math encodes each part at line 38. The nowrap branch instead inserts node['latex'] directly at lines 29–32. For the minimal directive '.. math::\\n   :nowrap:\\n\\n   x <b>y</b> & z', the shown visitor logic produces '<div class=\"math\">\\\\[x <b>y</b> & z\\\\]</div>' with the default delimiters. This is a deterministic derivation from the code, not a test execution: the browser interprets the b element instead of preserving the literal mathematical text. That establishes an escaping/rendering defect, but the available evidence does not establish a lower-trust source of math content or restrictions preventing documentation authors from already supplying raw HTML. Therefore nowrap is not reported as a separate security-boundary violation.",
+      "path": "doc/src/conf.py",
+      "line": 30,
+      "evidence": "mathjax_path = 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML-full'",
+      "fix": "Use a maintained HTTPS MathJax endpoint in both the project configuration and extension default, or vendor a pinned copy and reference it locally. Updating only the default leaves this project's explicit HTTP override vulnerable.",
+      "test": "Build the HTML documentation with the project configuration and with the extension default separately. Assert that neither output contains an HTTP MathJax script source, and verify that math renders when served over HTTPS without mixed-content errors.",
+      "confidence": 0.95,
+      "evidence_refs": [
+        {
+          "evidence_id": "ast_analyze:bb5ca0f5b6f4d25b",
+          "tool": "ast_analyze",
+          "output_preview": "{\"path\": \"doc/ext/mathjax.py\", \"valid\": true, \"node_counts\": {\"Module\": 1, \"Expr\": 16, \"ImportFrom\": 3, \"FunctionDef\": 4, \"Constant\": 45, \"alias\": 3, \"arguments\": 4, \"Raise\": 4, \"If\": 5, \"Assign\": 2, \"For\": 1, \"arg\": 6, \"Call\": 23, \"Attribute\": 60, \"Subscript\": 14, \"Name\": 60, \"ListComp\": 1, \"Tuple\": 3, \"UnaryOp\": 1, \"BinOp\": 12, \"Load\": 133, \"Store\": 6, \"comprehension\": 1, \"Compare\": 3, \"BoolOp\": 1, \"Not\": 1, \"List\": 2, \"keyword\": 2, \"Add\": 11, \"Eq\": 1, \"Or\": 1, \"In\": 2, \"Mod\": 1}, \"dangerous_calls\": []}"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "doc/src/conf.py",
+          "line": 24,
+          "symbol": "extensions enables mathjax"
+        },
+        {
+          "path": "doc/src/conf.py",
+          "line": 30,
+          "symbol": "mathjax_path"
+        },
+        {
+          "path": "doc/ext/mathjax.py",
+          "line": 63,
+          "symbol": "setup registers HTTP fallback mathjax_path"
+        },
+        {
+          "path": "doc/ext/mathjax.py",
+          "line": 68,
+          "symbol": "setup connects builder-inited"
+        },
+        {
+          "path": "doc/ext/mathjax.py",
+          "line": 58,
+          "symbol": "builder_inited calls app.add_javascript(app.config.mathjax_path)"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 1
+      },
+      "cwe": "CWE-829",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

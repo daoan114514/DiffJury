@@ -1,0 +1,168 @@
+{
+  "id": "matplotlib__matplotlib-17851",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 17851,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+      "line": 210,
+      "cwe": "CWE-20",
+      "rule_id": "collection3d-zs-broadcast-compatibility",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 53932,
+  "llm_calls": 5,
+  "input_tokens": 15342,
+  "output_tokens": 2162,
+  "total_tokens": 17504,
+  "instruction_calls": 5,
+  "instruction_tokens": 4094,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2586,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "collection3d-zs-broadcast-compatibility",
+      "severity": "medium",
+      "title": "Singleton iterable zs now silently drops all but the first line",
+      "explanation": "Previously, np.broadcast_to(zs, len(paths)) broadcast a singleton iterable across every path. The new iterable branch bypasses that broadcasting, and zip(paths, zs) stops when zs is exhausted. For example, add_collection3d(LineCollection([[(0, 0), (1, 0)], [(0, 1), (1, 1)]]), zs=[5]) previously produced two segments: [(0, 0, 5), (1, 0, 5)] and [(0, 1, 5), (1, 1, 5)]. It now produces only the first segment, silently discarding the second path. A one-element NumPy array has the same regression. Other mismatched iterable lengths, previously rejected by broadcasting, also silently truncate paths or ignore extra z values. The affected public consumer is Axes3D.add_collection3d with a LineCollection, whose path-conversion route is exercised by the added tests. Scalars still broadcast, matching-length per-path scalar iterables still pair correctly, and matching-length per-vertex arrays are newly accepted. The new tests exercise a scalar and a (99, 2) per-vertex array, but neither covers singleton broadcasting or mismatched outer lengths. Returning the result of the unchanged super().add_collection(col) call preserves collection registration; that return change is not the source of this defect.",
+      "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+      "line": 210,
+      "evidence": "    if not np.iterable(zs):\n        zs = np.broadcast_to(zs, len(paths))\n\n    segs = [_path_to_3d_segment(path, pathz, zdir)\n            for path, pathz in zip(paths, zs)]",
+      "fix": "Preserve broadcasting for singleton one-dimensional zs inputs as well as scalars, while retaining support for per-path vertex arrays. Validate that other iterable inputs contain exactly one entry per path before conversion rather than allowing zip to truncate silently.",
+      "test": "Add a public add_collection3d regression test using two distinct LineCollection paths and zs=[5], repeated with np.array([5]); assert that both converted segments remain and have the expected coordinates at z=5. Also test matching per-path scalar values and per-vertex arrays, and assert that incompatible outer lengths raise rather than dropping paths.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+          "line": 210,
+          "symbol": "_paths_to_3d_segments"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

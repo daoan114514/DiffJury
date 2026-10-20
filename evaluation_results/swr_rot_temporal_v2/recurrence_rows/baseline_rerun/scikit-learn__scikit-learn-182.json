@@ -1,0 +1,212 @@
+{
+  "id": "scikit-learn__scikit-learn-182",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 182,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 85256,
+  "llm_calls": 5,
+  "input_tokens": 19655,
+  "output_tokens": 2646,
+  "total_tokens": 22301,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "bootstrap-split-size-bounds",
+      "severity": "medium",
+      "title": "Split sizes outside the documented bounds are silently accepted",
+      "explanation": "Construction distinguishes some input types but never checks their documented bounds. For example, Bootstrap(10, train=1.5, test=0.5, random_state=0) constructs successfully and yields 15 training indices, despite the documented requirement that a fractional train value lie between 0.0 and 1.0. Bootstrap(10, train=11, test=2, random_state=0) likewise yields 11 training indices despite the integer size being documented as smaller than n. The test float conversion has the same missing range check. Sampling with replacement makes these invalid sizes executable, so randint does not enforce the public parameter contract. This concerns the requested split sizes, not the explicitly permitted overlap or duplicate sampled indices.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 545,
+      "evidence": "if isinstance(train, float):\n            self.n_train = int(train * n)\n        elif isinstance(train, int):\n            self.n_train = train",
+      "fix": "Validate train and test against their documented fractional or integer bounds before converting proportions to counts. Reject invalid values with a parameter-specific ValueError instead of silently producing out-of-contract splits.",
+      "test": "Assert constructor rejection for train=1.5, test=1.5, integer sizes greater than n, and negative fractions such as -0.01 that would otherwise truncate to zero. Include valid neighboring values to verify that validation preserves supported split sizes.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 544,
+          "symbol": "Bootstrap.__init__: converts train without checking bounds"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 550,
+          "symbol": "Bootstrap.__init__: converts test without checking bounds"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 561,
+          "symbol": "Bootstrap.__iter__: samples the unchecked sizes"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "bootstrap-test-type-dispatch",
+      "severity": "medium",
+      "title": "Integer test sizes are rejected when train is fractional",
+      "explanation": "The test-size integer branch checks the type of train rather than test. Bootstrap(10, train=0.5, test=2) therefore raises ValueError even though both arguments satisfy the documented contract: the float test branch is skipped, isinstance(train, int) is false, and execution reaches the error branch. Conversely, an integer train allows unsupported test types through construction. This is independent of the intentional overlap between sampled training and test indices.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 552,
+      "evidence": "elif isinstance(train, int):\n            self.n_test = test",
+      "fix": "Check isinstance(test, int) in the test-size branch and report test, rather than train, in its invalid-value exception.",
+      "test": "Construct Bootstrap(10, train=0.5, test=2, random_state=0), iterate it, and assert that every split has five training indices and two test indices. Also assert that an unsupported test value is rejected during construction when train is an integer.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 489,
+          "symbol": "Bootstrap.__init__"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 552,
+          "symbol": "Bootstrap.__init__: test integer dispatch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "bootstrap-random-state-representation",
+      "severity": "low",
+      "title": "repr fails for the default random state and after iteration with an integer seed",
+      "explanation": "The representation formats random_state with %d, although supported values include None and a RandomState object. Consequently, repr(Bootstrap(4)) raises TypeError immediately, as does repr with a supplied RandomState instance. An integer seed initially works, but advancing the iterator executes self.random_state = check_random_state(self.random_state), replacing the seed with a RandomState object; repr then raises TypeError as well. Thus even the documented integer-seed usage loses its printable representation after iteration begins. Advancing the stored generator across subsequent iterations is not itself established as a contract violation here; the definite failure is that the representation cannot handle its supported and internally generated states.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 566,
+      "evidence": "return ('%s(%d, n_bootstraps=%d, train=%d, test=%d, random_state=%d)'",
+      "fix": "Use a representation-compatible conversion such as %r for random_state instead of %d. If preserving the original seed in the representation is desired, retain it separately from the sampling generator.",
+      "test": "For random_state=None, an integer seed, and a numpy RandomState instance, assert that repr succeeds both before iteration and after consuming a split. Also check repr after exhausting and reiterating the object to cover its mutated generator state.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 556,
+          "symbol": "Bootstrap.__init__: stores random_state"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 559,
+          "symbol": "Bootstrap.__iter__: normalizes and replaces random_state"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 565,
+          "symbol": "Bootstrap.__repr__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

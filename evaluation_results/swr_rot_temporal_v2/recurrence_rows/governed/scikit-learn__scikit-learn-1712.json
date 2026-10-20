@@ -1,0 +1,200 @@
+{
+  "id": "scikit-learn__scikit-learn-1712",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 1712,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/tree/tree.py",
+      "line": 309,
+      "cwe": "CWE-681",
+      "rule_id": "max-features-numpy-float-dispatch",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 64760,
+  "llm_calls": 5,
+  "input_tokens": 27436,
+  "output_tokens": 2012,
+  "total_tokens": 29448,
+  "instruction_calls": 5,
+  "instruction_tokens": 4315,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {
+    "K-3c8dfccb": {
+      "tp": 1,
+      "fp": 0
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 341,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 165,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "max-features-numpy-float-dispatch",
+      "severity": "medium",
+      "title": "NumPy float32 feature fractions bypass the new conversion",
+      "explanation": "The new fractional interpretation only applies to instances of Python float. NumPy float32 scalars do not satisfy that check and instead reach the existing else branch, which assigns self.max_features directly. For example, with 10 input features, max_features=1.0 resolves to 10, but max_features=np.float32(1.0) resolves to 1.0, an absolute one-feature budget rather than the documented full-feature fraction. The latter also falls within the ordinary feature-count bounds, so count validation cannot detect the incorrect interpretation. This introduces inconsistent behavior in the newly supported floating-point parameter path; it is not an objection to the explicitly documented flooring of small fractions or to the preserved integer/string/None paths. The added tests use only Python float literals and therefore miss this case.",
+      "path": "sklearn/tree/tree.py",
+      "line": 309,
+      "evidence": "elif isinstance(self.max_features, float):\n            max_features = int(self.max_features * self.n_features_)\n        else:\n            max_features = self.max_features",
+      "fix": "Recognize NumPy floating scalars as fractional values, for example using numbers.Real after an explicit numbers.Integral branch, or checking both float and np.floating. Keep Python and NumPy integer scalars on the absolute feature-count path.",
+      "test": "Extend test_max_features with a 10-feature dataset and compare Python float, np.float32, and np.float64 inputs: 1.0 must produce tree_.max_features == 10 and 0.5 must produce 5 for each floating type. Include np.int32(1) and np.int64(1) and assert that they still produce one feature. Exercise a forest estimator with np.float32(1.0) as well to verify that forwarding the parameter preserves the same interpretation.",
+      "confidence": 0.8,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tree/tree.py",
+          "line": 309,
+          "symbol": "BaseDecisionTree.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-681",
+      "applied_rules": [
+        "K-3c8dfccb"
+      ]
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

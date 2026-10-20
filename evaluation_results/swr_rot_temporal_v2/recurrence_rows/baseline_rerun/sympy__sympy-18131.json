@@ -1,0 +1,179 @@
+{
+  "id": "sympy__sympy-18131",
+  "repository": "sympy/sympy",
+  "pull_request": 18131,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 99518,
+  "llm_calls": 5,
+  "input_tokens": 25177,
+  "output_tokens": 2522,
+  "total_tokens": 27699,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "reciprocal-accepts-infinite-upper-endpoint",
+      "severity": "medium",
+      "title": "Parameter validation accepts an infinite upper endpoint that cannot define a reciprocal distribution",
+      "explanation": "The new check accepts a = 5 and b = oo: both 5 > 0 and 5 < oo are true, and the diagnostic explicitly describes an allowed range ending in '+oo]'. However, the normalization denominator log(oo) - log(5) is infinite. The new PDF consequently evaluates to zero at every finite point in its support, for example pdf(10) = 1/(10*(log(oo)-log(5))) = 0. Even integrating only over the declared support cannot normalize this density to one. This is an explicit check-to-formula counterexample, rather than a claim based on an executed test. The existing checks reject concrete nonpositive a and b <= a, but omit the finiteness requirement; the new tests cover neither invalid parameters nor infinite endpoints. Symbolic parameters with undecidable ordering need not be rejected to fix this concrete invalid input.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3211,
+      "evidence": "        _value_check((a < b),\n        \"Parameter b must be in range (%s, +oo]. b = %s\"%(a, b))",
+      "fix": "Reject endpoints known to be nonfinite while preserving the framework's treatment of undecidable symbolic assumptions. State the parameter contract as 0 < a < b < oo and correct the validation diagnostic accordingly.",
+      "test": "Assert that Reciprocal('X', 5, oo) raises ValueError. Add rejection cases for a = 0, negative a, b = a, and b < a; retain construction with symbolic parameters whose validity is undecidable. For a valid finite pair, verify that the density integrated over Interval(a, b) is one.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3209,
+          "symbol": "ReciprocalDistribution.check"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3218,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-reciprocal-density-outside-support",
+      "severity": "medium",
+      "title": "Reciprocal density returns one above its upper support bound",
+      "explanation": "For X = Reciprocal('X', 5, 30), the new PDF explicitly returns density(X)(4) = 0, density(X)(10) = 1/(10*(log(30) - log(5))), and density(X)(31) = 1. The last result must be zero: the declared support is Interval(5, 30). This is directly observable through the public density API exercised by the added test. The assertion at test_continuous_rv.py:959 and the documentation example at crv_types.py:3259 actually preserve the incorrect final value of one. This finding concerns the exposed PDF; it does not assume that support-restricted probability or expectation calculations integrate the erroneous tail. In particular, the added expectation and probability assertions do not establish correct PDF behavior outside the support. No separate CDF-support defect is asserted: whether the framework bounds _cdf requires framework evidence not supplied in this review.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3219,
+      "evidence": "            (S.One, (x > b)))",
+      "fix": "Return zero above b, preferably using Piecewise((1/(x*(log(b)-log(a))), And(a <= x, x <= b)), (S.Zero, True)). Update the symbolic density assertion and documentation example to show a zero final branch.",
+      "test": "Construct X = Reciprocal('X', 5, 30) and assert density(X)(4) == 0, density(X)(10) == 1/(10*(log(30)-log(5))), and density(X)(31) == 0. Also check the two endpoint values and that integrating the publicly exposed density over the real line yields one. Retain the existing support-restricted probability tests as distinct checks.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/tests/test_continuous_rv.py",
+          "line": 959,
+          "symbol": "test_reciprocal: public density(X)(x) observation"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3214,
+          "symbol": "ReciprocalDistribution.pdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

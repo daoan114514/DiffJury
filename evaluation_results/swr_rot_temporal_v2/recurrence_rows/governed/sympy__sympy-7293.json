@@ -1,0 +1,211 @@
+{
+  "id": "sympy__sympy-7293",
+  "repository": "sympy/sympy",
+  "pull_request": 7293,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 241046,
+  "llm_calls": 9,
+  "input_tokens": 79865,
+  "output_tokens": 7701,
+  "total_tokens": 87566,
+  "instruction_calls": 9,
+  "instruction_tokens": 12104,
+  "model_roles": {
+    "lead": 3,
+    "security": 1,
+    "correctness-reliability": 4,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 1,
+  "revision_results": 1,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "settings-ownership",
+      "severity": "medium",
+      "title": "Constructing a LambdaPrinter consumes the caller's NumPy setting",
+      "explanation": "The new initializer removes use_numpy from the caller-owned settings dictionary. Consequently, reusing the same settings to construct another printer silently changes generated matrix multiplication from NumPy dot products to ordinary multiplication. A minimal source-supported reproduction is: settings = {'use_numpy': True}; first = LambdaPrinter(settings); second = LambdaPrinter(settings). After the first construction settings is {}, so first.doprint(5*A*B) produces '5*(A).dot(B)' while second.doprint(5*A*B) produces '5*A*B', for 2-by-2 MatrixSymbols A and B. With ndarray arguments, the latter performs elementwise multiplication rather than matrix multiplication. This is a static trace from the supplied initializer, MatMul implementation, and expected strings in the added printer tests; it was not executed.",
+      "path": "sympy/printing/lambdarepr.py",
+      "line": 23,
+      "evidence": "self.use_numpy = settings.pop('use_numpy', False)",
+      "fix": "Copy the supplied settings dictionary before removing use_numpy, and pass the remaining copy to StrPrinter.__init__.",
+      "test": "Construct two LambdaPrinter instances using the same {'use_numpy': True} dictionary. Assert that the original dictionary is unchanged and that both printers produce '5*(A).dot(B)' for 5*A*B. Evaluate both expressions with non-diagonal ndarray inputs and compare against 5*a.dot(b).",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/lambdarepr.py",
+          "line": 21,
+          "symbol": "LambdaPrinter.__init__"
+        },
+        {
+          "path": "sympy/printing/lambdarepr.py",
+          "line": 90,
+          "symbol": "LambdaPrinter._print_MatMul"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-664",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

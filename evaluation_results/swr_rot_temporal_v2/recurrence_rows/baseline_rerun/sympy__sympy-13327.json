@@ -1,0 +1,217 @@
+{
+  "id": "sympy__sympy-13327",
+  "repository": "sympy/sympy",
+  "pull_request": 13327,
+  "split": "train",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 1,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sympy/polys/monomials.py",
+      "line": 63,
+      "cwe": "CWE-407",
+      "rule_id": "exponential-identity-padding",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 150206,
+  "llm_calls": 5,
+  "input_tokens": 24959,
+  "output_tokens": 4494,
+  "total_tokens": 29453,
+  "instruction_calls": 5,
+  "instruction_tokens": 6095,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4587,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4233
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "exponential-identity-padding",
+      "severity": "medium",
+      "title": "Identity padding makes even one noncommutative variable exponentially expensive",
+      "explanation": "For one noncommutative symbol i and degree N, the new code enumerates every length-N word over [i, 1]. There are 2**N such words, but they collapse to only N+1 distinct monomials: {1, i, ..., i**N}. This is a regression on an input the previous implementation already handled correctly: its single-variable recursion generated the N powers directly, with N+1 empty-tail calls. For example, itermonomials([i], 30) now attempts 1,073,741,824 Mul constructions to return 31 elements. The set removes duplicates only after each product has been constructed. The added tests exercise degrees only through three, so they do not expose this amplification. Mixed-variable inputs suffer additional duplicate enumeration because both identity positions and commutative-factor positions can collapse.",
+      "path": "sympy/polys/monomials.py",
+      "line": 63,
+      "evidence": "variables = list(variables) + [S(1)]\n...\nreturn {Mul(*item) for item in product(variables, repeat=degree)}",
+      "fix": "Do not encode shorter words by inserting identities into fixed-length words. Enumerate actual word lengths, and preferably extend a deduplicated frontier of canonical monomials so mixed commutative/noncommutative inputs also avoid repeated equivalent prefixes.",
+      "test": "Add a regression using one noncommutative symbol and degree 30, expecting exactly {i**k for k in range(31)}. Include an operation-count or focused performance check demonstrating polynomial rather than 2**30 candidate construction. Retain the existing small-degree exact-set tests for completeness.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 59,
+          "symbol": "itermonomials: append identity to generators"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 63,
+          "symbol": "itermonomials: enumerate fixed-length Cartesian product"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "nonexecutable-doctest",
+      "severity": "low",
+      "title": "The new noncommutative example cannot use ordinary symbolic sorting",
+      "explanation": "The new example calls sorted without a key on a set containing independent symbolic expressions. Ordinary sorting invokes symbolic comparisons, which cannot provide the Boolean ordering required by Python sorting and raises TypeError. The expected output is independently incorrect: the generated products involving x and a or b print as x*a and x*b, not xa and xb. Thus the newly added executable documentation example does not demonstrate a successful invocation and will fail a doctest run. The added unit tests compare sets and do not exercise the example's sorting or printed output.",
+      "path": "sympy/polys/monomials.py",
+      "line": 51,
+      "evidence": ">>> sorted(itermonomials([a, b, x], 2))\n[1, a, b, x, a**2, a*b, b*a, b**2, xa, xb, x**2]",
+      "fix": "Import and supply default_sort_key, or another key that supports noncommutative expressions, and regenerate the expected output with explicit multiplication signs and the actual resulting order.",
+      "test": "Run the itermonomials docstring through the repository's doctest runner and require that the new example executes successfully and matches its complete printed result.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 50,
+          "symbol": "itermonomials docstring: create noncommutative symbols"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 51,
+          "symbol": "itermonomials docstring: sorted without a symbolic sort key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "unsympified-generator-regression",
+      "severity": "low",
+      "title": "Previously accepted Python numeric generators now raise AttributeError",
+      "explanation": "The new commutativity check assumes every supplied generator is already a SymPy object. A concrete compatibility counterexample is itermonomials([x, 1], 2): the previous implementation used exponentiation and multiplication and returned {1, x, x**2}, whereas the new implementation reaches the Python integer 1 and raises AttributeError because it has no is_commutative attribute. Similarly, itermonomials([2], 2) previously returned {1, 2, 4}. Appending a SymPy identity does not normalize existing entries. The added tests contain only SymPy symbols, so they do not cover these previously accepted inputs.",
+      "path": "sympy/polys/monomials.py",
+      "line": 60,
+      "evidence": "variables = list(variables) + [S(1)]\nif all(variable.is_commutative for variable in variables):",
+      "fix": "Sympify the supplied generators before inspecting their commutativity, preserving the previously accepted Python numeric inputs.",
+      "test": "Add exact-result regressions for itermonomials([x, 1], 2) == {S.One, x, x**2} and itermonomials([2], 2) == {S.One, S(2), S(4)}.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 59,
+          "symbol": "itermonomials: copy generators without sympification"
+        },
+        {
+          "path": "sympy/polys/monomials.py",
+          "line": 60,
+          "symbol": "itermonomials: access is_commutative"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

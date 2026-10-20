@@ -1,0 +1,168 @@
+{
+  "id": "scikit-learn__scikit-learn-25826",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 25826,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 101702,
+  "llm_calls": 5,
+  "input_tokens": 60949,
+  "output_tokens": 4054,
+  "total_tokens": 65003,
+  "instruction_calls": 5,
+  "instruction_tokens": 4270,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 341,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 165,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-hierarchy-size-remapping",
+      "severity": "medium",
+      "title": "Initialize remapped cluster sizes from cluster_size, not merge distance",
+      "explanation": "The old implementation initialized last_cluster_size from the linkage size column; the replacement reads the merge distance instead. For three finite samples and one non-finite sample, the appended merge must have cluster_size=4, independent of the distances. A final merge distance of 0.5 instead produces an integer size of 1. More importantly, a valid merge distance of 1e20 is outside np.intp's range, so assigning last_cluster_size + 1 to the structured cluster_size field raises OverflowError. This makes non-finite-sample remapping fail for otherwise valid large-scale inputs, whereas the previous float-array implementation appended the actual sample count. A supported triggering input is HDBSCAN(min_cluster_size=2, min_samples=1, algorithm='brute').fit([[0.0], [1e20], [2e20], [np.nan]]). The normal condensation and labeling paths run before this remapping; cut-based labeling's independent count calculation does not prevent this assignment failure.",
+      "path": "sklearn/cluster/_hdbscan/hdbscan.py",
+      "line": 239,
+      "evidence": "last_cluster_size = tree[tree.shape[0] - 1][\"value\"]\nfor i, outlier in enumerate(non_finite):\n    outlier_tree[i] = (outlier, last_cluster_id + 1, np.inf, last_cluster_size + 1)",
+      "fix": "Read tree[-1][\"cluster_size\"] when initializing last_cluster_size. Continue incrementing that integer count for each appended non-finite sample.",
+      "test": "Construct a HIERARCHY_dtype linkage with rows (0, 1, 1e20, 2) and (3, 2, 1e20, 3), identity internal_to_raw mapping, and non_finite=[3]. Assert remapping succeeds and the appended cluster_size is 4. Repeat with merge distance 0.5 and multiple non-finite samples, asserting appended sizes increase from the finite sample count to the total sample count. Add the large-scale HDBSCAN.fit regression with a NaN row and assert fitting succeeds and preserves the non-finite-sample label.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/cluster/_hdbscan/hdbscan.py",
+          "line": 239,
+          "symbol": "remap_single_linkage_tree"
+        },
+        {
+          "path": "sklearn/cluster/_hdbscan/hdbscan.py",
+          "line": 241,
+          "symbol": "assignment to outlier_tree[i].cluster_size"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-681",
+      "applied_rules": []
+    }
+  ]
+}

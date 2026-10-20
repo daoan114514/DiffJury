@@ -1,0 +1,179 @@
+{
+  "id": "sympy__sympy-18021",
+  "repository": "sympy/sympy",
+  "pull_request": 18021,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 82887,
+  "llm_calls": 5,
+  "input_tokens": 23483,
+  "output_tokens": 2322,
+  "total_tokens": 25805,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "api-compatibility",
+      "severity": "medium",
+      "title": "Identity swaps now raise instead of leaving the matrix unchanged",
+      "explanation": "Previously supported swap lists may contain identity swaps. For example, eye(2).permute_rows([[0, 0]]) previously returned eye(2): the old implementation executed mapping[0], mapping[0] = mapping[0], mapping[0], then constructed a permutation from that valid array. The new implementation passes [[0, 0]] directly to Permutation as cycle notation, which rejects repeated elements in a cycle with ValueError. The same regression affects column permutations, either direction, and identity swaps embedded in otherwise useful swap lists, such as [[0, 1], [1, 1]]. The existing bounds check does not exclude these inputs. The new guards in invariant_factors avoid generating this particular input when the leading entry is already nonzero, but only protect that caller; they do not preserve the public matrix permutation API. Ordinary overlapping swaps retain their previous composition order because reversing the cycle list compensates for Permutation's product convention, and the newly documented treatment of longer cycles is not the issue here.",
+      "path": "sympy/matrices/common.py",
+      "line": 1940,
+      "evidence": "            perm = Permutation(perm, size=max_index)",
+      "fix": "Preserve identity-swap compatibility by omitting two-element cycles whose endpoints are equal before passing the cycle list to Permutation, while retaining the requested size when all cycles disappear. Alternatively, retain the old explicit mapping construction for swap-list inputs.",
+      "test": "Assert that eye(2).permute_rows([[0, 0]]) and eye(2).permute_cols([[0, 0]]) return eye(2), for both directions. Also verify that [[0, 1], [1, 1]] produces the same result as [[0, 1]]. Keep invariant-factor tests covering an already nonzero leading entry and cases requiring a row or column pivot.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1960,
+          "symbol": "MatrixOperations.permute_rows"
+        },
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1812,
+          "symbol": "MatrixOperations.permute"
+        },
+        {
+          "path": "sympy/matrices/common.py",
+          "line": 1940,
+          "symbol": "Permutation construction from the cycle list"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "id": "scikit-learn__scikit-learn-25108",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 25108,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/metrics/_ranking.py",
+      "line": 911,
+      "cwe": "CWE-20",
+      "rule_id": "parameter-validation-public-api",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 52340,
+  "llm_calls": 5,
+  "input_tokens": 10532,
+  "output_tokens": 2203,
+  "total_tokens": 12735,
+  "instruction_calls": 5,
+  "instruction_tokens": 4275,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 346,
+      "knowledge_ids": [
+        "K-fe66117a",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fe66117a",
+          "K-fc6f5674"
+        ],
+        "tokens": 170,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "parameter-validation-public-api",
+      "severity": "medium",
+      "title": "Preserve floating-point positive labels in roc_curve",
+      "explanation": "The new constraint rejects floating-point pos_label values, although roc_curve documents pos_label as int, float, bool, str, or None and previously supported floats. For example, roc_curve([0, 1], [0.2, 0.8], pos_label=1.0) previously returned a valid ROC curve; the new decorator rejects it before the function executes because 1.0 is neither Integral nor str. Downstream, _binary_clf_curve accepts these binary targets and identifies positives by comparing y_true with pos_label, so this value needs no coercion or special handling. NumPy floating-point labels are likewise excluded. Registering roc_curve in PARAM_VALIDATION_FUNCTION_LIST does not itself establish coverage for this previously supported input: tests against the declared constraints need a separate compatibility case to catch an incorrectly narrowed constraint. The sparse-matrix allowance is not a separate demonstrated regression: accepting a value at the decorator does not establish that the existing downstream implementation supports it.",
+      "path": "sklearn/metrics/_ranking.py",
+      "line": 911,
+      "evidence": "\"pos_label\": [Integral, str, None],",
+      "fix": "Use a real-number constraint that includes Python and NumPy floating-point values, such as numbers.Real, alongside str and None, preserving the documented numeric-label contract.",
+      "test": "Add a compatibility regression test calling roc_curve([0, 1], [0.2, 0.8], pos_label=1.0), asserting fpr=[0, 0, 1] and tpr=[0, 1, 1]. Parameterize pos_label with float, np.float32, np.float64, int, and np.int32, and verify equivalent results. The unchanged function body, accessible through roc_curve.__wrapped__, can also demonstrate the decorator-only regression.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/metrics/_ranking.py",
+          "line": 907,
+          "symbol": "roc_curve parameter-validation decorator"
+        },
+        {
+          "path": "sklearn/metrics/_ranking.py",
+          "line": 916,
+          "symbol": "roc_curve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

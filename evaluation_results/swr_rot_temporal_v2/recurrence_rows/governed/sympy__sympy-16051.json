@@ -1,0 +1,197 @@
+{
+  "id": "sympy__sympy-16051",
+  "repository": "sympy/sympy",
+  "pull_request": 16051,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 99405,
+  "llm_calls": 5,
+  "input_tokens": 40160,
+  "output_tokens": 3413,
+  "total_tokens": 43573,
+  "instruction_calls": 5,
+  "instruction_tokens": 2949,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1330,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "symbolic-truth-value-coercion",
+      "severity": "medium",
+      "title": "Branch continuation of expint now raises for symbolic integer orders",
+      "explanation": "For an integer symbol whose sign is unknown, nu.is_integer is True but nu > 0 remains an unevaluated relational. A public-API counterexample is `n = Symbol('n', integer=True); z = Symbol('z'); expint(n, z*exp_polar(2*pi*I))`. The polar factor supplies a nonzero branch index, so evaluation passes the `if n == 0` guard and reaches the changed expression. Previously, `(nu > 0) != True` recognized that positivity was not established and returned without applying the positive-integer continuation formula. The replacement attempts to convert the undecidable relational to a Python boolean and raises TypeError instead of returning a valid symbolic expression. This conclusion follows from the reachable evaluation path; no execution tools were available.",
+      "path": "sympy/functions/special/error_functions.py",
+      "line": 1221,
+      "evidence": "        if nu.is_integer:\n            if not nu > 0:\n                return",
+      "fix": "Preserve the explicit established-truth test, for example `if (nu > 0) != True: return`, rather than coercing the symbolic comparison to bool.",
+      "test": "Construct expint with an integer symbol of unknown sign and an argument containing exp_polar(2*pi*I); assert construction succeeds and retains the unevaluated symbolic expression. Also retain tests for positive and nonpositive concrete integer orders.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/error_functions.py",
+          "line": 1218,
+          "symbol": "expint.eval"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "symbolic-truth-value-coercion",
+      "severity": "medium",
+      "title": "Union simplification now coerces undecidable membership to bool",
+      "explanation": "The preceding `any` guard establishes only that at least one finite-set element belongs to b; it does not establish decidable membership for every element. For example, `x = Symbol('x', real=True); Union(FiniteSet(0, x), Interval(0, oo))` reaches this branch because the interval contains 0. Membership of x remains the symbolic relation x >= 0. Previously, `b.contains(x) != True` retained x because its membership was not established, allowing the result to remain a symbolic union. The new `not b.contains(x)` invokes the relational's Python truth conversion and raises TypeError. A valid union containing both a definitely included element and an undecidable element therefore fails to construct. This conclusion follows from the supplied handler and concrete call path; no execution tools were available.",
+      "path": "sympy/sets/handlers/union.py",
+      "line": 113,
+      "evidence": "    if any(b.contains(x) == True for x in a):\n        return set((\n            FiniteSet(*[x for x in a if not b.contains(x)]), b))",
+      "fix": "Retain elements unless membership is explicitly true, preserving the previous `b.contains(x) != True` predicate rather than using Python negation.",
+      "test": "Construct Union(FiniteSet(0, x), Interval(0, oo)) for a real symbol x with unknown sign. Assert construction does not raise and equals Union(FiniteSet(x), Interval(0, oo)); the definitely included 0 should be removed while x remains.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 110,
+          "symbol": "union_sets"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

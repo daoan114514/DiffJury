@@ -1,0 +1,184 @@
+{
+  "id": "astropy__astropy-17461",
+  "repository": "astropy/astropy",
+  "pull_request": 17461,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 66138,
+  "llm_calls": 5,
+  "input_tokens": 14893,
+  "output_tokens": 2564,
+  "total_tokens": 17457,
+  "instruction_calls": 5,
+  "instruction_tokens": 4684,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2887,
+      "knowledge_ids": [
+        "K-679741fc",
+        "K-a148283a",
+        "K-c4e95643",
+        "K-345791ff",
+        "K-0b7c4492",
+        "K-f2888e47"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 469,
+      "knowledge_ids": [
+        "K-6464d4ae",
+        "K-0519c1fe",
+        "K-6bace452",
+        "K-0683c9f6"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0519c1fe",
+      "K-0683c9f6",
+      "K-0b7c4492",
+      "K-345791ff",
+      "K-6464d4ae",
+      "K-679741fc",
+      "K-6bace452",
+      "K-a148283a",
+      "K-c4e95643",
+      "K-f2888e47"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-679741fc",
+          "K-a148283a",
+          "K-c4e95643",
+          "K-345791ff",
+          "K-0b7c4492",
+          "K-f2888e47"
+        ],
+        "tokens": 397,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-6464d4ae",
+          "K-0519c1fe",
+          "K-6bace452",
+          "K-0683c9f6"
+        ],
+        "tokens": 293,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "configuration-cache-coherence",
+      "severity": "medium",
+      "title": "Direct configuration updates leave cached namespace values stale",
+      "explanation": "The new descriptor cache is updated by ConfigItem.set() and cleared by ConfigItem.reload(), but mutations through the public get_config() API do neither. A supported reproduction is to define `class Conf(ConfigNamespace): item = ConfigItem(1, module=\"astropy.cache_probe\")`, instantiate it, read `conf.item`, and then execute `get_config(\"astropy.cache_probe\")[\"item\"] = 2`. Subsequent `conf.item` reads return the cached 1 instead of the configuration's 2. Previously, __get__ called self() on every access, so it consulted the updated configuration. This also creates disagreement between descriptor access and direct ConfigItem calls. The supplied context contains no surrounding implementation or existing tests, so existing test coverage and additional alias, rootname, or initialization concerns could not be independently verified.",
+      "path": "astropy/config/configuration.py",
+      "line": 332,
+      "evidence": "        try:\n            val = self.value\n        except AttributeError:\n            val = self.value = self()\n        return val",
+      "fix": "Preserve coherence with the ConfigObj returned by get_config(): invalidate descriptor caches on underlying configuration mutations, or retain configuration-backed reads until an invalidation mechanism covers this public mutation path.",
+      "test": "Define a ConfigNamespace with an explicitly specified module, populate its descriptor cache by reading the item, mutate that item's entry through get_config(module), and assert that both the namespace attribute and the direct ConfigItem call return the updated value without an explicit item reload.",
+      "confidence": 0.8099999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/config/configuration.py",
+          "line": 326,
+          "symbol": "ConfigItem.__get__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

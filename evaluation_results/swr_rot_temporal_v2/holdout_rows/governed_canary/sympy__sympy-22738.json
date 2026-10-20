@@ -1,0 +1,219 @@
+{
+  "id": "sympy__sympy-22738",
+  "repository": "sympy/sympy",
+  "pull_request": 22738,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 66879,
+  "llm_calls": 5,
+  "input_tokens": 23747,
+  "output_tokens": 2856,
+  "total_tokens": 26603,
+  "instruction_calls": 5,
+  "instruction_tokens": 6026,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2838,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1363,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 807,
+      "knowledge_ids": [
+        "K-a077c313",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-cde9c599",
+        "K-4e7d5d6b",
+        "K-03e5723b",
+        "K-11de6ec1",
+        "K-86d0b57a",
+        "K-7609a0f4"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-03e5723b",
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-4e7d5d6b",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-86d0b57a",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-cde9c599"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-87ee2eda",
+          "K-a9677d2d",
+          "K-4f9662f0",
+          "K-1f002951",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 420,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-cde9c599",
+          "K-4e7d5d6b",
+          "K-03e5723b",
+          "K-11de6ec1",
+          "K-86d0b57a",
+          "K-7609a0f4"
+        ],
+        "tokens": 631,
+        "budget": 600,
+        "dropped": [
+          "K-60ce9e38",
+          "K-bc43ffcf",
+          "K-10578218",
+          "K-8184713c",
+          "K-2545551e",
+          "K-962b000c",
+          "K-8810c414",
+          "K-d778c4a2",
+          "K-9d754682",
+          "K-e4a5fbd0",
+          "K-ac2e3c0d"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "latex-text-mode-escaping",
+      "severity": "low",
+      "title": "Argument-free Basic objects can emit math scripts inside text mode",
+      "explanation": "The new argument-free branch puts the result of _deal_with_super_sub into \\text, although that helper generates math-mode superscripts and subscripts. A concrete input is C = type('UnimplementedExpr_x^1', (Basic,), {}); latex(C()). The changed code produces \\text{UnimplementedExpr^{1}_{x}}, whose unescaped ^ and _ are invalid in LaTeX text mode. Previously the formatted name remained in math mode, followed by empty parentheses. Removing those parentheses is an intentional formatting change, but introducing invalid text-mode contents is not. The modified test at line 2695 establishes the superscript/subscript transformation for this exact class name, but only exercises an argument-bearing object and therefore misses the new branch.",
+      "path": "sympy/printing/latex.py",
+      "line": 366,
+      "evidence": "name = self._deal_with_super_sub(expr.__class__.__name__)\nif expr.args:\n    ls = [self._print(o) for o in expr.args]\n    s = r\"\\operatorname{{{}}}\\left({}\\right)\"\n    return s.format(name, \", \".join(ls))\nelse:\n    return r\"\\text{{{}}}\".format(name)",
+      "fix": "For the argument-free branch, either escape the original class name with latex_escape before placing it in \\text, or keep the transformed name in a math-mode wrapper such as \\operatorname.",
+      "test": "Add an argument-free Basic subclass named UnimplementedExpr_x^1 and invoke latex on its instance. Assert the exact escaped text representation or, if retaining mathematical name formatting, \\operatorname{UnimplementedExpr^{1}_{x}}. Include an ordinary argument-free class to preserve the intended no-parentheses behavior.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 359,
+          "symbol": "LatexPrinter._print_Basic"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ]
+}

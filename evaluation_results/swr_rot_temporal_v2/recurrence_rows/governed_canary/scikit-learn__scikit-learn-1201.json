@@ -1,0 +1,238 @@
+{
+  "id": "scikit-learn__scikit-learn-1201",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 1201,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 124421,
+  "llm_calls": 5,
+  "input_tokens": 15464,
+  "output_tokens": 3444,
+  "total_tokens": 18908,
+  "instruction_calls": 5,
+  "instruction_tokens": 5183,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3096,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-3c8dfccb",
+        "K-8828df10",
+        "K-24ae43fa",
+        "K-a62a9e09",
+        "K-eb2105bb",
+        "K-60a0fdd6",
+        "K-0a2298e4",
+        "K-1c8d031b",
+        "K-f32f49ff"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 759,
+      "knowledge_ids": [
+        "K-fc6f5674",
+        "K-51e6bbd9",
+        "K-d8b204bc",
+        "K-0f45b787",
+        "K-1617cbdc",
+        "K-3636a06a",
+        "K-69a7f4ef",
+        "K-9ecad403",
+        "K-6d7b0522"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-1c8d031b",
+      "K-24ae43fa",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-60a0fdd6",
+      "K-69a7f4ef",
+      "K-6d7b0522",
+      "K-8828df10",
+      "K-9ecad403",
+      "K-a62a9e09",
+      "K-d8b204bc",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-3c8dfccb",
+          "K-8828df10",
+          "K-24ae43fa",
+          "K-a62a9e09",
+          "K-eb2105bb",
+          "K-60a0fdd6",
+          "K-0a2298e4",
+          "K-1c8d031b",
+          "K-f32f49ff"
+        ],
+        "tokens": 606,
+        "budget": 600,
+        "dropped": [
+          "K-4d5756a5",
+          "K-651ca0b6"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fc6f5674",
+          "K-51e6bbd9",
+          "K-d8b204bc",
+          "K-0f45b787",
+          "K-1617cbdc",
+          "K-3636a06a",
+          "K-69a7f4ef",
+          "K-9ecad403",
+          "K-6d7b0522"
+        ],
+        "tokens": 583,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "falsey-outlier-label-not-restored",
+      "severity": "medium",
+      "title": "Restore configured outlier labels even when their value is zero",
+      "explanation": "The new prediction path maps every mode through classes_, but restores the configured outlier label only when that label is truthy. Consider fitting RadiusNeighborsClassifier(radius=0.1, outlier_label=0) on X=[[0.0], [1.0]], y=[10, 20], then predicting X=[[100.0]]. The expected prediction is [0]. After the new classes_.take operation, every successfully mapped value must belong to {10, 20}; the false condition at line 318 then prevents replacing that value with 0. Thus this path cannot return the configured outlier label, irrespective of which valid sentinel index the preceding outlier handling supplies. If that handling supplies an invalid index, take fails before restoration instead. Previously the return path did not map the outlier mode through the training classes. This also explains why testing only consecutive labels containing zero can hide the regression. The provided diff omits the preceding outlier-mode initialization, so the precise incorrect training label or exception cannot be established from this evidence; the failure to produce the configured zero is nevertheless guaranteed by the changed operations.",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 318,
+      "evidence": "        prediction = self.classes_.take(modes)\n        if self.outlier_label:\n            # reset outlier label\n            prediction[modes == outlier_label] = self.outlier_label",
+      "fix": "Check self.outlier_label is not None rather than its truth value. Ensure outlier positions are excluded from class-index lookup, or use a guaranteed valid temporary index before restoring the configured label.",
+      "test": "Fit RadiusNeighborsClassifier(radius=0.1, outlier_label=0) with X=[[0.0], [1.0]] and y=[10, 20]. Assert that predict([[100.0]]) returns [0], and that a mixed query containing an inlier and an outlier returns [10, 0]. Repeat with string training labels to ensure zero is restored rather than replaced by a training class or coerced to a string.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit: self.classes_, self._y = unique(y, return_inverse=True)"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 317,
+          "symbol": "RadiusNeighborsClassifier.predict: map modes through classes_"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 318,
+          "symbol": "RadiusNeighborsClassifier.predict: conditionally restore outlier label"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

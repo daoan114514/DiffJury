@@ -1,0 +1,203 @@
+{
+  "id": "sympy__sympy-755",
+  "repository": "sympy/sympy",
+  "pull_request": 755,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 120981,
+  "llm_calls": 5,
+  "input_tokens": 19465,
+  "output_tokens": 4005,
+  "total_tokens": 23470,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "boolean-latex-implication-grouping",
+      "severity": "medium",
+      "title": "Nested implications with different meanings receive identical LaTeX",
+      "explanation": "For retained nested implications, Implies(Implies(x, y), z) and Implies(x, Implies(y, z)) both render as 'x \\Rightarrow y \\Rightarrow z'. The explicit code-path trace substitutes the unparenthesized output of the inner _print_Implies into the outer _print_Implies. These expressions are not equivalent: at x=False, y=True, z=False, the first is false and the second is true. Regardless of the reader's association convention, the identical output cannot preserve both expression trees. Expected output must distinguish '\\left(x \\Rightarrow y\\right) \\Rightarrow z' from 'x \\Rightarrow \\left(y \\Rightarrow z\\right)'. The added test exercises only Implies(x, y), leaving both nested cases untested. This is a static trace, not an executed reproduction; the supplied context does not include the constructor implementation needed to independently confirm retention of these trees.",
+      "path": "sympy/printing/latex.py",
+      "line": 532,
+      "evidence": "return r\"%s \\Rightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Apply precedence-aware grouping to implication operands, explicitly preserving nested implication and equivalence boundaries. Apply the corresponding grouping rule to operands printed by _print_Equivalent as well.",
+      "test": "Construct both nested implication trees through the repository's real constructors, confirm that they remain distinct, and assert their distinct, correctly grouped LaTeX. Include implication/equivalence nesting in both operand positions.",
+      "confidence": 0.8,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 532,
+          "symbol": "LatexPrinter._print_Implies recursively prints each operand"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boolean-latex-equivalent-arity",
+      "severity": "medium",
+      "title": "Equivalent printer silently discards operands after the second",
+      "explanation": "The implementation reads only e.args[0] and e.args[1]; every remaining argument is ignored. For a three-argument Equivalent whose args are (x, y, z), the explicit code-path result is 'x \\Leftrightarrow y', omitting z entirely. Equivalent(x, y, z) denotes agreement of all three operands, whereas the output only requires agreement of the first two. At x=True, y=True, z=False, those results differ. A semantically explicit expected rendering is '\\left(x \\Leftrightarrow y\\right) \\wedge \\left(y \\Leftrightarrow z\\right)'; simply joining three operands with an ungrouped biconditional chain is not a safe replacement because binary biconditional composition does not express all-equal semantics. No added test exercises Equivalent, including its multi-argument case. This is a diff-only static finding: the supplied material does not contain the Equivalent constructor, so repository-specific acceptance and retention of three distinct operands could not be independently verified in this no-tool review.",
+      "path": "sympy/printing/latex.py",
+      "line": 535,
+      "evidence": "return r\"%s \\Leftrightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Handle every retained Equivalent operand and preserve its all-equal semantics, for example by rendering a conjunction of grouped pairwise equivalences. Keep the binary case correctly grouped when its operands are compound expressions.",
+      "test": "First verify Equivalent(x, y, z).args contains three distinct operands in this repository. Then assert that latex renders all operands with all-equal semantics. Cover binary Equivalent, three- and four-argument Equivalent, nested Boolean operands, and constructor simplification of duplicate operands.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 534,
+          "symbol": "LatexPrinter._print_Equivalent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

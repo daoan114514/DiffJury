@@ -1,0 +1,498 @@
+{
+  "id": "sympy__sympy-14145",
+  "repository": "sympy/sympy",
+  "pull_request": 14145,
+  "split": "train",
+  "expected": 1,
+  "predicted": 7,
+  "tp": 0,
+  "fp": 7,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 7,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 361564,
+  "llm_calls": 6,
+  "input_tokens": 70692,
+  "output_tokens": 8172,
+  "total_tokens": 78864,
+  "instruction_calls": 6,
+  "instruction_tokens": 8104,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 7,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2992,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-7e90bf29",
+        "K-87ee2eda",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-b9cfc827",
+        "K-2b8fec11",
+        "K-4feced24",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2992,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-7e90bf29",
+        "K-87ee2eda",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-b9cfc827",
+        "K-2b8fec11",
+        "K-4feced24",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 792,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-d778c4a2",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-2b8fec11",
+      "K-4f9662f0",
+      "K-4feced24",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf",
+      "K-d778c4a2"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-7e90bf29",
+          "K-87ee2eda",
+          "K-a9677d2d",
+          "K-4f9662f0",
+          "K-1f002951",
+          "K-b9cfc827",
+          "K-2b8fec11",
+          "K-4feced24",
+          "K-a4c9356f"
+        ],
+        "tokens": 574,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-d778c4a2",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1"
+        ],
+        "tokens": 616,
+        "budget": 600,
+        "dropped": [
+          "K-cde9c599",
+          "K-4e30e572",
+          "K-8810c414",
+          "K-4e7d5d6b",
+          "K-9d754682",
+          "K-8184713c",
+          "K-60ce9e38",
+          "K-be32699b",
+          "K-03e5723b",
+          "K-10578218",
+          "K-962b000c",
+          "K-86d0b57a",
+          "K-e4a5fbd0",
+          "K-f00ce49b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "imageset-latex-productset-domain",
+      "severity": "medium",
+      "title": "LaTeX drops bound variables for existing ProductSet-based ImageSets",
+      "explanation": "The previously supported construction ImageSet(Lambda((x, y), x + y), ProductSet(S.Integers, S.Naturals)) still reaches this printer: the constructor accepts a multivariate Lambda with a single ProductSet argument and does not normalize that representation. Calling latex on it now pairs only x with the entire ProductSet because zip receives two variables but just one domain argument. The rendered constraint is consequently x ∈ ℤ × ℕ, with y appearing in the image expression but having no binding. The expected constraint must bind both variables, for example (x, y) ∈ ℤ × ℕ, or x ∈ ℤ, y ∈ ℕ. Previously the printer included both variables before the membership relation. The new two-separate-domains test cannot detect this loss because its variable and domain counts match.",
+      "path": "sympy/printing/latex.py",
+      "line": 1752,
+      "evidence": "sets = s.args[1:]\n        varsets = [r\"%s \\in %s\" % (self._print(var), self._print(setv))\n            for var, setv in zip(s.lamda.variables, sets)]",
+      "fix": "Preserve the single-domain representation by printing the complete variable sequence against that domain, with tuple grouping for a multivariate mapping. Use individual variable/domain pairing only for the separate-domain representation.",
+      "test": "Add a latex regression test for ImageSet(Lambda((x, y), x + y), ProductSet(S.Integers, S.Naturals)) and assert that both x and y are bound to the appropriate domain. Retain the existing univariate assertion and the new separate-domain assertion.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/fancysets.py",
+          "line": 277,
+          "symbol": "ImageSet.__new__"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 1749,
+          "symbol": "LatexPrinter._print_ImageSet"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "imageset-pretty-single-variable-tuple",
+      "severity": "medium",
+      "title": "Pretty-printing turns a single bound variable into a tuple",
+      "explanation": "For ImageSet(Lambda(x, x**2), S.Naturals), pretty(image, use_unicode=False) should retain the scalar constraint x in Naturals. Previously variables was a prettyForm produced by _print_seq(ts.lamda.variables), which printed the variable sequence without tuple delimiters. It is now the raw Lambda variable tuple. The single-domain branch passes that tuple as one item to the outer _print_seq, so ordinary tuple printing adds tuple notation around x instead of printing the scalar variable. Thus the displayed membership constrains a one-element tuple rather than the x used in x**2. This affects ordinary univariate ImageSets in both ASCII and Unicode output, not merely the new multivariate feature. The added pretty-printer test takes the multiple-domain branch and does not exercise this regression.",
+      "path": "sympy/printing/pretty/pretty.py",
+      "line": 1730,
+      "evidence": "variables = ts.lamda.variables\n        expr = self._print(ts.lamda.expr)\n        bar = self._print(\"|\")\n        sets = [self._print(i) for i in ts.args[1:]]\n        if len(sets) == 1:\n            return self._print_seq((expr, bar, variables, inn, sets[0]), \"{\", \"}\", ' ')",
+      "fix": "Restore explicit sequence rendering in the single-domain branch, or print variables[0] directly when there is one variable. Keep the raw variables available separately for the multiple-domain pairing branch.",
+      "test": "Add ASCII and Unicode assertions for pretty(ImageSet(Lambda(x, x**2), S.Naturals)). Assert that the membership left-hand side is scalar x without tuple punctuation, while retaining the new multiple-domain test.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/fancysets.py",
+          "line": 277,
+          "symbol": "ImageSet.__new__"
+        },
+        {
+          "path": "sympy/printing/pretty/pretty.py",
+          "line": 1725,
+          "symbol": "PrettyPrinter._print_ImageSet"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "preserve-lambda-binding-in-dispatch",
+      "severity": "medium",
+      "title": "The generic dispatcher changes Lambda bindings and rejects existing multivariate mappings",
+      "explanation": "Extending this fallback from FunctionClass to Lambda makes the unary wrapper unsafe. For example, with x and t ordinary Symbols, imageset(Lambda(t, t + x), S.Integers) reaches Set._eval_imageset, then SetExpr._eval_func and this dispatcher. Evaluating f(_x), where the module-level _x is Symbol('x'), produces 2*x; the returned mapping is Lambda(x, 2*x), which incorrectly captures the original free parameter x. Previously the default Set implementation retained the supplied Lambda. The same new route also calls multivariate Lambdas with only one argument: imageset(Lambda((x, y), x + y), ProductSet(FiniteSet(1), FiniteSet(2))) now fails at f(_x), instead of retaining the mapping over the product domain. Neither failure is an interval or intersection simplification issue.",
+      "path": "sympy/sets/dispatchers.py",
+      "line": 256,
+      "evidence": "@dispatch(FunctionUnion, Set)\ndef function_sets(f, x):\n    return ImageSet(Lambda(_x, f(_x)), x)",
+      "fix": "Give Lambda its own generic Set dispatch implementation that returns ImageSet(f, x) without evaluating or rebinding f. Retain the unary wrapper only for FunctionClass.",
+      "test": "Assert that imageset(Lambda(t, t + x), S.Integers) preserves x as a free symbol and preserves the mapping. Also regress the existing multivariate-Lambda-over-ProductSet call and verify it does not raise.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2122,
+          "symbol": "imageset"
+        },
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 557,
+          "symbol": "Set._eval_imageset"
+        },
+        {
+          "path": "sympy/sets/dispatchers.py",
+          "line": 258,
+          "symbol": "function_sets"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "migrate-imageset-domain-consumers",
+      "severity": "medium",
+      "title": "The new ImageSet storage leaves base_set consumers using only the first domain",
+      "explanation": "The constructor now stores each domain in a separate argument, but base_set still returns only self.args[1]. Existing consumers of the old representation therefore lose every domain after the first. In particular, ImageSet iteration operates on base_set: list(ImageSet(Lambda((x, y), x + y), FiniteSet(1, 2), FiniteSet(10))) needs to enumerate the product domain and produce 11 and 12, but instead obtains scalar inputs from FiniteSet(1, 2) for a two-argument Lambda. This also affects the changed arithmetic dispatchers, which previously supplied a ProductSet and now construct this incompatible representation. The new equality and printing tests do not exercise iteration.",
+      "path": "sympy/sets/fancysets.py",
+      "line": 277,
+      "evidence": "return Basic.__new__(cls, flambda, *sets)\n\n    lamda = property(lambda self: self.args[0])\n    base_set = property(lambda self: self.args[1])",
+      "fix": "Migrate the domain accessors and their iteration and membership consumers together. Expose all component domains and enumerate their Cartesian product when applying a multivariate Lambda; preserve the existing single-domain and ProductSet behavior.",
+      "test": "Iterate ImageSet(Lambda((x, y), x + y), FiniteSet(1, 2), FiniteSet(10)) and assert that its values are exactly {11, 12}. Add a corresponding regression for an arithmetic dispatcher that returns a multidomain ImageSet.",
+      "confidence": 0.8599999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/dispatchers.py",
+          "line": 15,
+          "symbol": "add_sets"
+        },
+        {
+          "path": "sympy/sets/fancysets.py",
+          "line": 277,
+          "symbol": "ImageSet.__new__"
+        },
+        {
+          "path": "sympy/sets/fancysets.py",
+          "line": 280,
+          "symbol": "ImageSet.base_set"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "production-debugger",
+      "severity": "medium",
+      "title": "Unexpected set-operation results now enter an interactive debugger",
+      "explanation": "The newly added error branch invokes pdb.set_trace() whenever dispatch_on_operation returns a non-Set result. Previously this condition failed immediately with an AssertionError; it now enters an interactive debugger first. In a process with interactive standard input, this can suspend execution and expose the current stack and local variables through the debugger. This is inappropriate for a library error path, including applications that process externally supplied symbolic expressions. The evidence establishes the conditional debugger entry, not remote debugger access.",
+      "path": "sympy/sets/setexpr.py",
+      "line": 127,
+      "evidence": "    if not isinstance(out, Set):\n        import pdb; pdb.set_trace()",
+      "fix": "Remove the debugger invocation and retain the assertion, or raise an explicit exception describing the invalid dispatch result.",
+      "test": "Stub dispatch_on_operation to return a non-Set result and verify that apply_operation raises the expected exception immediately without invoking pdb.set_trace or reading standard input.",
+      "confidence": 0.8500000000000001,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/setexpr.py",
+          "line": 125,
+          "symbol": "apply_operation: out = dispatch_on_operation(x, y, op)"
+        },
+        {
+          "path": "sympy/sets/setexpr.py",
+          "line": 126,
+          "symbol": "apply_operation: non-Set result branch"
+        },
+        {
+          "path": "sympy/sets/setexpr.py",
+          "line": 127,
+          "symbol": "pdb.set_trace"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-489",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "avoid-capture-in-multidomain-python-lambda",
+      "severity": "medium",
+      "title": "Generated multidomain variables capture free symbols in Python lambda closures",
+      "explanation": "The single-domain branch deliberately chooses a uniquely named variable, but the new multidomain branch uses ordinary Symbols named x1, x2, and so on. A closure can already contain those symbols. For example, with x1 = Symbol('x1'), imageset(lambda a, b: a + b + x1, FiniteSet(0), FiniteSet(0)) constructs Lambda((x1, x2), 2*x1 + x2). The free parameter x1 has become a bound variable: evaluating the stored Lambda at (0, 0) gives 0, whereas the requested function gives x1. The added test uses a closure without free symbols and does not expose this incorrect binding.",
+      "path": "sympy/sets/sets.py",
+      "line": 2107,
+      "evidence": "var = [Symbol('x%i' % (i+1)) for i in range(len(set_list))]\n                expr = f(*var)\n            f = Lambda(var, expr)",
+      "fix": "Use fresh Dummy variables for all arguments, or choose names after inspecting an evaluation with fresh placeholders so that none can collide with free symbols in the callable.",
+      "test": "Construct a two-domain imageset from a Python lambda closing over Symbol('x1'); assert that x1 remains free in the stored Lambda and that applying that Lambda to (0, 0) returns x1.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2107,
+          "symbol": "imageset"
+        },
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2109,
+          "symbol": "Lambda construction"
+        },
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2138,
+          "symbol": "ImageSet construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "empty-multidomain-image",
+      "severity": "medium",
+      "title": "Multidomain imagesets do not preserve the empty-domain invariant",
+      "explanation": "The new multidomain route skips all domain evaluation and directly constructs ImageSet. Its constructor simplifies a constant Lambda to a singleton before checking the domains. Consequently, imageset(Lambda((x, y), 1), S.EmptySet, S.Integers) returns FiniteSet(1), although the Cartesian input domain is empty and its image must be EmptySet. The existing single-domain imageset path handles this through EmptySet dispatch; the newly added route bypasses that protection. This is a concrete incorrect result, not merely an absence of simplification.",
+      "path": "sympy/sets/sets.py",
+      "line": 2138,
+      "evidence": "return ImageSet(f, *set_list)",
+      "fix": "Return EmptySet when any component domain is EmptySet, before constant-function simplification. Enforce this invariant in ImageSet construction as well so direct construction is consistent.",
+      "test": "Assert that constant and nonconstant multidomain imagesets are EmptySet when either the first or a later component domain is EmptySet.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2120,
+          "symbol": "imageset single-domain-only evaluation branch"
+        },
+        {
+          "path": "sympy/sets/sets.py",
+          "line": 2138,
+          "symbol": "imageset multidomain fallback"
+        },
+        {
+          "path": "sympy/sets/fancysets.py",
+          "line": 274,
+          "symbol": "ImageSet.__new__ constant simplification"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

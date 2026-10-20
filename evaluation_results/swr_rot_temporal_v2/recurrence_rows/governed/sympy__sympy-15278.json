@@ -1,0 +1,242 @@
+{
+  "id": "sympy__sympy-15278",
+  "repository": "sympy/sympy",
+  "pull_request": 15278,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 110424,
+  "llm_calls": 5,
+  "input_tokens": 82511,
+  "output_tokens": 4010,
+  "total_tokens": 86521,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "tensor-axis-order",
+      "severity": "medium",
+      "title": "Raising or lowering a nonleading axis swaps unrelated tensor axes",
+      "explanation": "For a rank-three array, contracting the metric with axis 2 produces axes [new_axis_2, old_axis_0, old_axis_1]. Swapping positions 0 and 2 then produces [old_axis_1, old_axis_0, new_axis_2], not the required [old_axis_0, old_axis_1, new_axis_2]. A concrete reproduction is TensExpr._match_indices_with_other_tensor(Array(list(range(8)), (2, 2, 2)), [i, j, -k], [i, j, k], {L: diag(1, -1)}), where i, j, k belong to L. The correctly lowered component at [0, 1, 0] is 2, but this implementation returns 4 because it exchanges the first two axes. This silently gives incorrect components whenever the converted axis is beyond position 1 and the intervening axes are not symmetric. This counterexample exercises the fully supplied helper implementation directly and does not depend on omitted extraction hunks.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2714,
+      "evidence": "array = tensorcontraction(tensorproduct(metric, array), (1, 2+pos))\n            permu = list(range(len(free_ind1)))\n            permu[0], permu[pos] = permu[pos], permu[0]\n            return permutedims(array, permu)",
+      "fix": "Move the leading metric-result axis back to position pos while preserving the relative order of all remaining axes. For example, construct the permutation as list(range(1, pos + 1)) + [0] + list(range(pos + 1, len(free_ind1))).",
+      "test": "Use a nonsymmetric 2-by-2-by-2 array with distinct entries and metric diag(1, -1). Independently raise and lower each axis, especially axis 2, and compare every component against an explicit metric sum. Include a rank-four case converting multiple axes.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2725,
+          "symbol": "contract_and_permute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "tensor-metric-selection",
+      "severity": "medium",
+      "title": "Reordered mixed-type indices use the metric of the wrong index type",
+      "explanation": "pos2up and pos2down contain positions in free_ind2, but index_types1 is constructed in free_ind1 order. Consequently, when the requested order differs from the array order, looking up index_types1[pos] can select another index's metric. For a concrete reproduction, let i belong to L, j belong to M, and call TensExpr._match_indices_with_other_tensor(Array([[1, 2], [3, 4]]), [-j, i], [i, j], {L: diag(1, 1), M: diag(2, 3)}). Lowering j records position 1, but index_types1 is [M, L], so the implementation applies L's identity metric. It returns [[1, 3], [2, 4]] instead of [[2, 6], [6, 12]]. Both metrics have the same shape, so no dimensional guard detects this incorrect result. Different dimensions can instead cause a contraction exception. This reproduction uses the fully visible helper rather than assuming behavior from the omitted extraction implementations.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2724,
+      "evidence": "index_types1 = [i.tensor_index_type for i in free_ind1]\n...\n                pos2 = free2remaining.index(-index1)\n...\n                    pos2down.append(pos2)\n...\n        for pos in pos2down:\n            metric = replacement_dict[index_types1[pos]]",
+      "fix": "Associate each recorded conversion position with the matched index's tensor_index_type, or select the type from free_ind2 at that position. Apply the same correction to the raising loop at line 2719.",
+      "test": "Add the mixed-type, reordered rank-two example with distinct metrics and assert the explicit expected components. Cover both raising and lowering, plus unequal index-type dimensions to ensure the correct metric shape is selected.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2724,
+          "symbol": "lower-index metric lookup"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-decorator-callable-lifetime",
+      "severity": "medium",
+      "title": "Warning-filter decorator executes tests during decoration and replaces them with None",
+      "explanation": "Applying this decorator evaluates filter_warnings_decorator(test_function) during module definition. Its f() call immediately executes the test inside the warning context, and the absence of a return statement makes the decorator return None. Python then binds the decorated test name to None rather than a callable. Thus decorated tests execute during module import instead of normal test execution and are unavailable to callable-based test collection; any assertion failure aborts import/collection rather than being reported as an individual test failure. The defect follows directly from the supplied decorator body. The supplied omitted-hunk summaries identify legacy-valued tests as consumers, but their complete decoration sites and the exact number of affected tests are not available in this review.",
+      "path": "sympy/tensor/tests/test_tensor.py",
+      "line": 23,
+      "evidence": "def filter_warnings_decorator(f):\n    with warnings.catch_warnings():\n        warnings.filterwarnings(\"ignore\", category=SymPyDeprecationWarning)\n        f()",
+      "fix": "Return a wrapper that enters warnings.catch_warnings and invokes f only when the wrapper is called. Preserve the original function metadata with functools.wraps.",
+      "test": "Decorate a function that records calls and assert that decoration makes no calls and returns a callable. Invoke the returned callable and assert exactly one call with the warning suppressed. Verify collection retains decorated legacy tests as individual test functions.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 20,
+          "symbol": "filter_warnings_decorator"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 23,
+          "symbol": "f"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

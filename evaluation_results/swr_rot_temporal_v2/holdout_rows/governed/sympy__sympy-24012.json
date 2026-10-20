@@ -1,0 +1,217 @@
+{
+  "id": "sympy__sympy-24012",
+  "repository": "sympy/sympy",
+  "pull_request": 24012,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 1,
+      "path": "sympy/functions/special/gamma_functions.py",
+      "line": 876,
+      "cwe": "CWE-682",
+      "rule_id": "CORRECTNESS_NUMERICAL_PRECISION",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 120089,
+  "llm_calls": 5,
+  "input_tokens": 39138,
+  "output_tokens": 4831,
+  "total_tokens": 43969,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "CORRECTNESS_SYMBOLIC_ASSUMPTIONS",
+      "severity": "medium",
+      "title": "Odd-order positivity now includes real poles",
+      "explanation": "The new condition asserts positivity for every real argument of a positive odd-order polygamma, including its poles. A concrete symbolic input is k = Symbol('k', integer=True, negative=True), p = polygamma(1, k). This input remains unevaluated because k is not a numeric literal, but the changed positivity handler returns True. Trigamma has a pole at every possible value of k, so it is not a finite positive real number. This also contradicts the existing _eval_is_complex handler, which explicitly excludes negative-integer arguments. Positivity can propagate incorrect finiteness and realness assumptions into simplification. The old positive-argument guard excluded this case; the newly added numerical tests only use nonsingular arguments.",
+      "path": "sympy/functions/special/gamma_functions.py",
+      "line": 733,
+      "evidence": "if n.is_positive:\n            if n.is_odd and z.is_real:\n                return True",
+      "fix": "Only assert odd-order positivity when the real argument is provably outside the nonpositive integers. Preserve the positive-argument case, and return unknown when pole exclusion cannot be established.",
+      "test": "For a negative-integer symbol k, verify that polygamma(1, k) is not classified as positive or finite. For an unrestricted real symbol x, do not assert positivity without excluding poles. Retain positive results for positive arguments and nonsingular negative rational arguments.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/gamma_functions.py",
+          "line": 672,
+          "symbol": "polygamma.eval"
+        },
+        {
+          "path": "sympy/functions/special/gamma_functions.py",
+          "line": 730,
+          "symbol": "polygamma._eval_is_positive"
+        },
+        {
+          "path": "sympy/functions/special/gamma_functions.py",
+          "line": 725,
+          "symbol": "polygamma._eval_is_complex"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "CORRECTNESS_NUMERICAL_PRECISION",
+      "severity": "medium",
+      "title": "Fixed working precision sends small nonzero orders to the zeta pole",
+      "explanation": "For polygamma(Rational(1, 10**100), 1).evalf(15), s remains nonzero after conversion, so the integer-order shortcut is not taken. However, at prec+12 working bits, s+1 rounds exactly to 1. Line 876 therefore evaluates mp.zeta(1, 1), a pole, rather than a regular generalized-polygamma value. The documented generalized function has a removable singularity in its order at zero and approaches digamma(1) = -EulerGamma; this input should consequently produce a finite result agreeing with -EulerGamma to all 15 requested digits. Even before s+1 rounds to 1, cancellation between the derivative-zeta and digamma*zeta terms can consume substantially more than the fixed 12 guard bits. The new numerical tests use orders away from this cancellation boundary and do not expose this failure.",
+      "path": "sympy/functions/special/gamma_functions.py",
+      "line": 876,
+      "evidence": "with workprec(prec+12):\n            if mp.isint(s) and s >= 0:\n                res = mp.polygamma(s, z)\n            else:\n                zt = mp.zeta(s+1, z)\n                dzt = mp.zeta(s+1, z, 1)\n                res = (dzt + (mp.euler + mp.digamma(-s)) * zt) * mp.rgamma(-s)",
+      "fix": "Evaluate the removable order singularity using a stable local expansion, or adaptively increase working precision to preserve s+1 and recover the digits lost to cancellation. Do not rely on a constant number of guard bits for this formula.",
+      "test": "Evaluate polygamma(Rational(1, 10**100), 1) at 15 and 50 digits; require a finite result agreeing with -EulerGamma at the requested precision. Also test small positive and negative nonzero orders for accuracy against a substantially higher-precision evaluation of the documented formula.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/gamma_functions.py",
+          "line": 867,
+          "symbol": "polygamma._eval_evalf"
+        },
+        {
+          "path": "sympy/functions/special/gamma_functions.py",
+          "line": 872,
+          "symbol": "workprec"
+        },
+        {
+          "path": "sympy/functions/special/gamma_functions.py",
+          "line": 876,
+          "symbol": "mp.zeta"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

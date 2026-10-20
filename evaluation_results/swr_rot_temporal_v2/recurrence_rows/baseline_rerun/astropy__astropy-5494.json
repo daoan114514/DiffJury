@@ -1,0 +1,154 @@
+{
+  "id": "astropy__astropy-5494",
+  "repository": "astropy/astropy",
+  "pull_request": 5494,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "cwe": "CWE-440",
+      "rule_id": "ignored-coordsys-argument",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 86332,
+  "llm_calls": 5,
+  "input_tokens": 17787,
+  "output_tokens": 2458,
+  "total_tokens": 20245,
+  "instruction_calls": 5,
+  "instruction_tokens": 6138,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "reliability-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "ignored-coordsys-argument",
+      "severity": "medium",
+      "title": "The new coordsys argument never affects the output",
+      "explanation": "The public signature adds coordsys=None and its documentation says radesys is used only when coordsys is unspecified. However, the writer unconditionally serializes self.wcs.radesys. For the ICRS WCS in the changed test, footprint_to_file(testfile, coordsys='FK5', color='red') therefore writes ICRS instead of the requested FK5 declaration. The new test explicitly expects ICRS at line 624, so it encodes the defect rather than detecting it. This is an observable failure of the newly introduced argument, not a compatibility objection to intentionally overwriting the file: the second call's four-line assertion independently verifies replacement semantics.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 2664,
+      "evidence": "f.write('{}\\n'.format(self.wcs.radesys))",
+      "fix": "Resolve the declaration from coordsys when it is not None, using the inferred default only when it is omitted. Write that resolved value instead of unconditionally writing self.wcs.radesys.",
+      "test": "Change the assertion at test_wcs.py:624 to expect 'FK5\\n' after the explicit FK5 call, while retaining the first call's ICRS assertion and the four-line checks that verify intentional overwrite behavior.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/tests/test_wcs.py",
+          "line": 618,
+          "symbol": "w.footprint_to_file(testfile, coordsys='FK5', color='red')"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2632,
+          "symbol": "WCS.footprint_to_file"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 2664,
+          "symbol": "coordinate-system declaration write"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

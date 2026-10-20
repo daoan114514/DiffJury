@@ -1,0 +1,274 @@
+{
+  "id": "sympy__sympy-9856",
+  "repository": "sympy/sympy",
+  "pull_request": 9856,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 127220,
+  "llm_calls": 5,
+  "input_tokens": 27031,
+  "output_tokens": 4623,
+  "total_tokens": 31654,
+  "instruction_calls": 5,
+  "instruction_tokens": 4515,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2393,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-87ee2eda",
+        "K-7e90bf29",
+        "K-1f002951",
+        "K-b9cfc827",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "check-symbolic-assumptions-versus-concrete-types",
+        "test-quality"
+      ],
+      "skill_body_tokens": 1582
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 794,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-10578218",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0bb3b558",
+      "K-10578218",
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-a9677d2d",
+          "K-4f9662f0",
+          "K-87ee2eda",
+          "K-7e90bf29",
+          "K-1f002951",
+          "K-b9cfc827",
+          "K-a4c9356f"
+        ],
+        "tokens": 477,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-10578218",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1"
+        ],
+        "tokens": 618,
+        "budget": 600,
+        "dropped": [
+          "K-8184713c",
+          "K-9d754682",
+          "K-8810c414",
+          "K-4e30e572",
+          "K-cde9c599",
+          "K-e4a5fbd0",
+          "K-60ce9e38",
+          "K-962b000c",
+          "K-4e7d5d6b",
+          "K-d778c4a2",
+          "K-86d0b57a"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "rising-factorial-falling-factorial-polynomial",
+      "severity": "medium",
+      "title": "Falling-factorial rewrite does not preserve polynomial-base shift semantics",
+      "explanation": "RisingFactorial explicitly supports polynomial bases by shifting the polynomial's variable rather than adding to its value. The new rewrite instead adds k - 1 to the polynomial value. For a symbolic order k, start with rf(x**2, k), rewrite to ff(x**2 + k - 1, k), and then substitute k = 2. The original evaluates to x**2*(x + 1)**2. Under FallingFactorial's polynomial shift evaluation, the rewritten expression evaluates to (x**2 + 1)*((x - 1)**2 + 1). Substituting x = 2 afterward gives 36 versus 10. The original polynomial evaluation path is visible in the retained F.subs(v, v + i) implementation; the scalar identity used by the new rewrite does not represent that operation. The added test uses only a linear symbolic base and therefore misses this supported nonlinear-polynomial case.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 508,
+      "evidence": "def _eval_rewrite_as_FallingFactorial(self, x, k):\n        return FallingFactorial(x + k - 1, k)",
+      "fix": "Handle polynomial bases using the corresponding variable shift, F(v + k - 1), rather than F(v) + k - 1, or decline this rewrite when the base has nonlinear polynomial semantics.",
+      "test": "With x and k symbolic, compare rf(x**2, k).subs(k, 2).subs(x, 2) against rf(x**2, k).rewrite(ff).subs(k, 2).subs(x, 2), expecting 36 in both cases. Substitute the order before the polynomial variable so the test actually exercises polynomial-base evaluation.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 507,
+          "symbol": "RisingFactorial._eval_rewrite_as_FallingFactorial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 478,
+          "symbol": "RisingFactorial.eval polynomial-variable shift branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "rising-factorial-binomial-negative-order",
+      "severity": "medium",
+      "title": "Binomial rewrite produces NaN for supported negative integer orders",
+      "explanation": "The guard admits negative integer orders, but binomial(a, k) is zero for a negative integer k while factorial(k) has a pole. For an integer symbol k, rf(3, k) remains symbolic. Its new binomial rewrite is factorial(k)*binomial(k + 2, k); substituting k = -1 gives factorial(-1)*binomial(1, -1) = zoo*0 = nan. The original expression instead gives rf(3, -1) = 1/(3 - 1) = 1/2. Thus the discrepancy occurs at a finite, supported argument and is introduced by this new rewrite, independently of the pre-existing gamma rewrite. The added assertion verifies the formula syntactically but does not test a negative order.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 515,
+      "evidence": "if k.is_integer:\n            return factorial(k) * binomial(x + k - 1, k)",
+      "fix": "Require a provably nonnegative integer order for this formula, or supply a separate valid expression for negative orders. Preserve the original RisingFactorial when the order's sign is unknown unless a domain-safe expression is available.",
+      "test": "With k an integer symbol, assert that rf(3, k).rewrite(binomial).subs(k, -1) agrees with rf(3, -1) == Rational(1, 2). Include zero and positive orders to retain coverage of the valid branch.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 514,
+          "symbol": "RisingFactorial._eval_rewrite_as_binomial"
+        },
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 516,
+          "symbol": "factorial and binomial product returned by rewrite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

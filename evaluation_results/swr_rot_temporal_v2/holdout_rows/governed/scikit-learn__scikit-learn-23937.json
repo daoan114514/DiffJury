@@ -1,0 +1,166 @@
+{
+  "id": "scikit-learn__scikit-learn-23937",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 23937,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 67045,
+  "llm_calls": 5,
+  "input_tokens": 11135,
+  "output_tokens": 3030,
+  "total_tokens": 14165,
+  "instruction_calls": 5,
+  "instruction_tokens": 5274,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "pull-request-resolution",
+      "severity": "medium",
+      "title": "Fallback can use an ordinary issue number as a pull-request ref",
+      "explanation": "When the commit-to-pull-request lookup returns null, the new fallback searches both issues and pull requests in GITHUB_REPOSITORY and unconditionally selects the first result. GitHub issue search can match a commit SHA mentioned in an ordinary issue, and its default relevance ordering does not guarantee that an associated pull request appears first. For example, an ordinary issue #12 mentioning COMMIT_SHA and an associated PR #34 can produce {\"items\":[{\"number\":12},{\"number\":34,\"pull_request\":{\"url\":\"https://api.github.com/repos/owner/repo/pulls/34\"}}]}. The added jq expression selects 12, and line 28 constructs pull/12/head. Issue and PR numbers share a namespace, so an ordinary issue has no corresponding pull-request head ref. This defeats the newly added fallback even though a valid associated PR is present. This finding concerns accepting the wrong result type, not the pre-existing handling of null or failed API responses. The supplied context does not establish the workflow definitions of REPO_NAME and GITHUB_REPOSITORY, so no repository-variable mismatch is asserted.",
+      "path": "build_tools/github/trigger_hosting.sh",
+      "line": 24,
+      "evidence": "\"https://api.github.com/search/issues?q=$COMMIT_SHA+repo:$GITHUB_REPOSITORY\" 2>/dev/null \\\n               | jq '.items[0].number')",
+      "fix": "Restrict the search with is:pr, or filter returned items for the pull_request property before selecting a number. Do not construct a pull-request ref from an ordinary issue result.",
+      "test": "Exercise the script with an empty initial commit-to-PR response and a fallback response containing a matching ordinary issue before a matching PR. Assert that the ordinary issue number is never used for BRANCH and that the PR number is selected; if filtering through the query, also assert that the request includes is:pr.",
+      "confidence": 0.89,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 16,
+          "symbol": "fallback entered when PULL_REQUEST_NUMBER is null"
+        },
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 24,
+          "symbol": "unrestricted issue search"
+        },
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 25,
+          "symbol": "first search result selected"
+        },
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 28,
+          "symbol": "BRANCH=pull/$PULL_REQUEST_NUMBER/head"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

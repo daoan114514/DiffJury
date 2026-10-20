@@ -1,0 +1,187 @@
+{
+  "id": "scikit-learn__scikit-learn-26229",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 26229,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/model_selection/_validation.py",
+      "line": 1807,
+      "cwe": "CWE-20",
+      "rule_id": "supported-estimator-contract",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 65326,
+  "llm_calls": 5,
+  "input_tokens": 15131,
+  "output_tokens": 2426,
+  "total_tokens": 17557,
+  "instruction_calls": 5,
+  "instruction_tokens": 4370,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 396,
+      "knowledge_ids": [
+        "K-fe66117a",
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fe66117a",
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 220,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "supported-estimator-contract",
+      "severity": "medium",
+      "title": "Requiring predict rejects estimators that support validation through scoring",
+      "explanation": "The new constraint rejects valid validation_curve consumers whose estimators implement fit but not predict. For example, validation_curve(PCA(), X, param_name='n_components', param_range=[1, 2], cv=2, scoring=lambda estimator, X, y=None: estimator.score(X)) works through fitting and callable scoring without calling predict, but the decorator now rejects PCA before that path executes. Use a nondegenerate random matrix with shape (20, 4) for X. PCA's own score method also supports this use with scoring=None. Although the existing estimator description mentions predict, the previously supported execution path does not require it: the selected scorer determines which prediction or scoring methods are needed. Adding validation_curve to the generic public-function validation tests does not establish that this stronger estimator constraint preserves those supported inputs.",
+      "path": "sklearn/model_selection/_validation.py",
+      "line": 1807,
+      "evidence": "\"estimator\": [HasMethods([\"fit\", \"predict\"])],",
+      "fix": "Require only fit at this boundary, and let scorer selection and execution enforce any additional estimator methods needed by the chosen scoring strategy.",
+      "test": "Add a regression test calling validation_curve with PCA, a nondegenerate (20, 4) input, n_components values [1, 2], and cv=2. Exercise both scoring=None and a callable delegating to estimator.score, and assert that train and validation score arrays have shape (2, 2).",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/model_selection/_validation.py",
+          "line": 1805,
+          "symbol": "validate_params decorator"
+        },
+        {
+          "path": "sklearn/model_selection/_validation.py",
+          "line": 1822,
+          "symbol": "validation_curve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

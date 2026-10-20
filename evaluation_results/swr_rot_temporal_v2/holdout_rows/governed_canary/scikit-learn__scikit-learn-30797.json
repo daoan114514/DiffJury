@@ -1,0 +1,230 @@
+{
+  "id": "scikit-learn__scikit-learn-30797",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 30797,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 54428,
+  "llm_calls": 5,
+  "input_tokens": 64267,
+  "output_tokens": 1955,
+  "total_tokens": 66222,
+  "instruction_calls": 5,
+  "instruction_tokens": 6419,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3022,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-6e16a2a3",
+        "K-1c8d031b",
+        "K-0a2298e4",
+        "K-d3341a3f",
+        "K-59df2e59",
+        "K-5388c8d9",
+        "K-2bba7006",
+        "K-4d5756a5",
+        "K-3c8dfccb",
+        "K-eb2105bb"
+      ],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 797,
+      "knowledge_ids": [
+        "K-0f38f6b6",
+        "K-51e6bbd9",
+        "K-f8f85333",
+        "K-70b43072",
+        "K-6d7b0522",
+        "K-0f45b787",
+        "K-1617cbdc",
+        "K-791ded73",
+        "K-69a7f4ef",
+        "K-184c93c6"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-1c8d031b",
+      "K-2bba7006",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-59df2e59",
+      "K-69a7f4ef",
+      "K-6d7b0522",
+      "K-6e16a2a3",
+      "K-70b43072",
+      "K-791ded73",
+      "K-d3341a3f",
+      "K-eb2105bb",
+      "K-f8bf6084",
+      "K-f8f85333"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-6e16a2a3",
+          "K-1c8d031b",
+          "K-0a2298e4",
+          "K-d3341a3f",
+          "K-59df2e59",
+          "K-5388c8d9",
+          "K-2bba7006",
+          "K-4d5756a5",
+          "K-3c8dfccb",
+          "K-eb2105bb"
+        ],
+        "tokens": 652,
+        "budget": 600,
+        "dropped": [
+          "K-f32f49ff",
+          "K-8828df10",
+          "K-c5fe4768",
+          "K-651ca0b6",
+          "K-1d4bb77e",
+          "K-a62a9e09",
+          "K-60a0fdd6"
+        ]
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0f38f6b6",
+          "K-51e6bbd9",
+          "K-f8f85333",
+          "K-70b43072",
+          "K-6d7b0522",
+          "K-0f45b787",
+          "K-1617cbdc",
+          "K-791ded73",
+          "K-69a7f4ef",
+          "K-184c93c6"
+        ],
+        "tokens": 621,
+        "budget": 600,
+        "dropped": [
+          "K-2968cdc5",
+          "K-94fa9fcb"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "shell-conditional-syntax",
+      "severity": "medium",
+      "title": "Restore whitespace before the Bash conditional's closing delimiter",
+      "explanation": "The closing `]]` is attached to the quoted comparison operand, so Bash does not recognize it as the conditional's closing token and instead encounters an unexpected semicolon. Every invocation of upload_anaconda.sh fails while parsing this conditional, regardless of GITHUB_EVENT_NAME; even the schedule case cannot short-circuit a parsing error. This breaks callers that use the script to upload artifacts, including the explicitly supported schedule and workflow_dispatch paths. Caller files were not supplied, so their exact locations cannot be established from this snapshot.",
+      "path": "build_tools/github/upload_anaconda.sh",
+      "line": 7,
+      "evidence": "        || \"$GITHUB_EVENT_NAME\" == \"workflow_dispatch\"]]; then",
+      "fix": "Separate the closing delimiter from the operand: `|| \"$GITHUB_EVENT_NAME\" == \"workflow_dispatch\" ]]; then`.",
+      "test": "Require `bash -n build_tools/github/upload_anaconda.sh` to succeed. Then exercise schedule, workflow_dispatch, and a non-nightly event with external upload commands stubbed, verifying that each reaches the intended organization-selection branch.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "build_tools/github/upload_anaconda.sh",
+          "line": 6,
+          "symbol": "top-level event-selection conditional"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1164",
+      "applied_rules": []
+    }
+  ]
+}

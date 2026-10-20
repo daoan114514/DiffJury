@@ -1,0 +1,187 @@
+{
+  "id": "matplotlib__matplotlib-18156",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 18156,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 61141,
+  "llm_calls": 5,
+  "input_tokens": 11280,
+  "output_tokens": 2450,
+  "total_tokens": 13730,
+  "instruction_calls": 5,
+  "instruction_tokens": 4642,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2732,
+      "knowledge_ids": [
+        "K-708dda56",
+        "K-58d26727",
+        "K-42776966",
+        "K-2b3b5530",
+        "K-d76217f5"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 582,
+      "knowledge_ids": [
+        "K-ac8cc41a",
+        "K-12284e0a",
+        "K-eee6e319",
+        "K-d2310f1b",
+        "K-1bd0d82a",
+        "K-86e6ca00"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-1bd0d82a",
+      "K-2b3b5530",
+      "K-42776966",
+      "K-58d26727",
+      "K-708dda56",
+      "K-86e6ca00",
+      "K-ac8cc41a",
+      "K-d2310f1b",
+      "K-d76217f5",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-708dda56",
+          "K-58d26727",
+          "K-42776966",
+          "K-2b3b5530",
+          "K-d76217f5"
+        ],
+        "tokens": 314,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-ac8cc41a",
+          "K-12284e0a",
+          "K-eee6e319",
+          "K-d2310f1b",
+          "K-1bd0d82a",
+          "K-86e6ca00"
+        ],
+        "tokens": 406,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "point-color-ordering",
+      "severity": "medium",
+      "title": "Disabling depth shading now detaches per-point colors from their points",
+      "explanation": "Projected coordinates are still reordered by z_markers_idx at lines 508–510, but the new condition leaves both facecolors and edgecolors in their original order whenever depthshade=False. A singleton/default color can safely remain unordered because it applies to every point; distinct per-point colors cannot. For example, scatter points with x=y=[0,0,0], z=[1,2,0], c=['red','green','blue'], edgecolors=['cyan','magenta','yellow'], and depthshade=False. With the default positive-elevation view, the descending projected-depth permutation is [2,0,1]. The coordinates become points [2,0,1], while the colors remain [0,1,2], so the point at z=0 receives red/cyan instead of blue/yellow. This input previously had valid length-three color arrays and was reordered correctly. With depthshade=True, the existing per-point depth-shaded color path and color reordering remain intact. The False path needs to distinguish singleton colors from per-point arrays rather than suppressing all color reordering. The added test uses only a default singleton color, so even a successful image comparison cannot detect this association error. It requires the named baseline image to perform its comparison; the supplied diff does not establish whether that baseline exists, so baseline absence is not asserted here.",
+      "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+      "line": 511,
+      "evidence": "vzs = vzs[z_markers_idx]\nvxs = vxs[z_markers_idx]\nvys = vys[z_markers_idx]\nif self._depthshade:\n    fcs = fcs[z_markers_idx]\n    ecs = ecs[z_markers_idx]",
+      "fix": "Reorder facecolors when len(fcs) > 1 and edgecolors independently when len(ecs) > 1, regardless of depthshade. Leave singleton colors unchanged so they can be broadcast during rendering.",
+      "test": "Draw the three-point example with depthshade=False and assert that the projected point ordering and both returned color arrays use the same permutation: facecolors blue/red/green and edgecolors yellow/cyan/magenta. Retain the default-singleton draw test, ensure its image baseline is available, and cover singleton facecolors with per-point edgecolors and the converse. Include depthshade=True to verify that RGB association remains correct with depth-dependent alpha.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+          "line": 508,
+          "symbol": "Path3DCollection.do_3d_projection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "id": "sympy__sympy-15876",
+  "repository": "sympy/sympy",
+  "pull_request": 15876,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 90958,
+  "llm_calls": 8,
+  "input_tokens": 33780,
+  "output_tokens": 2128,
+  "total_tokens": 35908,
+  "instruction_calls": 8,
+  "instruction_tokens": 9610,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 3,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "public-api-positional-compatibility",
+      "severity": "medium",
+      "title": "Preserve the positional order of symbol_names and root_notation",
+      "explanation": "The public signature previously ended with `order=None, symbol_names=None, root_notation=True`; it now ends with `order=None, root_notation=True, symbol_names=None`. Consequently, the previously valid call `latex(x, False, False, None, \"abbreviated\", False, False, None, \"[\", None, \"plain\", None, None, {x: \"x_i\"}, root_notation=False)` changes from binding the final positional dictionary to `symbol_names` and printing `x_i` to raising `TypeError` for multiple values of `root_notation`: the dictionary now occupies that parameter's positional slot, and the keyword supplies it again. Existing consumers passing symbol_names positionally are therefore incompatible. Even without the explicit root_notation keyword, their dictionary now binds to root_notation, while symbol_names defaults to None and is replaced with an empty dictionary rather than forwarding the requested symbol names. The inspected function is an ordinary Python function without a compatibility wrapper, so its body cannot repair the duplicate-argument failure, which occurs during argument binding. Moving the documentation alone would not change behavior; reordering the actual parameters does. Evidence limitation: no runtime execution was available; the exception follows directly from the old/new signatures and Python argument binding, while the old custom-symbol behavior is documented in the inspected function.",
+      "path": "sympy/printing/latex.py",
+      "line": 2274,
+      "evidence": "    order=None, root_notation=True, symbol_names=None):",
+      "fix": "Restore the previous signature order, `order=None, symbol_names=None, root_notation=True`, retaining any desired documentation improvements independently.",
+      "test": "Add a regression test using `x = Symbol('x')` and the complete positional-prefix call shown above, including `root_notation=False`, asserting the result is `x_i` without an exception. Also test a positional symbol_names dictionary with root_notation omitted and both trailing settings supplied positionally, alongside equivalent keyword calls.",
+      "confidence": 0.98,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:1aa050a25da1a4fe",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sympy/printing/latex.py\", \"start_line\": 2270, \"end_line\": 2463, \"content\": \"def latex(expr, fold_frac_powers=False, fold_func_brackets=False,\\n    fold_short_frac=None, inv_trig_style=\\\"abbreviated\\\",\\n    itex=False, ln_notation=False, long_frac_ratio=None,\\n    mat_delim=\\\"[\\\", mat_str=None, mode=\\\"plain\\\", mul_symbol=None,\\n    order=None, root_notation=True, symbol_names=None):\\n    r\\\"\\\"\\\"Convert the given expression to LaTeX string representation.\\n\\n    Parameters\\n    ==========\\n    fold_frac_powers : boolean, optional\\n        Emit ``^{p/q}`` instead of ``^{\\\\frac{p}{q}}`` for fractional powers.\\n    fold_func_brackets : boolean, optional\\n        Fold function brackets where applicable.\\n    fold_short_frac : boolean, optional\\n        Emit ``p / q`` instead of ``\\\\frac{p}{q}`` when the denominator is\\n        simple enough (at most two terms and no powers). The default value is\\n        ``True`` for inline mode, ``False`` otherwise.\\n    inv_trig_style : string, optional\\n        How inverse trig functions should be displayed. Can be one of\\n        ``abbreviated``, ``full``, or ``power``. Defaults to ``abbreviated``.\\n    itex : boolean, optional\\n        Specifies if itex-specific syntax is used, including emitting\\n        ``$$...$$``.\\n    ln_notation : boolean, optional\\n        If set to ``True``, ``\\\\ln`` is used instead of default ``\\\\log``.\\n    long_frac_ratio : float or None, optional\\n        The allowed ratio of the width of the numerator to the width of the\\n        denominator before the printer breaks off long fractions. If ``None``\\n        (the default value), long fractions are not broken up.\\n    mat_delim : string, optional\\n        The delimiter to wrap around matrices. Can be one of ``[``, ``(``, or\\n        the empty string. Defaults to ``[``.\\n    mat_str : string, optional\\n        Which matrix environment string to emit. ``smallmatrix``, ``matrix``,\\n        ``array``, etc. Defaults to ``smallmatrix`` for inline mode,"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 2270,
+          "symbol": "latex"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

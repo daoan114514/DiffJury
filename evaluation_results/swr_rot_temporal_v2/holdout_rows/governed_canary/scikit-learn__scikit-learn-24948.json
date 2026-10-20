@@ -1,0 +1,228 @@
+{
+  "id": "scikit-learn__scikit-learn-24948",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 24948,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 42520,
+  "llm_calls": 5,
+  "input_tokens": 9373,
+  "output_tokens": 1736,
+  "total_tokens": 11109,
+  "instruction_calls": 5,
+  "instruction_tokens": 4107,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1976,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-6e16a2a3",
+        "K-0a2298e4",
+        "K-651ca0b6",
+        "K-2bba7006",
+        "K-eb2105bb",
+        "K-3c8dfccb",
+        "K-24ae43fa",
+        "K-1c8d031b",
+        "K-4d5756a5",
+        "K-60a0fdd6"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 803,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-0f45b787",
+        "K-3636a06a",
+        "K-184c93c6",
+        "K-9ecad403",
+        "K-94fa9fcb",
+        "K-1617cbdc",
+        "K-6d7b0522",
+        "K-0f38f6b6",
+        "K-51e6bbd9"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-1c8d031b",
+      "K-24ae43fa",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-60a0fdd6",
+      "K-651ca0b6",
+      "K-69a7f4ef",
+      "K-6d7b0522",
+      "K-6e16a2a3",
+      "K-94fa9fcb",
+      "K-9ecad403",
+      "K-eb2105bb",
+      "K-f8bf6084"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-6e16a2a3",
+          "K-0a2298e4",
+          "K-651ca0b6",
+          "K-2bba7006",
+          "K-eb2105bb",
+          "K-3c8dfccb",
+          "K-24ae43fa",
+          "K-1c8d031b",
+          "K-4d5756a5",
+          "K-60a0fdd6"
+        ],
+        "tokens": 650,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-0f45b787",
+          "K-3636a06a",
+          "K-184c93c6",
+          "K-9ecad403",
+          "K-94fa9fcb",
+          "K-1617cbdc",
+          "K-6d7b0522",
+          "K-0f38f6b6",
+          "K-51e6bbd9"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-d8b204bc"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-heldout-deviance",
+      "severity": "medium",
+      "title": "Raw decision scores are incorrectly passed to log_loss",
+      "explanation": "staged_decision_function yields raw decision margins, not class probabilities. For binary classification its (n_samples, 1) output is accepted by log_loss, but interpreted as positive-class probabilities and clipped into the probability range rather than converted with the sigmoid. This silently produces incorrect held-out scores. For example, with labels [0, 1] and margins [[-2.0], [2.0]], the new expression returns approximately zero after clipping, whereas the previous binary deviance is 2 * log(1 + exp(-2)) = 0.253856. The example plots this returned held-out deviance against out-of-bag deviance, so the comparison becomes misleading. There is also a normalization mismatch: even after converting margins to probabilities, binary log_loss is half the legacy binomial deviance used for the OOB scores. Both the probability conversion and the factor of two must be preserved.",
+      "path": "examples/ensemble/plot_gradient_boosting_oob.py",
+      "line": 77,
+      "evidence": "for i, y_pred in enumerate(clf.staged_decision_function(X_test)):\n        score[i] = log_loss(y_test, y_pred)",
+      "fix": "For this binary-deviance example, iterate over clf.staged_predict_proba(X_test) and assign score[i] = 2 * log_loss(y_test, y_pred), preserving both the probability input contract and the OOB deviance scale.",
+      "test": "Fit a binary GradientBoostingClassifier and verify at each stage that heldout_score equals 2 * mean(logaddexp(0, raw_margin) - y_test * raw_margin)). Include stages with negative margins and margins greater than one, and verify that the held-out and OOB curves use the same deviance normalization.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/ensemble/plot_gradient_boosting_oob.py",
+          "line": 74,
+          "symbol": "heldout_score"
+        },
+        {
+          "path": "examples/ensemble/plot_gradient_boosting_oob.py",
+          "line": 76,
+          "symbol": "clf.staged_decision_function"
+        },
+        {
+          "path": "examples/ensemble/plot_gradient_boosting_oob.py",
+          "line": 77,
+          "symbol": "log_loss"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

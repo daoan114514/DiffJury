@@ -1,0 +1,228 @@
+{
+  "id": "astropy__astropy-11224",
+  "repository": "astropy/astropy",
+  "pull_request": 11224,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 97638,
+  "llm_calls": 11,
+  "input_tokens": 65561,
+  "output_tokens": 4003,
+  "total_tokens": 69564,
+  "instruction_calls": 11,
+  "instruction_tokens": 14371,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 5,
+    "security": 2,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 1,
+  "revision_results": 1,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2375,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2375,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2375,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2375,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2375,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 349,
+      "knowledge_ids": [
+        "K-0519c1fe",
+        "K-6bace452"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0519c1fe",
+      "K-6bace452"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0519c1fe",
+          "K-6bace452"
+        ],
+        "tokens": 173,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "descriptor-wide-callback-deadlock",
+      "severity": "medium",
+      "title": "Descriptor-wide locks deadlock getters that delegate to independent instances",
+      "explanation": "The new lock belongs to the descriptor, not the instance whose value is being initialized. Consequently, a getter that delegates work to another thread accessing the same lazyproperty on a different, uncached instance now deadlocks. Explicit interleaving: (1) thread T1 accesses a.value and acquires the descriptor lock at line 763; (2) its getter submits an access to b.value and waits for that worker; (3) worker T2 accesses b.value and waits for the same descriptor lock; (4) T1 cannot release that lock until T2 finishes. The instances have independent caches, so no concurrent initialization of the same value is involved. RLock does not prevent this cycle because the second acquisition is on another thread. Before this change, both getters could execute and the delegated access completed. The lazy classproperty path has the equivalent problem across distinct subclasses sharing an inherited descriptor: it holds one lock at line 675 while calling the getter at line 679, although its cache is keyed by class. The added tests exercise concurrent access to one instance or one class with a getter that only returns an object; they do not exercise delegation across independent cache keys. This is a public descriptor compatibility regression; no specific repository caller is asserted to exhibit it.",
+      "path": "astropy/utils/decorators.py",
+      "line": 763,
+      "evidence": "        self._lock = threading.RLock()\n\n    def __get__(self, obj, owner=None):\n        try:\n            obj_dict = obj.__dict__\n            val = obj_dict.get(self._key, _NotFound)\n            if val is _NotFound:\n                with self._lock:\n                    # Check if another thread beat us to it.\n                    val = obj_dict.get(self._key, _NotFound)\n                    if val is _NotFound:\n                        val = self.fget(obj)\n                        obj_dict[self._key] ",
+      "fix": "Scope initialization synchronization to each instance/property cache entry, and to each class for lazy classproperty, rather than holding a descriptor-wide lock across user callbacks. Create those locks atomically and retain the double-check that prevents duplicate initialization of the same cache entry. Apply the same instance-scoped synchronization to lazyproperty setters and deleters.",
+      "test": "Add a bounded regression test using two independent instances: `class A: ... @lazyproperty def value(self): return 42 if self.peer is None else executor.submit(lambda: self.peer.value).result(timeout=1)`. Set `b.peer = None` and `a.peer = b`, then assert `a.value == 42` with a single-worker executor. Currently the inner future times out because the accessing thread holds the descriptor lock; once the exception releases it, the worker can finish, allowing reliable cleanup. Also test the analogous lazy classproperty getter delegating to an inherited property on a distinct subclass. Retain the existing assertions that simultaneous reads of the same cache entry invoke its getter only once.",
+      "confidence": 0.99,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:4b44de3d59b3d0cb",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"astropy/utils/decorators.py\", \"start_line\": 654, \"end_line\": 792, \"content\": \"    def __init__(self, fget, doc=None, lazy=False):\\n        self._lazy = lazy\\n        if lazy:\\n            self._lock = threading.RLock()   # Protects _cache\\n            self._cache = {}\\n        fget = self._wrap_fget(fget)\\n\\n        super().__init__(fget=fget, doc=doc)\\n\\n        # There is a buglet in Python where self.__doc__ doesn't\\n        # get set properly on instances of property subclasses if\\n        # the doc argument was used rather than taking the docstring\\n        # from fget\\n        # Related Python issue: https://bugs.python.org/issue24766\\n        if doc is not None:\\n            self.__doc__ = doc\\n\\n    def __get__(self, obj, objtype):\\n        if self._lazy:\\n            val = self._cache.get(objtype, _NotFound)\\n            if val is _NotFound:\\n                with self._lock:\\n                    # Check if another thread initialised before we locked.\\n                    val = self._cache.get(objtype, _NotFound)\\n                    if val is _NotFound:\\n                        val = self.fget.__wrapped__(objtype)\\n                        self._cache[objtype] = val\\n        else:\\n            # The base property.__get__ will just return self here;\\n            # instead we pass objtype through to the original wrapped\\n            # function (which takes the class as its sole argument)\\n            val = self.fget.__wrapped__(objtype)\\n        return val\\n\\n    def getter(self, fget):\\n        return super().getter(self._wrap_fget(fget))\\n\\n    def setter(self, fset):\\n        raise NotImplementedError(\\n            \\\"classproperty can only be read-only; use a metaclass to \\\"\\n            \\\"implement modifiable class-level properties\\\")\\n\\n    def deleter(self, fdel):\\n        raise NotImplementedError(\\n            \\\"classproperty can only be read-only; use a metaclass to \\\"\\n            \\\"implement modifiable class-level properties\\\")\\n\\n    @sta"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "astropy/utils/decorators.py",
+          "line": 753,
+          "symbol": "lazyproperty.__init__"
+        },
+        {
+          "path": "astropy/utils/decorators.py",
+          "line": 763,
+          "symbol": "lazyproperty.__get__"
+        },
+        {
+          "path": "astropy/utils/decorators.py",
+          "line": 767,
+          "symbol": "self.fget(obj)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-833",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "id": "scikit-learn__scikit-learn-26690",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 26690,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/utils/extmath.py",
+      "line": 295,
+      "cwe": "CWE-20",
+      "rule_id": "unsupported-array-like-contract",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 50824,
+  "llm_calls": 5,
+  "input_tokens": 12596,
+  "output_tokens": 2020,
+  "total_tokens": 14616,
+  "instruction_calls": 5,
+  "instruction_tokens": 5240,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3105,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-eb2105bb",
+        "K-0a2298e4",
+        "K-f32f49ff",
+        "K-651ca0b6",
+        "K-3c8dfccb",
+        "K-1c8d031b",
+        "K-d3341a3f",
+        "K-2bba7006",
+        "K-4d5756a5"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 807,
+      "knowledge_ids": [
+        "K-feee072d",
+        "K-fe66117a",
+        "K-6d7b0522",
+        "K-0f45b787",
+        "K-1617cbdc",
+        "K-51e6bbd9",
+        "K-94fa9fcb",
+        "K-0f51ebe7",
+        "K-3636a06a",
+        "K-0f38f6b6"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-0f51ebe7",
+      "K-1617cbdc",
+      "K-1c8d031b",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-651ca0b6",
+      "K-6d7b0522",
+      "K-94fa9fcb",
+      "K-d3341a3f",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fe66117a",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-eb2105bb",
+          "K-0a2298e4",
+          "K-f32f49ff",
+          "K-651ca0b6",
+          "K-3c8dfccb",
+          "K-1c8d031b",
+          "K-d3341a3f",
+          "K-2bba7006",
+          "K-4d5756a5"
+        ],
+        "tokens": 615,
+        "budget": 600,
+        "dropped": [
+          "K-1d4bb77e",
+          "K-5388c8d9"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-feee072d",
+          "K-fe66117a",
+          "K-6d7b0522",
+          "K-0f45b787",
+          "K-1617cbdc",
+          "K-51e6bbd9",
+          "K-94fa9fcb",
+          "K-0f51ebe7",
+          "K-3636a06a",
+          "K-0f38f6b6"
+        ],
+        "tokens": 631,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "unsupported-array-like-contract",
+      "severity": "medium",
+      "title": "New array-like contract accepts lists that randomized_svd cannot process",
+      "explanation": "The new constraint and updated documentation advertise array-like inputs, so a nested Python list passes parameter validation. However, randomized_svd still requires ndarray-style attributes: its implementation unpacks M.shape before computing the randomized range. For example, randomized_svd([[1.0, 0.0], [0.0, 1.0]], n_components=1, random_state=0) passes the new decorator and then raises AttributeError because a list has no shape attribute. Previously the documented input contract was limited to ndarrays and sparse matrices; this change expands that contract without implementing the expansion. Adding the function to PARAM_VALIDATION_FUNCTION_LIST does not by itself demonstrate that newly accepted inputs execute successfully. The other added constraints do not establish a concrete defect from the supplied evidence, nor does the nested-validation setting establish a separate bypass.",
+      "path": "sklearn/utils/extmath.py",
+      "line": 295,
+      "evidence": "\"M\": [\"array-like\", \"sparse matrix\"],",
+      "fix": "Normalize supported array-like inputs to an appropriate array before accessing M.shape, while preserving sparse inputs and existing ndarray behavior. Alternatively, retain the ndarray/sparse-matrix contract in both the constraint and documentation.",
+      "test": "Add a successful-input regression test calling randomized_svd on a nested list with n_components=1 and a fixed random_state. Compare its singular values and output shapes with the equivalent ndarray call; ensure the sparse-input tests remain successful.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/extmath.py",
+          "line": 293,
+          "symbol": "validate_params"
+        },
+        {
+          "path": "sklearn/utils/extmath.py",
+          "line": 307,
+          "symbol": "randomized_svd"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

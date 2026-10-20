@@ -1,0 +1,145 @@
+{
+  "id": "astropy__astropy-4979",
+  "repository": "astropy/astropy",
+  "pull_request": 4979,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 103812,
+  "llm_calls": 5,
+  "input_tokens": 16158,
+  "output_tokens": 2985,
+  "total_tokens": 19143,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "output-shape-preservation",
+      "severity": "medium",
+      "title": "The retained distance axis changes get_sun output shapes and cross-broadcasts array elements",
+      "explanation": "The singleton axis needed to normalize Cartesian vectors must not also be passed as part of the scalar distance's batch shape. ERFA ab has core arguments (3),(3),(),()->(3), so its scalar distance argument participates in batch broadcasting. For scalar Time, earth_p has shape (3,), but the changed dsun has shape (1,); ab consequently produces (1,3), and the returned coordinate is length one rather than scalar. For an N-element Time array, earth_p and earth_v have shape (N,3), invlorentz has shape (N,), and dsun now has shape (N,1). Their batch shapes broadcast to (N,N), producing properdir of shape (N,N,3) and Cartesian components of shape (N,N), rather than (N,). This also pairs each row's distance with every column's direction instead of preserving elementwise correspondence. For a multidimensional Time of shape (2,3), the batch shapes (2,3) and (2,3,1) are incompatible; a square (2,2) input instead broadcasts to (2,2,2). Even an implementation that squeezed the distance inside ab would still encounter the erroneous (N,1) times (N,) multiplication at lines 166–167. The other changed aberration arguments are consistent with the ERFA contract: barycentric Earth velocity converted from AU/day to units of c, sqrt(1-v²) for bm1, and the negative velocity when aberrating the Sun-to-Earth direction before negating the result. The relaxed transformation comparison does not assert the get_sun input/output shape invariant, and both transformation routes start from the same malformed coordinate. There is no independent evidence here that the tolerance relaxation itself introduces a numerical defect rather than accommodating the documented light-deflection limitation.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 162,
+      "evidence": "dsun = np.sqrt(np.sum(earth_p**2, axis=-1, keepdims=True))\ninvlorentz = (1-np.sum(earth_v**2, axis=-1))**0.5\nproperdir = erfa.ab(earth_p/dsun, -earth_v, dsun, invlorentz)\n\nx = -dsun*properdir[..., 0] * u.AU\ny = -dsun*properdir[..., 1] * u.AU",
+      "fix": "Compute dsun without keepdims, normalize with earth_p / dsun[..., np.newaxis], and pass the unexpanded dsun to erfa.ab and the Cartesian component multiplications. This preserves the Time batch shape throughout.",
+      "test": "Call get_sun with a scalar Time, a two-element Time array, and Time arrays reshaped to (2,3) and (2,2). Assert that result.shape equals time.shape in every case and that result.cartesian.xyz.shape equals (3,) + time.shape. For each array element, compare its Cartesian value against get_sun called separately on that scalar Time. The current change returns extra axes for scalar, one-dimensional, and square inputs, and fails broadcasting for the (2,3) case.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 162,
+          "symbol": "get_sun: construct distance with an extra batch axis"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 164,
+          "symbol": "erfa.ab: broadcast vector and scalar argument batch shapes"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 166,
+          "symbol": "get_sun: construct Cartesian components from the broadcast result"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 174,
+          "symbol": "get_sun: return SkyCoord"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

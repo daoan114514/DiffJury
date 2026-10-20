@@ -1,0 +1,139 @@
+{
+  "id": "scikit-learn__scikit-learn-1496",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 1496,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 84812,
+  "llm_calls": 5,
+  "input_tokens": 14442,
+  "output_tokens": 2392,
+  "total_tokens": 16834,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "constant-feature-affine-offset",
+      "severity": "medium",
+      "title": "Constant nonzero features remain incorrectly scaled for non-unit-width feature ranges",
+      "explanation": "The new denominator replacement makes constant features produce finite parameters, but those parameters do not consistently map the training constant to the requested lower bound. For a constant value c and feature_range=(a,b), the replacement denominator is 1, so the supplied code computes scale_=b-a and min_=a-c. Consequently the affine transformation gives c*(b-a)+a-c instead of a. Concrete boundary cases: under the default range (0,1), constants 0 and 1 both correctly map to 0; under (1,3), constant 0 correctly maps to 1, but constant 1 maps to 2 rather than 1. For the latter case, scale_=2 and min_=0; the corresponding inverse affine mapping sends the lower endpoint 1 to 0.5 rather than the training constant 1. Transforming and then inverse-transforming the erroneous value 2 still returns 1, so a round-trip assertion alone would not catch this defect. The offset formula is pre-existing and also affects nonconstant features with non-unit-width ranges; that broader defect is not attributed to this change. The change-specific issue is that the newly enabled finite constant-feature path inherits that incorrect offset instead of fulfilling the zero-variance handling contract. Before this change, the same constant feature divided by zero and produced nonfinite parameters. The added tests exercise constants 0 and 1, but both tested ranges have width 1, exactly where the offset error cancels. Repository transform and inverse_transform bodies were not included in the supplied evidence, so the transform and inverse results above follow the affine interpretation of scale_ and min_, rather than an independently inspected execution of those methods.",
+      "path": "sklearn/preprocessing.py",
+      "line": 194,
+      "evidence": "scale_[scale_ == 0.0] = 1.0\n        self.scale_ = (feature_range[1] - feature_range[0]) / scale_\n        self.min_ = feature_range[0] - min_ / scale_",
+      "fix": "Keep the zero-denominator replacement, but compute the affine offset using the final multiplier: self.min_ = feature_range[0] - min_ * self.scale_. This preserves the unit-width behavior and maps constant features to the lower bound for arbitrary valid ranges.",
+      "test": "Extend the new regression test with feature_range=(1,3) and its existing input containing constant columns 0 and 1. Assert transformed rows equal [[1,1,2], [1,1,1], [1,1,3]]. The current affine parameters instead produce [[1,2,23/12], [1,2,11/12], [1,2,35/12]]. Also assert that inverse_transform of a row containing the lower endpoint in every column returns the training minima [0,1,-0.1]; do not rely solely on a round trip. The assertion for the nonzero constant column specifically detects the newly finite constant-feature defect, independently of the pre-existing error in the nonconstant column.",
+      "confidence": 0.7799999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_preprocessing.py",
+          "line": 149,
+          "symbol": "test_min_max_scaler_zero_variance_features"
+        },
+        {
+          "path": "sklearn/tests/test_preprocessing.py",
+          "line": 150,
+          "symbol": "MinMaxScaler.fit_transform"
+        },
+        {
+          "path": "sklearn/preprocessing.py",
+          "line": 194,
+          "symbol": "MinMaxScaler.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

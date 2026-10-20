@@ -1,0 +1,187 @@
+{
+  "id": "scikit-learn__scikit-learn-8567",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 8567,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 89795,
+  "llm_calls": 5,
+  "input_tokens": 14836,
+  "output_tokens": 3224,
+  "total_tokens": 18060,
+  "instruction_calls": 5,
+  "instruction_tokens": 4183,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2573,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 282,
+      "knowledge_ids": [
+        "K-69a7f4ef"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef"
+        ],
+        "tokens": 106,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "fitted-posterior-state-consistency",
+      "severity": "medium",
+      "title": "Preserved precisions no longer match the posterior covariance calculation",
+      "explanation": "The assignments now preserve the pre-update alpha and lambda used to calculate coef_, but the posterior covariance expression after the loop still uses the updated local alpha_ and lambda_. Consequently, the change fixes the coefficient/precision mismatch while introducing a covariance/exposed-precision mismatch. Both convergence termination and iteration exhaustion reach that covariance calculation after the precision update; neither path restores the saved values. This is distinct from the pre-existing mismatch between coefficients and covariance.\n\nA concrete mathematical counterexample is a one-iteration fit with fit_intercept=False, X=diag(1, 2), and y=[1, -1]. Initial precisions are approximately alpha=1 and lambda=1, producing coef_=[0.5, -0.4]. The standard precision updates give gamma=1.3, residual sum of squares=0.29, and squared coefficient norm=0.41, hence updated alpha approximately 2.414 and lambda approximately 3.171, with their ratio approximately 1.314 rather than 1 (the default hyperpriors only slightly perturb these numbers). The exposed precisions require posterior covariance proportional to diag(1/(1+1), 1/(4+1)), whose diagonal ratio is 2.5. The surviving covariance expression instead produces a diagonal ratio of (4+1.314)/(1+1.314), approximately 2.297. No overall precision scaling can reconcile those different ratios. Thus sigma_ is not the posterior covariance associated with the newly exposed alpha_ and lambda_; predictive uncertainty using that covariance and the exposed noise precision combines different iterations.\n\nThe added test compares only intercepts and cannot detect this covariance inconsistency; with fit_intercept=False, its assertion would be vacuous. Scoring calculations are not changed by the shown diff, so any pre-existing scoring/update-order inconsistency is not a separate introduced defect. A zero-iteration fit already lacked a computed coefficient before this change and does not establish a newly supported-path regression.",
+      "path": "sklearn/linear_model/bayes.py",
+      "line": 206,
+      "evidence": "            self.alpha_ = alpha_\n            self.lambda_ = lambda_\n\n            # Update alpha and lambda\n            rmse_ = np.sum((y - np.dot(X, coef_)) ** 2)\n...\n        self.coef_ = coef_\n        sigma_ = np.dot(Vh.T,\n                        Vh / (eigen_vals_ + lambda_ / alpha_)[:, np.newaxis])",
+      "fix": "Calculate the final covariance, including its precision scaling, from self.alpha_ and self.lambda_ so that it uses the same preserved values as coef_. Alternatively, restore the saved precisions to the locals before the covariance calculation.",
+      "test": "Add a fit_intercept=False, n_iter=1 regression using X=diag(1, 2) and y=[1, -1]. Assert coef_ equals a Ridge solution with alpha=lambda_/alpha_, and assert sigma_ equals inverse(alpha_ * X.T.dot(X) + lambda_ * eye(2)). Verify predictive variance equals the quadratic form of that covariance plus 1/alpha_. Repeat with termination forced through the convergence branch. Retain the intercept comparison, but do not use it as the sole posterior-state assertion.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 206,
+          "symbol": "BayesianRidge.fit: preserve pre-update precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 209,
+          "symbol": "BayesianRidge.fit: update local precisions before termination"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 238,
+          "symbol": "BayesianRidge.fit: calculate posterior covariance using updated locals"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "id": "scikit-learn__scikit-learn-10615",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 10615,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 60418,
+  "llm_calls": 5,
+  "input_tokens": 12000,
+  "output_tokens": 1387,
+  "total_tokens": 13387,
+  "instruction_calls": 5,
+  "instruction_tokens": 4072,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2332,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "performance-review"
+      ],
+      "skill_body_tokens": 2002
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 412,
+      "knowledge_ids": [
+        "K-0f45b787",
+        "K-9ecad403",
+        "K-1617cbdc"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-9ecad403"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0f45b787",
+          "K-9ecad403",
+          "K-1617cbdc"
+        ],
+        "tokens": 236,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incremental-mean-normalization",
+      "severity": "medium",
+      "title": "Incremental mean no longer normalizes the previous batch's sum",
+      "explanation": "Division binds more tightly than addition, so the new expression computes last_mean + (new_mean / updated_n), whereas the removed loop computed (last_mean[i] + new_mean[i]) / updated_n. Both mean arrays have already been converted to sums at lines 306 and 308. A minimal counterexample is a previous batch [2, 2] and a new batch [4, 4]: last_n = new_n = 2, last_mean = [2], new_mean = [4], and both batch variances are [0]. After the in-place scaling, the sums are [4] and [8], and updated_n is 4. The new code returns mean [6] instead of the correct [3]; the variance expression still returns the correct [1] for this update. The first-pass guard does not protect subsequent calls with nonzero last_n. If the incorrect returned mean is supplied to another update, it also corrupts that update's between-batch variance correction.",
+      "path": "sklearn/utils/sparsefuncs_fast.pyx",
+      "line": 314,
+      "evidence": "    updated_mean = last_mean + new_mean / updated_n",
+      "fix": "Restore normalization of the complete sum: updated_mean = (last_mean + new_mean) / updated_n.",
+      "test": "Run the incremental sparse statistics path on two one-feature batches containing [[2], [2]] and [[4], [4]]. Assert that the second update returns mean [3], variance [1], and count 4, matching statistics computed directly on the concatenated batch. Exercise both supported floating dtypes and add a third batch to verify that returned statistics remain valid inputs to subsequent updates.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/sparsefuncs_fast.pyx",
+          "line": 314,
+          "symbol": "_incr_mean_variance_axis0"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

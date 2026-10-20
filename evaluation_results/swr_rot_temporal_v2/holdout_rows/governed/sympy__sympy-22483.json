@@ -1,0 +1,155 @@
+{
+  "id": "sympy__sympy-22483",
+  "repository": "sympy/sympy",
+  "pull_request": 22483,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 54390,
+  "llm_calls": 5,
+  "input_tokens": 9123,
+  "output_tokens": 2818,
+  "total_tokens": 11941,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "python-syntax-error",
+      "severity": "high",
+      "title": "Unmatched parenthesis prevents the relational module from loading",
+      "explanation": "Line 115 contains an extra closing parenthesis. The any(map(...)) expression is already closed on line 114, the first isinstance call closes at the beginning of line 115, and the second isinstance call needs only one closing parenthesis. The remaining ')' has no matching opening parenthesis, so Python raises SyntaxError while parsing the module. This blocks module loading before constructor dispatch: neither Eq/Ne nor ordered comparisons can execute, and the recursive canonicalization change is also unreachable. This is distinct from the intended rejection of relational operands by ordered comparisons. The supplied canonical fragment additionally retains r = self and reads r.rhs/r.lhs rather than the new args, but without the remaining property implementation there is insufficient evidence to report a separate concrete canonicalization regression.",
+      "path": "sympy/core/relational.py",
+      "line": 115,
+      "evidence": "            if any(map(_nontrivBool, (lhs, rhs))) or isinstance(lhs, Relational\n                    ) or isinstance(rhs, Relational)):",
+      "fix": "Remove the extra closing parenthesis after isinstance(rhs, Relational), preserving the existing Eq/Ne exemption around the ordered-comparison validation.",
+      "test": "Compile sympy/core/relational.py and smoke-test importing sympy. After correcting the syntax, verify Eq and Ne accept relational operands with evaluate=False, while ordered comparisons reject those operands with TypeError; also exercise canonical on a nested relational expression.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/relational.py",
+          "line": 115,
+          "symbol": "module parsing before Relational.__new__ can execute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-398",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "id": "sympy__sympy-542",
+  "repository": "sympy/sympy",
+  "pull_request": 542,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 97520,
+  "llm_calls": 5,
+  "input_tokens": 18917,
+  "output_tokens": 2973,
+  "total_tokens": 21890,
+  "instruction_calls": 5,
+  "instruction_tokens": 5504,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3382,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-b9cfc827",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "check-symbolic-assumptions-versus-concrete-types",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2595
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 794,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1",
+        "K-4e30e572"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0bb3b558",
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4e30e572",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-87ee2eda",
+          "K-4f9662f0",
+          "K-1f002951",
+          "K-7e90bf29",
+          "K-b9cfc827",
+          "K-a4c9356f"
+        ],
+        "tokens": 440,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-4e30e572"
+        ],
+        "tokens": 618,
+        "budget": 600,
+        "dropped": [
+          "K-8184713c",
+          "K-8810c414",
+          "K-e4a5fbd0",
+          "K-9d754682",
+          "K-4e7d5d6b",
+          "K-86d0b57a",
+          "K-03e5723b",
+          "K-cde9c599",
+          "K-be32699b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "empty-residual-factor-list",
+      "severity": "low",
+      "title": "Do not append a residual factor when all factors were extracted as positive",
+      "explanation": "The new positive-factor extraction can leave `other` empty, but the final `else` handles both zero and multiple residual factors. For zero factors, `_factors_product(other)` is 1, so the factor list gains a spurious unit factor with the original exponent. A minimal reproducer is `r = Symbol('r', real=True); factor_list(sqrt(expand((r**2 + 1)*(r**2 + 2))), r)`. Both polynomial factors are strictly positive, so the returned factors include `(1, S.Half)` in addition to `(r**2 + 1, S.Half)` and `(r**2 + 2, S.Half)`. The expected list contains only the latter two factors. Explicitly supplying `r` allows the added conversion loop to convert the unit into a constant Poly, so that loop does not remove the defect. The product still reconstructs the input, but the factor-list API's separation of coefficients from nonconstant factors is violated. Previously, the loop appended only the two actual polynomial factors. The new tests exercise positive extraction only when a nonpositive residual factor remains, and therefore miss this newly introduced empty-residual case. This conclusion follows from the supplied diff and has not been executed in this tool-free review.",
+      "path": "sympy/polys/polytools.py",
+      "line": 4866,
+      "evidence": "                    else:\n                        factors.append((_factors_product(other), exp))",
+      "fix": "Change the residual-product branch to `elif other:` so that no residual factor is appended when positive-factor extraction consumed every factor.",
+      "test": "With `r = Symbol('r', real=True)`, call `factor_list(sqrt(expand((r**2 + 1)*(r**2 + 2))), r)` and assert coefficient 1 and exactly the two nonconstant factors, each with exponent S.Half. Also exercise `polys=True` to ensure no constant Poly is returned.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4857,
+          "symbol": "_symbolic_factor_list: extract all strictly positive factors"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4867,
+          "symbol": "_symbolic_factor_list: append empty residual product"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4901,
+          "symbol": "_generic_factor_list: convert residual unit to Poly"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,327 @@
+{
+  "id": "scikit-learn__scikit-learn-889",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 889,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 93063,
+  "llm_calls": 7,
+  "input_tokens": 38138,
+  "output_tokens": 2668,
+  "total_tokens": 40806,
+  "instruction_calls": 7,
+  "instruction_tokens": 8830,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3095,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-3c8dfccb",
+        "K-a62a9e09",
+        "K-0a2298e4",
+        "K-f32f49ff",
+        "K-4d5756a5",
+        "K-eb2105bb",
+        "K-651ca0b6",
+        "K-2bba7006"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3095,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-3c8dfccb",
+        "K-a62a9e09",
+        "K-0a2298e4",
+        "K-f32f49ff",
+        "K-4d5756a5",
+        "K-eb2105bb",
+        "K-651ca0b6",
+        "K-2bba7006"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 803,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-0f45b787",
+        "K-3636a06a",
+        "K-184c93c6",
+        "K-9ecad403",
+        "K-94fa9fcb",
+        "K-feee072d",
+        "K-1617cbdc",
+        "K-791ded73",
+        "K-0f38f6b6"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-651ca0b6",
+      "K-69a7f4ef",
+      "K-791ded73",
+      "K-94fa9fcb",
+      "K-9ecad403",
+      "K-a62a9e09",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-3c8dfccb",
+          "K-a62a9e09",
+          "K-0a2298e4",
+          "K-f32f49ff",
+          "K-4d5756a5",
+          "K-eb2105bb",
+          "K-651ca0b6",
+          "K-2bba7006"
+        ],
+        "tokens": 605,
+        "budget": 600,
+        "dropped": [
+          "K-d3341a3f",
+          "K-5388c8d9",
+          "K-60a0fdd6",
+          "K-1c8d031b"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-0f45b787",
+          "K-3636a06a",
+          "K-184c93c6",
+          "K-9ecad403",
+          "K-94fa9fcb",
+          "K-feee072d",
+          "K-1617cbdc",
+          "K-791ded73",
+          "K-0f38f6b6"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-51e6bbd9",
+          "K-0f51ebe7",
+          "K-6d7b0522",
+          "K-2968cdc5"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "public-api-positional-compatibility",
+      "severity": "medium",
+      "title": "Inserting n_targets before bias breaks existing positional calls",
+      "explanation": "Previously, make_regression(100, 10, 3, 2.5, random_state=0) bound the fourth argument to bias and generated a valid single-target dataset with bias 2.5. The changed signature binds that same argument to n_targets instead. Execution reaches np.zeros((n_features, n_targets)) with n_targets=2.5 and raises TypeError because an array dimension must be an integer. All existing positional arguments from bias onward are shifted, so other previously valid invocations can silently change behavior as well. This breaks the public function's existing positional calling convention.",
+      "path": "sklearn/datasets/samples_generator.py",
+      "line": 367,
+      "evidence": "                    n_targets=1, bias=0.0, effective_rank=None,",
+      "fix": "Append n_targets after random_state so that every existing positional parameter retains its original position.",
+      "test": "Add a regression test calling make_regression(100, 10, 3, 2.5, coef=True, random_state=0). Assert that it succeeds, returns a one-dimensional target, and satisfies y == np.dot(X, c) + 2.5 with zero noise. Compare its results with the equivalent keyword-based invocation.",
+      "confidence": 1.0,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:6f6fb87b9a7d01d7",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sklearn/datasets/samples_generator.py\", \"start_line\": 366, \"end_line\": 483, \"content\": \"def make_regression(n_samples=100, n_features=100, n_informative=10,\\n                    n_targets=1, bias=0.0, effective_rank=None,\\n                    tail_strength=0.5, noise=0.0, shuffle=True, coef=False,\\n                    random_state=None):\\n    \\\"\\\"\\\"Generate a random regression problem.\\n\\n    The input set can either be well conditioned (by default) or have a low\\n    rank-fat tail singular profile. See the `make_low_rank_matrix` for\\n    more details.\\n\\n    The output is generated by applying a (potentially biased) random linear\\n    regression model with `n_informative` nonzero regressors to the previously\\n    generated input and some gaussian centered noise with some adjustable\\n    scale.\\n\\n    Parameters\\n    ----------\\n    n_samples : int, optional (default=100)\\n        The number of samples.\\n\\n    n_features : int, optional (default=100)\\n        The number of features.\\n\\n    n_informative : int, optional (default=10)\\n        The number of informative features, i.e., the number of features used\\n        to build the linear model used to generate the output.\\n\\n    n_targets : int, optional (default=1)\\n        The number of regression targets, i.e., the dimension of the y output\\n        vector associated with a sample. By default, the output is a scalar.\\n\\n    bias : float, optional (default=0.0)\\n        The bias term in the underlying linear model.\\n\\n    effective_rank : int or None, optional (default=None)\\n        if not None:\\n            The approximate number of singular vectors required to explain most\\n            of the input data by linear combinations. Using this kind of\\n            singular spectrum in the input allows the generator to reproduce\\n            the correlations often observed in practice.\\n        if None:\\n            The input set is well conditioned, centered and gaussian with\\n            unit variance.\\n\\n"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/samples_generator.py",
+          "line": 366,
+          "symbol": "make_regression"
+        },
+        {
+          "path": "sklearn/datasets/samples_generator.py",
+          "line": 458,
+          "symbol": "np.zeros((n_features, n_targets))"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "preserve-singleton-array-axes",
+      "severity": "medium",
+      "title": "Unrestricted squeeze removes sample and feature dimensions",
+      "explanation": "The new np.squeeze calls remove every singleton dimension, rather than only the target dimension when n_targets is one. For make_regression(n_samples=1, n_features=2, n_informative=1, n_targets=1, coef=True), y now has shape () instead of the previous and documented (1,). With n_samples=1 and n_targets=3, y has shape (3,) instead of (1, 3), losing its sample axis. Likewise, make_regression(n_samples=5, n_features=1, n_informative=1, n_targets=1, coef=True) returns a scalar coefficient instead of the previous (1,) array. With n_targets=3, its coefficient shape is (3,) instead of (1, 3), so np.dot(X, c) fails for X.shape == (5, 1). Noise generation uses size=y.shape before squeezing, and sample/feature shuffling preserves the corresponding axes; neither prevents this final return-shape regression. The new test uses no singleton dimensions and therefore misses these failures.",
+      "path": "sklearn/datasets/samples_generator.py",
+      "line": 477,
+      "evidence": "    y = np.squeeze(y)\n\n    if coef:\n        return X, y, np.squeeze(ground_truth)",
+      "fix": "Only remove the target axis when n_targets == 1, using y = y[:, 0] and ground_truth = ground_truth[:, 0]. Otherwise retain both arrays' two-dimensional shapes. Update the coefficient return documentation to include its multi-target shape.",
+      "test": "Cover n_samples in {1, 5}, n_features in {1, 2}, and n_targets in {1, 3}, with n_informative=1 and coef=True. Assert y.shape is (n_samples,) for one target and (n_samples, n_targets) otherwise; assert coefficients have shape (n_features,) or (n_features, n_targets), respectively. With noise=0, verify np.dot(X, c) reproduces y, including when shuffle=True.",
+      "confidence": 1.0,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:6f6fb87b9a7d01d7",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sklearn/datasets/samples_generator.py\", \"start_line\": 366, \"end_line\": 483, \"content\": \"def make_regression(n_samples=100, n_features=100, n_informative=10,\\n                    n_targets=1, bias=0.0, effective_rank=None,\\n                    tail_strength=0.5, noise=0.0, shuffle=True, coef=False,\\n                    random_state=None):\\n    \\\"\\\"\\\"Generate a random regression problem.\\n\\n    The input set can either be well conditioned (by default) or have a low\\n    rank-fat tail singular profile. See the `make_low_rank_matrix` for\\n    more details.\\n\\n    The output is generated by applying a (potentially biased) random linear\\n    regression model with `n_informative` nonzero regressors to the previously\\n    generated input and some gaussian centered noise with some adjustable\\n    scale.\\n\\n    Parameters\\n    ----------\\n    n_samples : int, optional (default=100)\\n        The number of samples.\\n\\n    n_features : int, optional (default=100)\\n        The number of features.\\n\\n    n_informative : int, optional (default=10)\\n        The number of informative features, i.e., the number of features used\\n        to build the linear model used to generate the output.\\n\\n    n_targets : int, optional (default=1)\\n        The number of regression targets, i.e., the dimension of the y output\\n        vector associated with a sample. By default, the output is a scalar.\\n\\n    bias : float, optional (default=0.0)\\n        The bias term in the underlying linear model.\\n\\n    effective_rank : int or None, optional (default=None)\\n        if not None:\\n            The approximate number of singular vectors required to explain most\\n            of the input data by linear combinations. Using this kind of\\n            singular spectrum in the input allows the generator to reproduce\\n            the correlations often observed in practice.\\n        if None:\\n            The input set is well conditioned, centered and gaussian with\\n            unit variance.\\n\\n"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/samples_generator.py",
+          "line": 458,
+          "symbol": "make_regression: construct ground_truth with feature and target axes"
+        },
+        {
+          "path": "sklearn/datasets/samples_generator.py",
+          "line": 462,
+          "symbol": "make_regression: construct y with sample and target axes"
+        },
+        {
+          "path": "sklearn/datasets/samples_generator.py",
+          "line": 477,
+          "symbol": "np.squeeze(y)"
+        },
+        {
+          "path": "sklearn/datasets/samples_generator.py",
+          "line": 480,
+          "symbol": "np.squeeze(ground_truth)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

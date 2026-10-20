@@ -1,0 +1,231 @@
+{
+  "id": "scikit-learn__scikit-learn-18062",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 18062,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 94246,
+  "llm_calls": 8,
+  "input_tokens": 84398,
+  "output_tokens": 2377,
+  "total_tokens": 86775,
+  "instruction_calls": 8,
+  "instruction_tokens": 10057,
+  "model_roles": {
+    "lead": 3,
+    "security": 1,
+    "correctness-reliability": 3,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 282,
+      "knowledge_ids": [
+        "K-69a7f4ef"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef"
+        ],
+        "tokens": 106,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "legacy-method-positive-validation",
+      "severity": "medium",
+      "title": "Preserve positive-constraint rejection for the legacy 'lar' method",
+      "explanation": "Existing callers of lars_path(..., method='lar', positive=True) and lars_path_gram(..., method='lar', positive=True) previously received ValueError. Both public functions forward method and positive to _lars_path_solver, but the changed guard now rejects only 'lars'. There is no legacy-name normalization before this guard, so explicitly supplying the previously documented 'lar' spelling bypasses the unsupported-combination check and enters the numerical solver. A minimal counterexample is lars_path(np.eye(2), np.array([1., -1.]), method='lar', positive=True): the old guard raises immediately, whereas the new guard permits computation. The corresponding sufficient-statistics call is lars_path_gram(np.array([1., -1.]), np.eye(2), n_samples=2, method='lar', positive=True). This is a validation regression, not evidence that ordinary unconstrained legacy calls change their coefficients: the Lasso-specific branches still distinguish 'lasso', and the updated Lars/LarsCV method attributes use the new spelling. Likewise, changing the defaults to 'lars' preserves rejection for default-method positive calls. The regression specifically affects explicitly supplied legacy values. The positive-constraint test now replaces 'lar' with 'lars' rather than retaining coverage of both spellings, concealing this loss of rejection.",
+      "path": "sklearn/linear_model/_least_angle.py",
+      "line": 403,
+      "evidence": "    if method == 'lars' and positive:",
+      "fix": "Normalize method='lar' to 'lars' before validation, or reject positive=True for both spellings. Preserve legacy unconstrained behavior; any deprecation warning should not bypass the unsupported-combination guard.",
+      "test": "Parameterize positive-constraint rejection over method=['lar', 'lars'] for both lars_path and lars_path_gram, using identity X/Gram and y/Xy=[1., -1.]. Assert ValueError for both spellings. Also retain unconstrained alias-equivalence tests and the existing positive Lasso tests.",
+      "confidence": 0.98,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:adf49b4904fe325c",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sklearn/linear_model/_least_angle.py\", \"start_line\": 135, \"end_line\": 285, \"content\": \"    Lars\\n    LassoLarsCV\\n    LarsCV\\n    sklearn.decomposition.sparse_encode\\n\\n    References\\n    ----------\\n    .. [1] \\\"Least Angle Regression\\\", Efron et al.\\n           http://statweb.stanford.edu/~tibs/ftp/lars.pdf\\n\\n    .. [2] `Wikipedia entry on the Least-angle regression\\n           <https://en.wikipedia.org/wiki/Least-angle_regression>`_\\n\\n    .. [3] `Wikipedia entry on the Lasso\\n           <https://en.wikipedia.org/wiki/Lasso_(statistics)>`_\\n\\n    \\\"\\\"\\\"\\n    if X is None and Gram is not None:\\n        raise ValueError(\\n            'X cannot be None if Gram is not None'\\n            'Use lars_path_gram to avoid passing X and y.'\\n        )\\n    return _lars_path_solver(\\n        X=X, y=y, Xy=Xy, Gram=Gram, n_samples=None, max_iter=max_iter,\\n        alpha_min=alpha_min, method=method, copy_X=copy_X,\\n        eps=eps, copy_Gram=copy_Gram, verbose=verbose, return_path=return_path,\\n        return_n_iter=return_n_iter, positive=positive)\\n\\n\\n@_deprecate_positional_args\\ndef lars_path_gram(Xy, Gram, *, n_samples, max_iter=500, alpha_min=0,\\n                   method='lars', copy_X=True, eps=np.finfo(float).eps,\\n                   copy_Gram=True, verbose=0, return_path=True,\\n                   return_n_iter=False, positive=False):\\n    \\\"\\\"\\\"lars_path in the sufficient stats mode [1]\\n\\n    The optimization objective for the case method='lasso' is::\\n\\n    (1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\\n\\n    in the case of method='lars', the objective function is only known in\\n    the form of an implicit equation (see discussion in [1])\\n\\n    Read more in the :ref:`User Guide <least_angle_regression>`.\\n\\n    Parameters\\n    ----------\\n    Xy : array-like of shape (n_samples,) or (n_samples, n_targets)\\n        Xy = np.dot(X.T, y).\\n\\n    Gram : array-like of shape (n_features, n_features)\\n        Gram = np.dot(X.T * X).\\n\\n    n_samples "
+        },
+        {
+          "evidence_id": "read_file:4ecc910b48568e57",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sklearn/linear_model/_least_angle.py\", \"start_line\": 400, \"end_line\": 760, \"content\": \"           <https://en.wikipedia.org/wiki/Lasso_(statistics)>`_\\n\\n    \\\"\\\"\\\"\\n    if method == 'lars' and positive:\\n        raise ValueError(\\n                \\\"Positive constraint not supported for 'lars' \\\"\\n                \\\"coding method.\\\"\\n            )\\n\\n    n_samples = n_samples if n_samples is not None else y.size\\n\\n    if Xy is None:\\n        Cov = np.dot(X.T, y)\\n    else:\\n        Cov = Xy.copy()\\n\\n    if Gram is None or Gram is False:\\n        Gram = None\\n        if X is None:\\n            raise ValueError('X and Gram cannot both be unspecified.')\\n    elif isinstance(Gram, str) and Gram == 'auto' or Gram is True:\\n        if Gram is True or X.shape[0] > X.shape[1]:\\n            Gram = np.dot(X.T, X)\\n        else:\\n            Gram = None\\n    elif copy_Gram:\\n        Gram = Gram.copy()\\n\\n    if Gram is None:\\n        n_features = X.shape[1]\\n    else:\\n        n_features = Cov.shape[0]\\n        if Gram.shape != (n_features, n_features):\\n            raise ValueError('The shapes of the inputs Gram and Xy'\\n                             ' do not match.')\\n\\n    if copy_X and X is not None and Gram is None:\\n        # force copy. setting the array to be fortran-ordered\\n        # speeds up the calculation of the (partial) Gram matrix\\n        # and allows to easily swap columns\\n        X = X.copy('F')\\n\\n    max_features = min(max_iter, n_features)\\n\\n    if return_path:\\n        coefs = np.zeros((max_features + 1, n_features))\\n        alphas = np.zeros(max_features + 1)\\n    else:\\n        coef, prev_coef = np.zeros(n_features), np.zeros(n_features)\\n        alpha, prev_alpha = np.array([0.]), np.array([0.])  # better ideas?\\n\\n    n_iter, n_active = 0, 0\\n    active, indices = list(), np.arange(n_features)\\n    # holds the sign of covariance\\n    sign_active = np.empty(max_features, dtype=np.int8)\\n    drop = False\\n\\n    # will hold the cholesky fa"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/_least_angle.py",
+          "line": 33,
+          "symbol": "lars_path"
+        },
+        {
+          "path": "sklearn/linear_model/_least_angle.py",
+          "line": 165,
+          "symbol": "lars_path_gram (alternative public entry point)"
+        },
+        {
+          "path": "sklearn/linear_model/_least_angle.py",
+          "line": 283,
+          "symbol": "_lars_path_solver"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

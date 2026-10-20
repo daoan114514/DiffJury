@@ -25,3 +25,83 @@
 [18:35:40] source validation @200: {"round_id": "200", "replay_limit": 120, "replays": 0, "round_replays": 115, "budget_consumed": 115, "entries": 0, "passed": 0, "neutral": 0, "harmful": 0, "failed": 0, "not_exposed": 0, "skipped": 0}
 [18:43:27] counterfactual @200: {"trials_considered": 72, "no_training_match": 1, "pairs": 20, "replay_limit": 40, "replays": 40, "applied": 9, "helpful": 1, "harmful": 0, "neutral": 8, "failed": 0, "not_exposed": 11}
 [18:43:27] maintenance @200: validation gate and release
+[19:06:58] maintenance @200 complete
+[10:52:27] attribution @225: {"reviews": 6, "accepted": 0, "false_positive": 2, "failed": 0}
+[10:58:02] source validation @243
+[11:29:37] source validation @243: {"round_id": "243", "replay_limit": 120, "replays": 114, "round_replays": 114, "budget_consumed": 114, "entries": 22, "passed": 2, "neutral": 10, "harmful": 4, "failed": 2, "not_exposed": 0, "skipped": 4}
+[11:51:57] counterfactual @243: {"trials_considered": 79, "no_training_match": 1, "pairs": 20, "replay_limit": 40, "replays": 40, "applied": 6, "helpful": 0, "harmful": 0, "neutral": 6, "failed": 0, "not_exposed": 14}
+[11:51:57] maintenance @243: validation gate and release
+[12:32:23] maintenance @243 complete
+[12:32:23] replay v2-governed: 219 PRs, attempt 1
+[12:45:40] replay v2-governed: completed=216/219, F1=0.3
+[12:45:40] replay v2-governed: 3 PRs, attempt 2
+[12:47:47] replay v2-governed: completed=219/219, F1=0.2975
+[12:47:47] replay v2-governed_canary: 219 PRs, attempt 1
+[13:01:08] replay v2-governed_canary: completed=214/219, F1=0.3036
+[13:01:08] replay v2-governed_canary: 5 PRs, attempt 2
+[22:51:43] replay v2-governed_canary: 2 PRs, attempt 1
+[22:59:03] replay v2-governed_canary: completed=219/219, F1=0.3103
+[22:59:03] holdout paired bootstrap: governed_minus_baseline
+[22:59:47] holdout paired bootstrap: governed_canary_minus_baseline
+[23:00:31] holdout paired bootstrap: governed_minus_naive
+[23:01:16] holdout paired bootstrap: governed_canary_minus_naive
+[23:02:00] holdout paired bootstrap: governed_minus_baseline_rerun
+[23:02:43] holdout paired bootstrap: governed_canary_minus_baseline_rerun
+[23:03:27] holdout paired bootstrap: governed_canary_minus_governed
+[23:04:11] holdout paired bootstrap: naive_minus_baseline
+[23:04:55] holdout paired bootstrap: baseline_minus_baseline_rerun
+[23:05:39] replay v2-recurrence-baseline-rerun: 150 PRs, attempt 1
+[09:20:02] holdout paired bootstrap: governed_minus_baseline
+[09:20:42] holdout paired bootstrap: governed_canary_minus_baseline
+[09:21:24] holdout paired bootstrap: governed_minus_naive
+[09:22:06] holdout paired bootstrap: governed_canary_minus_naive
+[09:22:50] holdout paired bootstrap: governed_minus_baseline_rerun
+[09:23:35] holdout paired bootstrap: governed_canary_minus_baseline_rerun
+[09:24:21] holdout paired bootstrap: governed_canary_minus_governed
+[09:25:08] holdout paired bootstrap: naive_minus_baseline
+[09:25:53] holdout paired bootstrap: baseline_minus_baseline_rerun
+[09:26:37] replay v2-recurrence-baseline-rerun: 62 PRs, attempt 1
+[11:25:11] replay v2-recurrence-baseline-rerun: completed=150/150, F1=0.1913
+[11:25:11] replay v2-governed: 150 PRs, attempt 1
+[14:53:03] replay v2-governed: completed=150/150, F1=0.1608
+[14:53:04] replay v2-governed_canary: 150 PRs, attempt 1
+[17:21:33] replay v2-governed_canary: completed=100/150, F1=0.1558
+[17:21:33] replay v2-governed_canary: 50 PRs, attempt 2
+[17:26:01] replay v2-governed_canary: completed=100/150, F1=0.1558
+[17:26:01] replay v2-governed_canary: 50 PRs, attempt 3
+[17:30:30] replay v2-governed_canary: completed=100/150, F1=0.1558
+Traceback (most recent call last):
+  File "C:\Users\卢佳尧\Documents\DiffJury\scripts\run_swr_temporal_v2.py", line 349, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\卢佳尧\Documents\DiffJury\scripts\run_swr_temporal_v2.py", line 338, in main
+    state["recurrence"] = run_recurrence(args, out, original, train, reviewers, skills, str(connection.get("api_key") or ""))
+                          ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\卢佳尧\Documents\DiffJury\scripts\run_swr_temporal_v2.py", line 105, in run_recurrence
+    report = run_cached_replays(reviewers[name], selected, directory, skills[name],
+                               args.workers, args.retry_workers, args.retry_failed,
+                               secret=secret, log=log)
+  File "C:\Users\卢佳尧\Documents\DiffJury\diffjury\evaluation_replay.py", line 137, in run_cached_replays
+    raise RuntimeError("too many failed replays; resume from cached successful PRs")
+RuntimeError: too many failed replays; resume from cached successful PRs
+[13:35:37] holdout paired bootstrap: governed_minus_baseline
+[13:36:34] holdout paired bootstrap: governed_canary_minus_baseline
+[13:37:31] holdout paired bootstrap: governed_minus_naive
+[13:38:29] holdout paired bootstrap: governed_canary_minus_naive
+[13:39:29] holdout paired bootstrap: governed_minus_baseline_rerun
+[13:40:29] holdout paired bootstrap: governed_canary_minus_baseline_rerun
+[13:41:31] holdout paired bootstrap: governed_canary_minus_governed
+[13:42:34] holdout paired bootstrap: naive_minus_baseline
+[13:43:33] holdout paired bootstrap: baseline_minus_baseline_rerun
+[13:44:33] replay v2-governed_canary: 50 PRs, attempt 1
+[15:11:56] replay v2-governed_canary: completed=150/150, F1=0.1854
+[15:11:56] recurrence paired bootstrap: governed_minus_baseline
+[15:11:57] recurrence paired bootstrap: governed_canary_minus_baseline
+[15:11:59] recurrence paired bootstrap: governed_minus_naive
+[15:12:00] recurrence paired bootstrap: governed_canary_minus_naive
+[15:12:01] recurrence paired bootstrap: governed_minus_baseline_rerun
+[15:12:02] recurrence paired bootstrap: governed_canary_minus_baseline_rerun
+[15:12:03] recurrence paired bootstrap: governed_canary_minus_governed
+[15:12:04] recurrence paired bootstrap: naive_minus_baseline
+[15:12:05] recurrence paired bootstrap: baseline_minus_baseline_rerun
+[15:12:07] done: evaluation_results\swr_rot_temporal_v2\NOTES.md

@@ -1,0 +1,155 @@
+{
+  "id": "matplotlib__matplotlib-26113",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 26113,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 45708,
+  "llm_calls": 5,
+  "input_tokens": 8761,
+  "output_tokens": 1846,
+  "total_tokens": 10607,
+  "instruction_calls": 5,
+  "instruction_tokens": 4094,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2586,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "hexbin-empty-bin-reduction",
+      "severity": "medium",
+      "title": "Inclusive mincnt threshold now reduces empty bins by default",
+      "explanation": "The preceding lines convert mincnt=None to 0. Consequently, the new >= comparison passes every empty bin to reduce_C_function, whereas the previous > comparison skipped them. A concrete counterexample is ax.hexbin([0.0], [0.0], C=[1.0], gridsize=2, reduce_C_function=np.max): the grid contains empty bins, and np.max([]) raises ValueError because maximum has no identity. Previously, those bins became NaN and this call succeeded. Explicit mincnt=0 has the same regression. The default np.mean reducer also now receives empty lists and emits empty-slice warnings. Including bins whose positive count equals mincnt is the intended boundary correction; invoking reducers on empty bins is a separate compatibility regression. The supplied comprehension visits every allocated bin except the out-of-range bin, and its threshold is the only shown guard. Full documentation and existing tests were not supplied, so their wording and coverage cannot be independently verified in this no-tools review.",
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 5017,
+      "evidence": "if mincnt is None:\n                mincnt = 0\n            accum = np.array(\n                [reduce_C_function(acc) if len(acc) >= mincnt else np.nan\n                 for Cs_at_i in [Cs_at_i1, Cs_at_i2]\n                 for acc in Cs_at_i[1:]],  # [1:] drops out-of-range points.\n                float)",
+      "fix": "Retain the inclusive threshold for occupied bins while explicitly skipping empty bins, for example by testing `acc and len(acc) >= mincnt` before invoking the reducer.",
+      "test": "Call hexbin with x=[0.0], y=[0.0], C=[1.0], gridsize=2, and reduce_C_function=np.max, parameterized over mincnt=None and mincnt=0. Assert that neither call raises and the returned collection contains only the occupied bin with value 1.0. Also verify that np.mean emits no empty-reduction warnings and that a bin containing exactly one point remains included when mincnt=1.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 5014,
+          "symbol": "Axes.hexbin"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ]
+}

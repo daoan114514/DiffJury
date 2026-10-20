@@ -1,0 +1,182 @@
+{
+  "id": "matplotlib__matplotlib-17257",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 17257,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 104093,
+  "llm_calls": 6,
+  "input_tokens": 56470,
+  "output_tokens": 5031,
+  "total_tokens": 61501,
+  "instruction_calls": 6,
+  "instruction_tokens": 6561,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 2,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2586,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2467,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "custom-preamble-command-collision",
+      "severity": "low",
+      "title": "The unconditional mathdefault definition breaks existing custom preambles",
+      "explanation": "A previously valid configuration such as text.latex.preamble = r'\\newcommand{\\mathdefault}[1]{\\mathrm{#1}}' now fails to compile even ordinary text. Previously, the generated document did not define this command, so the custom definition succeeded. The new preamble defines it before inserting the custom preamble, causing LaTeX's 'Command \\mathdefault already defined' error. This affects normal TeX generation, preview generation, and psfrag conversion because all three use the shared preamble. The added test_mathdefault covers an otherwise undefined command, not an existing user definition.",
+      "path": "lib/matplotlib/texmanager.py",
+      "line": 205,
+      "evidence": "r\"\\newcommand{\\mathdefault}[1]{#1}\",",
+      "fix": "Insert the fallback definition after the custom preamble and use \\providecommand{\\mathdefault}[1]{#1}, so an existing user definition remains valid while generated ticker commands still work without one.",
+      "test": "Set text.usetex=True and text.latex.preamble to a \\newcommand definition of \\mathdefault, then render ordinary text and text containing \\mathdefault. Verify successful compilation with preview disabled and enabled, and exercise an EPS save through psfrag. Retain the existing test for a preamble without a user definition.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 237,
+          "symbol": "TexManager.make_tex"
+        },
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 287,
+          "symbol": "TexManager.make_tex_preview"
+        },
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 195,
+          "symbol": "TexManager._get_preamble"
+        },
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 211,
+          "symbol": "TexManager.get_custom_preamble"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-691",
+      "applied_rules": []
+    }
+  ]
+}

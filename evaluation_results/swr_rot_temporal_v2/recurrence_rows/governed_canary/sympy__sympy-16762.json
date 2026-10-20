@@ -1,0 +1,289 @@
+{
+  "id": "sympy__sympy-16762",
+  "repository": "sympy/sympy",
+  "pull_request": 16762,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 145084,
+  "llm_calls": 5,
+  "input_tokens": 15285,
+  "output_tokens": 4598,
+  "total_tokens": 19883,
+  "instruction_calls": 5,
+  "instruction_tokens": 5424,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {
+    "K-0bb3b558": {
+      "tp": 0,
+      "fp": 2
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3302,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "check-symbolic-assumptions-versus-concrete-types",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2571
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 794,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1",
+        "K-4e30e572"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0bb3b558",
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4e30e572",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-ac2e3c0d",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-87ee2eda",
+          "K-4f9662f0",
+          "K-1f002951",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 384,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-4e30e572"
+        ],
+        "tokens": 618,
+        "budget": 600,
+        "dropped": [
+          "K-9d754682",
+          "K-8184713c",
+          "K-cde9c599",
+          "K-e4a5fbd0",
+          "K-8810c414",
+          "K-86d0b57a",
+          "K-4e7d5d6b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "add-power-normalization-exact-coefficient-rounding",
+      "severity": "medium",
+      "title": "Floating conversion of the scale destroys distinctions between exact coefficients",
+      "explanation": "Let N=10**20 and construct (N*x + (N-1)*y + 1.0*z)**2 for distinct symbols x, y and z. Coefficient extraction supplies two concrete Integers and one Float, so the Float flag enables normalization even though the dominant coefficients are exact. Multiplying the largest coefficient by Python's 1.0 creates a default-precision Float scale. The normalized coefficients N/big and (N-1)/big both round to 1.0 at that precision, although the exact coefficients differ by one. Thus substituting x=1, y=-1, z=0 into the newly constructed power yields zero; the original base at those substitutions is exactly one, and its square must be one. This example uses only positive coefficients, so it is independent of the shared-sign defect. The added tests use small, well-separated coefficients and string comparisons, and do not check preservation of exact-coefficient cancellation in a mixed exact/Float expression.",
+      "path": "sympy/core/add.py",
+      "line": 398,
+      "evidence": "big = 1.0*abs(i)",
+      "fix": "Keep the selected largest magnitude exact when it is an Integer or Rational, and preserve exact divisions of exact coefficients. Do not force the entire scale to default floating-point precision merely because another term has a Float coefficient.",
+      "test": "Set N=10**20 and p=(N*x + (N-1)*y + 1.0*z)**2, then assert p.subs({x: 1, y: -1, z: 0}) == 1. Include the corresponding expression with higher-precision Float coefficients to verify that normalization does not silently reduce available precision.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 392,
+          "symbol": "Add._eval_power coefficient extraction"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 398,
+          "symbol": "conversion of exact scale to Float"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "rounded coefficient division"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 402,
+          "symbol": "return of normalized power"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1339",
+      "applied_rules": [
+        "K-0bb3b558"
+      ]
+    },
+    {
+      "rule_id": "add-power-normalization-sign",
+      "severity": "medium",
+      "title": "Equal-magnitude coefficients lose their individual signs",
+      "explanation": "For distinct symbols x and y, construct (2.0*x - 2.0*y)**2. The extracted coefficients are concrete Floats +2.0 and -2.0, and exponent 2 satisfies the new guard. The loop records just one sign s for the first coefficient attaining the largest magnitude. Line 401 then substitutes that same s for both coefficients because both have magnitude big. Consequently, regardless of argument ordering, the result is 4.0*(x + y)**2 instead of 4.0*(x - y)**2. Substituting x=y=1 gives 16 instead of 0. The added tests exercise different signs but always use unequal coefficient magnitudes, so none detects this loss of relative sign.",
+      "path": "sympy/core/add.py",
+      "line": 401,
+      "evidence": "addpow = Add(*[(s if abs(c[i]) == big else c[i]/big)*m[i] for i in range(len(c))])**e",
+      "fix": "Determine the sign separately for every coefficient whose magnitude equals big, or divide each coefficient by a positive scale without using a shared sign.",
+      "test": "Add a regression for (2.0*x - 2.0*y)**2 that substitutes x=y=1 and asserts zero. Include equal-magnitude positive and negative coefficients in different term positions so argument ordering cannot conceal the failure.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 391,
+          "symbol": "Add._eval_power"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 399,
+          "symbol": "selection of shared sign s"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "construction of normalized Add"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": [
+        "K-0bb3b558"
+      ]
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

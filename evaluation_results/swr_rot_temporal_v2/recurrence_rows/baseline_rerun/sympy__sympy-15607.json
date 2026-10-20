@@ -1,0 +1,234 @@
+{
+  "id": "sympy__sympy-15607",
+  "repository": "sympy/sympy",
+  "pull_request": 15607,
+  "split": "train",
+  "expected": 1,
+  "predicted": 4,
+  "tp": 1,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sympy/plotting/plot.py",
+      "line": 515,
+      "cwe": "CWE-682",
+      "rule_id": "REL-LOGSPACE-COORDINATES",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 169224,
+  "llm_calls": 5,
+  "input_tokens": 22171,
+  "output_tokens": 5462,
+  "total_tokens": 27633,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 4,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "REL-LOGSPACE-COORDINATES",
+      "severity": "medium",
+      "title": "Fallback log sampling treats actual x coordinates as base-10 exponents",
+      "explanation": "In the branch where both endpoint function values are non-real, p[0] and q[0] are actual x coordinates: the same sampling path evaluates f(self.start), f(self.end), and passes those coordinates into sample(). np.logspace(p[0], q[0], 10), however, generates coordinates from 10**p[0] to 10**q[0], rather than coordinates between p[0] and q[0]. This can discover and recursively sample real function values outside the requested range. For example, consider sqrt((x-10)*(1000-x)) over [1, 2] with logarithmic adaptive sampling. The function has no real values in that range, including the incorrectly extended [0, 2] range caused by the endpoint mutation. Nevertheless, a fallback interval with endpoints between 1 and 2 generates coordinates between 10 and 100, where the function is real, and those coordinates enter the subsequent sampling loop. This defect remains even if the endpoint mutation is fixed.",
+      "path": "sympy/plotting/plot.py",
+      "line": 515,
+      "evidence": "                    if self.xscale is 'log':\n                        xarray = np.logspace(p[0], q[0], 10)\n                    else:\n                        xarray = np.linspace(p[0], q[0], 10)\n                    yarray = list(map(f, xarray))\n                    if any(y is not None for y in yarray):",
+      "fix": "Use a consistent coordinate representation throughout sampling. For positive endpoints stored in ordinary x coordinates, construct geometric samples between those endpoints, for example with logspace(log10(p[0]), log10(q[0]), 10), and retain appropriate handling for invalid logarithmic endpoints.",
+      "test": "Exercise the real adaptive fallback with a controlled subdivision sequence and sqrt((x-10)*(1000-x)) over [1, 2]. Assert that no real segments are produced and no function evaluations occur outside the requested interval. Also test a narrow real-valued island inside a positive interval to verify that fallback sampling searches inside, rather than outside, that interval.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 540,
+          "symbol": "LineOver1DRangeSeries.get_segments: initial sample call"
+        },
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 513,
+          "symbol": "sample: both endpoint values are None"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-LOG-ENDPOINT-MUTATION",
+      "severity": "medium",
+      "title": "Adaptive logarithmic plotting changes and repeatedly corrupts the series range",
+      "explanation": "When the identity check succeeds, adaptive get_segments() replaces the stored lower endpoint with its natural logarithm, then evaluates the original function at that changed coordinate while leaving the upper endpoint unchanged. For a series for f(x)=x over [10, 100], the first call therefore samples approximately [2.302585, 100], not [10, 100]. Subsequent calls change the lower endpoint to approximately 0.834032, then -0.181483, and eventually NaN. Thus rendering is neither range-preserving nor repeatable. The identity comparison also makes equal scale options behave differently: a dynamically constructed ''.join(['l', 'o', 'g']) is equal to 'log' but need not be identical, so it can bypass this branch, unlike the usual literal. These conclusions follow directly from the assignments and subsequent sampling calls; they were not runtime-tested.",
+      "path": "sympy/plotting/plot.py",
+      "line": 535,
+      "evidence": "            if self.xscale is 'log':\n                self.start=np.log(self.start)\n\n\n            f_start = f(self.start)\n            f_end = f(self.end)\n            sample([self.start, f_start], [self.end, f_end], 0)",
+      "fix": "Keep self.start and self.end immutable during sampling. If subdivision is performed in logarithmic coordinates, transform both endpoints into local variables and convert each sampled coordinate back before evaluating the function and emitting segments. Compare scale values with == rather than is.",
+      "test": "Construct f(x)=x over [10, 100] with adaptive=True and xscale='log'; call get_segments() repeatedly and assert that the stored endpoints remain 10 and 100, emitted coordinates stay within that range, and endpoints remain finite. Repeat with ''.join(['l', 'o', 'g']) and assert equivalent scale behavior. Include a positive range starting at 1.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 534,
+          "symbol": "LineOver1DRangeSeries.get_segments"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-AXIS-LABEL-MUTATION",
+      "severity": "medium",
+      "title": "Rendering overwrites explicit axis labels and compounds them on subsequent renders",
+      "explanation": "When parent.xscale is identical to 'log', rendering mutates the Plot object's labels instead of merely configuring the backend. With xlabel='time' and ylabel='amplitude', the first render changes the labels to 'log(time)' and 'f(log(time))', discarding the supplied y label altogether. A second execution of the same rendering block changes them again to 'log(log(time))' and 'f(log(log(time)))'. Axis scaling does not justify replacing user-provided labels, and backend processing must not compound changes to persistent plot configuration. Both branches also use identity comparisons, so an equal dynamically constructed 'log' value can produce different label behavior.",
+      "path": "sympy/plotting/plot.py",
+      "line": 1067,
+      "evidence": "        if parent.xlabel:\n            if parent.xscale is 'log':\n                parent.xlabel='log(%s)' % parent.xlabel\n            self.ax.set_xlabel(parent.xlabel, position=(1, 0))\n        if parent.ylabel:\n            if parent.xscale is 'log':\n                parent.ylabel='f(%s)' % parent.xlabel\n            self.ax.set_ylabel(parent.ylabel, position=(0, 1))",
+      "fix": "Pass the configured labels to Matplotlib unchanged and do not assign to parent.xlabel or parent.ylabel during rendering. If automatically generated labels require special formatting, distinguish them from explicit labels and compute any formatting locally without persistent mutation.",
+      "test": "Create a logarithmic plot with explicit xlabel='time' and ylabel='amplitude'. Execute backend processing twice and assert after each execution that both Plot attributes and displayed labels retain those exact strings. Repeat with a dynamically constructed scale string.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 1065,
+          "symbol": "MatplotlibBackend: axis-label application"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-DEBUG-PRINT",
+      "severity": "low",
+      "title": "Point generation now writes the complete sample array to stdout",
+      "explanation": "The added print executes unconditionally whenever LineOver1DRangeSeries.get_points() successfully evaluates its samples. It is not restricted to logarithmic plotting or a debug option. Consequently, direct get_points() calls and point-based line sampling, including non-adaptive and integer-only plotting, now produce unsolicited stdout containing the x-coordinate array. The adaptive get_segments() branch does not itself reach this statement. This is an output-side-effect regression that can pollute command-line output and captured notebook output; the supplied evidence does not establish sensitive-data exposure.",
+      "path": "sympy/plotting/plot.py",
+      "line": 553,
+      "evidence": "        f = vectorized_lambdify([self.var], self.expr)\n        list_y = f(list_x)\n        print(list_x)\n        return (list_x, list_y)",
+      "fix": "Remove the unconditional print.",
+      "test": "Capture stdout while calling get_points() for an ordinary linear-scale series and while rendering non-adaptive and integer-only line plots. Assert that sample generation emits no stdout and still returns the expected coordinates.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/plotting/plot.py",
+          "line": 544,
+          "symbol": "LineOver1DRangeSeries.get_points"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-489",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

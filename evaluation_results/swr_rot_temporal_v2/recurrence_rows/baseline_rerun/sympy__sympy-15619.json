@@ -1,0 +1,272 @@
+{
+  "id": "sympy__sympy-15619",
+  "repository": "sympy/sympy",
+  "pull_request": 15619,
+  "split": "train",
+  "expected": 1,
+  "predicted": 4,
+  "tp": 0,
+  "fp": 4,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 4,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 285780,
+  "llm_calls": 6,
+  "input_tokens": 67272,
+  "output_tokens": 9264,
+  "total_tokens": 76536,
+  "instruction_calls": 6,
+  "instruction_tokens": 7354,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 4,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3424,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3082
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "reciprocal-substitution-logarithm-branches",
+      "severity": "medium",
+      "title": "Reciprocal substitution rewrites logarithms incorrectly inside nonconstant products",
+      "explanation": "The new replacement assumes log(1/z) == -log(z), which is false on the principal branch for negative real z. Although replacing a standalone logarithmic antiderivative can merely change an integration constant, replacing it inside a product need not. A concrete counterexample is the valid substitution u = 1/x for the integrand log(1/x)/x**2. The transformed integrand is -log(u), with antiderivative -u*log(u) + u. Calling eval_u(u, 1/x, 1, integral_steps(-log(u), u), log(1/x)/x**2, x) now produces (log(x) + 1)/x instead of (1 - log(1/x))/x. Its derivative is -log(x)/x**2, rather than log(1/x)/x**2. At x = -1 these are respectively -I*pi and I*pi. Thus the change violates the substitution evaluator's antiderivative invariant for an otherwise valid substitution rule. No positivity or branch condition guards the replacement. This counterexample establishes the evaluator defect directly; the supplied diff does not establish whether the automatic substitution search selects this particular rule for the example.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1259,
+      "evidence": "if u_func.is_Pow and u_func.exp == -1:\n        # avoid needless -log(1/x) from substitution\n        result = result.subs(sympy.log(u_var), -sympy.log(u_func.base))",
+      "fix": "Preserve log(u_var) until the ordinary substitution, or restrict this simplification to bases known to be positive real. Do not apply the identity unconditionally throughout the antiderivative.",
+      "test": "Add a focused eval_u regression using the valid reciprocal-substitution rule for log(1/x)/x**2 described above. Differentiate its returned expression and verify agreement with the original integrand on x < 0, including an explicit check at x = -1. Also retain a positive-real case to verify any guarded simplification.",
+      "confidence": 0.87,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1255,
+          "symbol": "eval_u"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1256,
+          "symbol": "_manualintegrate(substep)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "complex-gaussian-invalid-order-comparison",
+      "severity": "medium",
+      "title": "Complex quadratic exponentials now raise during real-order branch selection",
+      "explanation": "manualintegrate(exp(I*x**2), x) matches the new Gaussian pattern with a=I, b=0, c=0. The wildcard only excludes coefficients known to be zero, so it accepts I. eval_erf then evaluates a < 0 while constructing its Piecewise, which raises TypeError for an ordering comparison involving the non-real number I. Thus a valid entire integrand fails instead of yielding an antiderivative or an unevaluated Integral. The exception is introduced by placing this unrestricted special-function rule before the existing dispatch; it is not caused by the integrand's domain. Both newly added Gaussian tests have real numerical coefficients and miss this path.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1453,
+      "evidence": "    return Piecewise(\n        (sympy.sqrt(sympy.pi/(-a))/2 * sympy.exp(c - b**2/(4*a)) *\n            sympy.erf((-2*a*symbol - b)/(2*sympy.sqrt(-a))), a < 0),",
+      "fix": "Avoid constructing an ordering relation for coefficients known to be non-real. Use a branch-consistent complex Gaussian formula, or decline this rule for such coefficients and let the normal fallback handle the integral.",
+      "test": "Add a regression invoking manualintegrate(exp(I*x**2), x), asserting that it does not raise and that differentiating its result reproduces exp(I*x**2). Include a non-pure-imaginary coefficient such as 1+I as well as the existing positive and negative real cases.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 348,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 364,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1450,
+          "symbol": "eval_erf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-fresnel-square-root-branch",
+      "severity": "medium",
+      "title": "Fresnel evaluators return the negative antiderivative for negative quadratic coefficients",
+      "explanation": "For real x, manualintegrate(sin(-x**2 + x + 1), x) reaches the new FresnelSRule with a=-1, b=1, c=1. The argument has two positive terms, so extracting an overall minus sign does not eliminate this case. Write z=(2*x-1)/sqrt(2*pi). Using the standard identities for Fresnel functions at imaginary arguments, the evaluator's result is F=sqrt(pi/2)*(cos(5/4)*fresnels(z)-sin(5/4)*fresnelc(z)). Differentiating gives F'=sin(x**2-x-1), which is the negative of the input; at x=0 the derivative is -sin(1), rather than sin(1). The cause is that sqrt(pi/(2*a))*(2*a)/sqrt(2*a*pi) equals -1 when a is negative real, not 1. The cosine evaluator has the same defect. These functions are entire, so this counterexample does not depend on evaluating on a branch cut or singularity. The new priority dispatch introduces this incorrect result; the added Fresnel tests exercise only positive quadratic coefficients.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1465,
+      "evidence": "    return sympy.sqrt(sympy.pi/(2*a)) * (\n        sympy.cos(b**2/(4*a) - c)*sympy.fresnels((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)) -\n        sympy.sin(b**2/(4*a) - c)*sympy.fresnelc((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)))",
+      "fix": "Use a prefactor algebraically inverse to the derivative of the exact Fresnel argument, such as sqrt(2*a*pi)/(2*a), in both Fresnel evaluators, rather than independently taking the square root of the reciprocal.",
+      "test": "Add real-x tests for sin(-x**2+x+1) and cos(-x**2+x+1). Invoke manualintegrate and assert that differentiating the returned result reproduces the integrand, including a check at x=0. Retain the existing positive-coefficient cases.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 365,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1464,
+          "symbol": "eval_fresnels"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-elliptic-square-root-factorization",
+      "severity": "medium",
+      "title": "Elliptic rules factor square roots without preserving their branches",
+      "explanation": "For real x, the new matcher accepts sqrt(2*sin(x)**2-1) with a=-1 and d=-2; its a != d guard passes. eval_elliptic_e returns I*elliptic_e(x, 2). Differentiating this result gives I*sqrt(1-2*sin(x)**2). At x=pi/3 this equals -1/sqrt(2), whereas the original integrand equals +1/sqrt(2). This point is inside an interval where the original radicand is strictly positive and nonsingular. Similarly, manualintegrate(1/sqrt(2*sin(x)**2-1), x) returns -I*elliptic_f(x, 2), whose derivative at pi/3 is -sqrt(2), instead of +sqrt(2). Both failures follow from assuming sqrt(a)*sqrt(1-d*sin(x)**2/a) equals sqrt(a-d*sin(x)**2), which is false on these branches. These erroneous expressions are introduced by the new elliptic dispatch and evaluators. The added tests use positive a and therefore do not expose the failure.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1487,
+      "evidence": "@evaluates(EllipticFRule)\ndef eval_elliptic_f(a, d, integrand, symbol):\n    return sympy.elliptic_f(symbol, d/a)/sympy.sqrt(a)\n\n@evaluates(EllipticERule)\ndef eval_elliptic_e(a, d, integrand, symbol):\n    return sympy.elliptic_e(symbol, d/a)*sympy.sqrt(a)",
+      "fix": "Restrict these simple elliptic formulas to assumptions that justify factoring the principal square root, such as positive real a. Otherwise preserve an unevaluated integral or implement a branch-aware result rather than applying the formula unconditionally.",
+      "test": "With x real, integrate sqrt(2*sin(x)**2-1) and its reciprocal through manualintegrate. Differentiate the returned expressions and compare against the respective integrands at pi/3; also verify the existing positive-a cases still evaluate correctly.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 369,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1482,
+          "symbol": "eval_elliptic_f"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1486,
+          "symbol": "eval_elliptic_e"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

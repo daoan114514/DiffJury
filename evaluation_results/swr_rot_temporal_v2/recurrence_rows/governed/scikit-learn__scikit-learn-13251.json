@@ -1,0 +1,271 @@
+{
+  "id": "scikit-learn__scikit-learn-13251",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 13251,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 144316,
+  "llm_calls": 6,
+  "input_tokens": 42021,
+  "output_tokens": 5337,
+  "total_tokens": 47358,
+  "instruction_calls": 6,
+  "instruction_tokens": 6815,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2573,
+      "knowledge_ids": [
+        "K-3c8dfccb",
+        "K-26252785"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2573,
+      "knowledge_ids": [
+        "K-3c8dfccb",
+        "K-26252785"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 341,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb",
+          "K-26252785"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 165,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "isolation-forest-zero-normalizer",
+      "severity": "medium",
+      "title": "Returning zero for singleton leaves makes max_samples=1 anomaly scores undefined",
+      "explanation": "The formula correction is appropriate in isolation, but its scoring consumer also uses _average_path_length(self.max_samples_) as a divisor. A concrete triggering input is IsolationForest(max_samples=1, contamination='auto', random_state=0).fit([[0.], [1.]]), followed by score_samples([[0.]]). Every fitted tree contains only its root: the scoring path length is root depth plus _average_path_length(1), hence zero after this change. The normalization factor is also zero, so scoring evaluates 0/0 and produces NaN rather than the previous finite score of -0.5. This also affects training on a single sample with the default max_samples='auto', and fractional max_samples values that resolve to one sample. The input is valid; changing the leaf formula needs a corresponding guard in the scoring normalization. The added helper assertions correctly establish the scalar results for 0, 1, 2 and larger counts, but do not exercise this downstream boundary.",
+      "path": "sklearn/ensemble/iforest.py",
+      "line": 442,
+      "evidence": "        if n_samples_leaf <= 1:\n            return 0.",
+      "fix": "Keep the corrected average-path-length values, but explicitly handle the zero normalization factor in anomaly scoring. Preserve finite, neutral scores for trees trained with one sample, rather than dividing zero by zero.",
+      "test": "Fit IsolationForest with max_samples=1 on a multi-row input and with max_samples='auto' on a singleton input. Assert that score_samples returns finite values equal to -0.5 and decision_function remains finite; also exercise a fractional max_samples that resolves to one. Retain scalar checks for counts 0, 1, 2, 5 and 999, and add array checks including zero and a multidimensional array, asserting both corrected values and preservation of input shape.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/ensemble/iforest.py",
+          "line": 440,
+          "symbol": "_average_path_length"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-369",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "contamination-rank-boundary",
+      "severity": "medium",
+      "title": "The over-count branch can accept contamination errors by skipping the expected cutoff boundary",
+      "explanation": "The helper accepts a concrete incorrect result: check_outlier_corruption(4, 2, np.array([-2., -2., -1., -1.])) passes because it checks only sorted_decision[2:5], which contains two identical values. All four decision values are negative, so these scores consistently predict four outliers under the caller's strict negative-score rule. However, the 50th-percentile threshold of these scores is -1.5, separating exactly two samples; ties do not explain predicting four. The same counterexample reaches the training caller with 300 samples, expected_outliers=30, and decision values consisting of 30 copies of -2 followed by 270 copies of -1: the checked slice contains only -1 and passes. For fewer predictions, the existing interval [num_outliers, expected_outliers] is correct: with one predicted versus two expected, [0, 1, 1, 2] passes and [0, 1, 1.5, 2] fails as intended. For an over-count attributed to inclusive handling of a cutoff tie, the relevant tied ranks would instead be expected_outliers-1 through num_outliers-1, inclusive; the new branch shifts both endpoints forward. Under the strict percentile-threshold convention actually used here, over-counts should be rejected rather than excused by ties.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 1534,
+      "evidence": "    else:\n        start = expected_outliers\n        end = num_outliers + 1\n\n    # ensure that all values in the 'critical area' are tied,\n    # leading to the observed discrepancy between provided\n    # and actual contamination levels.\n    sorted_decision = np.sort(decision)\n    msg = ('The number of predicted outliers is not equal to the expected '\n           'number of outliers and this difference is not explained by the '\n           'number of ties is the decision_function values')\n    assert",
+      "fix": "Reject num_outliers > expected_outliers for the strict percentile-threshold contract. If inclusive-threshold estimators must also be supported, handle that convention explicitly, checking the boundary beginning at expected_outliers - 1 and verifying that the threshold and predicted labels actually account for the discrepancy.",
+      "test": "Add a regression asserting that check_outlier_corruption(4, 2, np.array([-2., -2., -1., -1.])) raises. Retain the existing fewer-outlier tied and untied cases, and add an integration case with 300 samples whose erroneous contamination-specific predictions label every sample an outlier despite a distinct score boundary at rank 30.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1608,
+          "symbol": "check_outliers_train"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1616,
+          "symbol": "check_outlier_corruption"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 1534,
+          "symbol": "check_outlier_corruption"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-193",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "contamination-validation-skipped",
+      "severity": "medium",
+      "title": "fit_predict contamination validation is now silently skipped for estimators without decision_function",
+      "explanation": "Previously every estimator with a contamination parameter had its predicted outlier fraction checked. The replacement performs no contamination assertion at all when decision_function is unavailable. This includes the LocalOutlierFactor fit_predict configuration explicitly identified in the change as lacking that method. For example, a fit_predict implementation that returns 20 outliers among the 300 samples even after contamination is set to 0.1 now skips this validation entirely; the previous assertion rejected it. The added LOF test on iris only exercises one concrete estimator and dataset, so it does not restore the generic estimator check or validate its 300-sample training path. The change itself demonstrates that LOF has usable training scores in negative_outlier_factor_, so lacking decision_function need not mean abandoning validation.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 2420,
+      "evidence": "        if (num_outliers != expected_outliers and\n                hasattr(estimator, 'decision_function')):\n            decision = estimator.decision_function(X)\n            check_outlier_corruption(num_outliers, expected_outliers, decision)",
+      "fix": "Use negative_outlier_factor_ for the LOF training-score path when decision_function is unavailable. For other estimators without a supported score interface, retain an explicit contamination-count assertion instead of silently accepting every mismatch.",
+      "test": "Add a fit_predict-only estimator with a contamination parameter, no decision_function, and deliberately incorrect outlier counts, and assert that check_outliers_fit_predict rejects it. Also exercise the real default LOF fit_predict path with tied training scores to verify that its negative_outlier_factor_ fallback accepts legitimate ties while rejecting an injected incorrect count.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2384,
+          "symbol": "check_outliers_fit_predict"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2413,
+          "symbol": "estimator.fit_predict"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2420,
+          "symbol": "decision_function availability guard"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

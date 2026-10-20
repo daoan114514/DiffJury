@@ -1,0 +1,155 @@
+{
+  "id": "sympy__sympy-25371",
+  "repository": "sympy/sympy",
+  "pull_request": 25371,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 75847,
+  "llm_calls": 5,
+  "input_tokens": 17480,
+  "output_tokens": 3050,
+  "total_tokens": 20530,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "subresultant-zero-input-contract",
+      "severity": "medium",
+      "title": "Zero inputs return spurious PRS entries and non-polynomial elements",
+      "explanation": "The previous dmp_subresultants-backed API returns [f] when exactly one input is zero (after degree ordering), and [] when both inputs are zero. The replacement instead returns [f, 1] and [0, 0]. For example, with R, x = ring(\"x\", ZZ), (x**2).subresultants(R.zero) now returns [x**2, 1], R.zero.subresultants(x**2) returns the same incorrect sequence after swapping, and R.zero.subresultants(R.zero) returns [0, 0]. The added entries are Python integers rather than PolyElement instances. This both changes the mathematical sequence and breaks consumers that apply polynomial methods to every returned entry or interpret the final entry as the final nonzero remainder. The changed assertion at test_rings.py:1441 codifies the regression rather than preserving the old contract. Nonzero recurrence checks do not explain or justify this change: the supplied multivariate examples preserve the expected signs and generator selection, and the degree-drop example f=x**5+x+1, g=2*x**4 gives [f, g, 4*x+4, 32], with exact intermediate divisions by 16 and 64.",
+      "path": "sympy/polys/rings.py",
+      "line": 2915,
+      "evidence": "        if f == 0:\n            return [0, 0]\n\n        if g == 0:\n            return [f, 1]",
+      "fix": "Return [] when both inputs are zero and [f] when only the degree-ordered second input is zero. Update the new zero-input assertion accordingly.",
+      "test": "For rings over ZZ and QQ, assert subresultants(f, zero) == subresultants(zero, f) == [f] for both a nonconstant polynomial and a nonzero constant, and assert subresultants(zero, zero) == []. Verify every returned entry belongs to the original ring. Repeat in a multivariate ring with the default generator, an explicit generator index, and a generator object. Preserve the nonzero multivariate tests and add f=x**5+x+1, g=2*x**4 with expected PRS [f, g, 4*x+4, 32] to exercise a degree drop greater than one and exact coefficient divisions.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/rings.py",
+          "line": 2871,
+          "symbol": "PolyElement.subresultants"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

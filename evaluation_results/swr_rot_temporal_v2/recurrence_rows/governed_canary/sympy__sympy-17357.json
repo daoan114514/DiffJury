@@ -1,0 +1,228 @@
+{
+  "id": "sympy__sympy-17357",
+  "repository": "sympy/sympy",
+  "pull_request": 17357,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 85555,
+  "llm_calls": 5,
+  "input_tokens": 17851,
+  "output_tokens": 2692,
+  "total_tokens": 20543,
+  "instruction_calls": 5,
+  "instruction_tokens": 3900,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1776,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-7e90bf29",
+        "K-87ee2eda",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "test-quality"
+      ],
+      "skill_body_tokens": 1080
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 796,
+      "knowledge_ids": [
+        "K-a077c313",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-962b000c",
+        "K-9b028a49",
+        "K-2545551e",
+        "K-bc43ffcf",
+        "K-cde9c599",
+        "K-11de6ec1",
+        "K-7609a0f4"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-962b000c",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-bc43ffcf",
+      "K-cde9c599"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-7e90bf29",
+          "K-87ee2eda",
+          "K-4f9662f0",
+          "K-1f002951",
+          "K-a4c9356f"
+        ],
+        "tokens": 384,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-962b000c",
+          "K-9b028a49",
+          "K-2545551e",
+          "K-bc43ffcf",
+          "K-cde9c599",
+          "K-11de6ec1",
+          "K-7609a0f4"
+        ],
+        "tokens": 620,
+        "budget": 600,
+        "dropped": [
+          "K-86d0b57a",
+          "K-9d754682",
+          "K-e4a5fbd0",
+          "K-4e7d5d6b",
+          "K-d778c4a2",
+          "K-ac2e3c0d",
+          "K-8810c414"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "rewrite-depth-preservation",
+      "severity": "medium",
+      "title": "Delegated rewrites ignore deep=False and rewrite nested arguments",
+      "explanation": "The new public rewrite call starts a recursive rewrite with the default deep=True, even when the enclosing rewrite was requested with deep=False. For example, with x an unconstrained Symbol, csc(sin(x)).rewrite(cos, deep=False) previously returned 1/cos(sin(x) - pi/2, evaluate=False), preserving the inner sin(x). The new implementation delegates to sin(sin(x)).rewrite(cos), which first rewrites the inner sin(x), producing 1/cos(cos(x - pi/2, evaluate=False) - pi/2, evaluate=False). Although mathematically equivalent, this violates the explicit shallow-rewrite contract. The same lost-depth problem affects the other newly introduced public rewrite calls in cos, tan, cot, sec, and csc. Using public rewrite to handle intermediate expressions that evaluate to a different type is an intended fix; restarting a deep traversal is a separate regression. The issue-17349 test exercises only the default deep rewrite and therefore cannot detect this behavior.",
+      "path": "sympy/functions/elementary/trigonometric.py",
+      "line": 1770,
+      "evidence": "return 1 / sin(arg).rewrite(cos)",
+      "fix": "Preserve the enclosing rewrite's depth and other applicable hints when delegating to public rewrite. Ensure that deep=False reaches the delegated call rather than restarting traversal with its default depth.",
+      "test": "Add an exact assertion that csc(sin(x)).rewrite(cos, deep=False) equals 1/cos(sin(x) - pi/2, evaluate=False), and retain a separate default-depth assertion showing that nested sin(x) is rewritten when deep=True. Add analogous shallow-rewrite cases for the other changed delegation paths using arguments containing functions convertible to the requested target.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1769,
+          "symbol": "csc._eval_rewrite_as_cos"
+        },
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1770,
+          "symbol": "sin(arg).rewrite(cos)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

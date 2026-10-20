@@ -1,0 +1,290 @@
+{
+  "id": "sympy__sympy-27396",
+  "repository": "sympy/sympy",
+  "pull_request": 27396,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sympy/integrals/integrals.py",
+      "line": 744,
+      "cwe": "CWE-682",
+      "rule_id": "incorrect-period-after-inner-integration",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 221537,
+  "llm_calls": 5,
+  "input_tokens": 24966,
+  "output_tokens": 6896,
+  "total_tokens": 31862,
+  "instruction_calls": 5,
+  "instruction_tokens": 5473,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3363,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-87ee2eda",
+        "K-7e90bf29",
+        "K-1f002951",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "check-symbolic-assumptions-versus-concrete-types",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2595
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 782,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1",
+        "K-9d754682"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0bb3b558",
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-9d754682",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-a9677d2d",
+          "K-4f9662f0",
+          "K-87ee2eda",
+          "K-7e90bf29",
+          "K-1f002951",
+          "K-a4c9356f"
+        ],
+        "tokens": 420,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-9d754682"
+        ],
+        "tokens": 606,
+        "budget": 600,
+        "dropped": [
+          "K-8810c414",
+          "K-8184713c",
+          "K-cde9c599",
+          "K-d778c4a2",
+          "K-60ce9e38",
+          "K-4e30e572",
+          "K-10578218",
+          "K-4e7d5d6b",
+          "K-86d0b57a",
+          "K-e4a5fbd0"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-period-after-inner-integration",
+      "severity": "medium",
+      "title": "The period of the original integrand is incorrectly reused after an inner integration",
+      "explanation": "The period used here belongs to self.function, but the antiderivative being evaluated belongs to the current function, which may already include the result of an earlier integration. A concrete counterexample is Integral(Abs(sin(x)), (y, 0, x), (x, 0, 2*pi)), with positive x and y. The inner integration changes the integrand to x*Abs(sin(x)), which is not periodic. The original integrand nevertheless supplies period pi, so the new branch evaluates the Piecewise antiderivative over [0, pi] and repeats that contribution twice. That gives 2*pi instead of the mathematically correct 4*pi. This is a static counterexample; execution tools were unavailable. The zero lower bound avoids the preliminary translation, and the positive symbols avoid any dependence on assumptions substitution. The added tests are all single integrals, so they do not exercise the change in the integrand after an inner integration.",
+      "path": "sympy/integrals/integrals.py",
+      "line": 744,
+      "evidence": "period = periodicity(self.function, x)\n                            if period and len(sympify(x+Min(a,b)).free_symbols)==1:\n                                _sign = 1\n                                if a.evalf() > b.evalf():\n                                    a,b = b,a\n                                    _sign = -1\n                                int_len = b-a\n                                rem = int_len-(int_len//period)*period\n                                evalued_pw_1 = piecewise_fold(Add(*",
+      "fix": "Determine periodicity from the current integrand before computing its antiderivative, rather than from self.function. Apply period reduction only when periodicity of that current integrand is established.",
+      "test": "Using positive symbols x and y, assert Integral(Abs(sin(x)), (y, 0, x), (x, 0, 2*pi)).doit() == 4*pi. Also test the equivalent single integral of x*Abs(sin(x)) and require the two results to agree.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 453,
+          "symbol": "Integral.doit: initialize the working function from self.function"
+        },
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 735,
+          "symbol": "Integral.doit: evaluate antiderivative components for the current limit"
+        },
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 744,
+          "symbol": "Integral.doit: obtain periodicity from the original integrand"
+        },
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 754,
+          "symbol": "Integral.doit: repeat the current Piecewise contribution using that period"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "infinite-period-remainder",
+      "severity": "medium",
+      "title": "Infinite integration lengths enter finite-period quotient/remainder arithmetic",
+      "explanation": "The new period-reduction branch has no finite-endpoint requirement. For Integral(Abs(sin(x)), (x, 0, oo)), with positive x, the preliminary translation is skipped because the minimum endpoint is zero. In the Piecewise interval-evaluation path, the original integrand has period pi and the free-symbol guard succeeds. The new arithmetic then sets int_len to oo and computes rem = oo - oo, producing NaN rather than a valid remainder. This passes an invalid endpoint into _eval_interval and prevents the ordinary improper-integral endpoint evaluation from handling this integral, whose correct value is oo. This is a static arithmetic/control-flow reproduction, not an executed claim about the exact resulting exception. The surrounding exception handler catches only NotImplementedError; it does not make the NaN remainder valid or implement an infinite-period sum. All added tests have finite bounds.",
+      "path": "sympy/integrals/integrals.py",
+      "line": 751,
+      "evidence": "if period and len(sympify(x+Min(a,b)).free_symbols)==1:\n                                _sign = 1\n                                if a.evalf() > b.evalf():\n                                    a,b = b,a\n                                    _sign = -1\n                                int_len = b-a\n                                rem = int_len-(int_len//period)*period\n                                evalued_pw_1 = piecewise_fold(Add(*piecewises))._eval_interval(x, 0, period)\n                         ",
+      "fix": "Restrict quotient/remainder period reduction to provably finite real endpoints and lengths. Leave improper integrals on the existing endpoint/limit-evaluation path, or implement their infinite-period sums separately.",
+      "test": "With positive x, assert integrate(Abs(sin(x)), (x, 0, oo)) == oo and verify that no NaN endpoint or exception is produced. Include a reversed infinite interval to check orientation.",
+      "confidence": 0.7499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 507,
+          "symbol": "Integral.doit: zero lower endpoint skips translation"
+        },
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 745,
+          "symbol": "Integral.doit: infinite interval passes the periodicity guard"
+        },
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 751,
+          "symbol": "Integral.doit: compute an undefined infinite-length remainder"
+        },
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 753,
+          "symbol": "Expr._eval_interval: receive NaN as the remainder endpoint"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

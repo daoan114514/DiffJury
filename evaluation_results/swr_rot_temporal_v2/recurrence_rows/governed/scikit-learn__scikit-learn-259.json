@@ -1,0 +1,300 @@
+{
+  "id": "scikit-learn__scikit-learn-259",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 259,
+  "split": "train",
+  "expected": 1,
+  "predicted": 4,
+  "tp": 0,
+  "fp": 3,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 114464,
+  "llm_calls": 5,
+  "input_tokens": 23441,
+  "output_tokens": 4532,
+  "total_tokens": 27973,
+  "instruction_calls": 5,
+  "instruction_tokens": 4370,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 4,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-3c8dfccb",
+        "K-26252785"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 396,
+      "knowledge_ids": [
+        "K-fe66117a",
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb",
+          "K-26252785"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fe66117a",
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 220,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "FINITE-SPARSE-STORAGE",
+      "severity": "medium",
+      "title": "Finite validation breaks both helpers for ordinary sparse matrices",
+      "explanation": "For a finite CSR, CSC, or COO matrix, X.data is an ndarray, not a method. Calling it raises TypeError before validation or conversion can complete. Both safe_asanyarray and atleast2d_or_csr now invoke this code unconditionally, so previously supported sparse inputs fail instead of being returned unchanged or converted to CSR. For example, safe_asanyarray(sp.csr_matrix([[1.0]])) and atleast2d_or_csr(sp.coo_matrix([[1.0]])) now fail. Merely removing the parentheses does not cover every supported sparse format: DOK does not expose the same data attribute, and LIL stores nested row data. This conclusion follows directly from the changed call chain and SciPy storage contracts; runtime verification was unavailable.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 8,
+      "evidence": "    if sp.issparse(X):\n        X = X.data()",
+      "fix": "Inspect stored values without calling data. Normalize formats without a flat numeric data array to an appropriate sparse representation for validation, while preserving safe_asanyarray's original return-format contract and atleast2d_or_csr's CSR conversion contract.",
+      "test": "Pass finite and NaN-containing CSR, CSC, COO, LIL, and DOK matrices through both helpers. Finite matrices must succeed, safe_asanyarray must preserve its sparse-input behavior, atleast2d_or_csr must return CSR, and nonfinite stored values must raise ValueError.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 16,
+          "symbol": "safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 25,
+          "symbol": "atleast2d_or_csr"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 5,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "FINITE-REDUCTION-OVERFLOW",
+      "severity": "medium",
+      "title": "Overflow in the validation sum rejects finite float32 input before widening",
+      "explanation": "The check treats an overflowing aggregate as proof that an individual element is nonfinite. A concrete input is X = np.array([[2e38, 2e38]], dtype=np.float32), passed to safe_asanyarray(X, dtype=np.float64). Every input value is finite, and the requested float64 conversion can represent both values and their sum. However, validation runs first, so np.sum accumulates in float32 and overflows to infinity; the helper raises ValueError rather than returning the valid float64 array. This is a concrete failure of the acknowledged sum limitation, not merely a concern about the comment. atleast2d_or_csr also rejects the same finite input. The arithmetic and call order establish the counterexample, although execution was unavailable.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 12,
+      "evidence": "    if not np.isfinite(np.sum(X)):\n        raise ValueError(\"array contains NaN or infinity\")",
+      "fix": "Do not reject an array solely because its reduction is nonfinite. Use an elementwise finite check, or retain the reduction as a fast path and check individual elements when the reduction is nonfinite. Validate the converted representation when a conversion is requested.",
+      "test": "Verify that both helpers accept finite float32 arrays whose sum overflows, and that safe_asanyarray returns finite float64 values when widening is requested. Separately verify rejection of actual NaN and positive or negative infinity.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "FINITE-VALIDATION-BEFORE-CONVERSION",
+      "severity": "medium",
+      "title": "Validation before numeric conversion rejects previously accepted numeric strings",
+      "explanation": "BaseLibLinear.fit previously converted X directly with np.asanyarray(X, dtype=np.float64, order='C'). It now calls safe_asanyarray, which sums the original input before performing the requested conversion. For example, fitting on X = [['0', '1'], ['1', '0']] with labels [0, 1] previously produced a numeric training array; now np.sum operates on a string dtype and raises a TypeError before conversion or training. The dtype argument cannot protect this path because validation precedes conversion. This is separate from reduction overflow: even small, exactly representable values fail. The old/new conversion calls and the new validation order establish the compatibility break; runtime verification was unavailable.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 17,
+      "evidence": "def safe_asanyarray(X, dtype=None, order=None):\n    assert_all_finite(X)",
+      "fix": "Perform the requested dense dtype conversion before checking finiteness, preserving the sparse branch separately. Check the resulting numeric representation so conversion-created nonfinite values are also detected.",
+      "test": "Fit LogisticRegression on a small numeric-string feature matrix with two classes and verify that it behaves like the equivalent float64 matrix. Add helper tests showing that numeric strings convert successfully while strings representing NaN or infinity are rejected after conversion.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "NAN-REGRESSION-WRONG-INPUT",
+      "severity": "low",
+      "title": "The NaN regression test passes the unmodified array to fit",
+      "explanation": "The test creates Xnan and modifies that copy, but calls fit(X, Y1). Consequently, the estimator never receives the inserted NaN, and its finite-input validation cannot be the source of the expected ValueError. If the copy is floating point and assignment succeeds, fitting the original valid input leaves the expected exception unsatisfied. If the fixture produces an integer array and assigning NaN raises ValueError, the @raises decorator can instead accept that unrelated setup failure without executing fit at all. The supplied diff does not include the fixture's full definition, so the precise branch cannot be verified here; either way, the changed lines prove that this test does not exercise NaN handling in fit.",
+      "path": "scikits/learn/linear_model/tests/test_logistic.py",
+      "line": 74,
+      "evidence": "    Xnan = np.array(X)\n    Xnan[0, 1] = np.nan\n    logistic.LogisticRegression().fit(X, Y1)",
+      "fix": "Create Xnan with an explicit floating dtype and pass Xnan to fit. Scope assert_raises to the fit call rather than decorating the entire setup and test body.",
+      "test": "Confirm that NaN assignment succeeds, the exact array passed to fit contains NaN, and fit raises the intended ValueError. Verify that the test no longer passes from a setup exception.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 67,
+          "symbol": "test_nan"
+        },
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

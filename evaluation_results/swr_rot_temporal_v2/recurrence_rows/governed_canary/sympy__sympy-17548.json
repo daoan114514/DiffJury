@@ -1,0 +1,251 @@
+{
+  "id": "sympy__sympy-17548",
+  "repository": "sympy/sympy",
+  "pull_request": 17548,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sympy/abc.py",
+      "line": 100,
+      "cwe": "CWE-665",
+      "rule_id": "module-scope-symbol-overwrite",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 54783,
+  "llm_calls": 5,
+  "input_tokens": 15175,
+  "output_tokens": 1328,
+  "total_tokens": 16503,
+  "instruction_calls": 5,
+  "instruction_tokens": 5111,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2957,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-a9677d2d",
+        "K-87ee2eda",
+        "K-4f9662f0",
+        "K-2b8fec11",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 826,
+      "knowledge_ids": [
+        "K-a077c313",
+        "K-10578218",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-8810c414",
+        "K-4e7d5d6b",
+        "K-bc43ffcf",
+        "K-03e5723b",
+        "K-11de6ec1"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-03e5723b",
+      "K-10578218",
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2b8fec11",
+      "K-4e7d5d6b",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-8810c414",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-a9677d2d",
+          "K-87ee2eda",
+          "K-4f9662f0",
+          "K-2b8fec11",
+          "K-1f002951",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 467,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313",
+          "K-10578218",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-8810c414",
+          "K-4e7d5d6b",
+          "K-bc43ffcf",
+          "K-03e5723b",
+          "K-11de6ec1"
+        ],
+        "tokens": 650,
+        "budget": 600,
+        "dropped": [
+          "K-119c9319",
+          "K-9d754682",
+          "K-962b000c",
+          "K-8184713c",
+          "K-7609a0f4",
+          "K-e4a5fbd0",
+          "K-2545551e",
+          "K-ac2e3c0d",
+          "K-d778c4a2",
+          "K-cde9c599"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "module-scope-symbol-overwrite",
+      "severity": "medium",
+      "title": "Module-level clash initialization overwrites the exported symbol k",
+      "explanation": "Moving the loop out of clashing() makes its assignment to k overwrite the existing sympy.abc.k symbol. The namespace populated by `from sympy import *` is nonempty, and every key returned by popitem() is a string, so after initialization k is a string rather than Symbol('k'), regardless of dictionary iteration order. Previously this assignment was local to clashing(). The final cleanup does not remove or restore k. A minimal reproduction is `from sympy import Symbol; from sympy.abc import k; assert k == Symbol('k')`: the assertion now fails, and ordinary symbolic usage such as `k + 1` raises TypeError. This regression affects explicit imports independently of whether wildcard exports are controlled by __all__. The clash dictionary construction itself retains the previous operations; the defect is the newly shared module-level binding.",
+      "path": "sympy/abc.py",
+      "line": 100,
+      "evidence": "    k, _ = ns.popitem()",
+      "fix": "Keep the initialization in a helper function, or rename the loop key to a private temporary that does not collide with any predefined symbol and delete that temporary afterward. Merely deleting k afterward would still remove the public symbol rather than restore it.",
+      "test": "In a fresh import, assert that `from sympy.abc import k` yields `Symbol('k')` and that `k + 1` constructs the expected symbolic expression. Add coverage asserting that every predefined Latin symbol retains its Symbol binding after clash initialization, and retain tests for the three documented _clash dictionary examples.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/abc.py",
+          "line": 95,
+          "symbol": "module-level clash initialization"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 100,
+          "symbol": "module-level assignment to k"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

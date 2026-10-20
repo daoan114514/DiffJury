@@ -1,0 +1,175 @@
+{
+  "id": "matplotlib__matplotlib-5224",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 5224,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 2,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 126793,
+  "llm_calls": 5,
+  "input_tokens": 15692,
+  "output_tokens": 4086,
+  "total_tokens": 19778,
+  "instruction_calls": 5,
+  "instruction_tokens": 6138,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "reliability-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "mkdirs-python2-existing-relative-directory",
+      "severity": "medium",
+      "title": "The Python 2 fallback fails for an already-existing relative basename",
+      "explanation": "On Python 2, create a directory named `cache` in the working directory, then call mkdirs('cache'). Previously, the outer existence check returned normally immediately. The replacement unconditionally splits the path into ('', 'cache') and processes the empty component first. `_make_leaf('')` finds that os.path.exists('') is false and calls os.makedirs(''), which raises ENOENT; the exception guard re-raises it. Thus an ordinary repeated call for an existing relative directory now fails. The same issue affects an existing regular file supplied as a bare relative basename. The reference to `thispart` itself is not an unbound-variable defect: the loop assigns it immediately before each synchronous helper invocation, and its value equals the helper's argument. The defect is removing the outer existence guard before processing the empty parent.",
+      "path": "lib/matplotlib/cbook.py",
+      "line": 1032,
+      "evidence": "    for i in range(1, len(parts) + 1):\n        thispart = os.path.join(*parts[:i])\n        _make_leaf(thispart, mode)",
+      "fix": "Restore the outer existing-path early return before splitting the path. This restores the previous behavior without expanding the scope of the refactor to fix pre-existing failures for nonexistent bare relative paths.",
+      "test": "On Python 2, change into an isolated temporary directory, create `cache`, then call mkdirs('cache') twice and assert both calls return normally. Include an existing absolute directory and an existing relative directory with a nonempty parent as controls. A nonexistent bare basename and an empty string already failed in the old implementation and should not be labeled newly introduced regressions.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1031,
+          "symbol": "mkdirs: os.path.split('cache')"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1034,
+          "symbol": "mkdirs -> _make_leaf('')"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1025,
+          "symbol": "_make_leaf -> os.makedirs('')"
+        },
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1029,
+          "symbol": "_make_leaf: re-raise ENOENT"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "mkdirs-existing-file-compatibility",
+      "severity": "low",
+      "title": "The Python 3 branch raises for existing files that previously produced a no-op",
+      "explanation": "On Python 3, call mkdirs(path) where path names an existing regular file. Previously, the outer `if not os.path.exists(newdir)` was false, so the function returned without attempting creation. The new call to os.makedirs(..., exist_ok=True) suppresses an existing-path error only for a directory, so this input now raises OSError/FileExistsError. This is a confirmed change in observable behavior, independent of the Python 3 minor version. The Python 2 fallback still skips existing files when the path's parent component is nonempty, making behavior additionally version-dependent. No callers or tests were supplied, so the affected consumer is a direct caller relying on the helper's previous existing-path no-op behavior.",
+      "path": "lib/matplotlib/cbook.py",
+      "line": 1017,
+      "evidence": "        os.makedirs(newdir, mode=mode, exist_ok=True)",
+      "fix": "Preserve the existing-path short circuit before selecting the Python-version-specific implementation. If rejecting existing files is intentional, treat that as an explicit API behavior change rather than an equivalent refactor.",
+      "test": "Inside a temporary directory, create a regular file and invoke mkdirs with its absolute path. Assert that it returns normally and leaves the file unchanged, matching the previous implementation. Run on Python 3 and the supported Python 2 runtime.",
+      "confidence": 0.89,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/cbook.py",
+          "line": 1017,
+          "symbol": "mkdirs -> os.makedirs"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "id": "matplotlib__matplotlib-23066",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 23066,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "src/_tkagg.cpp",
+      "line": 28,
+      "cwe": "CWE-704",
+      "rule_id": "correctness.invalid-return-type",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 43834,
+  "llm_calls": 5,
+  "input_tokens": 7997,
+  "output_tokens": 1572,
+  "total_tokens": 9569,
+  "instruction_calls": 5,
+  "instruction_tokens": 4002,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "correctness.invalid-return-type",
+      "severity": "medium",
+      "title": "Windows error shim returns a void expression from a pointer-returning function",
+      "explanation": "CPython declares PyErr_SetString as `void PyErr_SetString(PyObject *, const char *)`. The new shim returns PyObject *, so returning the result of PyErr_SetString is invalid C++ and prevents compilation whenever the enclosing preprocessor branch includes this definition, regardless of whether the function is called. The supplied excerpt does not show that branch's condition, so this does not establish failure on every platform. It also does not establish a separate declaration conflict: that would require proving that CPython's conditional declaration of PyErr_SetFromWindowsErr is visible in the same configuration. The shim should set the exception and then return NULL, preserving the error-return convention expected of PyErr_SetFromWindowsErr.",
+      "path": "src/_tkagg.cpp",
+      "line": 28,
+      "evidence": "    return PyErr_SetString(PyExc_OSError, \"Call to EnumProcessModules failed\");",
+      "fix": "Call `PyErr_SetString(PyExc_OSError, \"Call to EnumProcessModules failed\");` as a statement, followed by `return NULL;`.",
+      "test": "Compile _tkagg.cpp with CPython headers in a supported configuration that enables this shim. Verify compilation succeeds after the fix. With Python initialized, invoke the shim and verify it returns NULL while leaving an OSError pending.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "src/_tkagg.cpp",
+          "line": 27,
+          "symbol": "PyErr_SetFromWindowsErr"
+        },
+        {
+          "path": "src/_tkagg.cpp",
+          "line": 28,
+          "symbol": "PyErr_SetString"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ]
+}

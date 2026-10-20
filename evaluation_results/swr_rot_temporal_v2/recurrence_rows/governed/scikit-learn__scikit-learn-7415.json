@@ -1,0 +1,182 @@
+{
+  "id": "scikit-learn__scikit-learn-7415",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 7415,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 62236,
+  "llm_calls": 5,
+  "input_tokens": 11136,
+  "output_tokens": 1726,
+  "total_tokens": 12862,
+  "instruction_calls": 5,
+  "instruction_tokens": 4193,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2573,
+      "knowledge_ids": [
+        "K-3c8dfccb",
+        "K-26252785"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 292,
+      "knowledge_ids": [
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb",
+          "K-26252785"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fc6f5674"
+        ],
+        "tokens": 116,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "pickle-warning-estimator-name",
+      "severity": "medium",
+      "title": "The replacement fixture changes the estimator name in the expected warning",
+      "explanation": "TreeBadVersion.__getstate__ explicitly supplies _sklearn_version=\"something\", and pickle.loads restores a TreeBadVersion instance through the inherited BaseEstimator.__setstate__. When the test module is imported as sklearn.tests.test_base, the sklearn module-prefix check enables version validation, but the warning identifies the runtime class as TreeBadVersion, not DecisionTreeClassifier. The unchanged expected message therefore fails to match the warning produced by the new fixture. If the test module is instead imported outside the sklearn namespace, the inherited module-prefix guard skips the version warning entirely; injecting _sklearn_version alone does not bypass that guard. Neither case preserves the existing DecisionTreeClassifier warning assertion.",
+      "path": "sklearn/tests/test_base.py",
+      "line": 343,
+      "evidence": "class TreeBadVersion(DecisionTreeClassifier):\n    def __getstate__(self):\n        return dict(self.__dict__.items(), _sklearn_version=\"something\")\n\n    tree = TreeBadVersion().fit(iris.data, iris.target)\n    tree_pickle_other = pickle.dumps(tree)\n    message = (\"Trying to unpickle estimator DecisionTreeClassifier from \"",
+      "fix": "Update the expected warning to name TreeBadVersion and ensure the helper's module satisfies the inherited sklearn module-prefix guard under the supported test invocation.",
+      "test": "Run test_pickle_version_warning using the supported test runner. Assert that loading the TreeBadVersion pickle emits UserWarning with estimator name TreeBadVersion, saved version \"something\", and the current sklearn version, while the ordinary DecisionTreeClassifier round trip remains warning-free.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_base.py",
+          "line": 343,
+          "symbol": "test_pickle_version_warning"
+        },
+        {
+          "path": "sklearn/tests/test_base.py",
+          "line": 328,
+          "symbol": "TreeBadVersion.__getstate__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

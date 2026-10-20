@@ -1,0 +1,285 @@
+{
+  "id": "scikit-learn__scikit-learn-14817",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 14817,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 107169,
+  "llm_calls": 6,
+  "input_tokens": 80096,
+  "output_tokens": 3017,
+  "total_tokens": 83113,
+  "instruction_calls": 6,
+  "instruction_tokens": 6075,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1968,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-8828df10",
+        "K-5388c8d9",
+        "K-eb2105bb",
+        "K-4d5756a5",
+        "K-1d4bb77e",
+        "K-26252785",
+        "K-3c8dfccb",
+        "K-2bba7006",
+        "K-6e16a2a3",
+        "K-f32f49ff"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1968,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-8828df10",
+        "K-5388c8d9",
+        "K-eb2105bb",
+        "K-4d5756a5",
+        "K-1d4bb77e",
+        "K-26252785",
+        "K-3c8dfccb",
+        "K-2bba7006",
+        "K-6e16a2a3",
+        "K-f32f49ff"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 811,
+      "knowledge_ids": [
+        "K-fe66117a",
+        "K-791ded73",
+        "K-2968cdc5",
+        "K-1617cbdc",
+        "K-0f51ebe7",
+        "K-0f45b787",
+        "K-fc6f5674",
+        "K-51e6bbd9",
+        "K-69a7f4ef",
+        "K-9ecad403"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0f45b787",
+      "K-0f51ebe7",
+      "K-1617cbdc",
+      "K-1d4bb77e",
+      "K-26252785",
+      "K-2968cdc5",
+      "K-2bba7006",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-69a7f4ef",
+      "K-6e16a2a3",
+      "K-791ded73",
+      "K-8828df10",
+      "K-9ecad403",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-8828df10",
+          "K-5388c8d9",
+          "K-eb2105bb",
+          "K-4d5756a5",
+          "K-1d4bb77e",
+          "K-26252785",
+          "K-3c8dfccb",
+          "K-2bba7006",
+          "K-6e16a2a3",
+          "K-f32f49ff"
+        ],
+        "tokens": 641,
+        "budget": 600,
+        "dropped": [
+          "K-24ae43fa",
+          "K-651ca0b6",
+          "K-0a2298e4",
+          "K-60a0fdd6",
+          "K-c5fe4768",
+          "K-a62a9e09",
+          "K-1c8d031b"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fe66117a",
+          "K-791ded73",
+          "K-2968cdc5",
+          "K-1617cbdc",
+          "K-0f51ebe7",
+          "K-0f45b787",
+          "K-fc6f5674",
+          "K-51e6bbd9",
+          "K-69a7f4ef",
+          "K-9ecad403"
+        ],
+        "tokens": 635,
+        "budget": 600,
+        "dropped": [
+          "K-0f38f6b6",
+          "K-184c93c6",
+          "K-70b43072",
+          "K-d8b204bc",
+          "K-94fa9fcb",
+          "K-3636a06a",
+          "K-6d7b0522",
+          "K-feee072d"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "RST_ROLE_SYNTAX",
+      "severity": "low",
+      "title": "Restore the missing colon in the load_files module role",
+      "explanation": "The new `:mod` markup lacks the colon required between a reStructuredText role name and its opening backtick. Consequently, Sphinx cannot interpret this occurrence as a module reference: the documentation displays malformed role text instead of linking to sklearn.feature_extraction.text. The correctly formed :mod: reference at line 105 provides a direct comparison. This is a documentation defect, not a runtime or filesystem issue. Review coverage is limited to the supplied exact hunks; omitted-hunk summaries cannot establish exact syntax or complete coverage, and therefore cannot establish that the entire change is documentation-only.",
+      "path": "sklearn/datasets/base.py",
+      "line": 98,
+      "evidence": "    you will need to use the :mod`~sklearn.feature_extraction.text` module to",
+      "fix": "Change the reference to :mod:`~sklearn.feature_extraction.text`.",
+      "test": "Build and inspect the load_files API documentation, verifying that this occurrence renders as a link to the feature_extraction.text module without visible ':mod' or tilde markup.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "RST_LITERAL_REFERENCE",
+      "severity": "low",
+      "title": "Add an explicit function role to the randomized_svd reference",
+      "explanation": "The replacement adds a fully qualified target and Sphinx's '~' display-shortening prefix but leaves the text in bare single backticks. Under the new literal default role, this is literal text, not a Python cross-reference. Readers therefore see '~sklearn.utils.extmath.randomized_svd', including the tilde, rather than the intended shortened function link. This is distinct from intentionally retaining literals for parameter names: the newly added tilde only has the intended shortening behavior inside a Python reference role.",
+      "path": "sklearn/decomposition/truncated_svd.py",
+      "line": 56,
+      "evidence": "        `~sklearn.utils.extmath.randomized_svd` to handle sparse matrices that",
+      "fix": "Use :func:`~sklearn.utils.extmath.randomized_svd`, as the changed svd_flip docstring already does.",
+      "test": "Render the TruncatedSVD n_iter parameter documentation with the literal default role and verify that randomized_svd is a resolved function link with no visible tilde or module qualification.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

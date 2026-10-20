@@ -1,0 +1,167 @@
+{
+  "id": "scikit-learn__scikit-learn-30026",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 30026,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 56903,
+  "llm_calls": 6,
+  "input_tokens": 113132,
+  "output_tokens": 2598,
+  "total_tokens": 115730,
+  "instruction_calls": 6,
+  "instruction_tokens": 6566,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 2,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2529,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "test-quality",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2529,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "array-api-backend-coverage",
+      "severity": "low",
+      "title": "Version-only skip unnecessarily removes coverage for NumPy 1.x",
+      "explanation": "The new guard skips this test for every array-api-compat version below 1.9, irrespective of the NumPy version. For example, NumPy 1.26 with array-api-compat 1.8 now skips both the compliance assertion and the namespace-identity assertion. That combination was already expected to return array_api_compat.numpy by the previous test; the changed NumPy 2.x compliance classification does not require skipping it. Consequently, this test no longer detects an incorrect namespace or compliance flag for that older supported combination. The refreshed Linux lock installs 1.9 and therefore does not expose this coverage loss. This finding concerns the changed test hunk present in the supplied diff, not any omitted hunks.",
+      "path": "sklearn/utils/tests/test_array_api.py",
+      "line": 65,
+      "evidence": "if parse_version(array_api_compat.__version__) < parse_version(\"1.9\"):\n        pytest.skip(\n            reason=\"array_api_compat was temporarily reporting NumPy as API compliant \"\n            \"and this test would fail\"\n        )",
+      "fix": "Restrict the workaround to the affected NumPy/version combination, or retain the previous version-dependent namespace expectation for array-api-compat below 1.9. Continue executing the assertions with NumPy 1.x.",
+      "test": "Run this test with NumPy 1.26 and array-api-compat 1.8 and verify that it passes rather than skips, asserting is_array_api_compliant and xp_out is array_api_compat.numpy. Also run with array-api-compat 1.9 and NumPy 2.x to verify the new wrapper expectation.",
+      "confidence": 0.7599999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/tests/test_array_api.py",
+          "line": 62,
+          "symbol": "test_get_namespace_ndarray_with_dispatch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1177",
+      "applied_rules": []
+    }
+  ]
+}

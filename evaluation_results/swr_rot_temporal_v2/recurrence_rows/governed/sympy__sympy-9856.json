@@ -1,0 +1,227 @@
+{
+  "id": "sympy__sympy-9856",
+  "repository": "sympy/sympy",
+  "pull_request": 9856,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 143003,
+  "llm_calls": 5,
+  "input_tokens": 28018,
+  "output_tokens": 4608,
+  "total_tokens": 32626,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "polynomial-rewrite-semantics",
+      "severity": "medium",
+      "title": "FallingFactorial rewrite does not preserve polynomial-base shifts",
+      "explanation": "RisingFactorial has special semantics for a univariate polynomial base of degree greater than one: it shifts the polynomial's variable rather than adding to the polynomial's value. The new rewrite instead adds k - 1 to the polynomial itself. For r = rf(x**2, k), with k an integer symbol, specializing the original to k = 2 gives x**2*(x + 1)**2. Specializing the rewrite gives ff(x**2 + 1, 2). Under the corresponding polynomial falling-factorial semantics this is (x**2 + 1)*((x - 1)**2 + 1), which is different; at x = 0 the original is 0 and the rewritten expression is 2. This is an algebraic counterexample, not an executed result. Even a scalar-product interpretation of that FallingFactorial would give (x**2 + 1)*x**2, still not the original polynomial. The original polynomial branch is visible in the supplied evaluation code and is exercised by existing polynomial tests, but the newly added rewrite test uses only a degree-one symbolic base.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 508,
+      "evidence": "return FallingFactorial(x + k - 1, k)",
+      "fix": "Do not apply the scalar-base transformation to bases using polynomial-shift semantics. Either retain RisingFactorial for those inputs or implement a polynomial-aware transformation that shifts the polynomial's generator.",
+      "test": "Construct rf(x**2, k) before specializing k, rewrite to ff, and then substitute k = 2. Assert equality with the original polynomial result, including an evaluation at x = 0 after the order substitution. Add a negative-order polynomial case to check reciprocal-product handling as well.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 507,
+          "symbol": "RisingFactorial._eval_rewrite_as_FallingFactorial"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "rewrite-domain-validity",
+      "severity": "medium",
+      "title": "Factorial rewrite is invalid for nonpositive integer bases",
+      "explanation": "The integer assumptions permit nonpositive bases, for which both factorials can have poles even though RisingFactorial is finite. For integer symbols n and k, specialize rf(n, k) and its factorial rewrite simultaneously to n = -2, k = 1. The original evaluates to -2, whereas the rewrite becomes factorial(-2)/factorial(-3), namely zoo/zoo = nan. Negative orders are also affected: n = -2, k = -1 gives rf(-2, -1) = -1/3 but the ratio is factorial(-4)/factorial(-3) = nan. These are algebraic evaluations using the implementation's product/reciprocal-product semantics and factorial's negative-integer poles, not execution results. Starting with symbolic arguments is important because concrete integer orders normally evaluate before rewrite is invoked. The new test only asserts the symbolic ratio and therefore does not detect its invalid domain.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 512,
+      "evidence": "if x.is_integer and k.is_integer:\n            return factorial(k + x - 1) / factorial(x - 1)",
+      "fix": "Restrict this ratio to assumptions that establish its validity, for example positive integer x and positive x + k, or provide a separate pole-safe expression for nonpositive integer bases. Leave the expression unrevised when the required assumptions are unknown.",
+      "test": "For integer symbols n and k, compare rf(n, k) and its factorial rewrite after simultaneous substitutions {n: -2, k: 1} and {n: -2, k: -1}; require matching values -2 and -1/3. Also verify that unsupported assumptions leave the rewrite unchanged if domain guards are the chosen fix.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 510,
+          "symbol": "RisingFactorial._eval_rewrite_as_factorial"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "rewrite-domain-validity",
+      "severity": "medium",
+      "title": "Binomial rewrite turns negative integer orders into an indeterminate product",
+      "explanation": "The guard accepts every integer order, including negative orders. With x unrestricted and k integer, let r = rf(x, k). Then r.subs(k, -1) evaluates through the existing negative-order branch to 1/(x - 1). In contrast, r.rewrite(binomial).subs(k, -1) becomes factorial(-1)*binomial(x - 2, -1). The negative lower integer argument makes the binomial zero, while factorial(-1) is zoo, giving nan rather than the reciprocal. This is a mathematical evaluation of the reachable expressions, not a verified execution. Keeping k symbolic until after rewriting avoids automatic evaluation hiding the new path. The added test checks only the symbolic product with an integer symbol and never specializes to a negative order.",
+      "path": "sympy/functions/combinatorial/factorials.py",
+      "line": 515,
+      "evidence": "if k.is_integer:\n            return factorial(k) * binomial(x + k - 1, k)",
+      "fix": "Require k to be a nonnegative integer for this formula. Handle negative integer orders with a valid reciprocal formula, or leave those cases unrevised.",
+      "test": "Construct rf(x, k) with integer k, rewrite to binomial, and substitute k = -1 and k = -2. Compare against the original specialized expressions 1/(x - 1) and 1/((x - 1)*(x - 2)); neither result should become nan.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/combinatorial/factorials.py",
+          "line": 514,
+          "symbol": "RisingFactorial._eval_rewrite_as_binomial"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

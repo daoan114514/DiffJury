@@ -1,0 +1,136 @@
+{
+  "id": "sympy__sympy-416",
+  "repository": "sympy/sympy",
+  "pull_request": 416,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 81597,
+  "llm_calls": 5,
+  "input_tokens": 17504,
+  "output_tokens": 2053,
+  "total_tokens": 19557,
+  "instruction_calls": 5,
+  "instruction_tokens": 6095,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4587,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality",
+        "performance-review"
+      ],
+      "skill_body_tokens": 4233
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "unhashable-multiset-cache-key",
+      "severity": "medium",
+      "title": "Tuple cache keys reject unhashable multiset elements",
+      "explanation": "The replacement cache key retains the original multiset elements, so dictionary lookup now requires those elements to be hashable. For example, list(multiset_partitions([[1], [2], [3]], 2)) uses orderable list-valued elements: the previous str(ps) cache key could represent its three partitions, whereas the new lookup raises TypeError: unhashable type: 'list'. Converting the blocks to tuples does not make their list-valued contents hashable. This introduces an input compatibility restriction unrelated to suppressing duplicate sentinel results. The supplied diff does not include the full function or existing tests, so an earlier input restriction could not be independently inspected; this finding rests on the changed cache operation and the previously string-based representation.",
+      "path": "sympy/utilities/iterables.py",
+      "line": 750,
+      "evidence": "canonical = tuple(tuple(j) for j in ps)\n        if not cache.has_key(canonical):",
+      "fix": "Preserve support for unhashable elements by constructing cache keys from equality-class identifiers rather than the elements themselves, or provide an equality-based fallback for unhashable keys.",
+      "test": "Add a regression exercising list(multiset_partitions([[1], [2], [3]], 2)); assert that it returns exactly the three expected partitions without exceptions, duplicates, or None entries. The added [1, 2, 2] regression exercises only hashable integers and cannot detect this restriction. Also exercise repeated list-valued elements to cover deduplication through the fallback.",
+      "confidence": 0.7899999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 756,
+          "symbol": "f calls visit(n, a)"
+        },
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 750,
+          "symbol": "visit performs dictionary lookup using the element-containing tuple"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

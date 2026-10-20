@@ -1,0 +1,149 @@
+{
+  "id": "sympy__sympy-16637",
+  "repository": "sympy/sympy",
+  "pull_request": 16637,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 90315,
+  "llm_calls": 5,
+  "input_tokens": 20001,
+  "output_tokens": 2357,
+  "total_tokens": 22358,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "parallel-supporting-line-distance",
+      "severity": "medium",
+      "title": "Distance now raises for segments and rays parallel to, but outside, the plane",
+      "explanation": "Static counterexample, not runtime-executed: let p = Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1)), and let o be either Segment3D(Point3D(0, 0, 1), Point3D(1, 0, 1)) or Ray3D(Point3D(0, 0, 1), Point3D(1, 0, 1)). Both objects have distance 1 from p. The initial self.intersection(o) returns [], so execution reaches the new branch. Their supporting line is also parallel and disjoint, so self.intersection(Line3D(a, b)) returns [] as well. Unpacking this empty list into pi raises ValueError instead of returning 1. Previously, the LinearEntity3D distance calculation returned the correct normal distance. The modified tests exercise nonparallel segments and rays but do not cover this parallel-disjoint case. For nonparallel objects, the membership check correctly excludes intersections outside the object, and the subsequent ordering check selects the nearest endpoint; endpoint intersections and contained objects return zero through the initial intersection guard. The normal-vector normalization is algebraically equivalent to the previous distance formula for valid real coordinates; no separate symbolic-normal regression is established by the supplied diff.",
+      "path": "sympy/geometry/plane.py",
+      "line": 287,
+      "evidence": "            pi, = self.intersection(Line3D(a, b))",
+      "fix": "Check the supporting-line intersection before unpacking it. If it is empty, return self.distance(a), since every point of a line parallel to the plane has the same plane distance. Preserve the existing membership and nearest-endpoint logic for a nonempty intersection.",
+      "test": "Add regression tests using the z=0 plane and the segment and ray from (0, 0, 1) toward (1, 0, 1), asserting that each distance is exactly 1 without an exception. Also test reversed segment endpoints and the opposite ray direction to verify that the parallel case does not depend on orientation. Keep the nonparallel endpoint/interior/outside-intersection cases.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 282,
+          "symbol": "Plane.distance: initial intersection returns [] for a parallel-disjoint object"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 285,
+          "symbol": "Plane.distance: Segment3D/Ray3D branch"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 287,
+          "symbol": "Plane.distance: unpack supporting-line intersection"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 407,
+          "symbol": "Plane.intersection: solve the plane equation along the supporting line; a nonzero constant has no solution"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 409,
+          "symbol": "Plane.intersection: return [] when there is no solution"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

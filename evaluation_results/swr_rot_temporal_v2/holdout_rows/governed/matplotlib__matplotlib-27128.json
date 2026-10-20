@@ -1,0 +1,256 @@
+{
+  "id": "matplotlib__matplotlib-27128",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 27128,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 1,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 480,
+      "cwe": "CWE-628",
+      "rule_id": "decorator-call-contract",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 71089,
+  "llm_calls": 5,
+  "input_tokens": 19361,
+  "output_tokens": 3229,
+  "total_tokens": 22590,
+  "instruction_calls": 5,
+  "instruction_tokens": 4022,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2514,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "decorator-call-contract",
+      "severity": "medium",
+      "title": "The wrapper discards parametrization markers and the decorated tests' call signatures",
+      "explanation": "Both changed tests apply skipif_font_missing outside pytest.mark.parametrize; test_font_fallback_chinese also applies it outside check_figures_equal. The returned wrapper has only the family_name parameter and does not preserve the wrapped callable's metadata, __wrapped__, or pytest marks. Consequently, pytest sees an unparametrized test requesting a family_name fixture instead of the declared family_name/file_name cases. The parametrization cannot supply that argument, resulting in fixture lookup failure when no independent family_name fixture exists. The image-comparison callable and its metadata are likewise hidden. Independently, even if the marks were restored, forwarding only family_name cannot call test__get_fontmap(family_name, file_name) or satisfy the image-comparison wrapper's additional arguments. This replaces working parametrized tests with wrappers that do not honor their call contracts.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 480,
+      "evidence": "        def wrapper(family_name):\n            for font in fonts:\n                fp = fm.FontProperties(family=[font])\n                found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")\n                return func(family_name)\n        return wrapper",
+      "fix": "Use functools.wraps(func) and a wrapper accepting *args, **kwargs, forwarding both unchanged to func. Preserve the metadata and signature needed by pytest and check_figures_equal.",
+      "test": "Collect and execute both decorated tests with controlled successful font detection. Assert that both family_name/file_name cases are collected, that the image-comparison extension parametrization remains present, and that execution receives all original arguments without fixture lookup or TypeError failures.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 58,
+          "symbol": "test_font_fallback_chinese decorator stack"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 63,
+          "symbol": "check_figures_equal"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 80,
+          "symbol": "test__get_fontmap decorator stack"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 479,
+          "symbol": "skipif_font_missing.decorator"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "font-availability-detection",
+      "severity": "medium",
+      "title": "Font filenames are compared against family names, skipping installed fonts",
+      "explanation": "findfont returns a font-file path, not a family name, and by default can return a fallback font when the requested family is missing. Path(...).name therefore produces a basename such as wqy-zenhei.ttc, whereas both new call sites supply ['WenQuanYi Zen Hei', 'Noto Sans CJK JP']. Exact membership in that family-name list is false even when the requested font is installed. The removed inline checks instead compared the expected filename fragment, such as wqy-zenhei, against the returned basename. After the wrapper's collection problem is repaired, this new predicate still skips the installed-font cases rather than running them. It also does not establish whether findfont resolved the requested family or a fallback.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 484,
+      "evidence": "                found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")",
+      "fix": "Detect availability using findfont with fallback_to_default=False and handle its missing-font exception, or retain explicit expected filename fragments and compare against those rather than family names.",
+      "test": "Decorate a callable with ['DejaVu Sans'] and assert that it executes using Matplotlib's bundled DejaVuSans.ttf. Also request a deliberately nonexistent family and assert that the callable is skipped rather than accepted through default-font fallback.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 58,
+          "symbol": "skipif_font_missing(['WenQuanYi Zen Hei', 'Noto Sans CJK JP'])"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 80,
+          "symbol": "skipif_font_missing(['WenQuanYi Zen Hei', 'Noto Sans CJK JP'])"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 483,
+          "symbol": "fm.findfont"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "font-check-loop-control-flow",
+      "severity": "low",
+      "title": "Returning inside the font loop omits later checks and suppresses tests for an empty list",
+      "explanation": "The decorator promises to skip if any specified font is missing, but calls the test and returns during the first successful iteration. Thus no second or subsequent font can be checked after the first passes. For example, with findfont controlled to resolve the first entry to a matching basename and the second entry to a missing-font fallback, the callable runs without examining the missing second font. This is independent of the incorrect filename predicate. There is also a directly reachable empty-list regression: skipif_font_missing([])(test)(family_name) falls through the wrapper without invoking test and returns None, silently making the test pass without its assertions. With no required fonts, the callable should execute normally.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 486,
+      "evidence": "            for font in fonts:\n                fp = fm.FontProperties(family=[font])\n                found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")\n                return func(family_name)",
+      "fix": "Move invocation of the wrapped callable outside the loop so all requirements are checked first and an empty list invokes the callable once.",
+      "test": "Assert that an empty font list executes the callable exactly once and preserves its return value. With controlled font resolution, assert that an available first font followed by a missing second font skips without executing the callable, and that two available fonts execute it exactly once.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 470,
+          "symbol": "skipif_font_missing"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 480,
+          "symbol": "wrapper"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ]
+}

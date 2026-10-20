@@ -1,0 +1,254 @@
+{
+  "id": "scikit-learn__scikit-learn-1712",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 1712,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/tree/tree.py",
+      "line": 309,
+      "cwe": "CWE-704",
+      "rule_id": "numpy-fractional-max-features",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 72831,
+  "llm_calls": 5,
+  "input_tokens": 28021,
+  "output_tokens": 1965,
+  "total_tokens": 29986,
+  "instruction_calls": 5,
+  "instruction_tokens": 5218,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {
+    "K-3c8dfccb": {
+      "tp": 1,
+      "fp": 0
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3088,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-3c8dfccb",
+        "K-2bba7006",
+        "K-f32f49ff",
+        "K-1c8d031b",
+        "K-8828df10",
+        "K-5388c8d9",
+        "K-eb2105bb",
+        "K-0a2298e4"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 802,
+      "knowledge_ids": [
+        "K-0f45b787",
+        "K-69a7f4ef",
+        "K-0f38f6b6",
+        "K-791ded73",
+        "K-1617cbdc",
+        "K-51e6bbd9",
+        "K-fc6f5674",
+        "K-d8b204bc",
+        "K-0f51ebe7",
+        "K-3636a06a"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-0f51ebe7",
+      "K-1617cbdc",
+      "K-1c8d031b",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-69a7f4ef",
+      "K-791ded73",
+      "K-8828df10",
+      "K-d8b204bc",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-3c8dfccb",
+          "K-2bba7006",
+          "K-f32f49ff",
+          "K-1c8d031b",
+          "K-8828df10",
+          "K-5388c8d9",
+          "K-eb2105bb",
+          "K-0a2298e4"
+        ],
+        "tokens": 598,
+        "budget": 600,
+        "dropped": [
+          "K-a62a9e09",
+          "K-1d4bb77e",
+          "K-651ca0b6"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0f45b787",
+          "K-69a7f4ef",
+          "K-0f38f6b6",
+          "K-791ded73",
+          "K-1617cbdc",
+          "K-51e6bbd9",
+          "K-fc6f5674",
+          "K-d8b204bc",
+          "K-0f51ebe7",
+          "K-3636a06a"
+        ],
+        "tokens": 626,
+        "budget": 600,
+        "dropped": [
+          "K-6d7b0522"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "numpy-fractional-max-features",
+      "severity": "medium",
+      "title": "Apply fractional max_features semantics to NumPy floating scalars",
+      "explanation": "The new fractional conversion only recognizes Python float instances. np.float32(0.5) is not an instance of float, so it falls through to `max_features = self.max_features`. For an input with 13 features, Python 0.5 therefore produces the intended feature count 6, whereas np.float32(0.5) leaves the count as 0.5. This affects the shared conversion used by both decision-tree classifiers and regressors. The new tests exercise Python floats only and therefore miss the inconsistent conversion. The supplied context does not include the downstream validator or tree-construction implementation, so a specific final exception or tree shape is not asserted here; the incorrect value produced by the changed conversion is directly established by the visible branches.",
+      "path": "sklearn/tree/tree.py",
+      "line": 309,
+      "evidence": "        elif isinstance(self.max_features, float):\n            max_features = int(self.max_features * self.n_features_)\n        else:\n            max_features = self.max_features",
+      "fix": "Recognize Python and NumPy integral scalars as absolute feature counts first, then recognize fractional real scalars, including NumPy floating scalars, and apply the fractional conversion. Preserve the existing string and None branches.",
+      "test": "Extend test_max_features for both DecisionTreeClassifier and DecisionTreeRegressor with np.float32(0.5), np.float64(0.5), np.int32(1), and np.int64(1). On a dataset with 13 features, assert that floating 0.5 produces tree_.max_features == 6 and integral 1 produces tree_.max_features == 1. Include a forest integration case to verify that forwarding preserves these semantics.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tree/tree.py",
+          "line": 309,
+          "symbol": "BaseDecisionTree.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": [
+        "K-3c8dfccb"
+      ]
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

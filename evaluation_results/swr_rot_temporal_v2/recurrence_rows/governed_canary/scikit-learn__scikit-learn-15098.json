@@ -1,0 +1,189 @@
+{
+  "id": "scikit-learn__scikit-learn-15098",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 15098,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 90619,
+  "llm_calls": 5,
+  "input_tokens": 21022,
+  "output_tokens": 2025,
+  "total_tokens": 23047,
+  "instruction_calls": 5,
+  "instruction_tokens": 3180,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1440,
+      "knowledge_ids": [
+        "K-60a0fdd6"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 412,
+      "knowledge_ids": [
+        "K-0f45b787",
+        "K-791ded73",
+        "K-1617cbdc"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-60a0fdd6",
+      "K-791ded73"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-60a0fdd6"
+        ],
+        "tokens": 114,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0f45b787",
+          "K-791ded73",
+          "K-1617cbdc"
+        ],
+        "tokens": 236,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "cython-python-import-instead-of-cimport",
+      "severity": "high",
+      "title": "Import fabs with cimport to preserve C-level calls",
+      "explanation": "The new statement is a Python import, not a Cython declaration import. It therefore does not make libc's C-level, nogil-compatible fabs available to the replacement calls at lines 278 and 442. Those calls instead require Python name resolution and invocation, which Cython rejects in nogil contexts. Independently, a Python import of libc.math requires a runtime Python module; Cython's libc.math is a compile-time .pxd declaration package, not that runtime module. Thus this change breaks compilation of the quad-tree extension, or module initialization if the Python calls are compiled in a GIL-held context. This conclusion follows from the import statement and Cython import rules; no compiler execution or surrounding .pxd inspection was available. The supplied evidence does not establish a separate SIZE_MAX declaration, sentinel, or numerical-semantic defect.",
+      "path": "sklearn/neighbors/quad_tree.pyx",
+      "line": 14,
+      "evidence": "from libc.math import fabs",
+      "fix": "Replace `from libc.math import fabs` with `from libc.math cimport fabs`.",
+      "test": "Cythonize and build the quad-tree extension, then import sklearn.neighbors.quad_tree and run quad-tree tests covering duplicate-point insertion and interaction summarization. Compilation must succeed without Python-operation-in-nogil errors, and importing the extension must not attempt to import a Python libc.math module.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 14,
+          "symbol": "Python import of libc.math.fabs"
+        },
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 278,
+          "symbol": "fabs(point1[i] - point2[i])"
+        },
+        {
+          "path": "sklearn/neighbors/quad_tree.pyx",
+          "line": 442,
+          "symbol": "fabs(results[idx + i])"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

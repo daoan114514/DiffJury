@@ -1,0 +1,145 @@
+{
+  "id": "astropy__astropy-444",
+  "repository": "astropy/astropy",
+  "pull_request": 444,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 83197,
+  "llm_calls": 5,
+  "input_tokens": 33132,
+  "output_tokens": 2406,
+  "total_tokens": 35538,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "fixed-dimensional-converter-arity",
+      "severity": "medium",
+      "title": "Separate-axis distortion calls incorrectly depend on the WCS dimensionality",
+      "explanation": "The shared converter now accepts separate coordinate arrays only when their count equals self.naxis. This is appropriate for the WCS transformations, but pix2foc, p4_pix2foc, and det2im remain two-dimensional distortion operations and still document two-coordinate inputs. For example, with w = WCS(naxis=3), w.pix2foc(np.array([1.0]), np.array([2.0]), 0) previously entered the three-argument conversion branch; it now raises TypeError before calling the distortion implementation because three arguments do not equal self.naxis + 1. The corresponding packed call, w.pix2foc(np.array([[1.0, 2.0]]), 0), still enters the two-argument branch. Thus equivalent packed and separate-axis inputs no longer have the same acceptance contract. A distortion-free WCS is sufficient to reach this regression; no three-dimensional distortion configuration is required. The added tests exercise only the general WCS transformation with naxis=3 and check result shapes, so they do not catch this fixed-two-dimensional wrapper regression.",
+      "path": "astropy/wcs/wcs.py",
+      "line": 848,
+      "evidence": "elif len(args) == self.naxis + 1:",
+      "fix": "Allow the converter's coordinate dimensionality to be specified independently of self.naxis. Use self.naxis for general WCS transformations and explicitly pass 2 from the fixed-two-dimensional distortion wrappers, including SIP wrappers when a SIP object is present.",
+      "test": "Construct WCS(naxis=3) without distortions. For pix2foc, p4_pix2foc, and det2im, invoke both the packed Nx2 form and the separate x, y, origin form. Assert that neither raises and that the separate outputs numerically equal the corresponding columns of the packed output. Retain the three-dimensional general-WCS tests and strengthen them to compare numerical results between packed and separate forms.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1088,
+          "symbol": "WCS.pix2foc"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 1089,
+          "symbol": "self._array_converter(self._pix2foc, None, *args)"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 848,
+          "symbol": "WCS._array_converter"
+        },
+        {
+          "path": "astropy/wcs/wcs.py",
+          "line": 872,
+          "symbol": "WCS._array_converter argument-count rejection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

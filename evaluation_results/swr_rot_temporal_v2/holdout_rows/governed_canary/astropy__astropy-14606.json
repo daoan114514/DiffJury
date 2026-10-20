@@ -1,0 +1,199 @@
+{
+  "id": "astropy__astropy-14606",
+  "repository": "astropy/astropy",
+  "pull_request": 14606,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 71745,
+  "llm_calls": 5,
+  "input_tokens": 19623,
+  "output_tokens": 2944,
+  "total_tokens": 22567,
+  "instruction_calls": 5,
+  "instruction_tokens": 4595,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2798,
+      "knowledge_ids": [
+        "K-679741fc",
+        "K-345791ff",
+        "K-5cf660aa",
+        "K-c66e929a",
+        "K-a148283a",
+        "K-0b7c4492"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 469,
+      "knowledge_ids": [
+        "K-6464d4ae",
+        "K-0519c1fe",
+        "K-6bace452",
+        "K-0683c9f6"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0519c1fe",
+      "K-0683c9f6",
+      "K-0b7c4492",
+      "K-345791ff",
+      "K-5cf660aa",
+      "K-6464d4ae",
+      "K-679741fc",
+      "K-6bace452",
+      "K-a148283a",
+      "K-c66e929a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-679741fc",
+          "K-345791ff",
+          "K-5cf660aa",
+          "K-c66e929a",
+          "K-a148283a",
+          "K-0b7c4492"
+        ],
+        "tokens": 380,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-6464d4ae",
+          "K-0519c1fe",
+          "K-6bace452",
+          "K-0683c9f6"
+        ],
+        "tokens": 293,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "timezone-rollover-before-conversion",
+      "severity": "low",
+      "title": "Leap-second rollover occurs in local time rather than UTC",
+      "explanation": "With strict=False, the code converts the preceding second into the requested timezone and then adds one second using local datetime arithmetic. This is incorrect when the timezone's UTC offset changes at the rollover instant: datetime arithmetic does not perform a fresh UTC-to-local conversion. A concrete supported input is Time('2015-06-30 23:59:60.500') with a datetime.tzinfo implementation whose offset changes from UTC+00 to UTC+01 at 2015-07-01 00:00:00 UTC. The intended non-strict rollover instant is 2015-07-01 00:00:00.500 UTC, which maps to 2015-07-01 01:00:00.500+01:00. The implementation instead converts 23:59:59.500 UTC first and adds a second, producing the nonexistent local time 2015-07-01 00:00:00.500+00:00 for the timezone defined in the regression test below. This is an unintended timezone conversion error, separate from the intentional inability to represent leap seconds. The new test exercises only a naive datetime at an integral second and does not exercise this changed branch with a timezone transition.",
+      "path": "astropy/time/formats.py",
+      "line": 1127,
+      "evidence": "if timezone is not None:\n    dt = datetime.datetime(\n        iy, im, id, ihr, imin, isec, ifracsec, tzinfo=TimezoneInfo()\n    ).astimezone(timezone)\n...\nif leap_second:\n    dt += datetime.timedelta(seconds=1)",
+      "fix": "Construct the datetime in UTC, apply the leap-second rollover there, and only then call astimezone(timezone). Preserve the fractional seconds and the existing strict exception/non-strict warning behavior.",
+      "test": "Add a deterministic tzinfo subclass with dst() returning timedelta(0), fromutc(dt) adding one hour when dt.replace(tzinfo=None) >= datetime(2015, 7, 1), and utcoffset(dt) returning one hour when dt.replace(tzinfo=None) >= datetime(2015, 7, 1, 1), otherwise zero. Under pytest.warns(AstropyDatetimeLeapSecondWarning), convert Time('2015-06-30 23:59:60.500').to_datetime(timezone=tz, strict=False). Assert the resulting local components are (2015, 7, 1, 1, 0, 0, 500000), its offset is one hour, and conversion back to UTC yields datetime(2015, 7, 1, 0, 0, 0, 500000, tzinfo=datetime.timezone.utc). The current code produces local hour 0 with offset zero. This counterexample follows directly from the changed call order; no execution tools were available.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/time/core.py",
+          "line": 2682,
+          "symbol": "Time.to_datetime"
+        },
+        {
+          "path": "astropy/time/core.py",
+          "line": 2686,
+          "symbol": "tm._time.to_value(timezone, strict=strict)"
+        },
+        {
+          "path": "astropy/time/formats.py",
+          "line": 1065,
+          "symbol": "TimeDatetime.to_value"
+        },
+        {
+          "path": "astropy/time/formats.py",
+          "line": 1127,
+          "symbol": "local-time leap-second rollover"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "id": "scikit-learn__scikit-learn-7415",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 7415,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 56721,
+  "llm_calls": 5,
+  "input_tokens": 10862,
+  "output_tokens": 1610,
+  "total_tokens": 12472,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "test-warning-estimator-name",
+      "severity": "medium",
+      "title": "The replacement pickle produces a TreeBadVersion warning, not the expected DecisionTreeClassifier warning",
+      "explanation": "The changed test pickles a TreeBadVersion instance rather than a DecisionTreeClassifier instance. pickle.dumps calls TreeBadVersion.__getstate__, which correctly supplies _sklearn_version=\"something\"; pickle.loads reconstructs that same subclass and invokes its inherited estimator __setstate__. For the normal sklearn.tests.test_base module name, the sklearn-module check permits version validation, but the warning identifies the estimator using the reconstructed object's class name: TreeBadVersion. Its version values remain \"something\" and sklearn.__version__, as intended. The expected message at lines 345–347 nevertheless still begins \"Trying to unpickle estimator DecisionTreeClassifier from \". Consequently, the existing warning-message assertion rejects the warning even though the intended version mismatch was exercised. This introduces a failing test rather than preserving the previous test contract.",
+      "path": "sklearn/tests/test_base.py",
+      "line": 343,
+      "evidence": "    tree = TreeBadVersion().fit(iris.data, iris.target)\n    tree_pickle_other = pickle.dumps(tree)\n    message = (\"Trying to unpickle estimator DecisionTreeClassifier from \"",
+      "fix": "Update the expected warning's estimator name to TreeBadVersion while retaining the exact checks for the serialized version \"something\" and the running sklearn.__version__.",
+      "test": "Run test_pickle_version_warning through the normal test runner. Confirm that unpickling tree_pickle_other emits UserWarning with the complete expected message naming TreeBadVersion and both version values, while the same-version pickle remains warning-free.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_base.py",
+          "line": 343,
+          "symbol": "test_pickle_version_warning"
+        },
+        {
+          "path": "sklearn/tests/test_base.py",
+          "line": 328,
+          "symbol": "TreeBadVersion.__getstate__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

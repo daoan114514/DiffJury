@@ -1,0 +1,182 @@
+{
+  "id": "sympy__sympy-2078",
+  "repository": "sympy/sympy",
+  "pull_request": 2078,
+  "split": "train",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 1,
+      "path": "sympy/printing/tests/test_theanocode.py",
+      "line": 221,
+      "cwe": "CWE-754",
+      "rule_id": "invalid-function-test-input",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 160401,
+  "llm_calls": 5,
+  "input_tokens": 18462,
+  "output_tokens": 3744,
+  "total_tokens": 22206,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "function-dispatch-regression",
+      "severity": "high",
+      "title": "The generic Function handler replaces mathematical operations with free inputs",
+      "explanation": "The new handler applies to defined SymPy functions as well as undefined functions. Printer dispatch selects `_print_Function` before the `_print_Basic` fallback, so a mapped mathematical function such as `sin(x)` is now represented by a fresh tensor instead of passing through `mapping[type(expr)]` and recursively printing its arguments. Consequently, a graph for `sin(x)` no longer depends on the tensor for `x`; compiling it with only that tensor as input encounters an undeclared input rather than computing the sine. The cache key includes the expression's type, complete argument tuple, dtype, and broadcastability, but that distinction does not restore the lost operation or dependency. The added test does not check that existing mathematical functions retain their operation graphs.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 79,
+      "evidence": "    def _print_Function(self, s, dtypes={}, broadcastables={}):\n        dtype = dtypes.get(s, 'floatX')\n        broadcastable = broadcastables.get(s, ())\n        name = str(type(s)) + '_' + str(s.args[0])\n        key = (name, dtype, broadcastable, type(s), s.args)\n        if key in self.cache:\n            return self.cache[key]\n        else:\n            value = tt.tensor(name=name, dtype=dtype, broadcastable=broadcastable)",
+      "fix": "Restrict the free-input implementation to applied undefined functions, for example with `_print_AppliedUndef`. Alternatively, explicitly delegate function types present in `mapping` to `_print_Basic`, preserving dtype and broadcastability arguments.",
+      "test": "Print `x` and `sin(x)` with the same cache, assert that the latter has a sine-operation owner connected to the printed `x`, and compile and evaluate the resulting graph using only `x` as input. Also retain a separate test that an applied undefined function becomes a free tensor.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        },
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 87,
+          "symbol": "tt.tensor"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "invalid-function-test-input",
+      "severity": "medium",
+      "title": "The new test passes an unapplied function class and uses an invalid tensor type",
+      "explanation": "The test constructs `t` but passes `f`, the undefined function class, rather than the applied expression `f(t)`. Thus it does not supply the argument tuple that the new handler requires at `s.args[0]`, and it cannot test generation of the expected `f_t` name. Depending on dispatch for function classes, printing fails or follows a different path instead of exercising the intended implementation. The subsequent assertion also references `tt.TheanoVariable`, whereas Theano's tensor variable class is `tt.TensorVariable`, as used by the adjacent existing test. These errors make the added regression test fail rather than verify the new behavior.",
+      "path": "sympy/printing/tests/test_theanocode.py",
+      "line": 221,
+      "evidence": "    ft = theano_code(f)\n    assert isinstance(ft, tt.TheanoVariable)\n    assert ft.name == 'f_t'",
+      "fix": "Pass `f(t)` to `theano_code` and assert against `tt.TensorVariable`. Keep function-class printing as a separate test only if that is an explicitly supported contract.",
+      "test": "Run the corrected test with Theano installed. Assert the exact name, dtype, and broadcastability of `theano_code(f(t))`; with a shared cache, also assert identity for repeated equivalent expressions and distinct variables for different arguments or printing options.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 218,
+          "symbol": "test_Function"
+        },
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 221,
+          "symbol": "theano_code(f)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

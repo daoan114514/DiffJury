@@ -1,0 +1,179 @@
+{
+  "id": "sympy__sympy-13839",
+  "repository": "sympy/sympy",
+  "pull_request": 13839,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 78052,
+  "llm_calls": 5,
+  "input_tokens": 14392,
+  "output_tokens": 2585,
+  "total_tokens": 16977,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "correctness.dimension-consistency",
+      "severity": "medium",
+      "title": "Define becquerel with inverse-time dimensions, not an additional independent dimension",
+      "explanation": "The new definition assigns becquerel the dimension nucleas_decays/time, while its defining scale-factor expression, 1/second, has dimension time**-1. The added Dimension(\"nucleas_decays\") is an independent named dimension; this change supplies no dependency making it dimensionless. Consequently, the declared dimension of Bq*second retains nucleas_decays instead of being dimensionless, contrary to the SI identity Bq = s**-1. This introduces a dimensional inconsistency into the newly exposed unit, affecting dimensional comparison and conversion to reciprocal seconds. This conclusion follows directly from the declarations; the supplied evidence does not establish whether Quantity rejects the mismatch during construction or whether conversion machinery encounters it later. The export names themselves are consistent: katal/kat and gray/Gy match the existing assignments, and becquerel/Bq match the new assignment. There is no separate alias or spelling-only finding.",
+      "path": "sympy/physics/units/definitions.py",
+      "line": 69,
+      "evidence": "becquerel = Bq = Quantity(\"becquerel\", nucleas_decays/time, 1/second)",
+      "fix": "Declare becquerel with dimension time**-1 and retain the scale factor 1/second. If decay counts must also be represented, model them as dimensionless counts rather than introducing an independent physical dimension into this SI unit.",
+      "test": "Add a regression test importing Bq, becquerel, second, katal, kat, gray, and Gy. Assert each alias pair is identical; assert Bq has the same dimensional dependencies as second**-1 and that Bq.dimension * second.dimension is dimensionless; assert convert_to(Bq, second**-1) returns second**-1. The defining expressions currently retain an extra nucleas_decays dependency, whereas the expected dependency is only time: -1. Run these tests through the actual Quantity constructor and default dimension/conversion system to establish whether construction or conversion is the first failing boundary.",
+      "confidence": 0.87,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/units/dimensions.py",
+          "line": 273,
+          "symbol": "nucleas_decays = Dimension(\"nucleas_decays\")"
+        },
+        {
+          "path": "sympy/physics/units/definitions.py",
+          "line": 69,
+          "symbol": "becquerel = Bq = Quantity(...)"
+        },
+        {
+          "path": "sympy/physics/units/__init__.py",
+          "line": 119,
+          "symbol": "public import of becquerel and Bq"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "id": "sympy__sympy-2078",
+  "repository": "sympy/sympy",
+  "pull_request": 2078,
+  "split": "train",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 1,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sympy/printing/tests/test_theanocode.py",
+      "line": 221,
+      "cwe": "CWE-697",
+      "rule_id": "function-printer-test-applied-input",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 109965,
+  "llm_calls": 5,
+  "input_tokens": 14501,
+  "output_tokens": 3765,
+  "total_tokens": 18266,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "function-printer-test-applied-input",
+      "severity": "medium",
+      "title": "The new test passes a function class rather than the applied function it expects",
+      "explanation": "Function('f') constructs an undefined function class; f(t) constructs the applied function whose args contains t. The test passes the former to theano_code, leaving t unused. Normal printer dispatch for that object follows its UndefinedFunction metaclass, not the Function inheritance of an applied instance, so the new _print_Function handler is not exercised. The expected name 'f_t' cannot follow from the actual input because t was never supplied. If the class were forced through the new handler, its args would still not be the applied argument tuple required by s.args[0]. The type assertion also uses tt.TheanoVariable rather than the tt.TensorVariable used in the adjacent existing test. Whether the former attribute exists is dependency-version-specific and was not verified here; using the established TensorVariable assertion avoids that additional unsupported assumption.",
+      "path": "sympy/printing/tests/test_theanocode.py",
+      "line": 221,
+      "evidence": "t = sy.Symbol('t')\nf = sy.Function('f')\nft = theano_code(f)\nassert isinstance(ft, tt.TheanoVariable)\nassert ft.name == 'f_t'",
+      "fix": "Pass f(t) to theano_code and assert against tt.TensorVariable, consistent with the existing test immediately above. Keep function-class handling separate if that behavior is intended to be supported.",
+      "test": "Run the corrected test with Theano installed and assert that translating f(t) returns a TensorVariable named 'f_t'. Add assertions for dtype and broadcastable overrides keyed by f(t), and identity reuse with a shared cache, so the actual new handler's contract is exercised.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 218,
+          "symbol": "test_Function"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "function-printer-preserve-mapped-operations",
+      "severity": "medium",
+      "title": "The Function handler replaces mapped mathematical operations with independent inputs",
+      "explanation": "The new handler applies to Function subclasses, not just undefined applied functions. Consequently, a mapped mathematical function such as sin(x), previously translated through _print_Basic's mapping[type(expr)] and recursive argument printing, is intercepted by _print_Function. The handler creates a tensor input without translating x or applying the mapped operation. For example, theano_code(sin(x)) becomes an independent scalar rather than a graph computing sin(x). This changes the numerical meaning of existing supported expressions and disconnects their function arguments from the generated graph. This conclusion follows from printer inheritance dispatch and the shown handler; no dependency-specific runtime reproduction was available.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 79,
+      "evidence": "def _print_Function(self, s, dtypes={}, broadcastables={}):\n    dtype = dtypes.get(s, 'floatX')\n    broadcastable = broadcastables.get(s, ())\n    name = str(type(s)) + '_' + str(s.args[0])\n    key = (name, dtype, broadcastable, type(s), s.args)\n    if key in self.cache:\n        return self.cache[key]\n    else:\n        value = tt.tensor(name=name, dtype=dtype, broadcastable=broadcastable)",
+      "fix": "Restrict symbolic-input creation to applied undefined functions, for example by implementing _print_AppliedUndef, and preserve _print_Basic dispatch for mapped mathematical functions.",
+      "test": "Translate sin(x) and a nested expression such as sin(x) + cos(x), compile the resulting graphs with the translated x as input, and assert their numerical results. Also assert that sin(x)'s translated graph has an operation owner rather than being a free input.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "function-printer-empty-arguments",
+      "severity": "medium",
+      "title": "Applied undefined functions with no arguments crash during name generation",
+      "explanation": "An undefined SymPy function can be applied with zero arguments: f = Function('f'); expr = f(). This is an applied function, so it reaches the new handler, but expr.args is empty. The unconditional s.args[0] raises IndexError before creating a tensor. There is no arity check or explicit restriction in this handler. The new support therefore fails on a valid boundary input instead of representing the undefined function as a symbolic tensor. In contrast, multiple arguments do not by themselves prove a cache collision: although the generated name uses only the first argument, the cache key includes the complete s.args tuple.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 82,
+      "evidence": "name = str(type(s)) + '_' + str(s.args[0])",
+      "fix": "Generate names without assuming that an argument exists, while retaining the full argument tuple in the cache identity.",
+      "test": "Call theano_code(Function('f')()) and assert that it returns a tensor with a valid name. Repeat with a shared cache and assert identity reuse; also verify that distinct argument tuples remain distinct cached variables.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-125",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

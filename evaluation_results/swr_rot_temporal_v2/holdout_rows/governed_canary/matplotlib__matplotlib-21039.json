@@ -1,0 +1,206 @@
+{
+  "id": "matplotlib__matplotlib-21039",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 21039,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 79647,
+  "llm_calls": 5,
+  "input_tokens": 20535,
+  "output_tokens": 3143,
+  "total_tokens": 23678,
+  "instruction_calls": 5,
+  "instruction_tokens": 4808,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2916,
+      "knowledge_ids": [
+        "K-58d26727",
+        "K-42776966",
+        "K-d76217f5",
+        "K-386f03af",
+        "K-4fb328e2",
+        "K-489cde43",
+        "K-d7b7bb6f",
+        "K-2b3b5530"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 564,
+      "knowledge_ids": [
+        "K-d2310f1b",
+        "K-12284e0a",
+        "K-ac8cc41a",
+        "K-eee6e319",
+        "K-94275c11",
+        "K-86e6ca00"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-2b3b5530",
+      "K-386f03af",
+      "K-42776966",
+      "K-489cde43",
+      "K-4fb328e2",
+      "K-58d26727",
+      "K-86e6ca00",
+      "K-94275c11",
+      "K-ac8cc41a",
+      "K-d2310f1b",
+      "K-d76217f5",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727",
+          "K-42776966",
+          "K-d76217f5",
+          "K-386f03af",
+          "K-4fb328e2",
+          "K-489cde43",
+          "K-d7b7bb6f",
+          "K-2b3b5530"
+        ],
+        "tokens": 498,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-d2310f1b",
+          "K-12284e0a",
+          "K-ac8cc41a",
+          "K-eee6e319",
+          "K-94275c11",
+          "K-86e6ca00"
+        ],
+        "tokens": 388,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "marginal-lower-bound-excluded",
+      "severity": "medium",
+      "title": "Marginal binning drops points on the lower extent boundary",
+      "explanation": "The new searchsorted expression assigns a point equal to bin_edges[0] to index -1, but the reduction loop only visits indices 0 through nbins - 1. For example, ax.hexbin([0, 1], [0, 1], C=[10, 20], gridsize=2, extent=(0, 1, 0, 1), marginals=True, reduce_C_function=np.sum) produces vertical marginal edges [0, 0.5, 1]. The point at y=0 is silently discarded, so vbar.get_array() contains only [20], rather than representing both contributions [10, 20]. The previous clipped searchsorted implementation retained the lower-bound point. Internal-edge points are assigned to the preceding bin, and the upper endpoint is retained; the regression is specifically the exclusion of the first endpoint. This counterexample uses aligned, unmasked C values and a scalar gridsize, so it does not depend on tuple-grid compatibility or logarithmic transformations.",
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 4849,
+      "evidence": "bin_idxs = np.searchsorted(bin_edges, x) - 1",
+      "fix": "Include values equal to the first edge in the first bin, while continuing to exclude values genuinely outside the extent. For example, retain the current right-closed internal-edge convention and explicitly assign x == bin_edges[0] to index 0.",
+      "test": "Add a non-image regression test using the explicit-extent example above and assert both vbar values and rectangle boundaries. Include points at the lower endpoint, an internal edge, the upper endpoint, and outside the extent; repeat with tuple gridsize and logarithmic extents. The modified test at test_axes.py:784-785 exercises logarithmic marginals but does not directly assert marginal values or geometry. The supplied diff omits the intervening extent conversion and normalization implementations, so full logarithmic-domain tracing and zero-only/empty LogNorm failure analysis cannot be established from this evidence; those paths are not asserted as additional defects.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4890,
+          "symbol": "Axes.hexbin: construct vertical marginal edges"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4891,
+          "symbol": "Axes.hexbin: coarse_bin(yorig, C, bin_edges)"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4849,
+          "symbol": "Axes.hexbin.coarse_bin"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-193",
+      "applied_rules": []
+    }
+  ]
+}

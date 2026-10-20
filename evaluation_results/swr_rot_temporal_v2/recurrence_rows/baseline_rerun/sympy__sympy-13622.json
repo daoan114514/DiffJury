@@ -1,0 +1,315 @@
+{
+  "id": "sympy__sympy-13622",
+  "repository": "sympy/sympy",
+  "pull_request": 13622,
+  "split": "train",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 1,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 1,
+      "path": "sympy/matrices/expressions/matexpr.py",
+      "line": 470,
+      "cwe": "CWE-755",
+      "rule_id": "kronecker-delta-replacement-failure",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 200460,
+  "llm_calls": 10,
+  "input_tokens": 78012,
+  "output_tokens": 5790,
+  "total_tokens": 83802,
+  "instruction_calls": 10,
+  "instruction_tokens": 19947,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 5,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 1,
+  "revision_results": 1,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "public-api-parameter-compatibility",
+      "severity": "medium",
+      "title": "Preserve the existing first_index and last_index calling convention",
+      "explanation": "The previous public signature accepted first_index and last_index keywords. For example, with A = MatrixSymbol('A', 2, 3), MatrixExpr.from_index_summation(A[i, j], first_index=i, last_index=j) previously returned A; the new signature rejects this call with an unexpected-keyword TypeError. Three-positional-argument calls also reinterpret the old last_index as dimension_hint. A concrete failing case is MatrixExpr.from_index_summation(KroneckerDelta(i, j), i, j): the previous KroneckerDelta branch constructed MatrixElement(S.One, i, j), which was stripped to 1, whereas the new branch evaluates `i1 in dimension_hint` with dimension_hint equal to the Symbol j and raises TypeError. Ordinary matrix-only three-positional calls can still appear to work because they never consult dimension_hint. These conclusions follow from the supplied old/new signature and the complete current conversion control flow; no runtime checks were available in this review. The added KroneckerDelta test uses the new keyword and does not exercise either legacy calling convention.",
+      "path": "sympy/matrices/expressions/matexpr.py",
+      "line": 389,
+      "evidence": "def from_index_summation(expr, indices=(), dimension_hint={}):",
+      "fix": "Retain compatibility for first_index/last_index keywords and their positional equivalents, normalize them into the new indices representation, and make dimension_hint a distinct keyword option rather than reusing the old third positional slot.",
+      "test": "Add regression tests asserting that the legacy keyword call on A[i,j] returns A and that the legacy three-positional call on KroneckerDelta(i,j) retains its previous result. Also retain tests for the new tuple-indices and dimension_hint keyword interfaces.",
+      "confidence": 0.99,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:41b07a11f54775fb",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sympy/matrices/expressions/matexpr.py\", \"start_line\": 465, \"end_line\": 632, \"content\": \"        def remove_matelement(expr, indices=()):\\n            i1 = indices[0]\\n\\n            expr = expr.replace(\\n                lambda x: isinstance(x, KroneckerDelta),\\n                lambda x: MatrixElement(Identity(dimension_hint[x.args[1]]), x.args[1:])\\n            )\\n\\n            def repl_mul(x):\\n                if not isinstance(x, (Mul, MatMul)):\\n                    return x\\n                args_me = [arg for arg in x.args if isinstance(arg, (KroneckerDelta, MatrixElement))]\\n                if len(args_me) <= 1:\\n                    return x\\n                args_other = [arg for arg in x.args if arg not in args_me]\\n                args_me.sort(key=lambda v: (indices.index(v.args[1]), 0) if v.args[1] in indices else (len(indices), 0))\\n                return MatMul.fromiter(args_other)*Indexed(TensorProduct(*[i.args[0] for i in args_me]),\\n                        *sum([i.args[1:] for i in args_me], ())\\n                    )\\n            rule_tensorproduct = bottom_up(repl_mul)\\n            expr = rule_tensorproduct(expr)\\n\\n            def repl_match(pos):\\n                def func(x):\\n                    if not isinstance(x, (Indexed, MatrixElement)):\\n                        return False\\n                    if x.args[pos] != i1:\\n                        return False\\n                    if x.args[3-pos] == 0:\\n                        if x.args[0].shape[2-pos] == 1:\\n                            return True\\n                        else:\\n                            return False\\n                    return True\\n                return func\\n\\n            expr = expr.replace(repl_match(1),\\n                lambda x: x.args[0])\\n            expr = expr.replace(repl_match(2),\\n                lambda x: transpose(x.args[0]))\\n\\n            # Make sure that all Mul are transformed to MatMul and that they\\n            # are flattened:\\n            rule = "
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 389,
+          "symbol": "MatrixExpr.from_index_summation"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 588,
+          "symbol": "recurse_expr KroneckerDelta branch"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 591,
+          "symbol": "dimension_hint membership check"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- BACKWARD-COMPATIBILITY",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "kronecker-delta-replacement-failure",
+      "severity": "medium",
+      "title": "Do not require dimension hints for deltas inside scalar coefficients",
+      "explanation": "The new replacement branch is reachable even though top-level KroneckerDelta nodes are normally consumed earlier by recurse_expr. For A = MatrixSymbol('A', 2, 3), distinct integer symbols i,j,k,l, and expr = sin(KroneckerDelta(k,l))*A[i,j], call MatrixExpr.from_index_summation(expr, i). recurse_expr treats sin(KroneckerDelta(k,l)) as an unchanged scalar through its fallback branch and reconstructs it alongside MatrixElement(A,i,j). remove_matelement then recursively replaces the nested delta and unconditionally looks up dimension_hint[l]. With the default empty mapping this raises KeyError, whereas the previous implementation retained the scalar coefficient and returned sin(KroneckerDelta(k,l))*A. Thus this example explicitly reaches the newly added replacement rather than the earlier standalone-delta conversion. Supplying {l: 4} also exposes the replacement's two-argument MatrixElement construction instead of the required parent, row, column construction. The default-map failure is established directly by the supplied complete control flow; it was not executed. The added standalone-delta test exercises recurse_expr's separate branch and does not cover this replacement.",
+      "path": "sympy/matrices/expressions/matexpr.py",
+      "line": 470,
+      "evidence": "lambda x: MatrixElement(Identity(dimension_hint[x.args[1]]), x.args[1:])",
+      "fix": "Leave deltas embedded in opaque scalar coefficients unchanged rather than recursively converting them to matrix entries. If the replacement remains necessary for other inputs, guard dimension availability and construct MatrixElement with separate row and column arguments.",
+      "test": "Assert that converting sin(KroneckerDelta(k,l))*A[i,j] with first index i preserves the scalar coefficient and returns its product with A, both with no dimension hint and with an unrelated or matching hint. Ensure the test reaches remove_matelement rather than only testing a standalone delta.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:41b07a11f54775fb",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sympy/matrices/expressions/matexpr.py\", \"start_line\": 465, \"end_line\": 632, \"content\": \"        def remove_matelement(expr, indices=()):\\n            i1 = indices[0]\\n\\n            expr = expr.replace(\\n                lambda x: isinstance(x, KroneckerDelta),\\n                lambda x: MatrixElement(Identity(dimension_hint[x.args[1]]), x.args[1:])\\n            )\\n\\n            def repl_mul(x):\\n                if not isinstance(x, (Mul, MatMul)):\\n                    return x\\n                args_me = [arg for arg in x.args if isinstance(arg, (KroneckerDelta, MatrixElement))]\\n                if len(args_me) <= 1:\\n                    return x\\n                args_other = [arg for arg in x.args if arg not in args_me]\\n                args_me.sort(key=lambda v: (indices.index(v.args[1]), 0) if v.args[1] in indices else (len(indices), 0))\\n                return MatMul.fromiter(args_other)*Indexed(TensorProduct(*[i.args[0] for i in args_me]),\\n                        *sum([i.args[1:] for i in args_me], ())\\n                    )\\n            rule_tensorproduct = bottom_up(repl_mul)\\n            expr = rule_tensorproduct(expr)\\n\\n            def repl_match(pos):\\n                def func(x):\\n                    if not isinstance(x, (Indexed, MatrixElement)):\\n                        return False\\n                    if x.args[pos] != i1:\\n                        return False\\n                    if x.args[3-pos] == 0:\\n                        if x.args[0].shape[2-pos] == 1:\\n                            return True\\n                        else:\\n                            return False\\n                    return True\\n                return func\\n\\n            expr = expr.replace(repl_match(1),\\n                lambda x: x.args[0])\\n            expr = expr.replace(repl_match(2),\\n                lambda x: transpose(x.args[0]))\\n\\n            # Make sure that all Mul are transformed to MatMul and that they\\n            # are flattened:\\n            rule = "
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 616,
+          "symbol": "MatrixExpr.from_index_summation"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 509,
+          "symbol": "recurse_expr"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 614,
+          "symbol": "recurse_expr scalar fallback"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 630,
+          "symbol": "remove_matelement"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 468,
+          "symbol": "nested KroneckerDelta replacement"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "tensor-free-index-order",
+      "severity": "medium",
+      "title": "Honor all requested free indices when constructing a tensor product",
+      "explanation": "For distinct integer symbols i,j,k,l, let A have shape (2,3) and B have shape (4,5). Compare MatrixExpr.from_index_summation(A[i,j]*B[k,l], (i,j,k,l)) with MatrixExpr.from_index_summation(A[i,j]*B[k,l], (i,j,l,k)). The latter requests the B axes in reversed order and should return TensorProduct(A, B.T), with axis dimensions (2,3,5,4). The current control flow returns TensorProduct(A,B) for both calls, with axes (i,j,k,l) and dimensions (2,3,4,5). Specifically, recurse_expr produces the disconnected MatrixElements A[i,j] and B[k,l]; sorting by each factor's first index keeps A before B for both requests; the constructed Indexed expression always concatenates the original pairs (i,j,k,l); and remove_matelement then strips the Indexed wrapper solely because its first index equals i. The requested ordering of the remaining axes is never checked or applied. This is a static counterexample established by the complete supplied function, not an executed test. The changed TensorProduct assertion in test_indexing.py supplies only a single first index and cannot detect this failure.",
+      "path": "sympy/matrices/expressions/matexpr.py",
+      "line": 480,
+      "evidence": "args_me.sort(key=lambda v: (indices.index(v.args[1]), 0) if v.args[1] in indices else (len(indices), 0))",
+      "fix": "Track the actual free-axis sequence and apply the requested permutation before stripping indices. At minimum, transpose individual disconnected matrix factors when their requested pair is reversed; use an explicit axis permutation for interleaved orders that cannot be represented by reordering/transposing factors alone.",
+      "test": "Use rectangular, distinguishable A and B and compare requests (i,j,k,l) and (i,j,l,k). Assert TensorProduct(A,B) and TensorProduct(A,B.T), respectively, including the resulting axis dimensions. Add a separate interleaved-axis test if arbitrary permutations are supported.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:41b07a11f54775fb",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sympy/matrices/expressions/matexpr.py\", \"start_line\": 465, \"end_line\": 632, \"content\": \"        def remove_matelement(expr, indices=()):\\n            i1 = indices[0]\\n\\n            expr = expr.replace(\\n                lambda x: isinstance(x, KroneckerDelta),\\n                lambda x: MatrixElement(Identity(dimension_hint[x.args[1]]), x.args[1:])\\n            )\\n\\n            def repl_mul(x):\\n                if not isinstance(x, (Mul, MatMul)):\\n                    return x\\n                args_me = [arg for arg in x.args if isinstance(arg, (KroneckerDelta, MatrixElement))]\\n                if len(args_me) <= 1:\\n                    return x\\n                args_other = [arg for arg in x.args if arg not in args_me]\\n                args_me.sort(key=lambda v: (indices.index(v.args[1]), 0) if v.args[1] in indices else (len(indices), 0))\\n                return MatMul.fromiter(args_other)*Indexed(TensorProduct(*[i.args[0] for i in args_me]),\\n                        *sum([i.args[1:] for i in args_me], ())\\n                    )\\n            rule_tensorproduct = bottom_up(repl_mul)\\n            expr = rule_tensorproduct(expr)\\n\\n            def repl_match(pos):\\n                def func(x):\\n                    if not isinstance(x, (Indexed, MatrixElement)):\\n                        return False\\n                    if x.args[pos] != i1:\\n                        return False\\n                    if x.args[3-pos] == 0:\\n                        if x.args[0].shape[2-pos] == 1:\\n                            return True\\n                        else:\\n                            return False\\n                    return True\\n                return func\\n\\n            expr = expr.replace(repl_match(1),\\n                lambda x: x.args[0])\\n            expr = expr.replace(repl_match(2),\\n                lambda x: transpose(x.args[0]))\\n\\n            # Make sure that all Mul are transformed to MatMul and that they\\n            # are flattened:\\n            rule = "
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 616,
+          "symbol": "MatrixExpr.from_index_summation"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 630,
+          "symbol": "remove_matelement"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 473,
+          "symbol": "repl_mul"
+        },
+        {
+          "path": "sympy/matrices/expressions/matexpr.py",
+          "line": 487,
+          "symbol": "repl_match"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

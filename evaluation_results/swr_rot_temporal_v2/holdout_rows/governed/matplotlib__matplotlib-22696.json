@@ -1,0 +1,173 @@
+{
+  "id": "matplotlib__matplotlib-22696",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 22696,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/collections.py",
+      "line": 2018,
+      "cwe": "CWE-665",
+      "rule_id": "explicit-artist-property-overridden",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 46138,
+  "llm_calls": 5,
+  "input_tokens": 8150,
+  "output_tokens": 1772,
+  "total_tokens": 9922,
+  "instruction_calls": 5,
+  "instruction_tokens": 4094,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2586,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "explicit-artist-property-overridden",
+      "severity": "medium",
+      "title": "QuadMesh initialization overrides explicit mouseover=True",
+      "explanation": "The superclass initialization receives **kwargs and applies inherited Artist properties, including an explicitly supplied mouseover=True. The new unconditional setter runs afterward and replaces that requested value with False. For example, QuadMesh(np.array([[[0, 0], [1, 0]], [[0, 1], [1, 1]]]), mouseover=True).get_mouseover() now returns False rather than True. This is distinct from intentionally disabling mouseover by default: it also disables an explicit opt-in. When the mesh is subsequently attached to an Axes, its false mouseover state prevents registration for toolbar cursor-data lookup, so that lookup does not invoke the mesh's get_cursor_data. Calling set_mouseover(True) after construction remains a workaround.",
+      "path": "lib/matplotlib/collections.py",
+      "line": 2018,
+      "evidence": "        super().__init__(**kwargs)\n        self.set_mouseover(False)",
+      "fix": "Use kwargs.setdefault('mouseover', False) before superclass initialization and remove the unconditional post-initialization setter. This preserves the intended default while honoring an explicit caller value.",
+      "test": "Construct QuadMesh instances with mouseover omitted, False, and True; assert get_mouseover() returns False, False, and True respectively. Add each to an Axes and assert only the explicitly enabled instance is registered in axes._mouseover_set.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/collections.py",
+          "line": 2017,
+          "symbol": "QuadMesh.__init__ -> Collection.__init__(**kwargs)"
+        },
+        {
+          "path": "lib/matplotlib/collections.py",
+          "line": 2018,
+          "symbol": "QuadMesh.__init__ -> Artist.set_mouseover(False)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ]
+}

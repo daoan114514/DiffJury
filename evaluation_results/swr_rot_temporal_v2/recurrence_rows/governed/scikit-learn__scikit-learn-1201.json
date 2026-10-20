@@ -1,0 +1,187 @@
+{
+  "id": "scikit-learn__scikit-learn-1201",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 1201,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 109592,
+  "llm_calls": 5,
+  "input_tokens": 16219,
+  "output_tokens": 4002,
+  "total_tokens": 20221,
+  "instruction_calls": 5,
+  "instruction_tokens": 4275,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 346,
+      "knowledge_ids": [
+        "K-fc6f5674",
+        "K-fe66117a"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fc6f5674",
+          "K-fe66117a"
+        ],
+        "tokens": 170,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "radius-outlier-output-dtype",
+      "severity": "medium",
+      "title": "Preserve outlier labels that do not fit the training-label dtype",
+      "explanation": "The new prediction array inherits classes_.dtype, whereas the previous return explicitly produced a platform-integer array. Restoring an outlier label into that narrower array can change its value. For example, fit X=[[0.0],[1.0]], y=np.array([10,20], dtype=np.uint8), with radius=0.1 and outlier_label=-1, then predict [[10.0]]. The outlier mode -1 is a valid negative index, so take succeeds and produces a uint8 array. Assigning -1 into that array yields 255 on NumPy versions permitting the conversion, rather than the previously returned -1; NumPy versions rejecting out-of-range conversions instead raise. Consequently, even the conventional -1 outlier label is not preserved for unsigned training labels.",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 320,
+      "evidence": "prediction = self.classes_.take(modes)\n        if self.outlier_label:\n            # reset outlier label\n            prediction[modes == outlier_label] = self.outlier_label",
+      "fix": "Allocate the output using a dtype capable of representing both fitted class labels and the configured outlier label before assigning either. For integer labels, promote unsigned or narrow integer types as necessary rather than inheriting classes_.dtype unconditionally.",
+      "test": "Fit with uint8 labels [10,20] and outlier_label=-1, predict a batch containing both an inlier and an outlier, and assert that the outputs are exactly [10,-1], without wrapping or raising. Add a narrow signed-integer case with an outlier label beyond that dtype's range.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 317,
+          "symbol": "RadiusNeighborsClassifier.predict"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 320,
+          "symbol": "outlier label assignment"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-197",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

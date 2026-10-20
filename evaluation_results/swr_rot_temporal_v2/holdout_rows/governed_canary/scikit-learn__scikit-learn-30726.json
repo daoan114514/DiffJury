@@ -1,0 +1,170 @@
+{
+  "id": "scikit-learn__scikit-learn-30726",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 30726,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 23983,
+  "llm_calls": 5,
+  "input_tokens": 6553,
+  "output_tokens": 683,
+  "total_tokens": 7236,
+  "instruction_calls": 5,
+  "instruction_tokens": 3774,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1977,
+      "knowledge_ids": [
+        "K-6e16a2a3",
+        "K-0a2298e4",
+        "K-3c8dfccb",
+        "K-24ae43fa",
+        "K-1c8d031b",
+        "K-d3341a3f",
+        "K-5388c8d9",
+        "K-651ca0b6",
+        "K-f32f49ff",
+        "K-4d5756a5",
+        "K-f8bf6084"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 469,
+      "knowledge_ids": [
+        "K-fc6f5674",
+        "K-0f45b787",
+        "K-51e6bbd9",
+        "K-1617cbdc"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-1c8d031b",
+      "K-24ae43fa",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-651ca0b6",
+      "K-6e16a2a3",
+      "K-d3341a3f",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-6e16a2a3",
+          "K-0a2298e4",
+          "K-3c8dfccb",
+          "K-24ae43fa",
+          "K-1c8d031b",
+          "K-d3341a3f",
+          "K-5388c8d9",
+          "K-651ca0b6",
+          "K-f32f49ff",
+          "K-4d5756a5",
+          "K-f8bf6084"
+        ],
+        "tokens": 651,
+        "budget": 600,
+        "dropped": [
+          "K-eb2105bb"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fc6f5674",
+          "K-0f45b787",
+          "K-51e6bbd9",
+          "K-1617cbdc"
+        ],
+        "tokens": 294,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": []
+}

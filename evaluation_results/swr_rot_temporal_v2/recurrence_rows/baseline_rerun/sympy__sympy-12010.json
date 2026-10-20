@@ -1,0 +1,141 @@
+{
+  "id": "sympy__sympy-12010",
+  "repository": "sympy/sympy",
+  "pull_request": 12010,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 77501,
+  "llm_calls": 5,
+  "input_tokens": 19393,
+  "output_tokens": 2104,
+  "total_tokens": 21497,
+  "instruction_calls": 5,
+  "instruction_tokens": 6095,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4587,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4233
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "ignore-iterable-consumption",
+      "severity": "medium",
+      "title": "Materialize ignore iterables before repeated exclusion checks",
+      "explanation": "The documented iterable contract accepts generators, but this loop consumes the same iterator across repeated expressions. A minimal counterexample is `cse([x + y, x + y, x + y], ignore=iter((y,)))`. The first occurrence records the expression as seen. The second occurrence consumes `y`, detects the exclusion, and does not return. On the third occurrence, the iterator is exhausted, so the loop's `else` adds `x + y` to `to_eliminate`. Rebuilding consequently produces a replacement containing the supposedly ignored symbol, equivalent to `([(x0, x + y)], [x0, x0, x0])`. With `ignore=(y,)`, the expected result is no replacements and the three original expressions. Thus exclusion depends on whether the documented iterable is reusable and on the number of duplicate expressions. The added test uses only a tuple and therefore does not catch this failure. This is a static counterexample derived from the supplied changed control flow; runtime execution and the complete surrounding implementation were unavailable.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 452,
+      "evidence": "if expr in seen_subexp:\n                for ign in ignore:\n                    if ign in expr.free_symbols:\n                        break\n                else:\n                    to_eliminate.add(expr)\n                    return",
+      "fix": "Materialize `ignore` once at entry to `tree_cse`, for example with `ignore = tuple(ignore)`, so every exclusion check examines the complete collection. Doing this in `tree_cse` also covers its direct callers.",
+      "test": "Call the real `cse` implementation on `[x + y, x + y, x + y]` with both `ignore=(y,)` and `ignore=(s for s in (y,))`; assert both return `([], [x + y, x + y, x + y])`. Also exercise repeated eligible and ineligible subexpressions together, asserting generator/list parity, preservation of eligible substitutions, and equivalence after expanding replacements.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 687,
+          "symbol": "cse passes ignore to tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 452,
+          "symbol": "tree_cse repeated-expression exclusion check"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 456,
+          "symbol": "tree_cse adds an expression to to_eliminate after iterator exhaustion"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

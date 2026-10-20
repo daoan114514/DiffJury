@@ -1,0 +1,202 @@
+{
+  "id": "sympy__sympy-16221",
+  "repository": "sympy/sympy",
+  "pull_request": 16221,
+  "split": "train",
+  "expected": 0,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 60767,
+  "llm_calls": 5,
+  "input_tokens": 19339,
+  "output_tokens": 1595,
+  "total_tokens": 20934,
+  "instruction_calls": 5,
+  "instruction_tokens": 5041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2887,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-4feced24",
+        "K-87ee2eda",
+        "K-a9677d2d",
+        "K-b9cfc827",
+        "K-7e90bf29",
+        "K-2b8fec11",
+        "K-4f9662f0"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 826,
+      "knowledge_ids": [
+        "K-a077c313",
+        "K-119c9319",
+        "K-cde9c599",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-86d0b57a",
+        "K-11de6ec1",
+        "K-4e30e572",
+        "K-8810c414"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-119c9319",
+      "K-11de6ec1",
+      "K-2b8fec11",
+      "K-4e30e572",
+      "K-4f9662f0",
+      "K-4feced24",
+      "K-62f4a6cf",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-86d0b57a",
+      "K-87ee2eda",
+      "K-8810c414",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a9677d2d",
+      "K-b9cfc827",
+      "K-cde9c599"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-4feced24",
+          "K-87ee2eda",
+          "K-a9677d2d",
+          "K-b9cfc827",
+          "K-7e90bf29",
+          "K-2b8fec11",
+          "K-4f9662f0"
+        ],
+        "tokens": 469,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313",
+          "K-119c9319",
+          "K-cde9c599",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-86d0b57a",
+          "K-11de6ec1",
+          "K-4e30e572",
+          "K-8810c414"
+        ],
+        "tokens": 650,
+        "budget": 600,
+        "dropped": [
+          "K-bc43ffcf",
+          "K-be32699b",
+          "K-9d754682",
+          "K-7609a0f4",
+          "K-60ce9e38",
+          "K-03e5723b",
+          "K-e4a5fbd0",
+          "K-4e7d5d6b",
+          "K-8184713c"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "id": "scikit-learn__scikit-learn-4584",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 4584,
+  "split": "train",
+  "expected": 1,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 39479,
+  "llm_calls": 5,
+  "input_tokens": 13457,
+  "output_tokens": 691,
+  "total_tokens": 14148,
+  "instruction_calls": 5,
+  "instruction_tokens": 5747,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3618,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-eb2105bb",
+        "K-0a2298e4",
+        "K-2bba7006",
+        "K-26252785",
+        "K-1c8d031b",
+        "K-4d5756a5",
+        "K-d3341a3f",
+        "K-651ca0b6",
+        "K-5388c8d9"
+      ],
+      "skills": [
+        "api-compatibility",
+        "check-delegated-method-targets",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2669
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 801,
+      "knowledge_ids": [
+        "K-feee072d",
+        "K-69a7f4ef",
+        "K-51e6bbd9",
+        "K-1617cbdc",
+        "K-0f45b787",
+        "K-6d7b0522",
+        "K-0f38f6b6",
+        "K-791ded73",
+        "K-94fa9fcb",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-1c8d031b",
+      "K-26252785",
+      "K-2bba7006",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-651ca0b6",
+      "K-69a7f4ef",
+      "K-6d7b0522",
+      "K-73e0f51e",
+      "K-791ded73",
+      "K-94fa9fcb",
+      "K-d3341a3f",
+      "K-eb2105bb",
+      "K-f8bf6084",
+      "K-fc6f5674",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-eb2105bb",
+          "K-0a2298e4",
+          "K-2bba7006",
+          "K-26252785",
+          "K-1c8d031b",
+          "K-4d5756a5",
+          "K-d3341a3f",
+          "K-651ca0b6",
+          "K-5388c8d9"
+        ],
+        "tokens": 606,
+        "budget": 600,
+        "dropped": [
+          "K-f32f49ff",
+          "K-3c8dfccb",
+          "K-8828df10"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-feee072d",
+          "K-69a7f4ef",
+          "K-51e6bbd9",
+          "K-1617cbdc",
+          "K-0f45b787",
+          "K-6d7b0522",
+          "K-0f38f6b6",
+          "K-791ded73",
+          "K-94fa9fcb",
+          "K-fc6f5674"
+        ],
+        "tokens": 625,
+        "budget": 600,
+        "dropped": [
+          "K-0f51ebe7",
+          "K-f8f85333",
+          "K-184c93c6",
+          "K-2968cdc5"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

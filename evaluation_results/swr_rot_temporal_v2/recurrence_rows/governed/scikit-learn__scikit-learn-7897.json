@@ -1,0 +1,185 @@
+{
+  "id": "scikit-learn__scikit-learn-7897",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 7897,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 66110,
+  "llm_calls": 5,
+  "input_tokens": 14599,
+  "output_tokens": 1960,
+  "total_tokens": 16559,
+  "instruction_calls": 5,
+  "instruction_tokens": 4325,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 396,
+      "knowledge_ids": [
+        "K-fc6f5674",
+        "K-fe66117a",
+        "K-69a7f4ef"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fc6f5674",
+          "K-fe66117a",
+          "K-69a7f4ef"
+        ],
+        "tokens": 220,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-averaging-documentation",
+      "severity": "low",
+      "title": "Describe the reported averages as support-weighted, not micro-averaged",
+      "explanation": "The new documentation incorrectly calls the reported values a \"prevalence-weighted micro-average.\" The implementation still computes support-weighted arithmetic means of per-class precision, recall, and F1 via np.average(..., weights=s); micro-averaging instead aggregates confusion-matrix counts before computing each metric. For example, classification_report([0, 0, 1], [0, 0, 0]) reports weighted precision 0.44, recall 0.67, and F1 0.53 at the default precision, whereas micro precision, recall, and F1 are all 0.67. The reference to average='weighted' is correct, but the newly introduced micro-average description misidentifies the existing calculation. This is a documentation defect, not a change in numerical behavior.",
+      "path": "sklearn/metrics/classification.py",
+      "line": 1372,
+      "evidence": "The reported averages are a prevalence-weighted micro-average across\n        classes (equivalent to :func:`precision_recall_fscore_support` with\n        ``average='weighted'``).",
+      "fix": "Replace \"a prevalence-weighted micro-average across classes\" with \"support-weighted averages of the per-class metrics\" and retain the reference to average='weighted'.",
+      "test": "Use y_true=[0, 0, 1] and y_pred=[0, 0, 0] to verify that the report's averages match average='weighted' (precision 4/9, recall 2/3, F1 8/15), rather than average='micro' (2/3 for all three metrics).",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1415,
+          "symbol": "precision_recall_fscore_support(..., average=None, ...)"
+        },
+        {
+          "path": "sklearn/metrics/classification.py",
+          "line": 1428,
+          "symbol": "classification_report: format np.average(p, weights=s), np.average(r, weights=s), np.average(f1, weights=s)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

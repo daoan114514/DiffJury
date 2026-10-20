@@ -1,0 +1,278 @@
+{
+  "id": "astropy__astropy-187",
+  "repository": "astropy/astropy",
+  "pull_request": 187,
+  "split": "train",
+  "expected": 1,
+  "predicted": 4,
+  "tp": 1,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 3,
+      "path": "astropy/setup_helpers.py",
+      "line": 123,
+      "cwe": "CWE-116",
+      "rule_id": "build-path-not-escaped-in-generated-python",
+      "expected_severity": "high",
+      "predicted_severity": "low",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 181941,
+  "llm_calls": 5,
+  "input_tokens": 30778,
+  "output_tokens": 5746,
+  "total_tokens": 36524,
+  "instruction_calls": 5,
+  "instruction_tokens": 7344,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 4,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 2608,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2246
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3538,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 3195
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "clean-docs-deletes-source-root",
+      "severity": "medium",
+      "title": "Cleaning documentation can recursively delete the source checkout",
+      "explanation": "The new cleanup treats the user-supplied Sphinx build directory as an exclusively disposable directory. For example, running `python setup.py build_sphinx --build-dir=. --clean-docs` from the checkout makes `dirstorm` contain `.` and calls `rmtree('.')`. This recursively removes checkout contents, including source files and potentially .git, rather than only previously generated documentation. Depending on platform behavior, removing the final `.` entry can fail after its contents have already been deleted. The only guard is `isdir`, which does not distinguish documentation output from its parent or source directory. This is a local, explicitly triggered data-loss defect, not a remote authorization bypass.",
+      "path": "astropy/setup_helpers.py",
+      "line": 79,
+      "evidence": "if self.clean_docs:\n    dirstorm = ['docs/_generated']\n    if self.build_dir is None:\n        dirstorm.append('docs/_build')\n    else:\n        dirstorm.append(self.build_dir)\n\n    for d in dirstorm:\n        if isdir(d):\n            log.info('Cleaning directory ' + d)\n            rmtree(d)",
+      "fix": "Clean only known generated documentation outputs rather than unconditionally removing the build-directory root. Before deleting anything, canonicalize the selected paths and reject targets equal to or containing the checkout or documentation source directory. Perform this validation for every target before beginning deletion.",
+      "test": "In a disposable checkout containing source and .git sentinel files, invoke the command with `--build-dir=. --clean-docs` and assert that it rejects the cleanup before deleting any files. Also test `--build-dir=docs` and an absolute checkout path. Verify that cleaning the normal docs/_build output still succeeds and preserves documentation sources.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 64,
+          "symbol": "AstropyBuildSphinx.finalize_options"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 74,
+          "symbol": "dirstorm.append(self.build_dir)"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 79,
+          "symbol": "shutil.rmtree"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-73",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "subprocess-stdin-text-with-binary-pipe",
+      "severity": "medium",
+      "title": "Passing generated text to a binary subprocess pipe fails on Python 3",
+      "explanation": "On Python 3, once Sphinx imports successfully and the preceding package build completes, subproccode is a str produced by dedent, format, and join. Popen is created without text/universal-newlines mode, so its stdin is a binary pipe. Passing that str to communicate raises TypeError instead of delivering the generated script. Thus this path cannot perform a documentation build under Python 3, regardless of the contents or finalized paths in BuildDoc.run. Python 2 does not have this particular failure. The supplied context does not establish the project's supported Python-version matrix, so the compatibility scope is specifically a Python 3 invocation with otherwise working dependencies, not a claim that every historically supported environment fails.",
+      "path": "astropy/setup_helpers.py",
+      "line": 141,
+      "evidence": "proc = Popen([sys.executable], stdin=PIPE)\n            proc.communicate(subproccode)",
+      "fix": "Encode the generated script to bytes before passing it to communicate, with a matching source-encoding strategy, or explicitly use a compatible text-mode subprocess pipe.",
+      "test": "Under Python 3 with an importable Sphinx, execute the subprocess-launch path using a valid minimal generated script. Assert that communicate completes without TypeError and that the child executes the script.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 119,
+          "symbol": "construction of str-valued subproccode"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 140,
+          "symbol": "Popen with binary stdin"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 141,
+          "symbol": "Popen.communicate"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "subprocess-build-failure-not-propagated",
+      "severity": "medium",
+      "title": "A failed Sphinx subprocess is reported as a successful build command",
+      "explanation": "After the package build succeeds, any nonzero exit from the documentation subprocess merely produces a warning; AstropyBuildSphinx.run then returns normally. For example, a Sphinx configuration exception or a generated-code SyntaxError leaves documentation missing or stale while the setup command reports success. The previous implementation directly returned BuildDoc.run(self), so exceptions from that invocation propagated rather than being converted into a warning. This failure-propagation defect does not depend on the precise implementation of a particular Sphinx version: any child-process failure reaches the new warning-only branch. Automation using the documented `python setup.py build_sphinx` workflow therefore cannot reliably detect failed documentation builds.",
+      "path": "astropy/setup_helpers.py",
+      "line": 142,
+      "evidence": "if proc.returncode != 0:\n                log.warn('Sphinx Documentation subprocess failed with return '\n                         'code ' + str(proc.returncode))",
+      "fix": "Raise an appropriate distutils execution error when the subprocess returns a nonzero status, preserving failure as the observable setup-command outcome.",
+      "test": "Run build_sphinx with a documentation configuration that deliberately raises an exception. Assert that the child fails and the setup command exits nonzero rather than merely logging a warning.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 86,
+          "symbol": "AstropyBuildSphinx.run"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 140,
+          "symbol": "Popen"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 142,
+          "symbol": "subprocess return-code handling"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-252",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "build-path-not-escaped-in-generated-python",
+      "severity": "low",
+      "title": "A checkout path containing an apostrophe produces invalid subprocess code",
+      "explanation": "The absolute build-library path is inserted directly between single quotes in generated Python rather than serialized as a Python string literal. A valid checkout directory such as `/tmp/astro'py` produces a statement resembling `sys.path.insert(0,'/tmp/astro'py/build/lib')`, which is a SyntaxError. The child therefore fails before executing any extracted BuildDoc.run code or importing the built Astropy package. Previously the path was passed directly to sys.path.insert in the parent process and required no source-code escaping. This counterexample is independent of Sphinx version, source-directory finalization, and custom build-output defaults; it also applies to a custom build-library path containing an apostrophe. The warning-only failure handler then obscures the failure.",
+      "path": "astropy/setup_helpers.py",
+      "line": 123,
+      "evidence": "sys.path.insert(0,'{build_cmd_path}')",
+      "fix": "Interpolate repr(build_cmd_path) without surrounding literal quotes, for example using `sys.path.insert(0, {build_cmd_path!r})`.",
+      "test": "Run the documentation-build subprocess from a checkout whose absolute path contains an apostrophe, and separately exercise a custom build-library path containing one. Assert that the generated script parses and inserts the exact intended path.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 112,
+          "symbol": "absolute build_cmd_path calculation"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 123,
+          "symbol": "generated sys.path insertion"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 125,
+          "symbol": "unescaped path interpolation"
+        },
+        {
+          "path": "astropy/setup_helpers.py",
+          "line": 141,
+          "symbol": "execution of generated Python"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

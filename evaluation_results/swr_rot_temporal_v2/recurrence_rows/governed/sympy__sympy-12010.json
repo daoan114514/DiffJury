@@ -1,0 +1,213 @@
+{
+  "id": "sympy__sympy-12010",
+  "repository": "sympy/sympy",
+  "pull_request": 12010,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 109338,
+  "llm_calls": 5,
+  "input_tokens": 19283,
+  "output_tokens": 3925,
+  "total_tokens": 23208,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "ignore-iterator-consumption",
+      "severity": "medium",
+      "title": "A one-shot ignore iterable is consumed before all candidates are checked",
+      "explanation": "The documented iterable contract permits an iterator, but the same iterator is traversed separately for each repeated expression. For example, cse([y**2, y**2, y**2], ignore=iter([y])) consumes y while rejecting the second occurrence. On the third occurrence the iterator is exhausted, so the loop's else clause adds y**2 to to_eliminate. The result contains a replacement equivalent to (x0, y**2), violating the exclusion contract. With ignore=(y,), the same input correctly produces no replacements. An unrelated repeated candidate can also exhaust the iterator before an ignored expression is encountered. The added test uses only a reusable tuple, so it does not detect this defect. This is not a compatibility objection to the additive parameter; it is incorrect handling of an explicitly accepted input type.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 452,
+      "evidence": "                for ign in ignore:\n                    if ign in expr.free_symbols:\n                        break\n                else:\n                    to_eliminate.add(expr)\n                    return",
+      "fix": "Materialize ignore once at entry to tree_cse, for example as a frozenset, and reuse that collection for every candidate. Doing this in tree_cse also protects its direct callers.",
+      "test": "Assert that cse([y**2, y**2, y**2], ignore=iter([y])) equals the result with ignore=(y,) and has no replacements. Also test an iterator against multiple distinct repeated candidates, including an allowed candidate encountered before a forbidden one, and exercise tree_cse directly.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 570,
+          "symbol": "cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 687,
+          "symbol": "tree_cse invocation forwarding ignore"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 410,
+          "symbol": "tree_cse"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-691",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "ignored-shared-subtree-retraversal",
+      "severity": "medium",
+      "title": "Rejected repeated expressions are traversed again, expanding shared trees exponentially",
+      "explanation": "When a repeated expression contains an ignored symbol, break exits only the ignore loop. It bypasses the return and falls through to the normal traversal of the expression's children, although those children were already inspected on its first visit. A concrete family is e0 = y and e(k+1) = f(ek, ek), where f is an undefined SymPy function. Constructing this family requires only k distinct non-atomic expression nodes. Calling tree_cse([ek], numbered_symbols(), ignore=(y,)) rejects every repeated non-atomic node and recursively revisits both children on every occurrence. The discovery traversal consequently visits 2**k - 1 non-atomic occurrences instead of processing the shared nodes once; k=25 already gives more than 33 million such visits for 25 distinct nodes. Without the new rejection path, the repeated-node return prunes these visits. This also occurs with a reusable tuple, independently of iterator consumption. The existing shallow test does not exercise shared ignored subtrees.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 454,
+      "evidence": "                    if ign in expr.free_symbols:\n                        break\n                else:\n                    to_eliminate.add(expr)\n                    return\n\n            seen_subexp.add(expr)",
+      "fix": "Separate eligibility for elimination from visitation: always stop descending when an expression has already been visited, whether or not it can be eliminated. Memoize ignore eligibility/free-symbol checks for shared expressions as well, so checking the exclusion condition does not itself repeatedly expand the shared expression graph.",
+      "test": "Build e = y followed by repeated e = f(e, e), then exercise tree_cse with ignore=(y,). Assert no forbidden replacements and unchanged output, and instrument discovery visits or use a scaling regression test to ensure work does not double with every additional shared level.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 410,
+          "symbol": "tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 451,
+          "symbol": "repeated-expression discovery branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

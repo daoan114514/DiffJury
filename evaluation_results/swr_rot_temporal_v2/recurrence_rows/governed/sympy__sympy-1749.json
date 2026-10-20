@@ -1,0 +1,252 @@
+{
+  "id": "sympy__sympy-1749",
+  "repository": "sympy/sympy",
+  "pull_request": 1749,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 147296,
+  "llm_calls": 6,
+  "input_tokens": 34438,
+  "output_tokens": 4731,
+  "total_tokens": 39169,
+  "instruction_calls": 6,
+  "instruction_tokens": 6535,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "REL-EXPRESSION-REBUILD",
+      "severity": "medium",
+      "title": "Rebuilding Dummy atoms changes variable identity and can split one variable into several",
+      "explanation": "The new reconstruction path assumes that calling an expression's class with its args preserves its semantic state. Dummy violates that assumption: its args are empty, but Dummy() succeeds and allocates a fresh dummy identity rather than reproducing the original atom. For example, with d = Dummy('d', positive=True), rebuild(d) returns a different Dummy and loses the positive assumption. More seriously, rebuild(d + sin(d)) reconstructs the two occurrences separately, producing two distinct dummy variables: the original expression has one free symbol, while the result has two. This changes a valid expression's meaning rather than merely canonicalizing its representation. The exception fallback does not protect this case because Dummy() succeeds. This finding is independent of the scanner's broad-exception warning; the supplied evidence does not establish a separate meaningful swallowed-failure defect beyond the intentional fallback for non-reconstructible atoms.",
+      "path": "sympy/rules/rl.py",
+      "line": 156,
+      "evidence": "return type(expr)(*map(rebuild, expr.args))",
+      "fix": "Preserve atomic expressions unchanged before recursively reconstructing compound expressions. In particular, do not invoke zero-argument constructors to recreate atoms whose identity or assumptions are not encoded in args.",
+      "test": "Add a regression using d = Dummy('d', positive=True). Assert rebuild(d) is d, then rebuild d + sin(d) and assert the result equals the original expression and its free_symbols is exactly {d}. The existing Add(1, 2) test only checks canonicalization and does not observe atom identity or metadata preservation.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 148,
+          "symbol": "rebuild"
+        },
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 156,
+          "symbol": "recursive rebuild calls followed by type(expr)(*rebuilt_args)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REWRITE-FALSE-ASSUMPTION-BYPASS",
+      "severity": "medium",
+      "title": "An explicitly false assumption disables filtering instead of rejecting the rewrite",
+      "explanation": "The guard conflates an omitted assumption with an explicitly false requirement. For example, list(rewriterule(x, x + 1, [x], assume=False)(S(5))) produces [6], whereas a rule whose requirement is False must produce no results. At line 46, False short-circuits the entire expression, so ask is never called and execution proceeds to substitution and yielding. The default None should disable assumption filtering; False should not. The new assumption test exercises only a truthy predicate with a positive runtime context, so it does not detect this boundary failure.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 46,
+      "evidence": "            if (assume and not ask(assume.xreplace(match), assumptions)):",
+      "fix": "Use an explicit `assume is not None` check. Normalize supplied boolean requirements to SymPy boolean expressions before calling xreplace, so Python False is rejected rather than bypassed or converted into an AttributeError. Preserve rejection when ask returns False or None.",
+      "test": "Add regression tests showing that an omitted assumption permits the matching rewrite, assume=False and the corresponding symbolic false requirement produce no results, and true requirements still permit it. Retain the existing runtime-context test and add an unknown predicate case that must not rewrite.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 46,
+          "symbol": "rewrite_rl assumption guard"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 51,
+          "symbol": "rewrite_rl yield"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REWRITE-KEYWORD-ARGUMENT-COMPATIBILITY",
+      "severity": "low",
+      "title": "Renaming p1 and p2 breaks existing keyword-based rule construction",
+      "explanation": "The previous signature was `rewriterule(p1, p2, variables=())`, so `rewriterule(p1=x, p2=x + 1, variables=[x])` was accepted and constructed a working rule. The new signature rejects that same call with TypeError for an unexpected keyword argument before the rule is constructed. This affects consumers using the existing parameter names as keywords; positional callers remain compatible. The added condition and assumption tests all use positional source and target arguments and therefore do not detect this regression.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 9,
+      "evidence": "def rewriterule(source, target, variables=(), condition=None, assume=None):",
+      "fix": "Keep the original p1 and p2 parameter names and assign them to source and target internally, or provide an explicit compatibility adapter for the old keyword names.",
+      "test": "Construct a rule with `rewriterule(p1=x, p2=x + 1, variables=[x])` and assert that applying it to S(5) still yields 6. Also retain coverage for positional construction with the new optional condition and assume parameters.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule argument binding"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- BACKWARDS-INCOMPATIBLE",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

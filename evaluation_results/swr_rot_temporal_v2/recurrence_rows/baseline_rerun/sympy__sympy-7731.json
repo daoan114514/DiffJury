@@ -1,0 +1,149 @@
+{
+  "id": "sympy__sympy-7731",
+  "repository": "sympy/sympy",
+  "pull_request": 7731,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "bin/build_doc.sh",
+      "line": 44,
+      "cwe": "CWE-778",
+      "rule_id": "deployment-failure-diagnostics",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 87210,
+  "llm_calls": 5,
+  "input_tokens": 11621,
+  "output_tokens": 2228,
+  "total_tokens": 13849,
+  "instruction_calls": 5,
+  "instruction_tokens": 5124,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2344,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "observability-review"
+      ],
+      "skill_body_tokens": 2012
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "deployment-failure-diagnostics",
+      "severity": "medium",
+      "title": "Documentation deployment discards actionable Git failure diagnostics",
+      "explanation": "At line 44, the previous redirection discarded stdout but preserved stderr, including fatal diagnostics that `git clone --quiet` still emits. The replacement preserves stdout and discards stderr. A realistic failure such as a missing gh-pages branch or a DNS resolution failure therefore loses the diagnostic identifying why cloning failed. At line 48, the same change suppresses errors from `git remote add`, such as an existing origin or execution outside a Git repository; this command normally produces no stdout on success, so exposing stdout does not compensate. These edits remove actionable causes from CI output and materially delay diagnosis of documentation deployment failures. With successful redirection setup, neither edit changes the Git command's exit status. The supplied context does not establish whether the script stops on failure, so this finding does not claim a new control-flow change, false success, or subsequent destructive operation. Any later error output is not a replacement for the discarded clone or remote-configuration cause.",
+      "path": "bin/build_doc.sh",
+      "line": 44,
+      "evidence": "git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/sympy/sympy_doc.git  gh-pages 2>/dev/null\n        git remote add origin https://${GH_TOKEN}@github.com/sympy/sympy_doc.git 2>/dev/null",
+      "fix": "Retain actionable stderr for both commands rather than redirecting it unconditionally to /dev/null. If credential exposure motivates suppression, capture and redact credential-bearing URLs or tokens before emitting the failure diagnostic, while preserving the original Git exit status.",
+      "test": "Exercise cloning a local repository with no gh-pages branch and adding origin when origin already exists. Verify that each failure retains its nonzero Git exit status and produces a useful, sanitized diagnostic in deployment output. Also verify successful commands remain quiet and no configured credential appears in captured logs.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "bin/build_doc.sh",
+          "line": 44,
+          "symbol": "git clone"
+        },
+        {
+          "path": "bin/build_doc.sh",
+          "line": 48,
+          "symbol": "git remote add origin"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-778",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

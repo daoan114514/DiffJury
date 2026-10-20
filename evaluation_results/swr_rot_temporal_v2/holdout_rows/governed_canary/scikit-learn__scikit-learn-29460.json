@@ -1,0 +1,234 @@
+{
+  "id": "scikit-learn__scikit-learn-29460",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 29460,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/linear_model/tests/test_least_angle.py",
+      "line": 126,
+      "cwe": "CWE-755",
+      "rule_id": "numpy-lstsq-default-warning",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 72604,
+  "llm_calls": 5,
+  "input_tokens": 52365,
+  "output_tokens": 3111,
+  "total_tokens": 55476,
+  "instruction_calls": 5,
+  "instruction_tokens": 5210,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3070,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-24ae43fa",
+        "K-0a2298e4",
+        "K-eb2105bb",
+        "K-3c8dfccb",
+        "K-2bba7006",
+        "K-651ca0b6",
+        "K-6e16a2a3",
+        "K-1c8d031b",
+        "K-f32f49ff",
+        "K-5388c8d9"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 812,
+      "knowledge_ids": [
+        "K-9ecad403",
+        "K-6d7b0522",
+        "K-51e6bbd9",
+        "K-0f45b787",
+        "K-1617cbdc",
+        "K-0f38f6b6",
+        "K-3636a06a",
+        "K-fc6f5674",
+        "K-791ded73",
+        "K-0f51ebe7"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-0f51ebe7",
+      "K-1617cbdc",
+      "K-1c8d031b",
+      "K-24ae43fa",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-651ca0b6",
+      "K-6d7b0522",
+      "K-6e16a2a3",
+      "K-791ded73",
+      "K-9ecad403",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-24ae43fa",
+          "K-0a2298e4",
+          "K-eb2105bb",
+          "K-3c8dfccb",
+          "K-2bba7006",
+          "K-651ca0b6",
+          "K-6e16a2a3",
+          "K-1c8d031b",
+          "K-f32f49ff",
+          "K-5388c8d9"
+        ],
+        "tokens": 652,
+        "budget": 600,
+        "dropped": [
+          "K-4d5756a5",
+          "K-8828df10",
+          "K-a62a9e09"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-9ecad403",
+          "K-6d7b0522",
+          "K-51e6bbd9",
+          "K-0f45b787",
+          "K-1617cbdc",
+          "K-0f38f6b6",
+          "K-3636a06a",
+          "K-fc6f5674",
+          "K-791ded73",
+          "K-0f51ebe7"
+        ],
+        "tokens": 636,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "numpy-lstsq-default-warning",
+      "severity": "medium",
+      "title": "Keep rcond=None to avoid NumPy 1.x warning-strict test failures",
+      "explanation": "On NumPy 1.x, including 1.26, omitting rcond from np.linalg.lstsq emits the FutureWarning that the default rcond will change. The change simultaneously removes the warning filter and replaces the explicitly warning-free rcond=None call with the warning-emitting default. A warning-strict run therefore fails at this line before comparing the coefficients. NumPy 2 changes that default, but relying on its behavior unnecessarily breaks NumPy 1.x test environments. The supplied context does not expose the dependency constraints or global pytest warning configuration; the concrete triggering configuration is NumPy 1.26 with pytest -W error.",
+      "path": "sklearn/linear_model/tests/test_least_angle.py",
+      "line": 126,
+      "evidence": "    coef_lstsq = np.linalg.lstsq(X1, y)[0]",
+      "fix": "Retain np.linalg.lstsq(X1, y, rcond=None)[0]. The obsolete warning filter can still be removed.",
+      "test": "Using NumPy 1.26, run pytest -W error sklearn/linear_model/tests/test_least_angle.py::test_lars_lstsq. Verify the explicit rcond=None call passes without emitting a FutureWarning.",
+      "confidence": 0.9099999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/tests/test_least_angle.py",
+          "line": 120,
+          "symbol": "test_lars_lstsq"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ]
+}

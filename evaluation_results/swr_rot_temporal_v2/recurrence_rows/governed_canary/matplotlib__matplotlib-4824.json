@@ -1,0 +1,230 @@
+{
+  "id": "matplotlib__matplotlib-4824",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 4824,
+  "split": "train",
+  "expected": 2,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 2,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 112183,
+  "llm_calls": 5,
+  "input_tokens": 20374,
+  "output_tokens": 3404,
+  "total_tokens": 23778,
+  "instruction_calls": 5,
+  "instruction_tokens": 4644,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2734,
+      "knowledge_ids": [
+        "K-58d26727",
+        "K-2b3b5530",
+        "K-708dda56",
+        "K-42776966",
+        "K-d7b7bb6f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 582,
+      "knowledge_ids": [
+        "K-d2310f1b",
+        "K-ac8cc41a",
+        "K-12284e0a",
+        "K-eee6e319",
+        "K-1bd0d82a",
+        "K-86e6ca00"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-1bd0d82a",
+      "K-2b3b5530",
+      "K-42776966",
+      "K-58d26727",
+      "K-708dda56",
+      "K-86e6ca00",
+      "K-ac8cc41a",
+      "K-d2310f1b",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727",
+          "K-2b3b5530",
+          "K-708dda56",
+          "K-42776966",
+          "K-d7b7bb6f"
+        ],
+        "tokens": 316,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-d2310f1b",
+          "K-ac8cc41a",
+          "K-12284e0a",
+          "K-eee6e319",
+          "K-1bd0d82a",
+          "K-86e6ca00"
+        ],
+        "tokens": 406,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "boundarynorm-clipping-input-ownership",
+      "severity": "medium",
+      "title": "In-place clipping modifies caller-owned arrays and rejects read-only inputs",
+      "explanation": "When the input has no masked elements, MaskedArray.filled() can return its underlying data without copying, and np.atleast_1d() does not establish independent ownership. Consequently, xx can alias the caller's ndarray. For example, with a = np.array([-1., 0.5, 3.]) and BoundaryNorm([0, 1, 2], 2, clip=True), the new call changes a to [0., 0.5, 2.]. The previous np.clip call did not supply out and therefore left a unchanged. Setting a.flags.writeable = False makes the new call raise ValueError instead of returning a normalization result, whereas the previous implementation could process that input. These are regressions independent of the intended change to lower-bound clipping. A floating-point input already demonstrates both failures, so they do not depend on integer casting or NumPy's version-dependent casting rules. The added tests pass Python lists, which acquire fresh backing arrays and therefore do not exercise either ownership case. The existing upper-bound assignment to Ncmap remains a separate, pre-existing clipping defect and is not the basis of this finding.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1277,
+      "evidence": "xx = np.atleast_1d(_x.filled(self.vmax + 1))\n        if clip:\n            np.clip(xx, self.vmin, self.vmax, out=xx)",
+      "fix": "Clip into an independently allocated result, for example by assigning xx = np.clip(xx, self.vmin, self.vmax) rather than supplying out=xx. This also avoids imposing the input array's dtype on newly clipped fractional values.",
+      "test": "Normalize an unmasked floating-point ndarray containing values below and above the boundaries with clip=True, and assert that the original array is unchanged. Repeat with a read-only ndarray and with an unmasked MaskedArray sharing its data; assert successful normalization without modifying the inputs. Include integer inputs with fractional boundaries to verify that clipping does not truncate fractional endpoints.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1270,
+          "symbol": "BoundaryNorm.__call__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- ALIASING",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boundarynorm-masked-scalar-shape",
+      "severity": "low",
+      "title": "Masked scalar normalization now returns a length-one array",
+      "explanation": "The new unconditional np.atleast_1d conversion changes the result shape for masked scalar inputs. For example, BoundaryNorm([0, 1, 2], 2)(np.ma.array(0.5, mask=True)) previously built a zero-dimensional iret and returned a zero-dimensional masked result. It now builds iret with shape (1,), and the scalar-return branch is skipped because mask is true, leaving a masked array with shape (1,). The scalar precondition is explicitly recognized through _x.shape == (), but only unmasked scalars are restored to scalar form. This changes the observable dimensionality of an existing supported input and can break callers that distinguish scalar values from sequences. The new tests check ordinary Python scalar inputs and their integer results, but never check a masked scalar's shape or mask.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1278,
+      "evidence": "iret = np.atleast_1d(np.zeros(_x.shape, dtype=np.int16))\n...\n        ret = ma.array(iret, mask=mask)\n        if _x.shape == () and not mask:\n            ret = int(ret[0])",
+      "fix": "Restore scalar dimensionality whenever the original input has shape (), preserving a masked scalar when its mask is true and converting to a Python integer only when unmasked.",
+      "test": "Pass np.ma.array(0.5, mask=True) to BoundaryNorm with matching bin and color counts, and assert that the result has shape () and remains masked. Repeat with interpolation and clip=True, and retain the existing assertions that ordinary scalar inputs return Python integers.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1270,
+          "symbol": "BoundaryNorm.__call__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

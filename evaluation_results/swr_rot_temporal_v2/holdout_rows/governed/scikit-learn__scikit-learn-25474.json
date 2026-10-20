@@ -1,0 +1,184 @@
+{
+  "id": "scikit-learn__scikit-learn-25474",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 25474,
+  "split": "holdout",
+  "expected": 3,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 2,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/datasets/_samples_generator.py",
+      "line": 55,
+      "cwe": "CWE-20",
+      "rule_id": "public-api-supported-input-rejected",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 61945,
+  "llm_calls": 5,
+  "input_tokens": 12436,
+  "output_tokens": 2416,
+  "total_tokens": 14852,
+  "instruction_calls": 5,
+  "instruction_tokens": 4315,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 341,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 165,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "public-api-supported-input-rejected",
+      "severity": "medium",
+      "title": "Preserve documented per-feature arrays for shift and scale",
+      "explanation": "Both parameters publicly support a scalar, an ndarray of shape (n_features,), or None. The generator applies them through feature-wise NumPy addition and multiplication, which support these arrays. The new constraints accept only a real scalar or None, so validation rejects documented inputs before the generator executes. For example, make_classification(n_features=4, n_informative=2, n_redundant=0, shift=np.zeros(4), random_state=0) previously succeeds but now raises InvalidParameterError; replacing shift with scale=np.ones(4) demonstrates the same independent regression. These arrays have the documented shape and are not malformed inputs. The added public-function test registration does not add a supported-array regression test, and validation tests based on the declared constraints cannot establish that the constraints include every documented input type. No additional integer or real boundary regression is established by the supplied evidence.",
+      "path": "sklearn/datasets/_samples_generator.py",
+      "line": 55,
+      "evidence": "        \"shift\": [Interval(Real, None, None, closed=\"neither\"), None],\n        \"scale\": [Interval(Real, None, None, closed=\"neither\"), None],",
+      "fix": "Include \"array-like\" in both parameter constraints, retaining the existing scalar and None alternatives.",
+      "test": "Add focused tests passing shift=np.arange(4) and scale=np.array([1., 2., 3., 4.]), individually and together, with n_features=4, n_informative=2, n_redundant=0, shuffle=False, and a fixed random_state. Compare against an otherwise identical scalar-default call and assert that the returned features equal (X_base + shift) * scale and that labels are unchanged. Retain scalar and None coverage alongside these supported-array cases.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/datasets/_samples_generator.py",
+          "line": 42,
+          "symbol": "validate_params"
+        },
+        {
+          "path": "sklearn/datasets/_samples_generator.py",
+          "line": 61,
+          "symbol": "make_classification"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

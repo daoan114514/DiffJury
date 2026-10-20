@@ -1,0 +1,276 @@
+{
+  "id": "sympy__sympy-21067",
+  "repository": "sympy/sympy",
+  "pull_request": 21067,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 2,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 139228,
+  "llm_calls": 5,
+  "input_tokens": 22782,
+  "output_tokens": 6025,
+  "total_tokens": 28807,
+  "instruction_calls": 5,
+  "instruction_tokens": 5016,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2895,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-1f002951",
+        "K-a9677d2d",
+        "K-7e90bf29",
+        "K-4f9662f0",
+        "K-b9cfc827",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 793,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1",
+        "K-8810c414"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-8810c414",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-87ee2eda",
+          "K-1f002951",
+          "K-a9677d2d",
+          "K-7e90bf29",
+          "K-4f9662f0",
+          "K-b9cfc827",
+          "K-a4c9356f"
+        ],
+        "tokens": 477,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-8810c414"
+        ],
+        "tokens": 617,
+        "budget": 600,
+        "dropped": [
+          "K-4e30e572",
+          "K-e4a5fbd0",
+          "K-cde9c599",
+          "K-8184713c",
+          "K-86d0b57a",
+          "K-4e7d5d6b",
+          "K-9d754682",
+          "K-10578218",
+          "K-03e5723b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "lambert-expanded-expression-type",
+      "severity": "low",
+      "title": "Check the expanded expression's type, not the original expression's type",
+      "explanation": "For f = 2*(x*exp(x) - 1), the original expression is a Mul, so the f.is_Add guard forces False even though the helper extracts factors from its expanded, additive form. This is a constant multiple of the documented Lambert equation x*exp(x) = 1; classification should not change merely because a nonzero constant is left factored out. The added tests exercise additive inputs but do not cover this mismatch between the inspected factors and the expression-type guard. The False result follows directly from the shown guard; the expected True classification of the expanded equivalent assumes the intended Add/Mul decomposition by _term_factors, whose definition was not supplied. No solver invocation of the new helper appears in the diff, and repository-wide callers cannot be verified without tools; the demonstrated defect concerns the helper rather than an established regression in solveset.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1820,
+      "evidence": "    term_factors = list(_term_factors(f.expand()))\n\n    # total number of symbols in equation\n    no_of_symbols = len([arg for arg in term_factors if arg.has(symbol)])\n    # total number of trigonometric terms in equation\n    no_of_trig = len([arg for arg in term_factors \\\n        if arg.has(HyperbolicFunction, TrigonometricFunction)])\n\n    if f.is_Add and no_of_symbols >= 2 :",
+      "fix": "Store f.expand() and use that same expression for both factor extraction and the is_Add guard.",
+      "test": "Assert that _is_lambert(2*(x*exp(x) - 1), x) and _is_lambert((2*(x*exp(x) - 1)).expand(), x) both return True.",
+      "confidence": 0.8,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1757,
+          "symbol": "_is_lambert"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "lambert-powered-logarithm",
+      "severity": "low",
+      "title": "Powered logarithms miss an explicitly documented Lambert form",
+      "explanation": "For f = x*log(x)**2 - 1, ordinary Add/Mul factor decomposition yields x, log(x)**2, and -1. There are two target-dependent factors, but neither is directly an instance of log; the Pow has exponent 2, which does not contain x. Both recognition branches consequently fail and return False. This expression is the documented B*(b*log(B) + c)**a = R form with B=x, b=1, c=0, a=2, and R=1, so the expectation does not require a complete Lambert solver. Expansion leaves log(x)**2 intact. The added expanded-polynomial test contains other directly recognizable logarithm factors and does not isolate this case. This classification is inferred under the expected Add/Mul-only behavior of _term_factors; its implementation was not included and could not be independently verified in this no-tool review. No solver integration is shown in the diff, so the established scope is the new helper.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1823,
+      "evidence": "        if any(isinstance(arg, (log, HyperbolicFunction, TrigonometricFunction))\\\n            for arg in term_factors if arg.has(symbol) and no_of_trig < no_of_symbols):\n            return True\n        # here, `Pow`, `exp` exponent should have symbols\n        elif any(isinstance(arg, (Pow, exp)) \\\n            for arg in term_factors if (arg.as_base_exp()[1]).has(symbol)):\n            return True",
+      "fix": "Recognize target-dependent logarithms inside powered factors, at least for the documented powered-logarithm form, rather than requiring the factor itself to be a log instance.",
+      "test": "Assert _is_lambert(x*log(x)**2 - 1, x) is True, and retain a negative case such as _is_lambert(x*log(y)**2 - 1, x) to ensure target-independent logarithms do not qualify.",
+      "confidence": 0.7499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1757,
+          "symbol": "_is_lambert"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "lambert-independent-trig-blocks-log",
+      "severity": "low",
+      "title": "Symbol-independent trigonometric constants suppress logarithmic classification",
+      "explanation": "Consider f = x + log(x) + sin(y) + cos(y), checked in x. With the intended additive factor decomposition, no_of_symbols is 2 and no_of_trig is 2. The logarithm branch is therefore disabled, and the exponent branch has no qualifying factor, producing False. Yet sin(y) + cos(y) is constant with respect to x: this is precisely the documented a*log(b*B + c) + d*B = R form, and should classify identically to x + log(x) + C. The guard both counts trigonometric terms independent of the target and applies the trigonometric restriction to log, although documented condition 3 restricts only hyperbolic/trigonometric terms. Existing tests contain no independent trigonometric coefficients or constants in a logarithmic equation. This is a static derivation, not an executed result: _term_factors and repository-wide callers were unavailable for inspection. The supplied diff introduces no solver call to this helper, so an existing solver regression is not established.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1824,
+      "evidence": "    no_of_trig = len([arg for arg in term_factors \\\n        if arg.has(HyperbolicFunction, TrigonometricFunction)])\n\n    if f.is_Add and no_of_symbols >= 2 :\n        # `log`, `HyperbolicFunction`, `TrigonometricFunction` should have symbols\n        # and no_of_trig < no_of_symbols\n        if any(isinstance(arg, (log, HyperbolicFunction, TrigonometricFunction))\\\n            for arg in term_factors if arg.has(symbol) and no_of_trig < no_of_symbols):",
+      "fix": "Recognize target-dependent logarithms independently of the trigonometric-count restriction. For the trigonometric branch, count only relevant target-dependent terms.",
+      "test": "With distinct symbols x and y, assert _is_lambert(x + log(x) + sin(y) + cos(y), x) is True, alongside the equivalent equation with a symbolic constant replacing sin(y) + cos(y).",
+      "confidence": 0.83,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1757,
+          "symbol": "_is_lambert"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,287 @@
+{
+  "id": "scikit-learn__scikit-learn-182",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 182,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 125195,
+  "llm_calls": 5,
+  "input_tokens": 21377,
+  "output_tokens": 3306,
+  "total_tokens": 24683,
+  "instruction_calls": 5,
+  "instruction_tokens": 5179,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3053,
+      "knowledge_ids": [
+        "K-3c8dfccb",
+        "K-0a2298e4",
+        "K-d3341a3f",
+        "K-eb2105bb",
+        "K-2bba7006",
+        "K-651ca0b6",
+        "K-f32f49ff",
+        "K-5388c8d9",
+        "K-c5fe4768",
+        "K-a62a9e09"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 798,
+      "knowledge_ids": [
+        "K-feee072d",
+        "K-94fa9fcb",
+        "K-6d7b0522",
+        "K-0f38f6b6",
+        "K-791ded73",
+        "K-0f45b787",
+        "K-51e6bbd9",
+        "K-fc6f5674",
+        "K-69a7f4ef",
+        "K-f8f85333"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-2bba7006",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-651ca0b6",
+      "K-69a7f4ef",
+      "K-6d7b0522",
+      "K-791ded73",
+      "K-94fa9fcb",
+      "K-a62a9e09",
+      "K-c5fe4768",
+      "K-d3341a3f",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8f85333",
+      "K-fc6f5674",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb",
+          "K-0a2298e4",
+          "K-d3341a3f",
+          "K-eb2105bb",
+          "K-2bba7006",
+          "K-651ca0b6",
+          "K-f32f49ff",
+          "K-5388c8d9",
+          "K-c5fe4768",
+          "K-a62a9e09"
+        ],
+        "tokens": 635,
+        "budget": 600,
+        "dropped": [
+          "K-60a0fdd6",
+          "K-4d5756a5",
+          "K-6e16a2a3"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-feee072d",
+          "K-94fa9fcb",
+          "K-6d7b0522",
+          "K-0f38f6b6",
+          "K-791ded73",
+          "K-0f45b787",
+          "K-51e6bbd9",
+          "K-fc6f5674",
+          "K-69a7f4ef",
+          "K-f8f85333"
+        ],
+        "tokens": 622,
+        "budget": 600,
+        "dropped": [
+          "K-d8b204bc",
+          "K-1617cbdc",
+          "K-9ecad403",
+          "K-0f51ebe7",
+          "K-184c93c6"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "bootstrap-documented-size-bounds",
+      "severity": "medium",
+      "title": "Split sizes outside the documented bounds are silently accepted",
+      "explanation": "The constructor converts or stores split sizes without checking the documented bounds: fractional sizes must be between 0.0 and 1.0, and integer sizes must be smaller than n. For example, Bootstrap(10, train=1.5, test=0.5) is accepted and iteration produces 15 training indices; Bootstrap(10, train=11, test=2) likewise produces 11 training indices. The corresponding oversized test arguments are also accepted. These inputs should be rejected under the stated argument contract, but randint permits oversized output shapes because it samples with replacement, so no downstream guard enforces the bounds. This finding does not concern duplicate samples or train/test overlap, both of which are explicitly permitted, and does not require train and test sizes to sum to n.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 544,
+      "evidence": "        if isinstance(train, float):\n            self.n_train = int(train * n)\n        elif isinstance(train, int):\n            self.n_train = train\n        else:\n            raise ValueError(\"Invalid value for train: %r\" % train)\n        if isinstance(test, float):\n            self.n_test = int(test * n)\n        elif isinstance(train, int):\n            self.n_test = test",
+      "fix": "Validate each fractional argument against its documented range before conversion and each integer count against the documented n bound. Raise an argument-specific ValueError during construction. Preserve the explicitly supported replacement sampling and train/test overlap.",
+      "test": "Add constructor rejection tests for train and test fractions above 1 and below 0, and integer counts exceeding n. Include valid near-boundary values and verify resulting lengths. Assert rejection at construction rather than accepting a later NumPy exception. No corresponding regression tests are present in the supplied diff.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 508,
+          "symbol": "Bootstrap.__init__: documented train bounds"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 516,
+          "symbol": "Bootstrap.__init__: documented test bounds"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 544,
+          "symbol": "Bootstrap.__init__: unchecked split-size conversion"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 561,
+          "symbol": "Bootstrap.__iter__: samples using the unchecked sizes"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "bootstrap-test-type-validation",
+      "severity": "medium",
+      "title": "The integer test-size branch checks train instead of test",
+      "explanation": "The documented train and test arguments independently accept integers or floats, but test validation depends on the type of train. Bootstrap(10, train=0.5, test=2) should construct an iterator producing train and test arrays of lengths 5 and 2; instead, construction raises ValueError. Conversely, Bootstrap(10, train=2, test='bad') accepts an invalid test value and fails only when iteration passes that string as a randint shape. No supplied test changes cover either case.",
+      "path": "scikits/learn/cross_val.py",
+      "line": 552,
+      "evidence": "        if isinstance(test, float):\n            self.n_test = int(test * n)\n        elif isinstance(train, int):\n            self.n_test = test\n        else:\n            raise ValueError(\"Invalid value for train: %r\" % train)",
+      "fix": "Check isinstance(test, int) in the integer test-size branch, and report test rather than train in the corresponding validation error.",
+      "test": "Add tests constructing and iterating Bootstrap(10, train=0.5, test=2), asserting lengths 5 and 2. Cover all four integer/float train/test combinations. Assert that Bootstrap(10, train=2, test='bad') raises ValueError during construction and identifies the invalid test argument.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 489,
+          "symbol": "Bootstrap.__init__"
+        },
+        {
+          "path": "scikits/learn/cross_val.py",
+          "line": 562,
+          "symbol": "Bootstrap.__iter__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

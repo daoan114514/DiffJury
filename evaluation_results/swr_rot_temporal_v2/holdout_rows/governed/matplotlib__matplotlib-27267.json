@@ -1,0 +1,202 @@
+{
+  "id": "matplotlib__matplotlib-27267",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 27267,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/axes/_secondary_axes.py",
+      "line": 154,
+      "cwe": "CWE-20",
+      "rule_id": "transform-dimensionality",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 87364,
+  "llm_calls": 5,
+  "input_tokens": 13077,
+  "output_tokens": 3509,
+  "total_tokens": 16586,
+  "instruction_calls": 5,
+  "instruction_tokens": 4094,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2586,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "transform-dimensionality",
+      "severity": "medium",
+      "title": "Reject multidimensional transforms before using them as scalar axis conversions",
+      "explanation": "The new branch accepts every Transform without checking its input and output dimensions. Secondary-axis limit conversion passes the two limits as a one-dimensional array, and the functional scale subsequently passes arrays of scalar coordinates. For example, with primary x limits (0, 1), functions=Affine2D().translate(10, 20) is accepted; converting the limit array treats it as the single point (0, 1) and returns (10, 21). Those coordinates become secondary-axis limits, incorrectly mixing the transform's x and y operations rather than applying a scalar conversion to each endpoint. Its inverse has the same dimensional mismatch when consumed by the functional scale. Previously this input was rejected; the new branch lets an incompatible transform reach downstream scalar consumers.",
+      "path": "lib/matplotlib/axes/_secondary_axes.py",
+      "line": 154,
+      "evidence": "elif isinstance(functions, Transform):\n            self._functions = (\n                    functions.transform, functions.inverted().transform)",
+      "fix": "Require input_dims == output_dims == 1 before storing the transform methods, and raise a clear ValueError for incompatible dimensions. Document the one-dimensional requirement.",
+      "test": "Create a primary x axis with limits (0, 1). Verify that secondary_xaxis('top', functions=Affine2D().translate(10, 20)) raises ValueError immediately. Also exercise a properly initialized one-dimensional translation Transform through drawing, checking secondary limits (10, 11) and inverse tick conversion.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_secondary_axes.py",
+          "line": 154,
+          "symbol": "SecondaryAxis.set_functions"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "image-comparison-baseline",
+      "severity": "medium",
+      "title": "Update the image reference when adding the translated secondary axes",
+      "explanation": "test_secondary_xy still compares against secondary_xy.png, but the added invocation creates another visible secondary axis at the top of the first subplot and the right of the second, with coordinates translated by 2. This changes both axis decorations and constrained-layout output. Neither changed file updates the image reference, so the previously matching reference no longer represents the figure produced by this test. The helper's overridden transform and inverted methods are sufficient for the new branch's bound-method usage, but the image-comparison test cannot serve as a passing regression test without updating its expected image.",
+      "path": "lib/matplotlib/tests/test_axes.py",
+      "line": 7530,
+      "evidence": "secax(\"top\" if nn == 0 else \"right\", functions=_Translation(2))",
+      "fix": "Regenerate and include the secondary_xy.png reference for the new figure, or place Transform coverage in a separate test that compares equivalent callable and Transform conversions without changing the existing reference.",
+      "test": "Run test_secondary_xy using the repository's image-comparison configuration and verify that both subplot orientations match the updated reference. Add direct assertions for translated limits and inverse conversion so the test checks the conversion contract as well as appearance.",
+      "confidence": 0.8,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_axes.py",
+          "line": 7512,
+          "symbol": "test_secondary_xy"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_axes.py",
+          "line": 7530,
+          "symbol": "secondary-axis invocation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,290 @@
+{
+  "id": "scikit-learn__scikit-learn-16841",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 16841,
+  "split": "train",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/decomposition/_pca.py",
+      "line": 63,
+      "cwe": "CWE-682",
+      "rule_id": "pca-mle-absolute-eigenvalue-cutoff",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 133502,
+  "llm_calls": 5,
+  "input_tokens": 34618,
+  "output_tokens": 4324,
+  "total_tokens": 38942,
+  "instruction_calls": 5,
+  "instruction_tokens": 5151,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3021,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-d3341a3f",
+        "K-a62a9e09",
+        "K-3c8dfccb",
+        "K-4d5756a5",
+        "K-f32f49ff",
+        "K-eb2105bb",
+        "K-2bba7006",
+        "K-0a2298e4"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 802,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-0f38f6b6",
+        "K-0f45b787",
+        "K-3636a06a",
+        "K-184c93c6",
+        "K-9ecad403",
+        "K-94fa9fcb",
+        "K-1617cbdc",
+        "K-fc6f5674",
+        "K-51e6bbd9"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-69a7f4ef",
+      "K-94fa9fcb",
+      "K-9ecad403",
+      "K-a62a9e09",
+      "K-d3341a3f",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-d3341a3f",
+          "K-a62a9e09",
+          "K-3c8dfccb",
+          "K-4d5756a5",
+          "K-f32f49ff",
+          "K-eb2105bb",
+          "K-2bba7006",
+          "K-0a2298e4"
+        ],
+        "tokens": 603,
+        "budget": 600,
+        "dropped": [
+          "K-651ca0b6",
+          "K-5388c8d9",
+          "K-60a0fdd6",
+          "K-1c8d031b"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-0f38f6b6",
+          "K-0f45b787",
+          "K-3636a06a",
+          "K-184c93c6",
+          "K-9ecad403",
+          "K-94fa9fcb",
+          "K-1617cbdc",
+          "K-fc6f5674",
+          "K-51e6bbd9"
+        ],
+        "tokens": 626,
+        "budget": 600,
+        "dropped": [
+          "K-6d7b0522",
+          "K-feee072d",
+          "K-0f51ebe7",
+          "K-70b43072"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "pca-mle-absolute-eigenvalue-cutoff",
+      "severity": "medium",
+      "title": "The new absolute cutoff can discard every positive rank and return zero",
+      "explanation": "For spectrum=np.array([9e-16, 3.1e-16, 2.9e-16]) and n_samples=1000, both admissible ranks now return -inf because their selected eigenvalues are below 1e-15. Since _infer_dimension also initializes rank zero to -inf, argmax returns zero, contrary to this change's stated intention to exclude zero components. This is an introduced regression rather than merely a pre-existing limitation for tiny spectra: all residual variances in this example exceed the previous float64 epsilon threshold, and the previous rank-one score exceeds the rank-zero score by approximately 206.5, so the previous implementation selects a nonzero rank. This spectrum is reachable through PCA by constructing three centered orthogonal columns with squared norms equal to 999 times these eigenvalues. Rescaling otherwise identical data should not erase every admissible candidate.",
+      "path": "sklearn/decomposition/_pca.py",
+      "line": 63,
+      "evidence": "if spectrum[rank - 1] < 1e-15:\n        # When the tested rank is associated with a small eigenvalue, there's\n        # no point in testing. Also, it can lead to numerical issues below\n        # when computing pa, in particular in log((spectrum[i] - spectrum[j])\n        # because this will take the log of something very small.\n        return -np.inf",
+      "fix": "Make the numerical cutoff relative to the spectrum's scale, or normalize the spectrum before evaluating likelihoods. Also ensure that excluding rank zero does not leave it as the argmax when every admissible score is -inf.",
+      "test": "Assert that _infer_dimension(np.array([9e-16, 3.1e-16, 2.9e-16]), 1000) selects one component, and compare PCA MLE results for centered orthogonal data before and after uniform rescaling.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 463,
+          "symbol": "PCA._fit_full"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 102,
+          "symbol": "_infer_dimension"
+        },
+        {
+          "path": "sklearn/decomposition/_pca.py",
+          "line": 63,
+          "symbol": "_assess_dimension"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "pca-mle-test-rank-index",
+      "severity": "low",
+      "title": "The rank-one likelihood test now checks rank two",
+      "explanation": "Previously, the likelihood list started at rank zero, so the unchanged assertion ll[1] checked the rank-one likelihood. After changing the comprehension to range(1, p), ll[0] represents rank one and ll[1] represents rank two. The test therefore no longer verifies its original rank-one near-optimality condition and can miss a regression that lowers the rank-one score while leaving rank two near the maximum.",
+      "path": "sklearn/decomposition/tests/test_pca.py",
+      "line": 336,
+      "evidence": "ll = np.array([_assess_dimension(spect, k, n) for k in range(1, p)])\n    assert ll[1] > ll.max() - .01 * n",
+      "fix": "Update the assertion to use ll[0], or retain an explicit mapping from tested ranks to likelihood scores.",
+      "test": "Verify that test_infer_dim_1 compares the likelihood for rank one against the maximum over admissible ranks; a regression affecting only the rank-one score must fail the assertion.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/decomposition/tests/test_pca.py",
+          "line": 336,
+          "symbol": "test_infer_dim_1"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-193",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

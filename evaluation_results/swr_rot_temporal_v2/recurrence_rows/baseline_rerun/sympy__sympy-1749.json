@@ -1,0 +1,203 @@
+{
+  "id": "sympy__sympy-1749",
+  "repository": "sympy/sympy",
+  "pull_request": 1749,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 127887,
+  "llm_calls": 5,
+  "input_tokens": 28779,
+  "output_tokens": 3638,
+  "total_tokens": 32417,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "REBUILD-ATOMIC-IDENTITY",
+      "severity": "medium",
+      "title": "Rebuilding a Dummy replaces its identity and discards its assumptions",
+      "explanation": "The new recursive rebuild function reconstructs atoms as well as compound expressions. For d = Dummy('d', positive=True), d.args is empty and Dummy() succeeds, creating a fresh, unrelated dummy without the original positive assumption. Consequently, rebuild(d) != d, and rebuilding d + 1 changes the free symbol in the expression instead of merely canonicalizing it. Repeated rebuilding creates different symbols each time. Constructor failure is not itself evidence of a defect here: for example, Symbol() requires a name, so the exception fallback preserves that atom. Dummy demonstrates the actual defect because its zero-argument constructor succeeds with different semantics. The added test exercises only an Add containing integers and does not detect atomic identity or assumption loss.",
+      "path": "sympy/rules/rl.py",
+      "line": 156,
+      "evidence": "return type(expr)(*map(rebuild, expr.args))",
+      "fix": "Return atomic expressions unchanged before recursively reconstructing compound expressions. Preserve the existing handling of non-SymPy leaf values needed by the added Add test.",
+      "test": "Create d = Dummy('d', positive=True); assert rebuild(d) is d, rebuild(d).is_positive is True, and rebuild(d + 1) == d + 1. Repeat rebuilding and assert that the expression's free symbols remain {d}. Retain the existing noncanonical Add reconstruction test.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 148,
+          "symbol": "rebuild"
+        },
+        {
+          "path": "sympy/rules/rl.py",
+          "line": 156,
+          "symbol": "recursive rebuild followed by type(expr)(*args)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REWRITE-FALSE-ASSUMPTION",
+      "severity": "medium",
+      "title": "An explicitly false rewrite requirement is treated as no requirement",
+      "explanation": "The guard uses truthiness to distinguish an omitted requirement from an active one. A concrete counterexample is rl = rewriterule(x, x, (x,), assume=False), followed by list(rl(S(5))). The match is yielded because False short-circuits the guard, whereas a false requirement must reject every match. The same issue applies to SymPy's false Boolean value. Truthy assumption expressions do reach ask(), and its false and unknown results are both rejected; the defect is specifically the bypass before that evaluation. The new assumption test covers a positive contextual assumption and an unknown competing match, but not an explicitly false requirement.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 46,
+      "evidence": "if (assume and not ask(assume.xreplace(match), assumptions)):",
+      "fix": "Distinguish absence with assume is None rather than truthiness. Sympify an explicitly supplied requirement before substitution so Python True and False are handled consistently with SymPy Boolean values.",
+      "test": "Exercise the real rule with assume=False and assume=S.false and assert that both produce no results. Also verify that assume=True, assume=S.true, and the omitted default permit an otherwise valid match, while false and unknown predicate answers continue to reject it.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 41,
+          "symbol": "rewrite_rl"
+        },
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 46,
+          "symbol": "assumption filtering"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REWRITERULE-KEYWORD-COMPATIBILITY",
+      "severity": "low",
+      "title": "Renaming p1 and p2 breaks existing keyword calls to rewriterule",
+      "explanation": "The previous public signature was rewriterule(p1, p2, variables=()). It accepted calls such as rewriterule(p1=x, p2=x + 1, variables=(x,)). The new signature rejects that previously supported call with TypeError before constructing a rule because neither p1 nor p2 is accepted anymore. Positional callers, including all the shown tests, remain compatible and therefore do not detect the break. The new condition and assume options do not require renaming the existing parameters.",
+      "path": "sympy/unify/rewrite.py",
+      "line": 9,
+      "evidence": "def rewriterule(source, target, variables=(), condition=None, assume=None):",
+      "fix": "Retain p1 and p2 as accepted parameter names, assigning them to source and target internally, or provide explicit backward-compatible aliases.",
+      "test": "Construct a rule with rewriterule(p1=x, p2=x + 1, variables=(x,)) and verify that it produces the same results as the equivalent positional call.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/unify/rewrite.py",
+          "line": 9,
+          "symbol": "rewriterule argument binding"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- BACKWARDS-COMPATIBILITY",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

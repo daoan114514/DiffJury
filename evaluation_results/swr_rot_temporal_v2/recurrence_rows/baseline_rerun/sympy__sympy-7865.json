@@ -1,0 +1,129 @@
+{
+  "id": "sympy__sympy-7865",
+  "repository": "sympy/sympy",
+  "pull_request": 7865,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 74534,
+  "llm_calls": 5,
+  "input_tokens": 11761,
+  "output_tokens": 1863,
+  "total_tokens": 13624,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "test-quality/unchecked-comparison",
+      "severity": "low",
+      "title": "The new intersection equality check does not assert its result",
+      "explanation": "The equality expression is evaluated and discarded, so test_intersection passes even when the two expressions compare unequal. The membership assertion added at line 144 checks that zero is excluded, but does not establish that other integers are retained or that the resulting set equals the expected complement. For example, a regression returning EmptySet for this intersection would satisfy the membership assertion while this unasserted comparison would not fail the test. This is a demonstrable test defect, not evidence of a current production simplification failure. The displayed production identity, (X ∩ (A \\ B)) = ((X ∩ A) \\ B), is mathematically valid, including repeated application to multiple complements. The supplied excerpt does not include constructor normalization, so it cannot establish that args supports list concatenation or verify surrounding recursive behavior; no collection-type, mutation, or nontermination defect is asserted.",
+      "path": "sympy/sets/tests/test_sets.py",
+      "line": 253,
+      "evidence": "    Intersection(S.Reals, S.Integers - FiniteSet(0)) == \\\n            Complement(Intersection(S.Reals, S.Integers), FiniteSet(0))",
+      "fix": "Add assert before the equality expression. Retain the zero-exclusion assertion and add a positive membership assertion, such as 1 belonging to the intersection, to protect against an incorrectly empty result.",
+      "test": "Run test_intersection and test_Complement with assertions enabled. Verify that the expected intersection excludes 0 and includes 1, and that an intentionally incorrect empty result fails the regression assertions.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/tests/test_sets.py",
+          "line": 253,
+          "symbol": "test_intersection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-252",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

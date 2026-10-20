@@ -1,0 +1,209 @@
+{
+  "id": "matplotlib__matplotlib-5825",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 5825,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 105720,
+  "llm_calls": 5,
+  "input_tokens": 21622,
+  "output_tokens": 3014,
+  "total_tokens": 24636,
+  "instruction_calls": 5,
+  "instruction_tokens": 5972,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2791,
+      "knowledge_ids": [
+        "K-489cde43",
+        "K-42776966",
+        "K-130dc527",
+        "K-58d26727",
+        "K-708dda56",
+        "K-2b3b5530",
+        "K-4fb328e2"
+      ],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 581,
+      "knowledge_ids": [
+        "K-9728b835",
+        "K-eee6e319",
+        "K-12284e0a",
+        "K-ac8cc41a",
+        "K-86e6ca00",
+        "K-d2310f1b"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-130dc527",
+      "K-2b3b5530",
+      "K-42776966",
+      "K-489cde43",
+      "K-4fb328e2",
+      "K-58d26727",
+      "K-708dda56",
+      "K-86e6ca00",
+      "K-9728b835",
+      "K-ac8cc41a",
+      "K-d2310f1b",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-489cde43",
+          "K-42776966",
+          "K-130dc527",
+          "K-58d26727",
+          "K-708dda56",
+          "K-2b3b5530",
+          "K-4fb328e2"
+        ],
+        "tokens": 420,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-9728b835",
+          "K-eee6e319",
+          "K-12284e0a",
+          "K-ac8cc41a",
+          "K-86e6ca00",
+          "K-d2310f1b"
+        ],
+        "tokens": 405,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-relative-documentation-link",
+      "severity": "medium",
+      "title": "Resolve the style-change banner link relative to the documentation root",
+      "explanation": "The banner is rendered by the shared layout on nested documentation pages, but its new bare relative URL resolves against the current page's directory. For example, on https://matplotlib.org/1.5.1/users/pyplot_tutorial.html, clicking “new updates” now navigates to https://matplotlib.org/1.5.1/users/style_changes.html rather than https://matplotlib.org/1.5.1/style_changes.html. No template URL helper adjusts the literal href. This breaks ordinary documentation navigation independently of whether the donation popup or iframe works.",
+      "path": "doc/_templates/layout.html",
+      "line": 180,
+      "evidence": "<p>Learn what to expect in the <a href=\"style_changes.html\" style=\"font-weight: bold;",
+      "fix": "Generate the destination with Sphinx's page-relative URL helper, for example href=\"{{ pathto('style_changes') }}\", so it resolves correctly from both root and nested pages, including versioned documentation deployments.",
+      "test": "Render the index and a nested page such as users/pyplot_tutorial with the HTML builder. Resolve each rendered banner href against its page URL and assert that both destinations are the documentation root's style_changes.html. Repeat under a versioned URL prefix.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/_templates/layout.html",
+          "line": 180,
+          "symbol": "shared layout banner link"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

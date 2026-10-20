@@ -1,0 +1,135 @@
+{
+  "id": "matplotlib__matplotlib-3985",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 3985,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 62631,
+  "llm_calls": 5,
+  "input_tokens": 18241,
+  "output_tokens": 1664,
+  "total_tokens": 19905,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "invalid-widget-index-validation",
+      "severity": "medium",
+      "title": "Reject invalid indices before changing check-button or radio-button state",
+      "explanation": "Both new set_active methods use `0 > index >= len(self.labels)`, which cannot be true for a nonnegative list length. For three labels, index=-1 passes validation because `-1 >= 3` is false, while index=3 passes because `0 > 3` is false. CheckButtons.set_active(-1) therefore toggles the last button and emits its label instead of raising the documented ValueError. RadioButtons.set_active(-1) has a further observable inconsistency: line 737 sets value_selected to the last label, but no nonnegative enumeration index equals -1 at line 740, so every circle receives the inactive color; with events enabled, line 752 nevertheless calls observers with the last label. Indices equal to the label count, or below the negative list boundary, instead raise IndexError during list access, also violating the documented ValueError contract. Normal clicks supply valid enumeration indices, so this defect affects the newly exposed programmatic APIs rather than ordinary click handling.",
+      "path": "lib/matplotlib/widgets.py",
+      "line": 734,
+      "evidence": "591:         if 0 > index >= len(self.labels):\n592:             raise ValueError(\"Invalid CheckButton index: %d\" % index)\n594:         l1, l2 = self.lines[index]\n734:         if 0 > index >= len(self.labels):\n735:             raise ValueError(\"Invalid RadioButton index: %d\" % index)\n737:         self.value_selected = self.labels[index].get_text()\n739:         for i, p in enumerate(self.circles):\n740:             if i == index:\n741:                 color = self.activecolor\n742:             else:\n",
+      "fix": "In both methods, replace the guard with `if not 0 <= index < len(self.labels):` and raise ValueError before accessing or mutating widget state.",
+      "test": "Construct each widget with three labels and register an observer. Call set_active with -1, -4, and 3; assert ValueError, unchanged visibility/colors and selection, and no observer invocation. For RadioButtons, explicitly verify that rejecting -1 preserves the previously selected circle and value_selected. Also exercise valid indices 0 and 2 with eventson and drawon enabled and disabled to verify the existing callback and redraw controls.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 580,
+          "symbol": "CheckButtons.set_active"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 723,
+          "symbol": "RadioButtons.set_active"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

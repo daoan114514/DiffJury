@@ -1,0 +1,189 @@
+{
+  "id": "sympy__sympy-21067",
+  "repository": "sympy/sympy",
+  "pull_request": 21067,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 107796,
+  "llm_calls": 5,
+  "input_tokens": 19519,
+  "output_tokens": 4264,
+  "total_tokens": 23783,
+  "instruction_calls": 5,
+  "instruction_tokens": 3951,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2332,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "performance-review"
+      ],
+      "skill_body_tokens": 2002
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "lambert-original-shape-gate",
+      "severity": "medium",
+      "title": "Factored representations of supported Lambert equations are rejected",
+      "explanation": "The classifier expands the expression for inspection, but requires the original expression to be an Add. For example, f = exp(x)*(x - exp(-x)) is a Mul, so _is_lambert(f, x) necessarily returns False, regardless of _term_factors behavior. However, f.expand() is x*exp(x) - 1, representing the documented supported form (b*B + c)*exp(d*B + g) = R. Thus an ordinary factored representation of a supported equation is rejected solely because of its original expression shape. The added tests do not cover this multiplicative representation. This finding concerns the new classifier; the supplied diff does not establish an existing solveset call path through it.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1820,
+      "evidence": "term_factors = list(_term_factors(f.expand()))\n...\nif f.is_Add and no_of_symbols >= 2 :",
+      "fix": "Use a consistent normalized expression for both the additive-shape check and factor inspection, rather than checking the original f after inspecting its expansion.",
+      "test": "Check _is_lambert(exp(x)*(x - exp(-x)), x) and _is_lambert(x*exp(x) - 1, x); both should return True. Retain the existing polynomial and constant rejection tests.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1757,
+          "symbol": "_is_lambert"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "lambert-unconditional-expansion",
+      "severity": "low",
+      "title": "Polynomial rejection performs avoidable exponential expansion",
+      "explanation": "Expansion happens before any rejection, even when the expression is an ordinary polynomial that cannot satisfy the documented transcendental criteria. A concrete family is f_n = product(x + a_i, i=1..n), with distinct independent symbols a_i. Its factored representation has O(n) nodes, but unrestricted distributive expansion produces 2^n distinct monomials. At n=20 this means 1,048,576 terms, subsequently materialized and scanned, although the original expression is a Mul and the final gate necessarily returns False. This demonstrates an avoidable exponential CPU/memory growth path without relying on _term_factors implementation details: the expansion itself occurs first. Impact is limited to direct use of the newly introduced helper; no existing solver hot path is established by the supplied diff.",
+      "path": "sympy/solvers/solveset.py",
+      "line": 1812,
+      "evidence": "term_factors = list(_term_factors(f.expand()))",
+      "fix": "Reject expressions polynomial in symbol before distributive expansion, using a structural polynomial check. Preserve expansion-dependent transcendental classification separately rather than expanding every input.",
+      "test": "Add a regression using a product of 20 factors (x + a_i), asserting False without invoking distributive expansion. Benchmark increasing factor counts and verify that polynomial rejection scales with the factored input rather than its expanded monomial count.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1757,
+          "symbol": "_is_lambert"
+        },
+        {
+          "path": "sympy/solvers/solveset.py",
+          "line": 1812,
+          "symbol": "f.expand"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-407",
+      "applied_rules": []
+    }
+  ]
+}

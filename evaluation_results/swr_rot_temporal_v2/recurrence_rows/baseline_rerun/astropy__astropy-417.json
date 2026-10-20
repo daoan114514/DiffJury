@@ -1,0 +1,130 @@
+{
+  "id": "astropy__astropy-417",
+  "repository": "astropy/astropy",
+  "pull_request": 417,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 52583,
+  "llm_calls": 5,
+  "input_tokens": 17926,
+  "output_tokens": 1247,
+  "total_tokens": 19173,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "test-helper-name-mismatch",
+      "severity": "medium",
+      "title": "New test calls color_text, but the extracted helper is named _color_text",
+      "explanation": "The new test invokes console.color_text(\"foo\", \"green\"), whereas console.py defines _color_text at line 55 and color_print calls that private helper at line 144. No definition or export of color_text is introduced by the supplied change. Consequently, executing test_color_text fails with AttributeError before checking the ANSI output. The implementation's definition and internal call consistently use the private name, so this is a test naming defect rather than evidence that an existing public API was removed. The extraction otherwise preserves color_print behavior: the color mapping, unknown-color fallback of '0;39', and ANSI formatting expression are unchanged; the existing empty-string/None bypass remains before the helper call. No additional output regression is established by this diff.",
+      "path": "astropy/utils/tests/test_console.py",
+      "line": 11,
+      "evidence": "def test_color_text():\n    assert console.color_text(\"foo\", \"green\") == u'\\033[0;32mfoo\\033[0m'\n\n# astropy/utils/console.py:55\n def _color_text(text, color):\n\n# astropy/utils/console.py:144\n                write(_color_text(msg, color))",
+      "fix": "Change the test invocation to console._color_text(\"foo\", \"green\") to match the private helper used by color_print. Also use _color_text in the helper's docstring example. If a public helper is actually intended, consistently define and call that public name instead.",
+      "test": "Run test_color_text against the changed module: it must reach the assertion and verify the exact string '\\033[0;32mfoo\\033[0m', rather than raising AttributeError during attribute lookup.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/utils/tests/test_console.py",
+          "line": 11,
+          "symbol": "test_color_text -> console.color_text (attribute lookup fails)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

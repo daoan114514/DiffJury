@@ -1,0 +1,264 @@
+{
+  "id": "scikit-learn__scikit-learn-12033",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 12033,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/preprocessing/_encoders.py",
+      "line": 54,
+      "cwe": "CWE-20",
+      "rule_id": "encoder-respect-assume-finite",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 88049,
+  "llm_calls": 5,
+  "input_tokens": 18021,
+  "output_tokens": 2346,
+  "total_tokens": 20367,
+  "instruction_calls": 5,
+  "instruction_tokens": 5157,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {
+    "K-eb2105bb": {
+      "tp": 1,
+      "fp": 0
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3019,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-eb2105bb",
+        "K-3c8dfccb",
+        "K-0a2298e4",
+        "K-a62a9e09",
+        "K-1c8d031b",
+        "K-2bba7006",
+        "K-f32f49ff",
+        "K-60a0fdd6",
+        "K-26252785"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 810,
+      "knowledge_ids": [
+        "K-0f38f6b6",
+        "K-1617cbdc",
+        "K-6d7b0522",
+        "K-d8b204bc",
+        "K-3636a06a",
+        "K-51e6bbd9",
+        "K-0f45b787",
+        "K-70b43072",
+        "K-791ded73",
+        "K-184c93c6"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-1c8d031b",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-60a0fdd6",
+      "K-6d7b0522",
+      "K-70b43072",
+      "K-791ded73",
+      "K-a62a9e09",
+      "K-d8b204bc",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-eb2105bb",
+          "K-3c8dfccb",
+          "K-0a2298e4",
+          "K-a62a9e09",
+          "K-1c8d031b",
+          "K-2bba7006",
+          "K-f32f49ff",
+          "K-60a0fdd6",
+          "K-26252785"
+        ],
+        "tokens": 601,
+        "budget": 600,
+        "dropped": [
+          "K-4d5756a5",
+          "K-5388c8d9",
+          "K-651ca0b6"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0f38f6b6",
+          "K-1617cbdc",
+          "K-6d7b0522",
+          "K-d8b204bc",
+          "K-3636a06a",
+          "K-51e6bbd9",
+          "K-0f45b787",
+          "K-70b43072",
+          "K-791ded73",
+          "K-184c93c6"
+        ],
+        "tokens": 635,
+        "budget": 600,
+        "dropped": [
+          "K-0f51ebe7"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "encoder-respect-assume-finite",
+      "severity": "medium",
+      "title": "The new object-dtype check ignores assume_finite=True",
+      "explanation": "The shared validation path unconditionally checks object arrays for NaN after check_array returns. This bypasses the global assume_finite configuration, under which check_array deliberately skips finiteness validation. For example, within config_context(assume_finite=True), OrdinalEncoder().fit(np.array([[1.0], [np.nan]], dtype=object)) now raises ValueError('Input contains NaN'), whereas the previous implementation allowed fitting this input and the equivalent floating-point array still bypasses finiteness validation. Both encoders reach this check through their shared fitting and transformation helpers; fit_transform also reaches the fitting path. The new tests exercise only the default configuration, so they do not detect this dtype-dependent regression. This finding concerns the unconditional invocation of the helper, not version-dependent behavior inside _object_dtype_isnan.",
+      "path": "sklearn/preprocessing/_encoders.py",
+      "line": 54,
+      "evidence": "        if X.dtype == np.dtype('object'):\n           if _object_dtype_isnan(X).any():\n               raise ValueError(\"Input contains NaN\")",
+      "fix": "Guard the additional object-dtype NaN check with the same assume_finite configuration used by check_array, while retaining rejection under the default configuration.",
+      "test": "For both encoder classes, fit an object-dtype numeric array containing NaN inside config_context(assume_finite=True) and assert that fitting succeeds, matching the floating-point representation. Also retain default-configuration assertions that both representations raise ValueError. Cover transformation under assume_finite=True with OneHotEncoder(handle_unknown='ignore') fitted on finite data.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/preprocessing/_encoders.py",
+          "line": 60,
+          "symbol": "_BaseEncoder._fit"
+        },
+        {
+          "path": "sklearn/preprocessing/_encoders.py",
+          "line": 40,
+          "symbol": "_BaseEncoder._check_X"
+        },
+        {
+          "path": "sklearn/preprocessing/_encoders.py",
+          "line": 48,
+          "symbol": "check_array"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": [
+        "K-eb2105bb"
+      ]
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

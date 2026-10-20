@@ -1,0 +1,257 @@
+{
+  "id": "sympy__sympy-15619",
+  "repository": "sympy/sympy",
+  "pull_request": 15619,
+  "split": "train",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 129072,
+  "llm_calls": 5,
+  "input_tokens": 52836,
+  "output_tokens": 4969,
+  "total_tokens": 57805,
+  "instruction_calls": 5,
+  "instruction_tokens": 3951,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2332,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "performance-review"
+      ],
+      "skill_body_tokens": 2002
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "nonreal-gaussian-coefficient-comparison",
+      "severity": "medium",
+      "title": "The new Gaussian evaluator raises on nonreal quadratic coefficients",
+      "explanation": "manualintegrate(exp(I*x**2), x), with x real, matches ErfRule with a=I and b=c=0. eval_erf then evaluates the Python argument a < 0 while constructing Piecewise. Comparing I with zero raises TypeError, so Piecewise cannot select its otherwise branch. The wildcard accepts this coefficient because I is nonzero, and special_function_rule now runs before the existing integration dispatch. Thus this newly handled input raises instead of producing an antiderivative or retaining an unevaluated integral. A valid antiderivative is sqrt(pi)*erfi(sqrt(I)*x)/(2*sqrt(I)), whose derivative is exp(I*x**2).",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1453,
+      "evidence": "sympy.erf((-2*a*symbol - b)/(2*sympy.sqrt(-a))), a < 0),",
+      "fix": "Avoid ordering nonreal coefficients. Use a branch-consistent formula valid for nonzero complex a, or explicitly separate real coefficients before constructing the real-sign Piecewise and handle nonreal coefficients without an inequality.",
+      "test": "Call manualintegrate(exp(I*x**2), x) and manualintegrate(exp((1+I)*x**2 + x), x); require no exception and verify the returned antiderivatives by differentiation. Retain positive- and negative-real coefficient tests.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 364,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1450,
+          "symbol": "eval_erf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-fresnel-square-root-branch",
+      "severity": "medium",
+      "title": "Fresnel antiderivatives have the wrong sign for negative quadratic coefficients",
+      "explanation": "For x real and a = Symbol('a', negative=True), manualintegrate(cos(a*x**2), x) reaches FresnelCRule directly. Its returned expression differentiates to -cos(a*x**2), not the integrand. In particular, construct the result with symbolic a and then substitute a=-1: the returned expression is I*sqrt(pi/2)*fresnelc(I*sqrt(2/pi)*x), whose derivative at x=0 is -1, whereas the integrand is 1. The two principal square roots in the prefactor and argument introduce opposite-to-required scaling when a is negative. The same scaling error affects FresnelSRule. The wildcard explicitly accepts negative nonzero coefficients, and neither evaluator has a sign guard. The added tests exercise only positive quadratic coefficients.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1459,
+      "evidence": "return sympy.sqrt(sympy.pi/(2*a)) * (\n        sympy.cos(b**2/(4*a) - c)*sympy.fresnelc((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)) +\n        sympy.sin(b**2/(4*a) - c)*sympy.fresnels((2*a*symbol + b)/sympy.sqrt(2*a*sympy.pi)))",
+      "fix": "Use a prefactor algebraically reciprocal to the argument's derivative, such as sqrt(2*a*pi)/(2*a), in both Fresnel evaluators, rather than independently taking sqrt(pi/(2*a)).",
+      "test": "Create x real and a negative symbolic coefficient. Integrate cos(a*x**2), differentiate the returned result, and substitute a=-1 and x=0; require 1 rather than -1. Also verify the sine evaluator with a negative symbolic coefficient at a nonsingular nonzero x.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 346,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1458,
+          "symbol": "eval_fresnelc"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-elliptic-square-root-factorization",
+      "severity": "medium",
+      "title": "Elliptic rules incorrectly split principal square roots for negative parameters",
+      "explanation": "The reachable input sqrt(2*sin(x)**2 - 1), with x real, matches EllipticERule with a=-1 and d=-2. The new evaluator returns I*elliptic_e(x, 2). Differentiating gives I*sqrt(1 - 2*sin(x)**2), which is -1 at x=pi/2, while the input is +1 there. This is a wrong derivative on the nonsingular interval pi/4 < x < 3*pi/4, not merely a different integration constant. Similarly, 1/sqrt(2*sin(x)**2 - 1) returns elliptic_f(x, 2)/I and has derivative -1 rather than +1 at pi/2. The matching conditions only exclude zero coefficients and a == d; they do not justify factoring sqrt(a - d*sin(x)**2) into sqrt(a)*sqrt(1 - d*sin(x)**2/a). The added elliptic tests use positive a and therefore do not expose this branch error.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1487,
+      "evidence": "return sympy.elliptic_e(symbol, d/a)*sympy.sqrt(a)",
+      "fix": "Restrict these simplified elliptic rules to parameter domains where the principal-root factorization is valid, or retain the branch-correct ratio of the original and normalized square roots. Leave unsupported parameter domains unevaluated rather than returning the current formula.",
+      "test": "For both sqrt(2*sin(x)**2 - 1) and its reciprocal, differentiate manualintegrate's result and evaluate at x=pi/2; require +1. Include positive-a controls and negative/complex parameter cases that check derivatives away from zeros and branch boundaries.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 371,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1486,
+          "symbol": "eval_elliptic_e"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

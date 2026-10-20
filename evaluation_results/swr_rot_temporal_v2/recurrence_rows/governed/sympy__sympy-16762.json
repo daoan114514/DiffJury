@@ -1,0 +1,218 @@
+{
+  "id": "sympy__sympy-16762",
+  "repository": "sympy/sympy",
+  "pull_request": 16762,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 137725,
+  "llm_calls": 5,
+  "input_tokens": 15839,
+  "output_tokens": 4104,
+  "total_tokens": 19943,
+  "instruction_calls": 5,
+  "instruction_tokens": 3951,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2332,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "performance-review"
+      ],
+      "skill_body_tokens": 2002
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "normalization-introduces-machine-precision-scale",
+      "severity": "medium",
+      "title": "Converting an exact maximum to a machine-precision Float contaminates high-precision powers",
+      "explanation": "When the largest coefficient is exact, multiplying it by the Python float `1.0` produces a default-precision scale even if another coefficient is a high-precision Float. A concrete example is `(Rational(1, 3)*x + Float('0.1', 100)*y)**2`. Write d for the 100-digit coefficient and B for the default-precision approximation to 1/3 created at line 398. Following the changed evaluation, the y-squared coefficient becomes `Float(B**2, default_precision) * (d/B)**2`, instead of d**2. The division involving d is evaluated at high precision, but `big**e` is computed independently at the scale's default precision. In binary arithmetic B = 6004799503160661 / 2**54; its exact square is not representable at that default precision, so the rounded outer square cannot cancel the high-precision division. The resulting coefficient has an approximately machine-precision relative error rather than retaining the requested 100-digit accuracy. This is a traced counterexample; it does not depend on converting a high-precision Float itself to double precision or on extreme-exponent overflow. The added tests use ordinary Python floats and printed strings, so they do not cover this mixed exact/high-precision case.",
+      "path": "sympy/core/add.py",
+      "line": 398,
+      "evidence": "big = 1.0*abs(i)",
+      "fix": "Keep the maximum exact when it is exact, or choose the normalization scale using the precision of all participating Float coefficients before performing either division or exponentiation. Avoid introducing a Python float merely to initialize the scale.",
+      "test": "With d = Float('0.1', 100), construct `(Rational(1, 3)*x + d*y)**2`, then substitute x = 0 and y = 1. Compare against d**2 at high precision and require an error below 1e-90. Include an exact non-binary-representable maximum and repeat at widely separated floating-point exponents to ensure normalization does not reduce the available precision.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 398,
+          "symbol": "Add._eval_power: conversion of exact maximum to default-precision Float"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "high-precision coefficient division by big"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 402,
+          "symbol": "independent evaluation of big**e"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1339",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-coefficient-sign-normalization",
+      "severity": "medium",
+      "title": "Equal-magnitude coefficients with opposite signs are given the same sign",
+      "explanation": "The sign `s` belongs to only the coefficient that last established the maximum, but line 401 applies it to every coefficient with that magnitude. For example, construct `(2.0*x - 2.0*y)**2`. Both coefficient magnitudes equal `big = 2.0`, so the normalized sum becomes `s*x + s*y` rather than `x - y`. The returned expression is therefore mathematically equivalent to `4.0*(x + y)**2`, regardless of which sign was selected. Substituting x = y = 1 gives 16.0 instead of the expected zero. No tie-order assumption is needed for this counterexample. The added tests vary signs but always have a unique largest coefficient, so none detects this loss of the relative signs.",
+      "path": "sympy/core/add.py",
+      "line": 401,
+      "evidence": "addpow = Add(*[(s if abs(c[i]) == big else c[i]/big)*m[i] for i in range(len(c))])**e",
+      "fix": "Preserve each coefficient's own sign when replacing a maximal-magnitude coefficient with a unit coefficient, or simply normalize every coefficient by the positive maximum.",
+      "test": "Add a regression constructing `(2.0*x - 2.0*y)**2` and asserting that substitution of x = y = 1 gives zero. Also test a fractional exponent and equal-magnitude mixed-sign coefficients in different term positions.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 391,
+          "symbol": "Add._eval_power"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "normalized Add construction and recursive power"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 402,
+          "symbol": "scaled power result"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

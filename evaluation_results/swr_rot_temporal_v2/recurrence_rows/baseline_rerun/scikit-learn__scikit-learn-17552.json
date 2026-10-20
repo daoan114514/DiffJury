@@ -1,0 +1,122 @@
+{
+  "id": "scikit-learn__scikit-learn-17552",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 17552,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 58954,
+  "llm_calls": 5,
+  "input_tokens": 13405,
+  "output_tokens": 1379,
+  "total_tokens": 14784,
+  "instruction_calls": 5,
+  "instruction_tokens": 2838,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1330,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "incorrect-max-features-documentation",
+      "severity": "low",
+      "title": "Float max_features is truncated, not rounded",
+      "explanation": "The same inaccurate replacement appears in RandomForestClassifier (line 951), RandomForestRegressor (1275), ExtraTreesClassifier (1557), and ExtraTreesRegressor (1875). These estimators delegate feature-count selection to their underlying trees, whose established float conversion is max(1, int(max_features * n_features)), rather than round(max_features * n_features). For example, with 3 input features and max_features=0.6, the product is approximately 1.8: truncation selects 1 feature, whereas the newly documented rounding selects 2. Minimum-feature handling also matters: with 3 features and max_features=0.1, rounding gives 0, whereas the tree conversion guarantees 1. Thus the changed descriptions misstate the effective feature-count parameter for all four estimators. Evidence limitation: the supplied diff verifies the documentation changes, but repository access and execution tools were unavailable; the underlying conversion is implementation knowledge, not implementation evidence independently verified in this review. The existing omission of the minimum-one clamp predates this change; the newly introduced defect is replacing truncation with rounding.",
+      "path": "sklearn/ensemble/_forest.py",
+      "line": 951,
+      "evidence": "`round(max_features * n_features)` features are considered at each",
+      "fix": "Replace the new rounding expression in all four descriptions with max(1, int(max_features * n_features)), after confirming it against the checkout's underlying tree implementation.",
+      "test": "Parameterize over the four forest estimators. Fit each with n_estimators=1 on a nonconstant three-feature dataset using max_features=0.6, then assert estimators_[0].max_features_ == 1. Repeat with max_features=0.1 to verify the minimum of 1. Confirm all four parameter descriptions document the same conversion.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

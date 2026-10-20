@@ -1,0 +1,175 @@
+{
+  "id": "sympy__sympy-25504",
+  "repository": "sympy/sympy",
+  "pull_request": 25504,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 101945,
+  "llm_calls": 5,
+  "input_tokens": 26420,
+  "output_tokens": 4328,
+  "total_tokens": 30748,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "integer-root-candidate-validation",
+      "severity": "low",
+      "title": "perfect_power no longer rejects fractional candidate exponents",
+      "explanation": "On the Python ground-type backend, passing candidates=[1.5] to perfect_power(64) reaches the root calculation without the integer validation previously performed by integer_nthroot. The relocated iroot only checks that the degree is positive: its initial estimate is 16, and 16**1.5 equals 64.0, so it reports an exact root. perfect_power consequently returns (16, 1.5), although its result is supposed to describe an integer perfect power. Previously, as_int(1.5) raised ValueError. This is a constrained malformed-input regression rather than a failure of ordinary integer roots; the same Python implementation is selected for the flint backend.",
+      "path": "sympy/ntheory/factor_.py",
+      "line": 519,
+      "evidence": "r, ok = iroot(n, e)",
+      "fix": "Normalize candidate exponents with as_int before passing them to iroot, preserving the former rejection of fractional candidates.",
+      "test": "Run with SYMPY_GROUND_TYPES=python and assert that perfect_power(64, candidates=[1.5]) raises ValueError, as before the change. Repeat with flint when available, and verify that integer candidates=[3] still return (4, 3).",
+      "confidence": 0.83,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/ntheory/factor_.py",
+          "line": 519,
+          "symbol": "perfect_power"
+        },
+        {
+          "path": "sympy/external/ntheory.py",
+          "line": 158,
+          "symbol": "iroot"
+        },
+        {
+          "path": "sympy/external/ntheory.py",
+          "line": 175,
+          "symbol": "initial root estimate"
+        },
+        {
+          "path": "sympy/external/ntheory.py",
+          "line": 201,
+          "symbol": "exactness comparison"
+        },
+        {
+          "path": "sympy/ntheory/factor_.py",
+          "line": 521,
+          "symbol": "perfect_power result"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,276 @@
+{
+  "id": "scikit-learn__scikit-learn-26420",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 26420,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 122524,
+  "llm_calls": 15,
+  "input_tokens": 121685,
+  "output_tokens": 7967,
+  "total_tokens": 129652,
+  "instruction_calls": 15,
+  "instruction_tokens": 23552,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 8,
+    "security": 3,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 2,
+  "revision_results": 2,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 287,
+      "knowledge_ids": [
+        "K-fe66117a"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fe66117a"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "test-output-format-coverage",
+      "severity": "low",
+      "title": "Restore the transformed-output CSR assertion in the degree-four test",
+      "explanation": "X_csr is the input, explicitly constructed with sparse_random(...).tocsr(), while Xt_csr is the result of est.fit_transform(X_csr). The changed assertion therefore checks the already-guaranteed input format instead of the transformed output. A regression returning a CSC matrix with the correct values and dtype would now pass: the input remains CSR, CSC preserves dtype, and its .A representation satisfies the dense-value assertion. This is lost output-format test coverage, not evidence that production currently returns an incorrect format.",
+      "path": "sklearn/preprocessing/tests/test_polynomial.py",
+      "line": 766,
+      "evidence": "X_csr = sparse_random(1000, 10, 0.5, random_state=0).tocsr()\nX = X_csr.toarray()\n...\nXt_csr = est.fit_transform(X_csr)\nXt_dense = est.fit_transform(X)\n\nassert sparse.isspmatrix_csr(X_csr)\nassert Xt_csr.dtype == Xt_dense.dtype\nassert_array_almost_equal(Xt_csr.A, Xt_dense)",
+      "fix": "Change line 766 to assert sparse.isspmatrix_csr(Xt_csr).",
+      "test": "Verify all four include_bias/interaction_only parameter combinations pass normally. Then convert the sparse transformed result to CSC before the assertions: the corrected format assertion must fail, whereas the changed assertion and remaining dtype/value checks would pass.",
+      "confidence": 1.0,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:1b223f60accdc115",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sklearn/preprocessing/tests/test_polynomial.py\", \"start_line\": 749, \"end_line\": 770, \"content\": \"\\n# This degree should always be one more than the highest degree supported by\\n# _csr_expansion.\\n@pytest.mark.parametrize(\\n    [\\\"include_bias\\\", \\\"interaction_only\\\"],\\n    [(True, True), (True, False), (False, True), (False, False)],\\n)\\ndef test_polynomial_features_csr_X_degree_4(include_bias, interaction_only):\\n    X_csr = sparse_random(1000, 10, 0.5, random_state=0).tocsr()\\n    X = X_csr.toarray()\\n\\n    est = PolynomialFeatures(\\n        4, include_bias=include_bias, interaction_only=interaction_only\\n    )\\n    Xt_csr = est.fit_transform(X_csr)\\n    Xt_dense = est.fit_transform(X)\\n\\n    assert sparse.isspmatrix_csr(X_csr)\\n    assert Xt_csr.dtype == Xt_dense.dtype\\n    assert_array_almost_equal(Xt_csr.A, Xt_dense)\\n\\n\\n\"}"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sklearn/preprocessing/tests/test_polynomial.py",
+          "line": 756,
+          "symbol": "test_polynomial_features_csr_X_degree_4"
+        },
+        {
+          "path": "sklearn/preprocessing/tests/test_polynomial.py",
+          "line": 763,
+          "symbol": "est.fit_transform(X_csr)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ]
+}

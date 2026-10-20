@@ -1,0 +1,189 @@
+{
+  "id": "matplotlib__matplotlib-20265",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 20265,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 64671,
+  "llm_calls": 5,
+  "input_tokens": 13618,
+  "output_tokens": 2605,
+  "total_tokens": 16223,
+  "instruction_calls": 5,
+  "instruction_tokens": 4587,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2792,
+      "knowledge_ids": [
+        "K-708dda56",
+        "K-42776966",
+        "K-58d26727",
+        "K-2b3b5530",
+        "K-d7b7bb6f",
+        "K-d76217f5"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 467,
+      "knowledge_ids": [
+        "K-12284e0a",
+        "K-eee6e319",
+        "K-ac8cc41a",
+        "K-86e6ca00"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-2b3b5530",
+      "K-42776966",
+      "K-58d26727",
+      "K-708dda56",
+      "K-86e6ca00",
+      "K-ac8cc41a",
+      "K-d76217f5",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-708dda56",
+          "K-42776966",
+          "K-58d26727",
+          "K-2b3b5530",
+          "K-d7b7bb6f",
+          "K-d76217f5"
+        ],
+        "tokens": 374,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-12284e0a",
+          "K-eee6e319",
+          "K-ac8cc41a",
+          "K-86e6ca00"
+        ],
+        "tokens": 291,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "legend-patch-color-state",
+      "severity": "medium",
+      "title": "Copied legend colors are lost when the legend patch's alpha is changed",
+      "explanation": "Directly assigning the resolved colors leaves the Rectangle's _original_facecolor and _original_edgecolor at their constructor defaults. Patch.set_alpha() subsequently rebuilds its colors from those original-color fields, discarding the copied collection colors. For example, under default rcParams, create a red fill_between collection, obtain ax.legend().legendHandles[0], and call handle.set_alpha(0.5). The legend face changes from red to the default patch color rather than remaining red with alpha 0.5. Previously, the calls to set_facecolor() and set_edgecolor() initialized the original-color fields, so this customization preserved the colors. Copying resolved RGBA values correctly handles empty arrays and edgecolor='face', but it must also preserve the Patch setter invariants.",
+      "path": "lib/matplotlib/legend_handler.py",
+      "line": 748,
+      "evidence": "legend_handle._facecolor = first_color(orig_handle.get_facecolor())\n        legend_handle._edgecolor = first_color(orig_handle.get_edgecolor())",
+      "fix": "Initialize the legend patch's original-color fields consistently with the copied RGBA colors, or use a copying mechanism that maintains both resolved and original color state without reintroducing the edgecolor='face' conversion error.",
+      "test": "Under default rcParams, create a fill_between collection with facecolor='red' and edgecolor='black', create its legend, call legend.legendHandles[0].set_alpha(0.5), and assert that its facecolor is (1, 0, 0, 0.5) and edgecolor is (0, 0, 0, 0.5). The added smoke test exercises the intended edgecolor='face' construction fix, but does not exercise subsequent Patch setters and therefore misses this regression.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/legend_handler.py",
+          "line": 761,
+          "symbol": "HandlerPolyCollection.create_artists"
+        },
+        {
+          "path": "lib/matplotlib/legend_handler.py",
+          "line": 734,
+          "symbol": "HandlerPolyCollection._update_prop"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-665",
+      "applied_rules": []
+    }
+  ]
+}

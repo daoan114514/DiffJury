@@ -1,0 +1,214 @@
+{
+  "id": "sympy__sympy-15278",
+  "repository": "sympy/sympy",
+  "pull_request": 15278,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 133650,
+  "llm_calls": 5,
+  "input_tokens": 84356,
+  "output_tokens": 4038,
+  "total_tokens": 88394,
+  "instruction_calls": 5,
+  "instruction_tokens": 6129,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4621,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality",
+        "code-quality"
+      ],
+      "skill_body_tokens": 4268
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "incorrect-metric-contraction-axis-restoration",
+      "severity": "medium",
+      "title": "Raising or lowering the third axis exchanges unrelated tensor axes",
+      "explanation": "After contracting a metric with axis pos, the surviving array axes are [new_axis, original_axis_0, ..., original_axis_(pos-1), original_axis_(pos+1), ...]. Swapping axis 0 with axis pos does not restore the original ordering when pos >= 2. A concrete counterexample is _match_indices_with_other_tensor(Array(range(1, 9), (2, 2, 2)), [i, j, -k], [i, j, k], {L: Array([[1, 1], [1, 2]])}), with i, j, k belonging to L. Lowering k should produce [[[3, 5], [7, 11]], [[11, 17], [15, 23]]], but the implementation produces [[[3, 5], [11, 17]], [[7, 11], [15, 23]]]. The contraction initially produces axes [k, i, j], and the swap produces [j, i, k]. The final index permutation does not repair this: free_ind2 has already been changed to [i, j, -k], so that permutation is the identity. This violates the correspondence between reported indices and array axes, including with a non-diagonal metric.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2714,
+      "evidence": "            permu = list(range(len(free_ind1)))\n            permu[0], permu[pos] = permu[pos], permu[0]\n            return permutedims(array, permu)",
+      "fix": "Move the metric's surviving leading axis into position pos while preserving the relative order of all other axes, for example with permutation list(range(1, pos + 1)) + [0] + list(range(pos + 1, rank)).",
+      "test": "Add a rank-three replacement test lowering the last index with metric [[1, 1], [1, 2]] and components 1 through 8; assert the complete expected array above. Also raise the last index using the inverse metric and exercise successive variance changes on a rank-four tensor. The added rank-four test's truthiness assertion does not verify these component or axis invariants.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2725,
+          "symbol": "contract_and_permute(metric, array, pos)"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2711,
+          "symbol": "contract_and_permute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "metric-type-selected-in-wrong-index-order",
+      "severity": "medium",
+      "title": "Reordered mixed-type indices select the wrong metric",
+      "explanation": "pos2up and pos2down contain positions in free_ind2, whereas index_types1 is ordered according to free_ind1. Consequently, reordering indices and changing variance can apply a different TensorIndexType's metric. Let i belong to L, j belong to M, the component array be [[1, 2], [3, 4]], L's covariant metric be diag(2, 3), and M's be diag(5, 7). Calling _match_indices_with_other_tensor(array, [j, -i], [i, j], replacement_dict) should lower i with L's metric and then transpose, yielding [[2, 9], [4, 12]]. Matching -i records source position 0 in pos2down, but index_types1[0] is M, so the implementation instead returns [[5, 21], [10, 28]]. Equal metric dimensions make this a silent numerical error rather than a shape exception. The existing reordered-index examples use a single index type and therefore cannot distinguish these metrics.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2724,
+      "evidence": "        index_types1 = [i.tensor_index_type for i in free_ind1]\n        for pos in pos2down:\n            metric = replacement_dict[index_types1[pos]]\n            array = contract_and_permute(metric, array, pos)",
+      "fix": "Select each metric from the index type of the source array axis, such as free_ind2[pos].tensor_index_type, or record the appropriate index type together with each source position. Apply the same correction to the raising loop at line 2719.",
+      "test": "Use a rank-two tensor with one L index and one M index, distinct same-sized metrics diag(2, 3) and diag(5, 7), and nonsymmetric components [[1, 2], [3, 4]]. Request [j, -i] and assert [[2, 9], [4, 12]]. Add the corresponding reordered raising case.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2688,
+          "symbol": "source-position matching through free2remaining.index(-index1)"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2724,
+          "symbol": "lower-index metric lookup"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "warning-decorator-executes-and-discards-tests",
+      "severity": "medium",
+      "title": "Warning-filter decorator executes tests during import and removes them from collection",
+      "explanation": "This decorator calls f immediately and implicitly returns None instead of returning a callable wrapper. Python therefore executes each decorated test while importing the module and binds its test name to None. Test runners cannot collect those names as test functions, targeted selection cannot run them, and repeated test execution cannot invoke them. Failures occur during collection/import instead of within their individual tests. This affects the legacy valued-tensor tests to which the decorator is newly applied, removing normal runner isolation and reporting precisely while those APIs are being deprecated. The warning context must enclose each invocation, not decoration.",
+      "path": "sympy/tensor/tests/test_tensor.py",
+      "line": 23,
+      "evidence": "def filter_warnings_decorator(f):\n    with warnings.catch_warnings():\n        warnings.filterwarnings(\"ignore\", category=SymPyDeprecationWarning)\n        f()",
+      "fix": "Return a functools.wraps(f)-decorated wrapper that enters catch_warnings, installs the filter, and returns f(*args, **kwargs) when the test runner calls it.",
+      "test": "Decorate a function that increments a counter. Assert decoration leaves the counter at zero, the result is callable, and calling it twice increments the counter twice. Verify collection still lists the decorated valued-tensor tests and targeted execution runs them under the warning filter.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 20,
+          "symbol": "filter_warnings_decorator"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 23,
+          "symbol": "immediate execution of decorated test body"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

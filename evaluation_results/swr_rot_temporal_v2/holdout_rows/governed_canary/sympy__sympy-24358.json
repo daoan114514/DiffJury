@@ -1,0 +1,281 @@
+{
+  "id": "sympy__sympy-24358",
+  "repository": "sympy/sympy",
+  "pull_request": 24358,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 79503,
+  "llm_calls": 5,
+  "input_tokens": 29869,
+  "output_tokens": 3237,
+  "total_tokens": 33106,
+  "instruction_calls": 5,
+  "instruction_tokens": 5057,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2934,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-a9677d2d",
+        "K-b9cfc827",
+        "K-87ee2eda",
+        "K-a4c9356f",
+        "K-4f9662f0",
+        "K-7e90bf29",
+        "K-2b8fec11",
+        "K-4feced24"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 795,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-10578218",
+        "K-60ce9e38",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-10578218",
+      "K-2545551e",
+      "K-2b8fec11",
+      "K-4f9662f0",
+      "K-4feced24",
+      "K-60ce9e38",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-a9677d2d",
+          "K-b9cfc827",
+          "K-87ee2eda",
+          "K-a4c9356f",
+          "K-4f9662f0",
+          "K-7e90bf29",
+          "K-2b8fec11",
+          "K-4feced24"
+        ],
+        "tokens": 516,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-10578218",
+          "K-60ce9e38",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf"
+        ],
+        "tokens": 619,
+        "budget": 600,
+        "dropped": [
+          "K-11de6ec1",
+          "K-d778c4a2",
+          "K-4e7d5d6b",
+          "K-8184713c",
+          "K-be32699b",
+          "K-4e30e572",
+          "K-cde9c599",
+          "K-e4a5fbd0",
+          "K-86d0b57a",
+          "K-9d754682"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "euler-documented-convention",
+      "severity": "medium",
+      "title": "Euler sequence case implements the opposite convention from both public docstrings",
+      "explanation": "Both public methods document lowercase sequences as intrinsic and uppercase sequences as extrinsic, but _check_sequence returns extrinsic = seq.islower(), and from_euler consequently uses q3*q2*q1 for lowercase. An independent active-rotation calculation demonstrates the mismatch: for angles [pi/2, pi/2, 0] and lowercase 'xyz', the documented intrinsic convention requires R_x(pi/2) R_y(pi/2), represented by Quaternion(1/2, 1/2, 1/2, 1/2). The implementation instead returns Quaternion(1/2, 1/2, 1/2, -1/2), representing the extrinsic product R_y(pi/2) R_x(pi/2). Applied to the vector (0, 0, 1), the documented intrinsic product yields (1, 0, 0), whereas the implementation yields (0, -1, 0). These quaternions are not negatives of each other and genuinely describe different rotations. Uppercase sequences have the converse mismatch. to_euler uses the same reversed case interpretation, so the symbolic round-trip tests can pass while both methods violate their documented convention. The existing single-axis example cannot distinguish the conventions.",
+      "path": "sympy/algebras/quaternion.py",
+      "line": 139,
+      "evidence": "            For intrinsic rotations, seq but be all lowercase and its elements\n            must be from the set `['x', 'y', 'z']`\n            For extrinsic rotations, seq but be all uppercase and its elements\n            must be from the set `['X', 'Y', 'Z']`",
+      "fix": "Make the public documentation and implementation agree. If retaining the implemented convention, document lowercase as extrinsic and uppercase as intrinsic in both methods and in the validation error message. If retaining the documented contract, reverse the case classification and update the examples accordingly.",
+      "test": "Add independent rotation-matrix assertions for noncommuting angles, including [pi/2, pi/2, 0] in 'xyz' and 'XYZ'. Extend these assertions to all axis permutations and symmetric sequences using explicit elementary matrix products in the documented intrinsic/extrinsic order. Do not use from_euler/to_euler round trips as the convention oracle.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/algebras/quaternion.py",
+          "line": 128,
+          "symbol": "Quaternion.from_euler"
+        },
+        {
+          "path": "sympy/algebras/quaternion.py",
+          "line": 173,
+          "symbol": "Quaternion.from_euler sequence validation"
+        },
+        {
+          "path": "sympy/algebras/quaternion.py",
+          "line": 38,
+          "symbol": "_check_sequence: extrinsic = seq.islower()"
+        },
+        {
+          "path": "sympy/algebras/quaternion.py",
+          "line": 180,
+          "symbol": "Quaternion.from_euler multiplication order"
+        },
+        {
+          "path": "sympy/algebras/quaternion.py",
+          "line": 223,
+          "symbol": "Quaternion.to_euler intrinsic/extrinsic axis reversal"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "euler-singularity-handling",
+      "severity": "medium",
+      "title": "to_euler returns NaN angles for valid identity and gimbal-lock rotations",
+      "explanation": "The conversion evaluates both half-angle atan2 expressions even when one has two zero arguments. Direct substitution of Quaternion(1, 0, 0, 0) into to_euler('xyx') gives half_sum = 0, half_diff = atan2(0, 0) = nan, and angle_2 = 0, so the returned Matrix is [nan, 0, nan], rather than finite angles representing the identity, such as [0, 0, 0]. This happens for every symmetric sequence, uppercase or lowercase, because the identity makes c = d = 0 regardless of permutation or parity. An asymmetric counterexample is Quaternion(sqrt(2)/2, 0, sqrt(2)/2, 0).to_euler('xyz'): the transformation produces a = b = 0, c = sqrt(2), d = 0, so the result is [nan, pi/2, nan] instead of a valid representation such as [0, pi/2, 0]. This is a valid elementary y-axis rotation at gimbal lock, not a zero quaternion or a quaternion-sign ambiguity. Euler angles are nonunique at these rotations, but finite representatives exist. The added tests use only a generic symbolic quaternion, whose atan2 arguments do not simplify to simultaneous zeros; their round-trip assertions therefore do not exercise either failure.",
+      "path": "sympy/algebras/quaternion.py",
+      "line": 245,
+      "evidence": "        half_sum = atan2(b, a)\n        half_diff = atan2(d, c)\n\n        angle_2 = 2*atan2(sqrt(c*c + d*d), sqrt(a*a + b*b))",
+      "fix": "Handle the singular cases before evaluating atan2(0, 0). Choose a finite representative by fixing one outer angle and deriving the other from the nonvanishing component pair, preserving the sequence's intrinsic/extrinsic ordering and parity. Retain the general symbolic formula when singularity cannot be determined.",
+      "test": "For every symmetric sequence in both cases, convert the identity and elementary rotations about the repeated axis and assert that the angles are finite and reconstruct the same rotation matrix. For every asymmetric sequence in both cases, exercise both signs of the middle-axis pi/2 rotation and assert finite angles and matrix equivalence. Include negated quaternions and compare rotations rather than requiring a particular quaternion sign.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/algebras/quaternion.py",
+          "line": 185,
+          "symbol": "Quaternion.to_euler"
+        },
+        {
+          "path": "sympy/algebras/quaternion.py",
+          "line": 242,
+          "symbol": "Quaternion.to_euler asymmetric component transformation"
+        },
+        {
+          "path": "sympy/algebras/quaternion.py",
+          "line": 245,
+          "symbol": "Quaternion.to_euler half-angle calculation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

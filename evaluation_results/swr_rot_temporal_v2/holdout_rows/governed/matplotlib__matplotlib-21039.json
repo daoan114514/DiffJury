@@ -1,0 +1,170 @@
+{
+  "id": "matplotlib__matplotlib-21039",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 21039,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 99377,
+  "llm_calls": 5,
+  "input_tokens": 22651,
+  "output_tokens": 4451,
+  "total_tokens": 27102,
+  "instruction_calls": 5,
+  "instruction_tokens": 4094,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2586,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "hexbin-marginal-lower-edge-exclusion",
+      "severity": "medium",
+      "title": "Marginal binning now discards observations exactly on the lower edge",
+      "explanation": "np.searchsorted uses side='left' by default, so subtracting one produces bin index -1 for a value equal to bin_edges[0]. The loop visits only indices 0 through nbins - 1, silently omitting that observation. This is readily reachable on a linear y axis, whose minimum is a marginal edge. For example, h = ax.hexbin([0.5, 1.5], [0, 1], C=[7, 11], gridsize=2, extent=(0, 2, 0, 2), marginals=True, reduce_C_function=np.sum) produces vertical edges [0, 1, 2] and indices [-1, 0]. Consequently h.vbar.get_array() contains only 11, rather than aggregating all 18 units inside the extent. The previous searchsorted-and-clip implementation retained the observation at the minimum. This is not an intentional change in bin count or logarithmic normalization: an observation on the included lower extent is lost entirely. The changed test has neither a controlled lower-edge observation nor an assertion comparing marginal totals with the included C values.",
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 4849,
+      "evidence": "            bin_idxs = np.searchsorted(bin_edges, x) - 1\n            mus = np.zeros(nbins) * np.nan\n            for i in range(nbins):\n                # Get y-values for each bin\n                yi = y[bin_idxs == i]",
+      "fix": "Explicitly include values equal to the first edge in the first bin while retaining the existing inclusion of the final edge and exclusion of genuinely out-of-range observations. Alternatively, implement histogram-style boundary handling with an explicit final-edge correction.",
+      "test": "Add a linear marginal regression with the supplied extent and C values, asserting that the vertical marginal values sum to 18. Cover observations at the first edge, an interior edge, and the last edge, plus observations strictly outside the extent, to verify endpoint inclusion without accidentally clipping out-of-range data into bins.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4890,
+          "symbol": "Axes.hexbin: construct linear vertical marginal edges including ymin"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4891,
+          "symbol": "Axes.hexbin: bin original y coordinates and corresponding C values"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4849,
+          "symbol": "coarse_bin: assign lower-edge observations to index -1"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4853,
+          "symbol": "coarse_bin: select only nonnegative bin indices"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-193",
+      "applied_rules": []
+    }
+  ]
+}

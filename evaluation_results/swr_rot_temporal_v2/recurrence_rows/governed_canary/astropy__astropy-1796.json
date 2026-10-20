@@ -1,0 +1,384 @@
+{
+  "id": "astropy__astropy-1796",
+  "repository": "astropy/astropy",
+  "pull_request": 1796,
+  "split": "train",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 265459,
+  "llm_calls": 14,
+  "input_tokens": 241509,
+  "output_tokens": 8270,
+  "total_tokens": 249779,
+  "instruction_calls": 14,
+  "instruction_tokens": 28096,
+  "model_roles": {
+    "lead": 3,
+    "security": 2,
+    "correctness-reliability": 8,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 19,
+  "revision_requests": 3,
+  "revision_results": 3,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2867,
+      "knowledge_ids": [
+        "K-345791ff",
+        "K-679741fc",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-c66e929a",
+        "K-c4e95643"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2867,
+      "knowledge_ids": [
+        "K-345791ff",
+        "K-679741fc",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-c66e929a",
+        "K-c4e95643"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2867,
+      "knowledge_ids": [
+        "K-345791ff",
+        "K-679741fc",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-c66e929a",
+        "K-c4e95643"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2867,
+      "knowledge_ids": [
+        "K-345791ff",
+        "K-679741fc",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-c66e929a",
+        "K-c4e95643"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2867,
+      "knowledge_ids": [
+        "K-345791ff",
+        "K-679741fc",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-c66e929a",
+        "K-c4e95643"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2867,
+      "knowledge_ids": [
+        "K-345791ff",
+        "K-679741fc",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-c66e929a",
+        "K-c4e95643"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2867,
+      "knowledge_ids": [
+        "K-345791ff",
+        "K-679741fc",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-c66e929a",
+        "K-c4e95643"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2867,
+      "knowledge_ids": [
+        "K-345791ff",
+        "K-679741fc",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-c66e929a",
+        "K-c4e95643"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 469,
+      "knowledge_ids": [
+        "K-0519c1fe",
+        "K-6464d4ae",
+        "K-0683c9f6",
+        "K-6bace452"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0519c1fe",
+      "K-0683c9f6",
+      "K-0b7c4492",
+      "K-345791ff",
+      "K-6464d4ae",
+      "K-679741fc",
+      "K-6bace452",
+      "K-a148283a",
+      "K-c4e95643",
+      "K-c66e929a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-345791ff",
+          "K-679741fc",
+          "K-0b7c4492",
+          "K-a148283a",
+          "K-c66e929a",
+          "K-c4e95643"
+        ],
+        "tokens": 377,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0519c1fe",
+          "K-6464d4ae",
+          "K-0683c9f6",
+          "K-6bace452"
+        ],
+        "tokens": 293,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "MODEL-STATIC-DERIV-UNDEFINED-CLASS",
+      "severity": "medium",
+      "title": "Preserve the class binding used by Box1D.deriv",
+      "explanation": "Changing Box1D.deriv from a classmethod to a staticmethod and removing its cls parameter leaves its first executable statement, d_amplitude = cls.eval(x, 1, x_0, width), referring to the class binding that was removed. An ordinary call such as Box1D.deriv(np.array([0.0]), 1.0, 0.0, 2.0) supplies all four declared arguments, enters the body, and reaches that undefined cls reference at line 748, raising NameError instead of returning derivatives. Instance access has the same static binding behavior. The previous classmethod supplied cls automatically. This failure is directly evidenced by the shown body; no analogous finding is inferred for AiryDisk2D, whose remaining body is not supplied.",
+      "path": "astropy/modeling/functional_models.py",
+      "line": 744,
+      "evidence": "@staticmethod\n    def deriv(  x, amplitude, x_0, width):\n        \"\"\"One dimensional Box model derivative\"\"\"\n\n        d_amplitude = cls.eval(x, 1, x_0, width)",
+      "fix": "Restore @classmethod and the cls parameter, or explicitly replace the body reference with Box1D.eval if static dispatch is intended.",
+      "test": "Call Box1D.deriv(np.array([-2.0, 0.0, 2.0]), 1.0, 0.0, 2.0) through both the class and an instance. Assert that no NameError occurs and that the amplitude derivative equals Box1D.eval(x, 1, 0, 2).",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/modeling/functional_models.py",
+          "line": 745,
+          "symbol": "Box1D.deriv(x, amplitude, x_0, width)"
+        },
+        {
+          "path": "astropy/modeling/functional_models.py",
+          "line": 748,
+          "symbol": "cls.eval"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-476",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "MODEL-STATIC-EVAL-ARGUMENT-MISMATCH",
+      "severity": "medium",
+      "title": "Remove the extra cls parameter from the three static power-law evaluators",
+      "explanation": "All three evaluators retain @staticmethod, so neither instance access nor class access supplies cls. Ordinary 1D evaluation at core.py:1083 supplies x followed by the model's parameters: PowerLaw1D receives (x, amplitude, x_0, alpha), four arguments against its new five-argument signature; BrokenPowerLaw1D receives (x, amplitude, x_break, alpha_1, alpha_2), five against six; ExponentialCutoffPowerLaw1D receives (x, amplitude, x_0, alpha, x_cutoff), five against six. Consequently every ordinary evaluation of these models raises TypeError before entering the evaluator body, with the final required argument missing (alpha, alpha_2, or x_cutoff respectively). The fitter paths shown at fitting.py:380-385 and 564-566 likewise assemble the input coordinates plus model.parameters without supplying a class, so fitting also fails. This is a static binding proof from the supplied signatures and callers, not a claim based on executed tests.",
+      "path": "astropy/modeling/powerlaws.py",
+      "line": 55,
+      "evidence": "@staticmethod\n    def eval(cls, x, amplitude, x_0, alpha):\n\n    @staticmethod\n    def eval(cls, x, amplitude, x_break, alpha_1, alpha_2):\n\n    @staticmethod\n    def eval(cls, x, amplitude, x_0, alpha, x_cutoff):",
+      "fix": "Remove the added cls argument from all three static eval signatures, restoring their previous public calling conventions.",
+      "test": "For each of the three models, construct a model with numeric parameters and evaluate it on both a positive scalar and a positive NumPy array; assert the expected numerical values without TypeError. Also exercise its public eval method using only coordinates and declared model parameters, and run a small nonlinear fit to synthetic data.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/modeling/core.py",
+          "line": 1083,
+          "symbol": "Parametric1DModel.__call__: self.eval(x, *self.param_sets)"
+        },
+        {
+          "path": "astropy/modeling/powerlaws.py",
+          "line": 55,
+          "symbol": "PowerLaw1D.eval"
+        },
+        {
+          "path": "astropy/modeling/powerlaws.py",
+          "line": 119,
+          "symbol": "BrokenPowerLaw1D.eval"
+        },
+        {
+          "path": "astropy/modeling/powerlaws.py",
+          "line": 180,
+          "symbol": "ExponentialCutoffPowerLaw1D.eval"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

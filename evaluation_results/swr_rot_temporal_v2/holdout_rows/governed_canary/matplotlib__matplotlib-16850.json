@@ -1,0 +1,181 @@
+{
+  "id": "matplotlib__matplotlib-16850",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 16850,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 69113,
+  "llm_calls": 5,
+  "input_tokens": 17704,
+  "output_tokens": 2692,
+  "total_tokens": 20396,
+  "instruction_calls": 5,
+  "instruction_tokens": 4634,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2780,
+      "knowledge_ids": [
+        "K-489cde43",
+        "K-d7b7bb6f",
+        "K-d76217f5",
+        "K-2b3b5530"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 526,
+      "knowledge_ids": [
+        "K-12284e0a",
+        "K-86e6ca00",
+        "K-ac8cc41a",
+        "K-eee6e319",
+        "K-1bd0d82a"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-1bd0d82a",
+      "K-2b3b5530",
+      "K-489cde43",
+      "K-86e6ca00",
+      "K-ac8cc41a",
+      "K-d76217f5",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-489cde43",
+          "K-d7b7bb6f",
+          "K-d76217f5",
+          "K-2b3b5530"
+        ],
+        "tokens": 290,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-12284e0a",
+          "K-86e6ca00",
+          "K-ac8cc41a",
+          "K-eee6e319",
+          "K-1bd0d82a"
+        ],
+        "tokens": 350,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "discarded-style-normalization",
+      "severity": "medium",
+      "title": "Retain the normalized value returned by the style validators",
+      "explanation": "The replacement calls discard the validators' normalized return values and then store the original input. For example, a deprecated case-insensitive input such as 'ROUND' must become 'round' before it is stored. Previously, Line2D and Patch explicitly assigned the result of _deprecate_case_insensitive_join_cap; now their getters expose the original uppercase value instead. All four Line2D setters and both Patch setters share this regression. Collection's two setters have the same defect for case-insensitive inputs newly accepted by the validators; unlike Line2D and Patch, Collection previously rejected those inputs, so its expanded acceptance is not itself a backward-compatibility defect. Invalid-input validation still precedes the state assignment. The supplied no-tool context does not include the validator/helper implementations, downstream renderer implementations, or test results, so independent implementation inspection and an executed rendering reproduction were not possible; the finding is limited to losing normalization at the changed setters.",
+      "path": "lib/matplotlib/lines.py",
+      "line": 1356,
+      "evidence": "validate_joinstyle(s)\n        if self._dashjoinstyle != s:\n            self.stale = True\n        self._dashjoinstyle = s",
+      "fix": "Assign each validator's return value before comparing or storing it: s = validate_joinstyle(s), s = validate_capstyle(s), cs = validate_capstyle(cs), and js = validate_joinstyle(js), as appropriate across all eight setters.",
+      "test": "Add parameterized tests for the four Line2D, two Patch, and two Collection setters. Set a mixed-case valid style while capturing the expected deprecation warning, and assert the corresponding getter returns its lowercase canonical value. For example, Line2D([], []).set_dash_joinstyle('ROUND') must leave get_dash_joinstyle() equal to 'round', not 'ROUND'. Also test lowercase valid inputs and invalid inputs, asserting invalid inputs raise without changing existing state. Exercise drawing after each accepted mixed-case input to verify downstream compatibility. These tests are proposed, not executed in this context.",
+      "confidence": 0.7,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/lines.py",
+          "line": 1356,
+          "symbol": "Line2D.set_dash_joinstyle"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

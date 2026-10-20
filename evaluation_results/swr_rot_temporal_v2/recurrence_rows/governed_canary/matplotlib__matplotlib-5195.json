@@ -1,0 +1,211 @@
+{
+  "id": "matplotlib__matplotlib-5195",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 5195,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 71675,
+  "llm_calls": 5,
+  "input_tokens": 18772,
+  "output_tokens": 1775,
+  "total_tokens": 20547,
+  "instruction_calls": 5,
+  "instruction_tokens": 4657,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2803,
+      "knowledge_ids": [
+        "K-42776966",
+        "K-58d26727",
+        "K-2b3b5530",
+        "K-489cde43",
+        "K-d7b7bb6f",
+        "K-d76217f5"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 526,
+      "knowledge_ids": [
+        "K-12284e0a",
+        "K-ac8cc41a",
+        "K-eee6e319",
+        "K-86e6ca00",
+        "K-1bd0d82a"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-1bd0d82a",
+      "K-2b3b5530",
+      "K-42776966",
+      "K-489cde43",
+      "K-58d26727",
+      "K-86e6ca00",
+      "K-ac8cc41a",
+      "K-d76217f5",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-42776966",
+          "K-58d26727",
+          "K-2b3b5530",
+          "K-489cde43",
+          "K-d7b7bb6f",
+          "K-d76217f5"
+        ],
+        "tokens": 385,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-12284e0a",
+          "K-ac8cc41a",
+          "K-eee6e319",
+          "K-86e6ca00",
+          "K-1bd0d82a"
+        ],
+        "tokens": 350,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "qt-binding-specific-version-check",
+      "severity": "medium",
+      "title": "Binding-specific version lookup aborts collection with PySide",
+      "explanation": "The new eligibility check assumes that the QtCore selected by qt_compat exposes PyQt's PYQT_VERSION_STR. With the supported PySide binding, QtCore does not expose that PyQt-specific attribute, so this expression raises AttributeError during module import. The surrounding handler catches only ImportError; consequently, collection fails before knownfailureif can mark the tests ineligible. The same new lookup in test_backend_qt5.py:27 has the same problem. Adding that module to default_test_modules also exposes its import-time failure through the default test entry point. This is a collection regression, not merely an incorrect skip decision.",
+      "path": "lib/matplotlib/tests/test_backend_qt4.py",
+      "line": 28,
+      "evidence": "py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])",
+      "fix": "Determine eligibility from qt_compat's selected Qt API or the Qt library major version rather than an attribute specific to PyQt. Apply the correction to both test modules so PySide remains eligible for the Qt4 tests and safely ineligible for the Qt5 tests.",
+      "test": "In a fresh subprocess configured to select PySide, import or collect both Qt test modules. Assert that collection succeeds, the Qt4 tests remain eligible, and the Qt5 tests are marked ineligible rather than raising AttributeError. Also exercise collection through the default test-module list.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 19,
+          "symbol": "from matplotlib.backends.qt_compat import QtCore"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 28,
+          "symbol": "module-level PYQT_VERSION_STR lookup"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 33,
+          "symbol": "except ImportError"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

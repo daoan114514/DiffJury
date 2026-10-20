@@ -1,0 +1,165 @@
+{
+  "id": "sympy__sympy-27396",
+  "repository": "sympy/sympy",
+  "pull_request": 27396,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 123678,
+  "llm_calls": 5,
+  "input_tokens": 21808,
+  "output_tokens": 5401,
+  "total_tokens": 27209,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "correctness-review.complex-boundary",
+      "severity": "medium",
+      "title": "Periodic detection rejects valid complex integration bounds",
+      "explanation": "For x = Symbol('x'), integrate(cos(x), (x, 0, I)) reaches this condition with period = 2*pi. Evaluating Min(0, I) raises ValueError because I is not comparable. Consequently, an integral previously evaluable as sin(I) - sin(0) = I*sinh(1) now fails before integration. NumberKind does not restrict the integration bounds to real values, and the surrounding exception handler covers only RecursionError from periodicity, not this failure. The four new tests use finite real bounds and do not cover this compatibility regression.",
+      "path": "sympy/integrals/integrals.py",
+      "line": 507,
+      "evidence": "if  period and  Min(a,b)!=0 and len(sympify(x+Min(a,b)).free_symbols)==1:",
+      "fix": "Apply the periodic real-interval optimization only when both bounds are known to be real and suitable for ordering; otherwise preserve the existing integration path. Apply the same restriction to the later periodic decomposition.",
+      "test": "Assert integrate(cos(x), (x, 0, I)) == I*sinh(1) and integrate(cos(x), (x, I, 0)) == -I*sinh(1), using a generic Symbol for x.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 494,
+          "symbol": "Integral.doit: unpack definite integration bounds"
+        },
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 504,
+          "symbol": "Integral.doit: periodicity(self.function, x)"
+        },
+        {
+          "path": "sympy/integrals/integrals.py",
+          "line": 507,
+          "symbol": "Integral.doit: Min(0, I)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ]
+}

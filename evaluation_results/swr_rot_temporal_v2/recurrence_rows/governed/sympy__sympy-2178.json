@@ -1,0 +1,179 @@
+{
+  "id": "sympy__sympy-2178",
+  "repository": "sympy/sympy",
+  "pull_request": 2178,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 88128,
+  "llm_calls": 5,
+  "input_tokens": 18270,
+  "output_tokens": 2376,
+  "total_tokens": 20646,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "non-equivalent-argument-rewrite",
+      "severity": "medium",
+      "title": "Replacing arg with atan(im/re) discards the argument's quadrant",
+      "explanation": "The new preprocessing replaces arg(z) with atan(im(z)/re(z)), but these expressions are not equivalent: the quotient loses quadrant information and is undefined when the real part is zero. A concrete counterexample is the newly added solve([abs(x) - 2, arg(x) - pi], x), with x = symbols('x') and default flags. Its mathematical solution is only x = -2. However, the added test explicitly expects both x = -2 and x = 2; substituting x = 2 into the original argument equation gives arg(2) - pi = -pi, so that candidate is invalid. Moreover, at the valid solution x = -2, this preprocessing changes arg(-2) = pi into atan(0/(-2)) = 0, so it does not even preserve the original equation at its solution. The same faulty rewrite applies to complex and nested arguments such as arg(x + 1), and introduces division by zero on the imaginary axis. This is a static finding supported by the changed transformation and test expectation, not an executed result. The prior preprocessing did not rewrite arg at all; the newly introduced rewrite is the precise non-equivalent step. The Abs-to-sqrt transformation was already present before this change and is not the regression reported here.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 744,
+      "evidence": "[atan(im(a.args[0])/re(a.args[0])) for a in _arg])))",
+      "fix": "Do not replace arg with a one-argument atan. Preserve the original argument constraint, or implement quadrant-aware handling using atan2 with explicit domain conditions and validate candidates against the original equations. Correct the added test to reject x = 2.",
+      "test": "For unconstrained x = symbols('x'), solve([Abs(x) - 2, arg(x) - pi], x) must return only the solution with x = -2, and every returned mapping must satisfy both original equations. Add analogous checks for arguments pi/2 and -pi/2 (solutions 2*I and -2*I), plus a shifted argument such as solve([Abs(x + 1) - 2, arg(x + 1) - pi], x), whose only x value is -3. Exercise real=True symbols as well, where atan(im(x)/re(x)) otherwise collapses to zero.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/tests/test_solvers.py",
+          "line": 1221,
+          "symbol": "test_issues_3720_3721_3722_3149"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 738,
+          "symbol": "solve"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 744,
+          "symbol": "solve arg preprocessing"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

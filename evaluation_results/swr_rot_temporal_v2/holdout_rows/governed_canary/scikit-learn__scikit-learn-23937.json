@@ -1,0 +1,190 @@
+{
+  "id": "scikit-learn__scikit-learn-23937",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 23937,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 82717,
+  "llm_calls": 5,
+  "input_tokens": 11443,
+  "output_tokens": 3556,
+  "total_tokens": 14999,
+  "instruction_calls": 5,
+  "instruction_tokens": 5847,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2719,
+      "knowledge_ids": [
+        "K-d3341a3f",
+        "K-59df2e59",
+        "K-60a0fdd6"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 528,
+      "knowledge_ids": [
+        "K-791ded73",
+        "K-2968cdc5",
+        "K-70b43072",
+        "K-0f45b787",
+        "K-1617cbdc"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-2968cdc5",
+      "K-59df2e59",
+      "K-60a0fdd6",
+      "K-70b43072",
+      "K-791ded73",
+      "K-d3341a3f"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-d3341a3f",
+          "K-59df2e59",
+          "K-60a0fdd6"
+        ],
+        "tokens": 229,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-791ded73",
+          "K-2968cdc5",
+          "K-70b43072",
+          "K-0f45b787",
+          "K-1617cbdc"
+        ],
+        "tokens": 352,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-pull-request-resolution",
+      "severity": "medium",
+      "title": "Verify commit association before using the first issue-search result",
+      "explanation": "The issue-search endpoint searches both issues and pull requests, and a bare SHA can match text mentioning that SHA; it is not exclusively a commit-association lookup. Results default to best-match ordering, not an ordering that prioritizes the intended associated PR. When the original endpoint returns null, an unrelated PR #42 that mentions the SHA can appear before the associated PR #101. The added code then sets BRANCH to pull/42/head, a valid but unrelated ref, instead of pull/101/head. Unlike the previous pull/null/head failure, this can cause a downstream consumer of BRANCH to operate on the wrong PR. An ordinary issue can also be selected and produce a nonexistent pull ref. This counterexample works even if REPO_NAME and GITHUB_REPOSITORY identify the same repository; the supplied hunk and absent callers do not establish their fork/base relationship, so no repository-mismatch defect is asserted. Empty results or ordinary API error objects yielding null retain the existing invalid-ref behavior and are not separately reported as introduced defects.",
+      "path": "build_tools/github/trigger_hosting.sh",
+      "line": 24,
+      "evidence": "\"https://api.github.com/search/issues?q=$COMMIT_SHA+repo:$GITHUB_REPOSITORY\" 2>/dev/null \\\n               | jq '.items[0].number')",
+      "fix": "Restrict candidates with is:pr, then verify that a candidate actually contains COMMIT_SHA before assigning its number. Do not rely on search relevance ordering or accept textual SHA mentions as association. Handle the absence of a verified candidate explicitly.",
+      "test": "Exercise the fallback with the original endpoint returning an empty array and search results ordered as: an issue mentioning the SHA, an unrelated PR mentioning the SHA, and the actual associated PR. Provide commit lists showing that only the final PR contains COMMIT_SHA. Assert that BRANCH selects the associated PR, never either earlier hit. Also test no verified candidates.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 16,
+          "symbol": "fallback when PULL_REQUEST_NUMBER is null"
+        },
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 21,
+          "symbol": "assign PULL_REQUEST_NUMBER from issue-search response"
+        },
+        {
+          "path": "build_tools/github/trigger_hosting.sh",
+          "line": 28,
+          "symbol": "BRANCH=pull/$PULL_REQUEST_NUMBER/head"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

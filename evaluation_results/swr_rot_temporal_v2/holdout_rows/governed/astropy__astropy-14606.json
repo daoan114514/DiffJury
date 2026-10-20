@@ -1,0 +1,173 @@
+{
+  "id": "astropy__astropy-14606",
+  "repository": "astropy/astropy",
+  "pull_request": 14606,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 88772,
+  "llm_calls": 5,
+  "input_tokens": 19229,
+  "output_tokens": 3454,
+  "total_tokens": 22683,
+  "instruction_calls": 5,
+  "instruction_tokens": 4099,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 349,
+      "knowledge_ids": [
+        "K-0519c1fe",
+        "K-6bace452"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0519c1fe",
+      "K-6bace452"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0519c1fe",
+          "K-6bace452"
+        ],
+        "tokens": 173,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-timezone-normalization",
+      "severity": "medium",
+      "title": "Normalize leap seconds before converting to the requested timezone",
+      "explanation": "The new non-strict path adds the normalization second after astimezone(), so datetime performs wall-clock arithmetic in the destination timezone. When that second crosses an offset transition, the result can represent the wrong instant. A concrete supported counterexample is a datetime.tzinfo with an offset change from UTC+00 to UTC+01 at 2015-07-01 00:00:00 UTC (defined in the regression test below). Converting 2015-06-30 23:59:60 first produces 23:59:59+00; the subsequent addition produces 00:00:00+01, which represents 23:00:00 UTC, instead of the expected 01:00:00+01 representing normalized midnight UTC. This behavior is newly introduced: the previous implementation rejected this leap-second input. Fractional leap seconds and leap-second elements in arrays take the same erroneous branch. The added test verifies only an integral, timezone-naive leap second, so it does not detect this error. The default strict=True path still rejects ordinary leap-second inputs, and the non-strict path emits the intended warning, but neither prevents the incorrect non-strict timezone result.",
+      "path": "astropy/time/formats.py",
+      "line": 1127,
+      "evidence": "if timezone is not None:\n    dt = datetime.datetime(\n        iy, im, id, ihr, imin, isec, ifracsec, tzinfo=TimezoneInfo()\n    ).astimezone(timezone)\n...\nif leap_second:\n    dt += datetime.timedelta(seconds=1)",
+      "fix": "Construct and normalize the datetime in UTC before calling astimezone(timezone). For timezone-naive output, perform the same normalization on the naive datetime. Preserve the strict exception and non-strict warning behavior.",
+      "test": "Define a concrete transition timezone:\nclass MidnightJump(datetime.tzinfo):\n    def utcoffset(self, dt):\n        return datetime.timedelta(hours=int(dt.replace(tzinfo=None) >= datetime.datetime(2015, 7, 1)))\n    def dst(self, dt):\n        return datetime.timedelta(0)\n    def fromutc(self, dt):\n        return dt + datetime.timedelta(hours=int(dt.replace(tzinfo=None) >= datetime.datetime(2015, 7, 1)))\n\nWith pytest.warns(AstropyDatetimeLeapSecondWarning), convert Time('2015-06-30 23:59:60').to_datetime(timezone=MidnightJump(), strict=False). Assert local fields equal 2015-07-01 01:00:00 and conversion back to datetime.timezone.utc equals 2015-07-01 00:00:00 UTC. Repeat for .500000 and an array containing an ordinary second and a leap second. Retain an assertion that strict=True raises ValueError.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/time/core.py",
+          "line": 2682,
+          "symbol": "Time.to_datetime"
+        },
+        {
+          "path": "astropy/time/core.py",
+          "line": 2686,
+          "symbol": "tm._time.to_value(timezone, strict=strict)"
+        },
+        {
+          "path": "astropy/time/formats.py",
+          "line": 1120,
+          "symbol": "TimeDatetime.to_value: destination-timezone conversion"
+        },
+        {
+          "path": "astropy/time/formats.py",
+          "line": 1127,
+          "symbol": "TimeDatetime.to_value: leap-second normalization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "id": "sympy__sympy-755",
+  "repository": "sympy/sympy",
+  "pull_request": 755,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 109115,
+  "llm_calls": 5,
+  "input_tokens": 17794,
+  "output_tokens": 3577,
+  "total_tokens": 21371,
+  "instruction_calls": 5,
+  "instruction_tokens": 4900,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2780,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 792,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-03e5723b",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-03e5723b",
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-a9677d2d",
+          "K-4f9662f0",
+          "K-1f002951",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 362,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-03e5723b",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1"
+        ],
+        "tokens": 616,
+        "budget": 600,
+        "dropped": [
+          "K-cde9c599",
+          "K-60ce9e38",
+          "K-8184713c",
+          "K-8810c414",
+          "K-4e7d5d6b",
+          "K-10578218",
+          "K-86d0b57a",
+          "K-9d754682",
+          "K-e4a5fbd0",
+          "K-d778c4a2",
+          "K-962b000c"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "boolean-latex-implication-grouping",
+      "severity": "medium",
+      "title": "Nested implications are printed without preserving their grouping",
+      "explanation": "The implication printer renders both operands without parentheses. For Implies(Implies(x, y), z), this code produces `x \\Rightarrow y \\Rightarrow z` instead of `\\left(x \\Rightarrow y\\right) \\Rightarrow z`. In particular, left-nested and right-nested implications receive identical output despite being different Boolean functions: at x=False, y=False, z=False, the left-nested expression is false and the right-nested expression is true. The added Implies(x, y) test covers neither nesting nor grouping. This is a static derivation from the supplied printer; preservation of these nested constructors could not be independently checked without repository access.",
+      "path": "sympy/printing/latex.py",
+      "line": 532,
+      "evidence": "return r\"%s \\Rightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Group implication operands according to precedence and associativity, including at least an implication appearing as the antecedent. Apply corresponding grouping checks to the Equivalent printer.",
+      "test": "Construct both Implies(Implies(x, y), z) and Implies(x, Implies(y, z)); assert their argument trees are retained and that their LaTeX preserves the distinct grouping. Include an Equivalent operand to test cross-operator precedence.",
+      "confidence": 0.8300000000000001,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boolean-latex-equivalent-argument-loss",
+      "severity": "medium",
+      "title": "The Equivalent printer silently omits every argument after the second",
+      "explanation": "The implementation prints only args[0] and args[1]. For a three-argument Equivalent expression e, let a, b, c = e.args to avoid relying on constructor ordering: the actual output is latex(a) + ` \\Leftrightarrow ` + latex(b), and c is absent. The required output must express that all three operands have equal truth values, for example `\\left(a \\Leftrightarrow b\\right) \\wedge \\left(a \\Leftrightarrow c\\right)`. Omitting c changes the result whenever a and b agree but c differs. There are no added Equivalent tests. The argument-loss result follows directly from the changed line; acceptance and retained arity of Equivalent(x, y, z) still require repository verification, which was unavailable in this tool-free review.",
+      "path": "sympy/printing/latex.py",
+      "line": 535,
+      "evidence": "return r\"%s \\Leftrightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Render all retained Equivalent arguments with semantics matching n-ary equivalence, rather than indexing only the first two. A conjunction of grouped binary equivalences against the first operand preserves those semantics.",
+      "test": "Construct Equivalent(x, y, z), assert len(e.args) == 3, record its actual argument ordering, and assert an exact rendering that includes all three arguments and expresses all-equal semantics. Include four arguments and nested Boolean operands.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 534,
+          "symbol": "LatexPrinter._print_Equivalent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

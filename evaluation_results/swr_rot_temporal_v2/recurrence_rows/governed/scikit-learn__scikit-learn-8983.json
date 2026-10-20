@@ -1,0 +1,179 @@
+{
+  "id": "scikit-learn__scikit-learn-8983",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 8983,
+  "split": "train",
+  "expected": 2,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 2,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 63793,
+  "llm_calls": 5,
+  "input_tokens": 44858,
+  "output_tokens": 1811,
+  "total_tokens": 46669,
+  "instruction_calls": 5,
+  "instruction_tokens": 3151,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1482,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 341,
+      "knowledge_ids": [
+        "K-fc6f5674",
+        "K-69a7f4ef"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fc6f5674",
+          "K-69a7f4ef"
+        ],
+        "tokens": 165,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "PYTHON-SYNTAX-ERROR",
+      "severity": "medium",
+      "title": "Extra comma prevents the underfitting/overfitting example from executing",
+      "explanation": "The added scatter call contains two consecutive argument-separator commas in `X, y, , edgecolor=...`. Python call syntax requires an argument between these commas, so this raises SyntaxError when the module is parsed, before any training or plotting executes. Running the example therefore produces no plots, and gallery processing that parses or executes this example cannot generate its normal output. No parser or execution tools were available; this conclusion follows directly from Python's call grammar, not a dependency-version assumption.",
+      "path": "examples/model_selection/plot_underfitting_overfitting.py",
+      "line": 63,
+      "evidence": "    plt.scatter(X, y, , edgecolor='b', s=20, label=\"Samples\")",
+      "fix": "Remove the extra comma: `plt.scatter(X, y, edgecolor='b', s=20, label=\"Samples\")`.",
+      "test": "Compile the changed examples with py_compile to catch syntax errors, then run this example with a noninteractive Matplotlib backend and verify that all three degree-comparison subplots are generated.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/model_selection/plot_underfitting_overfitting.py",
+          "line": 63,
+          "symbol": "<module> (parse before execution)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

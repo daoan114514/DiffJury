@@ -1,0 +1,237 @@
+{
+  "id": "scikit-learn__scikit-learn-26229",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 26229,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/model_selection/_validation.py",
+      "line": 1807,
+      "cwe": "CWE-20",
+      "rule_id": "estimator-capability-constraint",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 59789,
+  "llm_calls": 5,
+  "input_tokens": 15898,
+  "output_tokens": 2382,
+  "total_tokens": 18280,
+  "instruction_calls": 5,
+  "instruction_tokens": 5218,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3093,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-eb2105bb",
+        "K-0a2298e4",
+        "K-2bba7006",
+        "K-3c8dfccb",
+        "K-5388c8d9",
+        "K-651ca0b6",
+        "K-1c8d031b",
+        "K-f32f49ff"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 797,
+      "knowledge_ids": [
+        "K-51e6bbd9",
+        "K-0f45b787",
+        "K-fe66117a",
+        "K-1617cbdc",
+        "K-69a7f4ef",
+        "K-0f38f6b6",
+        "K-d8b204bc",
+        "K-6d7b0522",
+        "K-fc6f5674",
+        "K-94fa9fcb"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-1c8d031b",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-651ca0b6",
+      "K-69a7f4ef",
+      "K-6d7b0522",
+      "K-94fa9fcb",
+      "K-d8b204bc",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-eb2105bb",
+          "K-0a2298e4",
+          "K-2bba7006",
+          "K-3c8dfccb",
+          "K-5388c8d9",
+          "K-651ca0b6",
+          "K-1c8d031b",
+          "K-f32f49ff"
+        ],
+        "tokens": 603,
+        "budget": 600,
+        "dropped": [
+          "K-4d5756a5",
+          "K-a62a9e09",
+          "K-1d4bb77e",
+          "K-8828df10"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-51e6bbd9",
+          "K-0f45b787",
+          "K-fe66117a",
+          "K-1617cbdc",
+          "K-69a7f4ef",
+          "K-0f38f6b6",
+          "K-d8b204bc",
+          "K-6d7b0522",
+          "K-fc6f5674",
+          "K-94fa9fcb"
+        ],
+        "tokens": 621,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "estimator-capability-constraint",
+      "severity": "medium",
+      "title": "Requiring predict rejects score-only estimators supported by validation_curve",
+      "explanation": "The new decorator rejects estimators without predict before scoring is selected. validation_curve evaluates candidates through check_scoring and _fit_and_score: when scoring=None, the scorer uses estimator.score, not estimator.predict; a custom scoring callable likewise need not use predict. PCA is a concrete affected estimator: it implements fit and score but not predict. For example, with X = np.random.RandomState(0).normal(size=(30, 4)), validation_curve(PCA(), X, None, param_name='n_components', param_range=[1, 2], cv=3) previously fitted and scored the candidates, but now fails parameter validation. Requiring predict therefore disables valid unsupervised validation curves and valid custom-scoring workflows. Although the existing estimator docstring mentions predict, prediction is not a requirement of the execution path. Adding the function to the generic parameter-validation test list does not add a positive regression case for this score-only estimator. The deleted error_score tests do not establish a separate runtime defect, and no separate coverage finding is asserted without evidence about the remaining tests.",
+      "path": "sklearn/model_selection/_validation.py",
+      "line": 1807,
+      "evidence": "\"estimator\": [HasMethods([\"fit\", \"predict\"])],",
+      "fix": "Require only HasMethods('fit') at the decorator boundary, leaving check_scoring to require score when scoring=None and the selected scorer to enforce any prediction-method requirements.",
+      "test": "Add a regression test calling validation_curve(PCA(), X, None, param_name='n_components', param_range=[1, 2], cv=3) on nondegenerate random data. Assert that both returned score arrays have shape (2, 3) and contain finite values. Also exercise a fit-only estimator with a custom scoring callable that does not use predict.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/model_selection/_validation.py",
+          "line": 1805,
+          "symbol": "validate_params"
+        },
+        {
+          "path": "sklearn/model_selection/_validation.py",
+          "line": 1822,
+          "symbol": "validation_curve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

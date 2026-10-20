@@ -1,0 +1,181 @@
+{
+  "id": "scikit-learn__scikit-learn-24898",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 24898,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/semi_supervised/_label_propagation.py",
+      "line": 330,
+      "cwe": "CWE-1059",
+      "rule_id": "public-api-prediction-semantics",
+      "expected_severity": "high",
+      "predicted_severity": "low",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 62930,
+  "llm_calls": 5,
+  "input_tokens": 10655,
+  "output_tokens": 2508,
+  "total_tokens": 13163,
+  "instruction_calls": 5,
+  "instruction_tokens": 4266,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 292,
+      "knowledge_ids": [
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fc6f5674"
+        ],
+        "tokens": 116,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "public-api-prediction-semantics",
+      "severity": "low",
+      "title": "fit_predict documents inductive inference but returns transductive labels",
+      "explanation": "The new public method explicitly promises inductive inference, but returns the training-set transduction instead. These results are not interchangeable. For example, with LabelPropagation(kernel='knn', n_neighbors=3), X=[[0.0], [1.0], [2.0]] and y=[0, 1, 1], fit clamps the labeled samples' distributions to their supplied labels, so transduction_ and the new fit_predict result are [0, 1, 1]. Inductive predict(X) aggregates the distributions of all three neighbors for each query, producing [1, 1, 1]. Consequently, a consumer following the documented inductive semantics receives a different label for the first sample. Returning transduction_ is itself a coherent transductive fit_predict design; fit_predict conventions do not universally require equivalence to fit(...).predict(...). The actionable defect is the contradictory public documentation, inherited by both LabelPropagation and LabelSpreading. No applicable tests were supplied in the review context, so this finding does not assert a violation of an unseen test contract.",
+      "path": "sklearn/semi_supervised/_label_propagation.py",
+      "line": 330,
+      "evidence": "        \"\"\"Fit a semi-supervised label propagation model to X and perform inductive inference.\n        self.fit(X, y)\n        return self.transduction_",
+      "fix": "If transductive labeling is intended, describe fit_predict as returning the fitted transductive labels and clarify that these can differ from predict(X), including on labeled training samples. If inductive inference is intended instead, return self.predict(X) after fitting.",
+      "test": "Add a regression test using LabelPropagation(kernel='knn', n_neighbors=3), X=np.array([[0.0], [1.0], [2.0]]) and y=np.array([0, 1, 1]). Assert that fit_predict returns [0, 1, 1] for the transductive contract and separately demonstrate that predict(X) returns [1, 1, 1]. If the intended contract is inductive, assert fit_predict equals fit(X, y).predict(X) instead.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/semi_supervised/_label_propagation.py",
+          "line": 329,
+          "symbol": "BaseLabelPropagation.fit_predict"
+        },
+        {
+          "path": "sklearn/semi_supervised/_label_propagation.py",
+          "line": 326,
+          "symbol": "BaseLabelPropagation.fit: self.transduction_ = transduction.ravel()"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1059",
+      "applied_rules": []
+    }
+  ]
+}

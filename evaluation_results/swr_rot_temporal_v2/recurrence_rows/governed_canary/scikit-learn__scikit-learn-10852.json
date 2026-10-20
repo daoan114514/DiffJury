@@ -1,0 +1,273 @@
+{
+  "id": "scikit-learn__scikit-learn-10852",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 10852,
+  "split": "train",
+  "expected": 2,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 1,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "examples/cluster/plot_inductive_learning.py",
+      "line": 43,
+      "cwe": "CWE-670",
+      "rule_id": "REL-DELEGATE-TARGET",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 87931,
+  "llm_calls": 5,
+  "input_tokens": 18286,
+  "output_tokens": 2457,
+  "total_tokens": 20743,
+  "instruction_calls": 5,
+  "instruction_tokens": 4647,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {
+    "K-73e0f51e": {
+      "tp": 1,
+      "fp": 0
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2495,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-6e16a2a3",
+        "K-5388c8d9",
+        "K-4d5756a5",
+        "K-2bba7006",
+        "K-8828df10",
+        "K-651ca0b6",
+        "K-eb2105bb",
+        "K-d3341a3f",
+        "K-60a0fdd6"
+      ],
+      "skills": [
+        "check-delegated-method-targets",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1518
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 824,
+      "knowledge_ids": [
+        "K-f8f85333",
+        "K-feee072d",
+        "K-1617cbdc",
+        "K-0f45b787",
+        "K-fc6f5674",
+        "K-94fa9fcb",
+        "K-51e6bbd9",
+        "K-d8b204bc",
+        "K-6d7b0522",
+        "K-9ecad403"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-26252785",
+      "K-2bba7006",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-60a0fdd6",
+      "K-651ca0b6",
+      "K-6d7b0522",
+      "K-6e16a2a3",
+      "K-73e0f51e",
+      "K-8828df10",
+      "K-94fa9fcb",
+      "K-9ecad403",
+      "K-d3341a3f",
+      "K-d8b204bc",
+      "K-eb2105bb",
+      "K-f8bf6084",
+      "K-f8f85333",
+      "K-fc6f5674",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-6e16a2a3",
+          "K-5388c8d9",
+          "K-4d5756a5",
+          "K-2bba7006",
+          "K-8828df10",
+          "K-651ca0b6",
+          "K-eb2105bb",
+          "K-d3341a3f",
+          "K-60a0fdd6"
+        ],
+        "tokens": 646,
+        "budget": 600,
+        "dropped": [
+          "K-24ae43fa",
+          "K-1d4bb77e",
+          "K-f32f49ff"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-f8f85333",
+          "K-feee072d",
+          "K-1617cbdc",
+          "K-0f45b787",
+          "K-fc6f5674",
+          "K-94fa9fcb",
+          "K-51e6bbd9",
+          "K-d8b204bc",
+          "K-6d7b0522",
+          "K-9ecad403"
+        ],
+        "tokens": 648,
+        "budget": 600,
+        "dropped": [
+          "K-70b43072"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "REL-DELEGATE-TARGET",
+      "severity": "medium",
+      "title": "Check optional methods on the fitted classifier rather than its unfitted template",
+      "explanation": "The decision_function decorator checks self.classifier, but the method invokes self.classifier_, which fit creates and trains as a separate clone. These objects can expose different methods. A concrete supported configuration is GridSearchCV(Pipeline([('clf', RandomForestClassifier())]), {'clf': [SVC()]}, cv=2). Before fitting, that search delegates capability checks to its initial pipeline, whose RandomForestClassifier has no decision_function. After fitting, its best_estimator_ is a pipeline containing SVC and does expose decision_function. InductiveClusterer.fit trains only self.classifier_, leaving self.classifier unchanged, so accessing the wrapper's decision_function raises AttributeError even though self.classifier_.decision_function(X) works. This does not break the supplied standalone RandomForestClassifier example: that classifier consistently supports predict and lacks decision_function. The predict decorator uses the same mismatched target and should be aligned as well.",
+      "path": "examples/cluster/plot_inductive_learning.py",
+      "line": 43,
+      "evidence": "    @if_delegate_has_method(delegate='classifier')\n    def decision_function(self, X):\n        return self.classifier_.decision_function(X)",
+      "fix": "Change both delegation decorators to delegate='classifier_' so method availability is checked on the fitted object actually receiving the call.",
+      "test": "Fit InductiveClusterer(AgglomerativeClustering(n_clusters=3), GridSearchCV(Pipeline([('clf', RandomForestClassifier())]), {'clf': [SVC()]}, cv=2)) on a three-class blob dataset. Assert that decision_function is available after fitting and its output equals classifier_.decision_function(X). Also retain a test with the supplied standalone RandomForestClassifier verifying that predict works and decision_function remains unavailable.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/cluster/plot_inductive_learning.py",
+          "line": 34,
+          "symbol": "InductiveClusterer.fit: clone self.classifier into self.classifier_"
+        },
+        {
+          "path": "examples/cluster/plot_inductive_learning.py",
+          "line": 36,
+          "symbol": "InductiveClusterer.fit: fit self.classifier_"
+        },
+        {
+          "path": "examples/cluster/plot_inductive_learning.py",
+          "line": 43,
+          "symbol": "InductiveClusterer.decision_function: check self.classifier"
+        },
+        {
+          "path": "examples/cluster/plot_inductive_learning.py",
+          "line": 45,
+          "symbol": "InductiveClusterer.decision_function: invoke self.classifier_"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": [
+        "K-73e0f51e"
+      ]
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

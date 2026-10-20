@@ -1,0 +1,163 @@
+{
+  "id": "sympy__sympy-13196",
+  "repository": "sympy/sympy",
+  "pull_request": 13196,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 99000,
+  "llm_calls": 5,
+  "input_tokens": 14535,
+  "output_tokens": 3016,
+  "total_tokens": 17551,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "generated-expression-precedence",
+      "severity": "medium",
+      "title": "Parenthesize the quotient emitted for log2 before embedding it in other expressions",
+      "explanation": "The new printer emits a division for a symbolic function without enclosing that division in parentheses. A parent printer still treats log2(x) as a function application, whose precedence is higher than exponentiation. Consequently, the minimal expression log2(x)**y is printed as mpmath.log(x)/mpmath.log(2)**y, rather than (mpmath.log(x)/mpmath.log(2))**y. With x=4 and y=2, the emitted expression evaluates mathematically to 2/log(2), approximately 2.88539, instead of 4. This is a static derivation, not an executed reproduction. Previously, doprint rewrote log2 into a symbolic quotient before recursive printing, so the enclosing power could see the quotient and preserve its grouping. The new late string substitution removes that protection. Tests of log2 printed alone would not detect this regression.",
+      "path": "sympy/printing/pycode.py",
+      "line": 232,
+      "evidence": "return '{0}({1})/{0}(2)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Enclose the complete emitted quotient in parentheses so it retains function-application grouping in every enclosing expression.",
+      "test": "Print and evaluate log2(x)**y using MpmathPrinter with x=4 and y=2, and assert that the result is 4. Also cover a reciprocal of log2(x), since embedding the emitted division in a denominator exposes the same precedence defect.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 231,
+          "symbol": "MpmathPrinter._print_log2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-783",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "mpmath-argument-promotion",
+      "severity": "medium",
+      "title": "The literal +1 in log1p loses precision before mpmath receives float arguments",
+      "explanation": "For log1p(x), the new generated code is mpmath.log(x+1). When x is a Python float, Python performs x+1 in binary64 before calling mpmath.log, regardless of mpmath's configured precision. For example, at 50 decimal digits with x=1e-20, x+1 rounds to 1.0 and the new expression returns zero. Previously, rewriting log1p(x) to log(x+1) passed the symbolic integer through _print_Integer, producing an mpmath.mpf(1) operand. That promoted the float before addition, preserving a nonzero logarithm of approximately 1e-20 at this precision. Thus this is an introduced loss of accuracy, not merely the existing limitation of computing log(1+x) at insufficient mpmath precision. These expected results are statically derived; no execution tools were available.",
+      "path": "sympy/printing/pycode.py",
+      "line": 236,
+      "evidence": "return '{0}({1}+1)'.format(\n            self._module_format('mpmath.log'), self._print(e.args[0]))",
+      "fix": "Emit mpmath.log1p(argument), which also avoids cancellation for small arguments, or at minimum preserve the previous mpmath promotion by printing the added integer through _print_Integer.",
+      "test": "Under mpmath.workdps(50), evaluate the actual MpmathPrinter-generated code for log1p(x) with the Python float x=1e-20. Compare against mpmath.log1p(x) with an explicit high-precision tolerance and assert the result is nonzero. Use a precision context manager so the test restores global precision.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 235,
+          "symbol": "MpmathPrinter._print_log1p"
+        },
+        {
+          "path": "sympy/printing/pycode.py",
+          "line": 209,
+          "symbol": "MpmathPrinter._print_Integer"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

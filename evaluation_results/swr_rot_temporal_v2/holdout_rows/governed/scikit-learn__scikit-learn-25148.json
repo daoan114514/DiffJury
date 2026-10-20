@@ -1,0 +1,181 @@
+{
+  "id": "scikit-learn__scikit-learn-25148",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 25148,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 67896,
+  "llm_calls": 5,
+  "input_tokens": 14902,
+  "output_tokens": 2781,
+  "total_tokens": 17683,
+  "instruction_calls": 5,
+  "instruction_tokens": 4315,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 341,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 165,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "prediction-regression",
+      "severity": "low",
+      "title": "Probability normalization can change the nearest-code prediction",
+      "explanation": "Adding epsilon can collapse distinct representable distances into a tie, so the rewritten predict does not always preserve the previous nearest-code result. A concrete supported counterexample is a BaseEstimator-compatible binary classifier whose fit returns self and whose decision_function returns np.full(len(X), 2.0**-53). Fit OutputCodeClassifier with code_size=0.5 and random_state=1 on X=[[0.0], [1.0]], y=[0, 1]; its one-column code book is [[-1.0], [1.0]]. For this margin, euclidean_distances returns distances [1.0, 0.9999999999999999]. The old argmin therefore selects class 1. Adding 1e-16 rounds both distances to 1.0, producing probabilities [0.5, 0.5]; the new argmax selects class 0. This violates preservation of existing predictions for finite, valid estimator outputs. The added Iris/LinearSVC test checks only one ordinary fitted model and does not exercise this floating-point boundary.",
+      "path": "sklearn/multiclass.py",
+      "line": 1066,
+      "evidence": "pred = self.predict_proba(X).argmax(axis=1)",
+      "fix": "Keep predict based on the original distance argmin rather than deriving it from rounded probability estimates. The distance calculation can be shared internally without changing the prediction rule.",
+      "test": "Add a fitted constant-margin binary estimator returning 2.0**-53, using two classes, code_size=0.5, and random_state=1. Assert that the code book is [[-1], [1]], that the distance argmin is class 1, and that predict returns class 1. Also exercise adjacent representable margins around zero to cover rounding-induced probability ties.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1066,
+          "symbol": "OutputCodeClassifier.predict"
+        },
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1046,
+          "symbol": "OutputCodeClassifier.predict_proba: collect binary decision scores"
+        },
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1047,
+          "symbol": "OutputCodeClassifier.predict_proba: euclidean_distances"
+        },
+        {
+          "path": "sklearn/multiclass.py",
+          "line": 1050,
+          "symbol": "OutputCodeClassifier.predict_proba: epsilon addition and inverse-distance normalization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

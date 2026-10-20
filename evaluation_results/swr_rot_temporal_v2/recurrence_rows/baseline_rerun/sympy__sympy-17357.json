@@ -1,0 +1,129 @@
+{
+  "id": "sympy__sympy-17357",
+  "repository": "sympy/sympy",
+  "pull_request": 17357,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 93585,
+  "llm_calls": 5,
+  "input_tokens": 19236,
+  "output_tokens": 2344,
+  "total_tokens": 21580,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "correctness-review.rewrite-depth",
+      "severity": "medium",
+      "title": "Nested public rewrites ignore the caller's deep=False option",
+      "explanation": "The replacement invokes rewrite(cos) with its default recursive traversal, even when the enclosing rewrite explicitly disables recursion. A minimal counterexample is csc(sin(x)).rewrite(cos, deep=False), for an ordinary symbolic x. Previously, the direct hook returned 1/cos(sin(x) - pi/2, evaluate=False), preserving the nested sin(x). The new call rewrites that nested argument too, returning 1/cos(cos(x - pi/2, evaluate=False) - pi/2, evaluate=False). Although mathematically equivalent, this violates the observable rewrite-depth contract and changes an argument the caller explicitly requested to preserve. The call chain is the outer nonrecursive rewrite dispatch, csc._eval_rewrite_as_cos, then sin(sin(x)).rewrite(cos), whose default deep traversal rewrites the inner sin(x) before rewriting the outer sine. The same loss of caller options occurs in the other newly introduced public rewrite calls. The issue-17349 regression exercises the default recursive path and does not guard this case.",
+      "path": "sympy/functions/elementary/trigonometric.py",
+      "line": 1770,
+      "evidence": "return 1 / sin(arg).rewrite(cos)",
+      "fix": "Ensure the intermediate public rewrite honors the enclosing caller's rewrite-depth option and other applicable hints instead of unconditionally starting a default recursive rewrite. Preserve the public dispatch needed for automatically evaluated intermediate expressions.",
+      "test": "Add a regression asserting csc(sin(x)).rewrite(cos, deep=False) == 1/cos(sin(x) - pi/2, evaluate=False). Cover the analogous nested-argument cases for the changed cos, tan, cot, and sec hooks, and retain the issue-17349 test to ensure automatically evaluated intermediates still rewrite without an exception.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1770,
+          "symbol": "csc._eval_rewrite_as_cos"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

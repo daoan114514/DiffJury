@@ -1,0 +1,165 @@
+{
+  "id": "sympy__sympy-22897",
+  "repository": "sympy/sympy",
+  "pull_request": 22897,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 82107,
+  "llm_calls": 5,
+  "input_tokens": 18782,
+  "output_tokens": 3324,
+  "total_tokens": 22106,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "broadcast-matrix-operand-validation",
+      "severity": "medium",
+      "title": "The second broadcasting branch passes non-matrix arrays to KroneckerProduct",
+      "explanation": "The second branch checks shapes but, unlike the first branch, does not require both operands to be MatrixExpr instances. A minimal reproducer is `_find_trivial_kronecker_products_broadcast(ArrayTensorProduct(MatrixSymbol('s', 1, 1), ArraySymbol('T', (2, 3, 4))))`. The first factor is appended; the second factor satisfies `1 not in shape` and the preceding shape is `(1, 1)`, so line 185 constructs `KroneckerProduct(s, T)`. KroneckerProduct requires matrix operands and rejects the rank-three ArraySymbol with TypeError. The expected behavior is to preserve the unsupported array tensor product, with no dimensions removed. The same missing guard affects `ArrayTensorProduct(ArraySymbol('S', (1, 1)), MatrixSymbol('A', 2, 3))`, where the preceding operand is not a matrix. The first broadcasting branch correctly declines corresponding non-matrix operands. The new integration invokes this helper after the existing trivial-matrix rewrite; failure occurs before its result can reach `_combine_removed` at line 423. The added tests exercise only MatrixExpr operands, including the multiple-trivial-factor matrix-multiplication preference, and do not cover either invalid-operand case.",
+      "path": "sympy/tensor/array/expressions/conv_array_to_matrix.py",
+      "line": 183,
+      "evidence": "elif 1 not in shape and len(newargs) > 0 and get_shape(newargs[-1]) == (1, 1):\n            # Broadcast:\n            newargs[-1] = KroneckerProduct(newargs[-1], arg)",
+      "fix": "Require `isinstance(newargs[-1], MatrixExpr)` and `isinstance(arg, MatrixExpr)` in the second branch, matching the first branch. Leave unsupported array factors unchanged.",
+      "test": "Add regression cases using a 1-by-1 MatrixSymbol followed by a rank-three ArraySymbol, and a 1-by-1 ArraySymbol followed by a MatrixSymbol. Invoke the helper and the real `_remove_trivial_dims` conversion path, asserting that they preserve the unsupported tensor product and report no removed dimensions rather than raising. Retain the existing matrix-only broadcasting and multiple-factor tests.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/array/expressions/conv_array_to_matrix.py",
+          "line": 419,
+          "symbol": "_find_trivial_matrices_rewrite"
+        },
+        {
+          "path": "sympy/tensor/array/expressions/conv_array_to_matrix.py",
+          "line": 422,
+          "symbol": "_remove_trivial_dims(ArrayTensorProduct)"
+        },
+        {
+          "path": "sympy/tensor/array/expressions/conv_array_to_matrix.py",
+          "line": 185,
+          "symbol": "_find_trivial_kronecker_products_broadcast"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ]
+}

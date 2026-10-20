@@ -1,0 +1,160 @@
+{
+  "id": "matplotlib__matplotlib-7279",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 7279,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 154908,
+  "llm_calls": 6,
+  "input_tokens": 109994,
+  "output_tokens": 4732,
+  "total_tokens": 114726,
+  "instruction_calls": 6,
+  "instruction_tokens": 12040,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 4630,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "reliability-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 4275
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "inconsistent-plugin-construction",
+      "severity": "medium",
+      "title": "matplotlib.test() instantiates already-created Nose plugins",
+      "explanation": "With the test dependencies and test data installed, calling matplotlib.test() reaches this list comprehension before nose.run(). _get_extra_test_plugins() returns classes ([KnownFailure, attrib.Plugin]), but line 1594 appends instances created from nose.plugins.builtin.plugins. Consequently, [x() for x in plugins] instantiates the two extra classes and then attempts to call a built-in plugin instance, raising TypeError instead of running the suite. Previously, PluginManager received a consistently instantiated list directly. The same mixed collection is also assigned to multiprocess._instantiate_plugins at line 1602, although the construction exception prevents reaching that assignment in the current code. In contrast, tests.py keeps the helper's class-only collection, assigns those classes to multiprocess._instantiate_plugins, and creates instances only for nose.main(addplugins=...), so that entry point does not introduce this type mismatch. The initialization refactor retains the existing dependency-check body under _init_tests(), adds faulthandler initialization before those checks, and invokes that shared initialization from both entry points; no separate dependency-check defect is demonstrated. Removal of verify_test_dependencies is not reported as a compatibility finding because the supplied evidence establishes neither a supported external contract nor a remaining repository caller.",
+      "path": "lib/matplotlib/__init__.py",
+      "line": 1596,
+      "evidence": "plugins = _get_extra_test_plugins()\n        plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])\n\n        manager = PluginManager(plugins=[x() for x in plugins])",
+      "fix": "Keep plugins as a class-only collection by replacing line 1594 with plugins.extend(nose.plugins.builtin.plugins). Instantiate those classes only when constructing PluginManager, and retain the class collection for multiprocess._instantiate_plugins.",
+      "test": "With Nose and the required test dependencies installed, invoke matplotlib.test() while replacing only nose.run with a recorder returning success. Assert that execution reaches nose.run, that its configured PluginManager contains plugin instances, and that multiprocess._instantiate_plugins contains plugin classes. The current implementation must fail with TypeError before reaching the recorder. Also exercise tests.py's run() with nose.main recorded to verify that addplugins contains instances while the multiprocessing collection contains classes.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1580,
+          "symbol": "test"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1593,
+          "symbol": "_get_extra_test_plugins"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1594,
+          "symbol": "built-in plugin instantiation"
+        },
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1596,
+          "symbol": "PluginManager argument construction"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-843",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "id": "matplotlib__matplotlib-5432",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 5432,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "src/_backend_agg.h",
+      "line": 794,
+      "cwe": "CWE-125",
+      "rule_id": "incorrect-text-image-source-row",
+      "expected_severity": "high",
+      "predicted_severity": "high",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 151781,
+  "llm_calls": 11,
+  "input_tokens": 36744,
+  "output_tokens": 2838,
+  "total_tokens": 39582,
+  "instruction_calls": 11,
+  "instruction_tokens": 11510,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 2,
+    "security": 5,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 1,
+  "revision_results": 1,
+  "cited_rules": {
+    "K-42776966": {
+      "tp": 1,
+      "fp": 0
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1438,
+      "knowledge_ids": [
+        "K-42776966"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1363,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1438,
+      "knowledge_ids": [
+        "K-42776966"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1363,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1363,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1363,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1363,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 292,
+      "knowledge_ids": [
+        "K-1bd0d82a"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-1bd0d82a",
+      "K-42776966"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-42776966"
+        ],
+        "tokens": 112,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-1bd0d82a"
+        ],
+        "tokens": 116,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-text-image-source-row",
+      "severity": "high",
+      "title": "Unrotated text rendering indexes rows before the source image",
+      "explanation": "For a nonempty image of height H, the surrounding code constructs the destination rectangle with text.init(x, y - H, x + image.dim(1), y). Consequently, visible destination rows satisfy y - H <= yi < y, and their valid source rows are yi - (y - H), ranging from 0 through H - 1. The changed expression instead computes yi - y - H, shifting every source row backward by 2H and yielding indices from -2H through -H - 1. For example, an image with height 10 and width 4 drawn at x=5, y=30 on a sufficiently large canvas visits destination rows 20 through 29: the previous expression selects source rows 0 through 9, but the new expression selects -20 through -11. Vertical clipping does not correct this: if clipping makes the first visible row 23, its correct source row is 3, whereas the new expression selects -17. Thus ordinary angle-zero text rendering supplies out-of-bounds source coverage to blend_solid_hspan, potentially causing invalid memory reads, corrupted text, or crashes. The new horizontal-span guard correctly skips nonpositive widths, but a visible image has positive width and passes that guard; it does not prevent this independent row-index regression.",
+      "path": "src/_backend_agg.h",
+      "line": 794,
+      "evidence": "&image((yi - y) - image.dim(0), text.x1 - x));",
+      "fix": "Restore the source-row translation to yi - (y - image.dim(0)), or its equivalent yi - y + image.dim(0), while retaining the horizontal-span guard.",
+      "test": "Exercise RendererAgg::draw_text_image at angle zero with a nonempty image containing distinct coverage values per row. Verify that an unclipped image maps destination row y-H to source row 0 and destination row y-1 to source row H-1. Repeat with vertical clipping that removes the first three rows and verify that the first visible row uses source row 3. Run under an address sanitizer or use a bounds-checking ImageArray to detect invalid row accesses, and retain a fully horizontally clipped case to verify the new span guard.",
+      "confidence": 0.95,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:01725fe18653a13b",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"src/_backend_agg.h\", \"start_line\": 690, \"end_line\": 805, \"content\": \"  public:\\n    typedef ChildGenerator child_type;\\n    typedef agg::rgba8 color_type;\\n    typedef typename child_type::color_type child_color_type;\\n    typedef agg::span_allocator<child_color_type> span_alloc_type;\\n\\n  private:\\n    child_type *_gen;\\n    color_type _color;\\n    span_alloc_type _allocator;\\n\\n  public:\\n    font_to_rgba(child_type *gen, color_type color) : _gen(gen), _color(color)\\n    {\\n    }\\n\\n    inline void generate(color_type *output_span, int x, int y, unsigned len)\\n    {\\n        _allocator.allocate(len);\\n        child_color_type *input_span = _allocator.span();\\n        _gen->generate(input_span, x, y, len);\\n\\n        do {\\n            *output_span = _color;\\n            output_span->a = ((unsigned int)_color.a * (unsigned int)input_span->v) >> 8;\\n            ++output_span;\\n            ++input_span;\\n        } while (--len);\\n    }\\n\\n    void prepare()\\n    {\\n        _gen->prepare();\\n    }\\n};\\n\\ntemplate <class ImageArray>\\ninline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle)\\n{\\n    typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;\\n    typedef agg::span_interpolator_linear<> interpolator_type;\\n    typedef agg::image_accessor_clip<agg::pixfmt_gray8> image_accessor_type;\\n    typedef agg::span_image_filter_gray<image_accessor_type, interpolator_type> image_span_gen_type;\\n    typedef font_to_rgba<image_span_gen_type> span_gen_type;\\n    typedef agg::renderer_scanline_aa<renderer_base, color_span_alloc_type, span_gen_type>\\n    renderer_type;\\n\\n    if (angle != 0.0) {\\n        agg::rendering_buffer srcbuf(\\n                image.data(), (unsigned)image.dim(1),\\n                (unsigned)image.dim(0), (unsigned)image.dim(1));\\n        agg::pixfmt_gray8 pixf_img(srcbuf);\\n\\n        theRasterizer.reset_clipping();\\n        rendererBase.reset_clipping(true);\\n        set_clipbox(gc.cliprect, the"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "src/_backend_agg.h",
+          "line": 727,
+          "symbol": "RendererAgg::draw_text_image"
+        },
+        {
+          "path": "src/_backend_agg.h",
+          "line": 794,
+          "symbol": "ImageArray::operator()"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-125",
+      "applied_rules": [
+        "K-42776966"
+      ]
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

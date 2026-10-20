@@ -1,0 +1,174 @@
+{
+  "id": "sympy__sympy-416",
+  "repository": "sympy/sympy",
+  "pull_request": 416,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 84563,
+  "llm_calls": 5,
+  "input_tokens": 16233,
+  "output_tokens": 2136,
+  "total_tokens": 18369,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "unhashable-partition-cache-key",
+      "severity": "medium",
+      "title": "Tuple cache keys reject previously supported unhashable elements",
+      "explanation": "The new cache key requires every multiset element to be hashable; converting the blocks to tuples does not make their elements hashable. A minimal counterexample is list(multiset_partitions([[1], [2], [3]], 2)). Each partition constructed by visit contains list-valued elements, so testing its canonical key in the cache raises TypeError: unhashable type: 'list'. The previous str(ps) key was hashable for this input and allowed enumeration of its three distinct two-block partitions. This changes the accepted input contract and aborts iteration rather than yielding partitions. The added regression test contains only integers and therefore does not exercise this failure. This conclusion follows directly from the changed cache operation and Python's tuple-hashing semantics; execution and inspection of the omitted function preamble, documentation, and complete tests were unavailable in the supplied no-tools context. The displayed recursive changes guard every changed direct visit result before yielding it; no additional introduced ordering or deduplication defect is established by the supplied evidence.",
+      "path": "sympy/utilities/iterables.py",
+      "line": 750,
+      "evidence": "        canonical = tuple(tuple(j) for j in ps)\n        if not cache.has_key(canonical):",
+      "fix": "Preserve support for unhashable elements when constructing or looking up deduplication keys. The smallest compatibility fix is to retain the previous string key while keeping the new None filtering; alternatively, implement a deduplication strategy that does not require input elements to be hashable.",
+      "test": "Add a regression test evaluating list(multiset_partitions([[1], [2], [3]], 2)). Assert that iteration completes without TypeError and yields exactly the three expected two-block partitions, with no None results. Run the same input against the parent implementation to confirm compatibility. Also cover repeated list-valued elements after selecting the compatible deduplication strategy.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 756,
+          "symbol": "multiset_partitions.f -> visit"
+        },
+        {
+          "path": "sympy/utilities/iterables.py",
+          "line": 750,
+          "symbol": "multiset_partitions.visit -> cache.has_key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

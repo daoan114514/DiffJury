@@ -1,0 +1,208 @@
+{
+  "id": "sympy__sympy-1989",
+  "repository": "sympy/sympy",
+  "pull_request": 1989,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 166647,
+  "llm_calls": 5,
+  "input_tokens": 19428,
+  "output_tokens": 5861,
+  "total_tokens": 25289,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "callable-local-truthiness",
+      "severity": "low",
+      "title": "False-valued local callables no longer support function exponentiation",
+      "explanation": "The new lookup tests a local binding's truth value instead of testing whether the name exists. A callable can legitimately be false-valued. For example, define `class F: __bool__ = lambda self: False; __call__ = lambda self, x: x + 1`, then call `parse_expr('f**2(3)', local_dict={'f': F()}, transformations=standard_transformations + (function_exponentiation,))`. Previously, function_exponentiation rewrote this to `f(3)**2`, producing 16. Now `_token_callable` discards the local callable, falls back to the missing global binding, and returns False. Consequently, exponent consumption never starts and evaluation attempts to call the exponent Integer(2), raising TypeError. The same truth-value test can raise directly for callable objects whose __bool__ rejects boolean conversion. Namespace lookup must not depend on a bound object's truth value. The two added tests exercise nested exponents with default globals and do not cover this local-binding regression.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 41,
+      "evidence": "    func = local_dict.get(token[1])\n    if not func:\n        func = global_dict.get(token[1])",
+      "fix": "Resolve local-versus-global precedence using dictionary membership or a missing-value sentinel, without coercing the local value to bool.",
+      "test": "Add a direct function_exponentiation regression test with the false-valued callable above and assert that parsing f**2(3) returns 16. Also test a callable whose __bool__ raises and a false-valued local callable shadowing a global binding.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 304,
+          "symbol": "function_exponentiation"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 40,
+          "symbol": "_token_callable"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "function-exponentiation-callable-compatibility",
+      "severity": "low",
+      "title": "The new exponentiation guard rejects callable objects carrying is_Function=False",
+      "explanation": "Using `_token_callable` as the new gate for exponent consumption imports an additional restriction that function_exponentiation did not previously impose: a callable is rejected whenever it has an is_Function attribute whose value is false. A minimal counterexample is `def f(x): return x + 1; f.is_Function = False`, supplied as `local_dict={'f': f}` when parsing `f**2(3)` with `standard_transformations + (function_exponentiation,)`. The callable remains valid and its truth value is true, so this is independent of the false-valued-binding defect. Previously, exponent consumption produced `f(3)**2 == 16`. The new guard returns False because both `is_Function` and `not hasattr(func, 'is_Function')` are false, leaving the exponent followed by an argument list and causing TypeError when Integer(2) is called. This also affects callable extension objects inheriting false-valued SymPy classification metadata. Neither added nested-exponent test exercises callable classification or local callable compatibility.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 304,
+      "evidence": "            if _token_callable(tok, local_dict, global_dict):\n                consuming_exponent = True",
+      "fix": "Make the exponentiation predicate recognize genuinely callable bindings even when they expose is_Function=False. Preserve the distinction between callable function objects and non-callable applied expressions rather than treating the presence of classification metadata as a reason to reject a callable.",
+      "test": "Define a local Python callable f returning x + 1, set f.is_Function=False, and assert that function_exponentiation parses f**2(3) as 16. Pair this with a non-callable local symbol power test to retain the intended protection for ordinary powers.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 304,
+          "symbol": "function_exponentiation"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 43,
+          "symbol": "_token_callable"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

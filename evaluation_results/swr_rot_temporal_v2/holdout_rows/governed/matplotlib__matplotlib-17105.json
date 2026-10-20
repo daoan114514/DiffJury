@@ -1,0 +1,177 @@
+{
+  "id": "matplotlib__matplotlib-17105",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 17105,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 53572,
+  "llm_calls": 6,
+  "input_tokens": 59292,
+  "output_tokens": 2802,
+  "total_tokens": 62094,
+  "instruction_calls": 6,
+  "instruction_tokens": 6561,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 2,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2467,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2586,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "textbox-submit-without-manager",
+      "severity": "medium",
+      "title": "TextBox silently skips submission on unmanaged canvases",
+      "explanation": "The new begin_typing guard permits typing when canvas.manager is None, but stop_typing now gates submission notification on the presence of a manager as well. For a TextBox on an unmanaged FigureCanvasAgg, register an on_submit callback, call begin_typing(0), and then stop_typing(). notifysubmit remains False, so capturekeystrokes is cleared and the cursor is hidden without invoking the callback. Manager-specific keymap/lock cleanup should be conditional, but completing an active editing session should notify subscribers regardless of whether the canvas has a manager. Managed canvases retain their notification path; unmanaged canvases silently lose it. The added Dropdown tests do not cover this newly supported TextBox path.",
+      "path": "lib/matplotlib/widgets.py",
+      "line": 1126,
+      "evidence": "        if self.capturekeystrokes and self.ax.figure.canvas.manager is not None:",
+      "fix": "Keep the outer condition as self.capturekeystrokes. Guard only manager-specific cleanup with a manager-is-not-None check, and set notifysubmit=True for every active typing session before clearing capturekeystrokes.",
+      "test": "Create a Figure with an unmanaged FigureCanvasAgg and a TextBox, register an on_submit callback, begin typing, and stop typing. Assert that the callback receives the current text exactly once, capturekeystrokes is False, and the cursor is hidden. Repeat stop_typing and assert no additional notification. Retain the equivalent managed-canvas test and verify manager keymap or lock cleanup still occurs before notification.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1108,
+          "symbol": "TextBox.begin_typing"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1122,
+          "symbol": "TextBox.stop_typing"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1138,
+          "symbol": "conditional _notify_submit_observers call"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ]
+}

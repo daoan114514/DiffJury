@@ -1,0 +1,197 @@
+{
+  "id": "sympy__sympy-755",
+  "repository": "sympy/sympy",
+  "pull_request": 755,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 126056,
+  "llm_calls": 5,
+  "input_tokens": 18724,
+  "output_tokens": 3748,
+  "total_tokens": 22472,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "boolean-negation-grouping",
+      "severity": "medium",
+      "title": "Parenthesize composite operands of negation",
+      "explanation": "The new negation printer emits its operand without grouping. For Not(Implies(x, y)), the printer call chain produces `\\neg x \\Rightarrow y`, which conventionally means Implies(Not(x), y), not Not(Implies(x, y)). For example, when x and y are both false, these expressions evaluate to true and false respectively. The expected rendering is `\\neg \\left(x \\Rightarrow y\\right)`. This is a static trace through the supplied printer implementations, not an executed reproduction; the supplied context does not include the Boolean constructor definitions. The added negation tests cover only a symbol, including its renamed rendering, and therefore do not check the composite-operand invariant.",
+      "path": "sympy/printing/latex.py",
+      "line": 499,
+      "evidence": "return r\"\\neg %s\" % self._print(e.args[0])",
+      "fix": "Parenthesize non-atomic negation operands using the printer's grouping facilities, while preserving the existing unparenthesized rendering for symbols.",
+      "test": "Add a regression assertion for latex(Not(Implies(x, y))) that expects a grouped implication beneath negation. Also exercise negation inside And or Or so that the surrounding operator cannot change its scope.",
+      "confidence": 0.82,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 498,
+          "symbol": "LatexPrinter._print_Not"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boolean-implication-grouping",
+      "severity": "medium",
+      "title": "Preserve grouping of nested implication operands",
+      "explanation": "Both operands are rendered without parentheses. For Implies(Implies(x, y), z), the new methods recursively produce `x \\Rightarrow y \\Rightarrow z`. This loses the explicit left grouping and is conventionally read as the right-associated implication Implies(x, Implies(y, z)). The distinction is semantic: with x=false, y=true, and z=false, the original expression is false while the right-associated expression is true. The expected rendering is `\\left(x \\Rightarrow y\\right) \\Rightarrow z`. This output is established by a static trace of the supplied methods, not a runtime execution. The same ungrouped-operand pattern appears in _print_Equivalent. The added test checks only Implies(x, y), so it cannot detect loss of nested grouping.",
+      "path": "sympy/printing/latex.py",
+      "line": 532,
+      "evidence": "return r\"%s \\Rightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Group implication and equivalence operands according to operator precedence and associativity; conservatively parenthesizing composite Boolean operands also preserves the expression tree.",
+      "test": "Assert distinct, correctly grouped renderings for Implies(Implies(x, y), z) and Implies(x, Implies(y, z)). Add mixed implication/equivalence cases rather than testing only atomic operands.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 531,
+          "symbol": "LatexPrinter._print_Implies"
+        },
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 532,
+          "symbol": "LatexPrinter._print_Implies (recursive operand rendering)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "boolean-equivalent-operand-preservation",
+      "severity": "medium",
+      "title": "Render every operand of n-ary Equivalent",
+      "explanation": "The implementation unconditionally renders only e.args[0] and e.args[1]. For an n-ary Equivalent(x, y, z), whichever operand occupies the third stored position disappears entirely from the LaTeX. Thus the displayed result depends on only two operands, although the original equivalence requires all three operands to agree. The invariant violation is independent of argument ordering: changing the omitted operand can change the original expression's truth value without changing the displayed formula. This is a static finding from the explicit two-index implementation; the supplied context contains no Boolean constructor definitions or execution evidence independently confirming this repository's n-ary constructor behavior. No Equivalent test was added, so neither operand preservation nor its supported arities are checked.",
+      "path": "sympy/printing/latex.py",
+      "line": 535,
+      "evidence": "return r\"%s \\Leftrightarrow %s\" % (self._print(e.args[0]), self._print(e.args[1]))",
+      "fix": "Render all stored Equivalent operands, grouping composite operands appropriately, instead of assuming exactly two arguments.",
+      "test": "Construct Equivalent(x, y, z), verify that it retains three arguments in this repository, and assert that its LaTeX contains all three operands connected by equivalence operators. Include a four-operand case and keep the binary case covered.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 534,
+          "symbol": "LatexPrinter._print_Equivalent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

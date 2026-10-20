@@ -1,0 +1,193 @@
+{
+  "id": "sympy__sympy-25549",
+  "repository": "sympy/sympy",
+  "pull_request": 25549,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 65079,
+  "llm_calls": 5,
+  "input_tokens": 42258,
+  "output_tokens": 3239,
+  "total_tokens": 45497,
+  "instruction_calls": 5,
+  "instruction_tokens": 5551,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 7,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3426,
+      "knowledge_ids": [
+        "K-a9677d2d",
+        "K-62f4a6cf",
+        "K-b9cfc827",
+        "K-7e90bf29",
+        "K-87ee2eda",
+        "K-2b8fec11",
+        "K-4f9662f0",
+        "K-1f002951"
+      ],
+      "skills": [
+        "code-quality",
+        "test-quality",
+        "preserve-positional-parameter-order"
+      ],
+      "skill_body_tokens": 2607
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 797,
+      "knowledge_ids": [
+        "K-a077c313",
+        "K-9d754682",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-f00ce49b",
+        "K-7609a0f4",
+        "K-cde9c599",
+        "K-8810c414",
+        "K-11de6ec1"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2b8fec11",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-746b600c",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-8810c414",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-9d754682",
+      "K-a077c313",
+      "K-a9677d2d",
+      "K-b9cfc827",
+      "K-cde9c599",
+      "K-f00ce49b"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-a9677d2d",
+          "K-62f4a6cf",
+          "K-b9cfc827",
+          "K-7e90bf29",
+          "K-87ee2eda",
+          "K-2b8fec11",
+          "K-4f9662f0",
+          "K-1f002951"
+        ],
+        "tokens": 476,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313",
+          "K-9d754682",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-f00ce49b",
+          "K-7609a0f4",
+          "K-cde9c599",
+          "K-8810c414",
+          "K-11de6ec1"
+        ],
+        "tokens": 621,
+        "budget": 600,
+        "dropped": [
+          "K-8184713c",
+          "K-bc43ffcf",
+          "K-03e5723b",
+          "K-4e30e572",
+          "K-2545551e",
+          "K-4e7d5d6b",
+          "K-60ce9e38",
+          "K-962b000c",
+          "K-10578218",
+          "K-86d0b57a",
+          "K-e4a5fbd0",
+          "K-d778c4a2"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": []
+}

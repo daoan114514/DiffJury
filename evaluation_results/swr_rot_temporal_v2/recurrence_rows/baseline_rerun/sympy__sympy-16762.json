@@ -1,0 +1,218 @@
+{
+  "id": "sympy__sympy-16762",
+  "repository": "sympy/sympy",
+  "pull_request": 16762,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 193982,
+  "llm_calls": 5,
+  "input_tokens": 17939,
+  "output_tokens": 6064,
+  "total_tokens": 24003,
+  "instruction_calls": 5,
+  "instruction_tokens": 4932,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3424,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3082
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "invalid-power-distribution-for-infinite-exponents",
+      "severity": "medium",
+      "title": "Normalization splits infinite powers into an indeterminate product",
+      "explanation": "The new guard accepts infinite numeric exponents, although splitting a power into big**e times normalized_base**e is not valid for them. For x = Symbol('x'), construct p = (2.0*x + 4.0)**oo and then substitute x = -Rational(7, 4). The original base becomes 0.5, so the expected result, and the result before this change, is 0. The new branch instead constructs oo*(0.5*x + 1)**oo: big**oo is oo, while the normalized base becomes 0.125 after substitution and its infinite power becomes 0. The resulting product is nan, not 0. Both coefficients are finite and positive, so this counterexample is independent of the sign defect. The added tests cover finite integer, rational, and floating exponents, but not infinite numeric exponents.",
+      "path": "sympy/core/add.py",
+      "line": 391,
+      "evidence": "elif e.is_Number and abs(e) != 1:",
+      "fix": "Restrict this normalization to finite numeric exponents, leaving infinite exponents on the existing evaluation path.",
+      "test": "Assert that ((2.0*x + 4.0)**oo).subs(x, -Rational(7, 4)) equals 0. Add a negative-infinite exponent case where the original base exceeds 1 but normalization creates a divergent factor multiplied by a vanishing factor.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 391,
+          "symbol": "Add._eval_power: admit the numeric exponent oo"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "Add._eval_power: recursively power the normalized base"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 402,
+          "symbol": "Add._eval_power: multiply divergent and vanishing power factors"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "exact-normalization-factor-rounded-to-machine-precision",
+      "severity": "medium",
+      "title": "Converting an exact maximum coefficient through 1.0 discards precision",
+      "explanation": "The maximum coefficient is converted to a default-precision Float even when it is exact and another coefficient carries arbitrary precision. A concrete example is p = (Rational(1, 3) + Float('0.1', 80)*x)**2. The exact coefficient 1/3 is the largest, so big becomes a roughly 15-digit approximation to 1/3. Normalization makes the constant term approximately 1, and the returned prefactor big**2 is a default-precision approximation to 1/9. Thus p.subs(x, 0) is a rounded Float rather than the exact Rational(1, 9); evaluating that result to 80 digits cannot recover the lost digits. Before the change, substituting x = 0 into the unnormalized power returned exactly 1/9. This is not an unavoidable consequence of the 80-digit Float coefficient: that coefficient multiplies x and disappears at x = 0. The added tests use ordinary machine-precision coefficients and string expectations, so they do not detect this loss of exactness or precision.",
+      "path": "sympy/core/add.py",
+      "line": 398,
+      "evidence": "big = 1.0*abs(i)",
+      "fix": "Keep the scale factor exact when the maximum coefficient is exact, rather than multiplying it by the Python float 1.0. Preserve arbitrary-precision Float coefficients at their existing precision.",
+      "test": "Use (Rational(1, 3) + Float('0.1', 80)*x)**2 and assert that substituting x = 0 yields exactly Rational(1, 9). Also check high-precision numerical agreement away from zero at the supplied precision.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 398,
+          "symbol": "Add._eval_power: convert the exact maximum to a default-precision Float"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "Add._eval_power: divide coefficients by the rounded maximum"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 402,
+          "symbol": "Add._eval_power: return the rounded prefactor"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1339",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-coefficient-sign-normalization",
+      "severity": "medium",
+      "title": "Equal-magnitude coefficients with opposite signs acquire the same sign",
+      "explanation": "The normalization remembers a single sign, s, from the coefficient that establishes big, and then assigns that sign to every coefficient whose magnitude equals big. For example, let x = Symbol('x') and construct p = (Float(2)*x - Float(2))**2. Both coefficients have magnitude 2, so the normalized terms acquire the same sign regardless of which coefficient is visited first. The resulting expression is equivalent to 4.0*(x + 1)**2, rather than 4.0*(x - 1)**2. Consequently p.subs(x, 1) becomes 16 instead of 0. Before this change, this normalization branch did not exist and substituting x = 1 into the retained power yielded 0. The added sign tests all use unequal coefficient magnitudes (2.3 versus 4 or 2), so none exercises this defect.",
+      "path": "sympy/core/add.py",
+      "line": 401,
+      "evidence": "addpow = Add(*[(s if abs(c[i]) == big else c[i]/big)*m[i] for i in range(len(c))])**e",
+      "fix": "Determine the sign separately for each coefficient replaced by a unit coefficient; do not reuse s from the maximum-search loop.",
+      "test": "Construct (Float(2)*x - Float(2))**2 through the real Pow path and assert that substitution at x = 1 returns 0 and substitution at x = -1 returns 16. Include an opposite-sign pair on two symbolic terms as well.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/add.py",
+          "line": 391,
+          "symbol": "Add._eval_power"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 399,
+          "symbol": "Add._eval_power: remember one coefficient's sign"
+        },
+        {
+          "path": "sympy/core/add.py",
+          "line": 401,
+          "symbol": "Add._eval_power: apply the remembered sign to all maximum-magnitude coefficients"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

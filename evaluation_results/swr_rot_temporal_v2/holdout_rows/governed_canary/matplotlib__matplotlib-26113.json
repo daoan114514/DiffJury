@@ -1,0 +1,187 @@
+{
+  "id": "matplotlib__matplotlib-26113",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 26113,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 48798,
+  "llm_calls": 5,
+  "input_tokens": 9079,
+  "output_tokens": 1808,
+  "total_tokens": 10887,
+  "instruction_calls": 5,
+  "instruction_tokens": 4730,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2820,
+      "knowledge_ids": [
+        "K-58d26727",
+        "K-489cde43",
+        "K-d7b7bb6f",
+        "K-d76217f5",
+        "K-2b3b5530"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 582,
+      "knowledge_ids": [
+        "K-12284e0a",
+        "K-d2310f1b",
+        "K-ac8cc41a",
+        "K-eee6e319",
+        "K-1bd0d82a",
+        "K-86e6ca00"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-1bd0d82a",
+      "K-2b3b5530",
+      "K-489cde43",
+      "K-58d26727",
+      "K-86e6ca00",
+      "K-ac8cc41a",
+      "K-d2310f1b",
+      "K-d76217f5",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727",
+          "K-489cde43",
+          "K-d7b7bb6f",
+          "K-d76217f5",
+          "K-2b3b5530"
+        ],
+        "tokens": 329,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-12284e0a",
+          "K-d2310f1b",
+          "K-ac8cc41a",
+          "K-eee6e319",
+          "K-1bd0d82a",
+          "K-86e6ca00"
+        ],
+        "tokens": 406,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "hexbin-empty-bin-reduction",
+      "severity": "medium",
+      "title": "Preserve the exclusion of empty bins when reducing C",
+      "explanation": "When C is supplied, mincnt=None is normalized to zero immediately before this comprehension. Changing the comparison to >= therefore invokes reduce_C_function on empty bins, both with the default mincnt and with explicit mincnt=0. A concrete affected call is ax.hexbin([0, 1], [0, 1], C=[1, 2], gridsize=10, reduce_C_function=np.max): the grid contains empty bins, and np.max([]) raises ValueError ('zero-size array to reduction operation maximum which has no identity'). Previously these bins received NaN without invoking the reducer, so the call succeeded. Reducers such as np.sum instead return zero for empty input, causing previously omitted empty bins to be plotted. Accepting bins containing exactly a positive mincnt is the intended boundary correction; allowing empty bins is a separate regression. This conclusion follows from the supplied code; repository documentation and existing tests were not available for inspection in this no-tool review.",
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 5017,
+      "evidence": "            if mincnt is None:\n                mincnt = 0\n            accum = np.array(\n                [reduce_C_function(acc) if len(acc) >= mincnt else np.nan",
+      "fix": "Require a nonempty bin independently of the inclusive threshold, for example `reduce_C_function(acc) if acc and len(acc) >= mincnt else np.nan`. This preserves the positive-mincnt boundary fix without passing empty bins to reducers.",
+      "test": "Add regression tests calling Axes.hexbin with two points, C supplied, gridsize=10, and np.max for both omitted mincnt and mincnt=0; both should succeed and exclude empty bins. Repeat with np.sum and assert empty bins are not added to the collection. Also test a bin containing exactly a positive mincnt and assert that it is included. Existing tests could not be inspected from the supplied context.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 5017,
+          "symbol": "Axes.hexbin"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

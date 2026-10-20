@@ -1,0 +1,338 @@
+{
+  "id": "sympy__sympy-27247",
+  "repository": "sympy/sympy",
+  "pull_request": 27247,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 116156,
+  "llm_calls": 6,
+  "input_tokens": 94077,
+  "output_tokens": 6152,
+  "total_tokens": 100229,
+  "instruction_calls": 6,
+  "instruction_tokens": 8245,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 2,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {
+    "K-746b600c": {
+      "tp": 0,
+      "fp": 2
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2473,
+      "knowledge_ids": [
+        "K-a9677d2d",
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-4f9662f0",
+        "K-7e90bf29",
+        "K-4feced24",
+        "K-581de549",
+        "K-2b8fec11",
+        "K-1f002951",
+        "K-b9cfc827",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "check-symbolic-assumptions-versus-concrete-types"
+      ],
+      "skill_body_tokens": 1515
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3635,
+      "knowledge_ids": [
+        "K-a9677d2d",
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-4f9662f0",
+        "K-7e90bf29",
+        "K-4feced24",
+        "K-581de549",
+        "K-2b8fec11",
+        "K-1f002951",
+        "K-b9cfc827",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "preserve-positional-parameter-order"
+      ],
+      "skill_body_tokens": 2667
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 809,
+      "knowledge_ids": [
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-d778c4a2",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-962b000c",
+        "K-9b028a49",
+        "K-f00ce49b",
+        "K-cde9c599",
+        "K-8184713c"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0bb3b558",
+      "K-1f002951",
+      "K-2b8fec11",
+      "K-4f9662f0",
+      "K-4feced24",
+      "K-581de549",
+      "K-62f4a6cf",
+      "K-746b600c",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-8184713c",
+      "K-87ee2eda",
+      "K-962b000c",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-b9cfc827",
+      "K-cde9c599",
+      "K-d778c4a2",
+      "K-f00ce49b"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-a9677d2d",
+          "K-62f4a6cf",
+          "K-87ee2eda",
+          "K-4f9662f0",
+          "K-7e90bf29",
+          "K-4feced24",
+          "K-581de549",
+          "K-2b8fec11",
+          "K-1f002951",
+          "K-b9cfc827",
+          "K-a4c9356f"
+        ],
+        "tokens": 623,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-d778c4a2",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-962b000c",
+          "K-9b028a49",
+          "K-f00ce49b",
+          "K-cde9c599",
+          "K-8184713c"
+        ],
+        "tokens": 633,
+        "budget": 600,
+        "dropped": [
+          "K-60ce9e38",
+          "K-86d0b57a",
+          "K-9d754682",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-be32699b",
+          "K-8810c414",
+          "K-e4a5fbd0",
+          "K-2545551e",
+          "K-10578218",
+          "K-4e30e572",
+          "K-4e7d5d6b",
+          "K-ac2e3c0d"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "API-TYPING-OVERLOAD-COVERAGE",
+      "severity": "medium",
+      "title": "subs overloads omit iterable replacements and simultaneous substitution",
+      "explanation": "The four overloads describe only a dict or two Basic/Expr arguments and none accepts keyword options, although the unchanged implementation accepts *args and **kwargs. Supported calls such as x.subs([(x, 1)]) and (x + y).subs({x: y, y: x}, simultaneous=True) therefore fail static overload resolution. The first argument in the iterable form matches neither dict nor Basic/Expr; the simultaneous keyword is absent from every overload. The permissive implementation signature is not an additional overload available to callers, so it cannot preserve compatibility. This rejects established substitution forms in typed consumers without changing their runtime behavior.",
+      "path": "sympy/core/basic.py",
+      "line": 930,
+      "evidence": "def subs(self: Expr, arg1: dict[Expr, Expr | int], arg2: None=None) -> Expr: ... # type: ignore",
+      "fix": "Add overload coverage for iterable replacement pairs and supported keyword options, including simultaneous. Preserve the Expr versus Basic return specialization and include a permissive fallback for other supported sympifiable replacement inputs.",
+      "test": "Add type-checker fixtures for x.subs([(x, 1)]) and (x + y).subs({x: y, y: x}, simultaneous=True), with x and y typed as Expr. Require no overload errors and verify the runtime results remain 1 and x + y respectively.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/basic.py",
+          "line": 930,
+          "symbol": "Basic.subs overloads"
+        },
+        {
+          "path": "sympy/core/basic.py",
+          "line": 938,
+          "symbol": "Basic.subs(self, *args, **kwargs)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "API-TYPING-OVERLOAD-COVERAGE",
+      "severity": "medium",
+      "title": "sympify overloads reject supported conversion options and positional arguments",
+      "explanation": "The implementation still accepts locals, convert_xor, rational, evaluate, and positional optional arguments, but every new overload accepts only a and keyword-only strict. For example, sympify('x', {'x': x}) and sympify('0.1', rational=True) remain valid runtime calls but no longer match any declared overload. Overload resolution checks the overload declarations, not the implementation signature: the former call supplies a second positional argument where none is permitted, and the latter supplies an undeclared keyword. Consequently, consumers checking against these source annotations receive a no-matching-overload diagnostic for supported public calls. This is a static typing regression, not a runtime signature change.",
+      "path": "sympy/core/sympify.py",
+      "line": 115,
+      "evidence": "def sympify(a: Any, *, strict: bool = False) -> Basic: ...",
+      "fix": "Include the implementation's optional parameters in the overloads, preserving their historical positional order. Alternatively, add a permissive fallback overload covering the full supported signature while retaining specialized return types for simple calls.",
+      "test": "Add a type-checker regression fixture containing sympify('x', {'x': x}), sympify('0.1', rational=True), and sympify('x^2', convert_xor=True, evaluate=False); require these calls to pass overload resolution and retain their existing runtime results.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/sympify.py",
+          "line": 115,
+          "symbol": "sympify overload fallback"
+        },
+        {
+          "path": "sympy/core/sympify.py",
+          "line": 117,
+          "symbol": "sympify(a, locals=None, convert_xor=True, strict=False, rational=False, evaluate=None)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": [
+        "K-746b600c"
+      ]
+    },
+    {
+      "rule_id": "API-TYPING-OVERLOAD-COVERAGE",
+      "severity": "medium",
+      "title": "simplify overloads exclude existing positional options",
+      "explanation": "Both new overloads accept one positional argument followed only by **kwargs, while the implementation continues to accept ratio, measure, rational, inverse, and doit positionally. A previously valid call such as simplify(x + x, 1.7) now matches neither overload: both permit only the expression as a positional argument. Static checkers use the overload declarations rather than the implementation signature, so existing typed consumers using the public positional calling convention receive a no-matching-overload diagnostic even though the runtime call still returns 2*x.",
+      "path": "sympy/simplify/simplify.py",
+      "line": 425,
+      "evidence": "def simplify(expr: Expr, **kwargs) -> Expr: ...",
+      "fix": "Mirror the implementation's optional positional parameters in both overloads, keeping ratio, measure, rational, inverse, and doit in their historical order.",
+      "test": "Add a type-checker regression fixture for simplify(x + x, 1.7) and simplify(x + x, 1.7, count_ops, False, False, True), with x typed as Expr. Require both calls to type-check and return 2*x at runtime.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/simplify.py",
+          "line": 425,
+          "symbol": "simplify overloads"
+        },
+        {
+          "path": "sympy/simplify/simplify.py",
+          "line": 429,
+          "symbol": "simplify(expr, ratio=1.7, measure=count_ops, rational=False, inverse=False, doit=True, **kwargs)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-710",
+      "applied_rules": [
+        "K-746b600c"
+      ]
+    }
+  ]
+}

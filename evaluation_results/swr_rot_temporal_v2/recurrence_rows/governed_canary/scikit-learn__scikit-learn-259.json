@@ -1,0 +1,360 @@
+{
+  "id": "scikit-learn__scikit-learn-259",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 259,
+  "split": "train",
+  "expected": 1,
+  "predicted": 4,
+  "tp": 0,
+  "fp": 3,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 128822,
+  "llm_calls": 5,
+  "input_tokens": 23594,
+  "output_tokens": 4028,
+  "total_tokens": 27622,
+  "instruction_calls": 5,
+  "instruction_tokens": 5151,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 4,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3020,
+      "knowledge_ids": [
+        "K-a62a9e09",
+        "K-eb2105bb",
+        "K-3c8dfccb",
+        "K-0a2298e4",
+        "K-f32f49ff",
+        "K-1c8d031b",
+        "K-f8bf6084",
+        "K-2bba7006",
+        "K-d3341a3f",
+        "K-26252785"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 803,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-0f45b787",
+        "K-3636a06a",
+        "K-184c93c6",
+        "K-9ecad403",
+        "K-94fa9fcb",
+        "K-1617cbdc",
+        "K-0f38f6b6",
+        "K-6d7b0522",
+        "K-51e6bbd9"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-1c8d031b",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-69a7f4ef",
+      "K-6d7b0522",
+      "K-94fa9fcb",
+      "K-9ecad403",
+      "K-a62a9e09",
+      "K-d3341a3f",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-a62a9e09",
+          "K-eb2105bb",
+          "K-3c8dfccb",
+          "K-0a2298e4",
+          "K-f32f49ff",
+          "K-1c8d031b",
+          "K-f8bf6084",
+          "K-2bba7006",
+          "K-d3341a3f",
+          "K-26252785"
+        ],
+        "tokens": 602,
+        "budget": 600,
+        "dropped": [
+          "K-5388c8d9",
+          "K-651ca0b6",
+          "K-60a0fdd6",
+          "K-4d5756a5"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-0f45b787",
+          "K-3636a06a",
+          "K-184c93c6",
+          "K-9ecad403",
+          "K-94fa9fcb",
+          "K-1617cbdc",
+          "K-0f38f6b6",
+          "K-6d7b0522",
+          "K-51e6bbd9"
+        ],
+        "tokens": 627,
+        "budget": 600,
+        "dropped": [
+          "K-0f51ebe7",
+          "K-791ded73",
+          "K-feee072d",
+          "K-d8b204bc"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "nan-regression-test-input",
+      "severity": "medium",
+      "title": "The NaN regression test passes the original array to fit",
+      "explanation": "The test creates Xnan with np.array(X) and assigns NaN to Xnan, but calls fit(X, Y1). The copied array is never passed to the estimator, so this test cannot exercise the reported NaN-induced infinite loop. If Xnan has a floating dtype and the assignment succeeds, fit receives the unchanged finite fixture and normally returns, causing @raises(ValueError) to fail the test. If the fixture produces an integer array that rejects NaN assignment, the decorator can instead accept the assignment's ValueError and pass without invoking fit at all. The supplied diff does not include the definition of X, so it does not establish which of these outcomes occurs, but both demonstrate the definite test defect.",
+      "path": "scikits/learn/linear_model/tests/test_logistic.py",
+      "line": 74,
+      "evidence": "    logistic.LogisticRegression().fit(X, Y1)",
+      "fix": "Construct Xnan with an explicit floating dtype and pass Xnan to fit. Prefer a narrowly scoped assert_raises(ValueError, estimator.fit, Xnan, Y1) so an exception during fixture construction cannot satisfy the assertion.",
+      "test": "Run the corrected test with Xnan = np.array(X, dtype=np.float64). Verify the NaN assignment succeeds before the exception assertion and that the assertion surrounds only fit(Xnan, Y1).",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 72,
+          "symbol": "test_nan: Xnan = np.array(X)"
+        },
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 73,
+          "symbol": "test_nan: Xnan[0, 1] = np.nan"
+        },
+        {
+          "path": "scikits/learn/linear_model/tests/test_logistic.py",
+          "line": 74,
+          "symbol": "test_nan: LogisticRegression.fit(X, Y1)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "sparse-finite-validation",
+      "severity": "medium",
+      "title": "Finite validation calls sparse matrix data as a function",
+      "explanation": "For CSR, CSC, and COO matrices, data is an ndarray attribute, not a method. Consequently, assert_all_finite(sp.csr_matrix([[1.0]])) raises TypeError instead of accepting the finite matrix. Both safe_asanyarray and atleast2d_or_csr now invoke this check before their existing sparse handling, so previously supported sparse inputs fail before they can be returned or converted to CSR. This also prevents non-finite sparse inputs from producing the intended ValueError.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 8,
+      "evidence": "        X = X.data()",
+      "fix": "Normalize supported sparse formats to a representation with a numeric data buffer, then inspect that buffer as an attribute rather than calling it. Simply changing to X.data fixes CSR, CSC, and COO, but other supported formats such as DOK and LIL also need appropriate normalization.",
+      "test": "Pass finite CSR, CSC, COO, LIL, and DOK matrices through both helpers and assert successful sparse handling. Repeat with a stored NaN and infinity and assert ValueError rather than TypeError or AttributeError.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray -> assert_all_finite"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 26,
+          "symbol": "atleast2d_or_csr -> assert_all_finite"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 8,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "validate-converted-dtype",
+      "severity": "medium",
+      "title": "Validation occurs before dtype conversion and checks the wrong representation",
+      "explanation": "safe_asanyarray accepts a target dtype, but the added validation checks the original input rather than the converted result. For example, safe_asanyarray(np.array([1e100]), dtype=np.float32) passes the finite check and then returns an array containing infinity because conversion overflows. Conversely, safe_asanyarray([['1.0', '2.0']], dtype=np.float64), which previously converted successfully, now attempts a NumPy sum of strings and raises instead. BaseLibLinear.fit reaches this latter regression through its newly added safe_asanyarray call with dtype=np.float64. Checking the converted array is necessary both to preserve accepted convertible inputs and to guarantee that the returned representation is finite.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 17,
+      "evidence": "    assert_all_finite(X)",
+      "fix": "For dense inputs, perform the requested np.asanyarray conversion first, validate the resulting array, and return that same array. Retain an appropriate separate validation path for sparse inputs.",
+      "test": "Assert that numeric strings convert successfully with dtype=np.float64 and that converting np.array([1e100]) to float32 raises ValueError instead of returning infinity. Add a BaseLibLinear/LogisticRegression fit test using convertible numeric-string features.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/svm/base.py",
+          "line": 376,
+          "symbol": "BaseLibLinear.fit -> safe_asanyarray(X, dtype=np.float64, order='C')"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray -> assert_all_finite before conversion"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "finite-reduction-overflow",
+      "severity": "low",
+      "title": "Overflow of the sum causes finite arrays to be rejected",
+      "explanation": "The implementation equates a non-finite sum with a non-finite input element. These are not equivalent: np.array([[1e308, 1e308]]) contains only finite float64 values, but its sum overflows to infinity, causing assert_all_finite and both newly guarded helpers to raise ValueError. The expected result is successful finite validation. This is a concrete regression in the helpers' acceptance of finite arrays, not merely an unfinished-code marker; the production comment explicitly describes the same reachable limitation.",
+      "path": "scikits/learn/utils/__init__.py",
+      "line": 12,
+      "evidence": "    if not np.isfinite(np.sum(X)):",
+      "fix": "Check elementwise finiteness, or retain the sum as a fast path and fall back to an elementwise check whenever the sum is non-finite. Do not reject solely because the reduction overflowed.",
+      "test": "Assert that both helpers accept np.array([[1e308, 1e308]]) and a float32 array containing two finite 2e38 values. Separately assert rejection of actual NaN, positive infinity, and negative infinity.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 17,
+          "symbol": "safe_asanyarray -> assert_all_finite"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 26,
+          "symbol": "atleast2d_or_csr -> assert_all_finite"
+        },
+        {
+          "path": "scikits/learn/utils/__init__.py",
+          "line": 12,
+          "symbol": "assert_all_finite"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

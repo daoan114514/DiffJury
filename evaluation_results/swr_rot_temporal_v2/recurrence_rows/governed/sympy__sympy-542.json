@@ -1,0 +1,213 @@
+{
+  "id": "sympy__sympy-542",
+  "repository": "sympy/sympy",
+  "pull_request": 542,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 159213,
+  "llm_calls": 5,
+  "input_tokens": 20734,
+  "output_tokens": 5266,
+  "total_tokens": 26000,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "empty-factor-group-conversion",
+      "severity": "medium",
+      "title": "An empty residual factor group makes factor_list fail on positive factors",
+      "explanation": "When every polynomial factor is known positive, the loop extracts every factor and leaves `other` empty. The new `else` nevertheless appends `(_factors_product([]), exp)`, namely `(1, exp)`. For example, with positive symbols p and q, call `factor_list(sqrt(p*q + p + q + 1))` without explicit generators. Factoring the radicand produces p + 1 and q + 1, both positive, so this path inserts the artificial factor 1. The newly added conversion loop then calls `_poly_from_expr(1, _opt)` without generators, which raises PolificationFailed because a constant alone supplies no polynomial generators. Previously both returned factors were genuine Poly objects and this call succeeded. The new factor() tests do not exercise factor_list's conversion of the empty residual group.",
+      "path": "sympy/polys/polytools.py",
+      "line": 4867,
+      "evidence": "                    if len(other) == 1:\n                        f, k = other[0]\n                        factors.append((f, k*exp))\n                    else:\n                        factors.append((_factors_product(other), exp))",
+      "fix": "Only append the grouped residual product when `other` is nonempty; leave no residual factor when all factors have been extracted.",
+      "test": "Create positive p and q and assert that factor_list(sqrt(p*q + p + q + 1)) succeeds and returns coefficient 1 with precisely the factors (p + 1, 1/2) and (q + 1, 1/2). Repeat with explicit generators and polys=True, checking that no unit factor is returned.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4857,
+          "symbol": "_symbolic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4867,
+          "symbol": "_symbolic_factor_list"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4904,
+          "symbol": "_generic_factor_list"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "invalid-principal-branch-test-oracle",
+      "severity": "low",
+      "title": "The new fifth-power test asserts a false identity for complex x",
+      "explanation": "The newly added assertion requires sqrt((x - 1)**5*(r**2 + 1)) to become sqrt(r**2 + 1)*(x - 1)**(5/2), although only r is declared real and x remains unrestricted. Set r = 0 and x = 1 + I. The input is sqrt(I) = (1 + I)/sqrt(2), whereas the asserted result is I**(5/2) = -(1 + I)/sqrt(2) on the principal branch. Thus this new test installs a mathematically invalid expected result. The production exponent multiplication responsible for that result already existed in the old unconditional loop; this finding concerns the newly introduced invalid test oracle, not a claim that the single-factor branch regression was introduced here.",
+      "path": "sympy/polys/tests/test_polytools.py",
+      "line": 1913,
+      "evidence": "    f = sqrt(expand((x - 1)**5*(r**2 + 1)))\n    g = (r**2 + 1)**(S(1)/2)*(x - 1)**(S(5)/2)\n\n    assert factor(f) == g",
+      "fix": "For this safe-factor-extraction test, use an explicitly real symbol in place of unrestricted x, for which this particular fifth-power identity is valid. Do not install the unrestricted complex identity as the expected behavior.",
+      "test": "Validate the expected expression under its declared assumptions. Separately record the unrestricted complex counterexample x = 1 + I, r = 0 as a branch-preservation regression test when addressing the pre-existing single-factor exponent-multiplication defect.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polytools.py",
+          "line": 1913,
+          "symbol": "test_factor"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4865,
+          "symbol": "_symbolic_factor_list"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

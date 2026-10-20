@@ -1,0 +1,227 @@
+{
+  "id": "sympy__sympy-22140",
+  "repository": "sympy/sympy",
+  "pull_request": 22140,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 214524,
+  "llm_calls": 5,
+  "input_tokens": 17457,
+  "output_tokens": 6869,
+  "total_tokens": 24326,
+  "instruction_calls": 5,
+  "instruction_tokens": 5032,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2895,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-a4c9356f",
+        "K-b9cfc827"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 809,
+      "knowledge_ids": [
+        "K-a077c313",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-86d0b57a",
+        "K-9b028a49",
+        "K-7609a0f4",
+        "K-cde9c599",
+        "K-11de6ec1",
+        "K-bc43ffcf",
+        "K-4e7d5d6b"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-4e7d5d6b",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-86d0b57a",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-b9cfc827",
+      "K-bc43ffcf",
+      "K-cde9c599"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-87ee2eda",
+          "K-a9677d2d",
+          "K-4f9662f0",
+          "K-1f002951",
+          "K-7e90bf29",
+          "K-a4c9356f",
+          "K-b9cfc827"
+        ],
+        "tokens": 477,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-86d0b57a",
+          "K-9b028a49",
+          "K-7609a0f4",
+          "K-cde9c599",
+          "K-11de6ec1",
+          "K-bc43ffcf",
+          "K-4e7d5d6b"
+        ],
+        "tokens": 633,
+        "budget": 600,
+        "dropped": [
+          "K-60ce9e38",
+          "K-4e30e572",
+          "K-9d754682",
+          "K-10578218",
+          "K-f00ce49b",
+          "K-e4a5fbd0",
+          "K-03e5723b",
+          "K-be32699b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "coeff-recursion-override-compatibility",
+      "severity": "low",
+      "title": "Internal recursion passes a new keyword to existing coeff overrides",
+      "explanation": "The recursive receiver d need not be an Add: filtering can reduce it to a single user-defined Symbol or Expr subclass. Calling its public coeff override with _first=False breaks overrides implementing the previously supported signature. A minimal reproducer is:\n\nclass CustomSymbol(Symbol):\n    def coeff(self, x, n=1, right=False):\n        return super().coeff(x, n, right=right)\n\na = CustomSymbol('a', commutative=False)\nb = Symbol('b', commutative=False)\n(a + b).coeff(a)\n\nHere as_independent(a)[1] is a, and the factor-membership filter retains a, so d is the CustomSymbol instance. Line 1574 therefore invokes CustomSymbol.coeff(a, right=False, _first=False), which raises TypeError for the unexpected keyword instead of returning a coefficient. This is a concrete backward-compatibility failure caused by the new dynamic recursive call, not merely by adding an optional parameter to Expr.coeff. Both right=False and right=True reach the incompatible call. The added tests use built-in expression classes and do not exercise an existing-signature override.",
+      "path": "sympy/core/expr.py",
+      "line": 1574,
+      "evidence": "rv = d.coeff(x, right=right, _first=False)",
+      "fix": "Keep the recursion-control keyword internal to the base implementation, for example by calling Expr.coeff(d, x, right=right, _first=False), rather than passing it through an arbitrary public override.",
+      "test": "Add a Symbol subclass overriding coeff(self, x, n=1, right=False) and delegating to super. For distinct noncommutative instances a and b, assert that (a + b).coeff(a) and (a + b).coeff(a, right=True) both return 1 without raising TypeError.",
+      "confidence": 0.9299999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/expr.py",
+          "line": 1373,
+          "symbol": "Expr.coeff"
+        },
+        {
+          "path": "sympy/core/expr.py",
+          "line": 1572,
+          "symbol": "Filtering constructs d as the single retained CustomSymbol"
+        },
+        {
+          "path": "sympy/core/expr.py",
+          "line": 1574,
+          "symbol": "Dynamic dispatch to CustomSymbol.coeff with unsupported _first keyword"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    }
+  ]
+}

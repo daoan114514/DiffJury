@@ -1,0 +1,727 @@
+{
+  "notice": "这是对已反馈问题的纠正（同一批 PR），不代表泛化能力。",
+  "sampling_unit": "PR",
+  "sample": {
+    "selected_prs": 150,
+    "paired_prs": 149,
+    "by_event_type": {
+      "missed": 80,
+      "false_positive": 80
+    },
+    "case_ids": [
+      "astropy__astropy-1312",
+      "astropy__astropy-1796",
+      "astropy__astropy-187",
+      "astropy__astropy-228",
+      "astropy__astropy-2457",
+      "astropy__astropy-2775",
+      "astropy__astropy-3096",
+      "astropy__astropy-417",
+      "astropy__astropy-444",
+      "astropy__astropy-4736",
+      "astropy__astropy-4979",
+      "astropy__astropy-5446",
+      "astropy__astropy-5494",
+      "astropy__astropy-5868",
+      "astropy__astropy-6422",
+      "astropy__astropy-692",
+      "matplotlib__matplotlib-10031",
+      "matplotlib__matplotlib-128",
+      "matplotlib__matplotlib-1294",
+      "matplotlib__matplotlib-1477",
+      "matplotlib__matplotlib-1710",
+      "matplotlib__matplotlib-1818",
+      "matplotlib__matplotlib-1874",
+      "matplotlib__matplotlib-2807",
+      "matplotlib__matplotlib-3188",
+      "matplotlib__matplotlib-3752",
+      "matplotlib__matplotlib-3985",
+      "matplotlib__matplotlib-416",
+      "matplotlib__matplotlib-4441",
+      "matplotlib__matplotlib-4714",
+      "matplotlib__matplotlib-4824",
+      "matplotlib__matplotlib-5195",
+      "matplotlib__matplotlib-5224",
+      "matplotlib__matplotlib-5233",
+      "matplotlib__matplotlib-5374",
+      "matplotlib__matplotlib-5432",
+      "matplotlib__matplotlib-5515",
+      "matplotlib__matplotlib-5591",
+      "matplotlib__matplotlib-563",
+      "matplotlib__matplotlib-5825",
+      "matplotlib__matplotlib-7279",
+      "matplotlib__matplotlib-7831",
+      "matplotlib__matplotlib-7968",
+      "scikit-learn__scikit-learn-10474",
+      "scikit-learn__scikit-learn-10615",
+      "scikit-learn__scikit-learn-10852",
+      "scikit-learn__scikit-learn-11277",
+      "scikit-learn__scikit-learn-11509",
+      "scikit-learn__scikit-learn-11534",
+      "scikit-learn__scikit-learn-1201",
+      "scikit-learn__scikit-learn-12033",
+      "scikit-learn__scikit-learn-12409",
+      "scikit-learn__scikit-learn-12718",
+      "scikit-learn__scikit-learn-12915",
+      "scikit-learn__scikit-learn-13251",
+      "scikit-learn__scikit-learn-13468",
+      "scikit-learn__scikit-learn-14465",
+      "scikit-learn__scikit-learn-14817",
+      "scikit-learn__scikit-learn-1496",
+      "scikit-learn__scikit-learn-15098",
+      "scikit-learn__scikit-learn-15423",
+      "scikit-learn__scikit-learn-15847",
+      "scikit-learn__scikit-learn-16269",
+      "scikit-learn__scikit-learn-16841",
+      "scikit-learn__scikit-learn-1712",
+      "scikit-learn__scikit-learn-17552",
+      "scikit-learn__scikit-learn-18062",
+      "scikit-learn__scikit-learn-182",
+      "scikit-learn__scikit-learn-18693",
+      "scikit-learn__scikit-learn-19669",
+      "scikit-learn__scikit-learn-20149",
+      "scikit-learn__scikit-learn-20889",
+      "scikit-learn__scikit-learn-259",
+      "scikit-learn__scikit-learn-280",
+      "scikit-learn__scikit-learn-3030",
+      "scikit-learn__scikit-learn-3065",
+      "scikit-learn__scikit-learn-3365",
+      "scikit-learn__scikit-learn-3925",
+      "scikit-learn__scikit-learn-398",
+      "scikit-learn__scikit-learn-4584",
+      "scikit-learn__scikit-learn-5195",
+      "scikit-learn__scikit-learn-5954",
+      "scikit-learn__scikit-learn-7214",
+      "scikit-learn__scikit-learn-7415",
+      "scikit-learn__scikit-learn-7498",
+      "scikit-learn__scikit-learn-7897",
+      "scikit-learn__scikit-learn-8567",
+      "scikit-learn__scikit-learn-889",
+      "scikit-learn__scikit-learn-8983",
+      "scikit-learn__scikit-learn-9035",
+      "scikit-learn__scikit-learn-9051",
+      "sympy__sympy-10499",
+      "sympy__sympy-10692",
+      "sympy__sympy-11970",
+      "sympy__sympy-12010",
+      "sympy__sympy-12059",
+      "sympy__sympy-12175",
+      "sympy__sympy-12813",
+      "sympy__sympy-13017",
+      "sympy__sympy-13091",
+      "sympy__sympy-13131",
+      "sympy__sympy-13196",
+      "sympy__sympy-13327",
+      "sympy__sympy-13622",
+      "sympy__sympy-13839",
+      "sympy__sympy-1399",
+      "sympy__sympy-14145",
+      "sympy__sympy-15174",
+      "sympy__sympy-15175",
+      "sympy__sympy-15278",
+      "sympy__sympy-15607",
+      "sympy__sympy-15619",
+      "sympy__sympy-15646",
+      "sympy__sympy-15683",
+      "sympy__sympy-15849",
+      "sympy__sympy-15876",
+      "sympy__sympy-16051",
+      "sympy__sympy-1620",
+      "sympy__sympy-16221",
+      "sympy__sympy-16637",
+      "sympy__sympy-16762",
+      "sympy__sympy-1688",
+      "sympy__sympy-17357",
+      "sympy__sympy-1749",
+      "sympy__sympy-17548",
+      "sympy__sympy-1756",
+      "sympy__sympy-17672",
+      "sympy__sympy-18021",
+      "sympy__sympy-18131",
+      "sympy__sympy-1989",
+      "sympy__sympy-2044",
+      "sympy__sympy-2078",
+      "sympy__sympy-2178",
+      "sympy__sympy-2397",
+      "sympy__sympy-2417",
+      "sympy__sympy-2437",
+      "sympy__sympy-245",
+      "sympy__sympy-287",
+      "sympy__sympy-2987",
+      "sympy__sympy-416",
+      "sympy__sympy-491",
+      "sympy__sympy-542",
+      "sympy__sympy-7293",
+      "sympy__sympy-755",
+      "sympy__sympy-7614",
+      "sympy__sympy-7731",
+      "sympy__sympy-7865",
+      "sympy__sympy-8264",
+      "sympy__sympy-9653",
+      "sympy__sympy-9856"
+    ],
+    "paired_case_ids": [
+      "astropy__astropy-1312",
+      "astropy__astropy-1796",
+      "astropy__astropy-187",
+      "astropy__astropy-228",
+      "astropy__astropy-2457",
+      "astropy__astropy-2775",
+      "astropy__astropy-3096",
+      "astropy__astropy-417",
+      "astropy__astropy-444",
+      "astropy__astropy-4736",
+      "astropy__astropy-4979",
+      "astropy__astropy-5446",
+      "astropy__astropy-5494",
+      "astropy__astropy-5868",
+      "astropy__astropy-6422",
+      "astropy__astropy-692",
+      "matplotlib__matplotlib-10031",
+      "matplotlib__matplotlib-128",
+      "matplotlib__matplotlib-1294",
+      "matplotlib__matplotlib-1477",
+      "matplotlib__matplotlib-1710",
+      "matplotlib__matplotlib-1818",
+      "matplotlib__matplotlib-1874",
+      "matplotlib__matplotlib-2807",
+      "matplotlib__matplotlib-3188",
+      "matplotlib__matplotlib-3752",
+      "matplotlib__matplotlib-3985",
+      "matplotlib__matplotlib-416",
+      "matplotlib__matplotlib-4441",
+      "matplotlib__matplotlib-4714",
+      "matplotlib__matplotlib-4824",
+      "matplotlib__matplotlib-5195",
+      "matplotlib__matplotlib-5224",
+      "matplotlib__matplotlib-5233",
+      "matplotlib__matplotlib-5374",
+      "matplotlib__matplotlib-5432",
+      "matplotlib__matplotlib-5515",
+      "matplotlib__matplotlib-5591",
+      "matplotlib__matplotlib-563",
+      "matplotlib__matplotlib-5825",
+      "matplotlib__matplotlib-7279",
+      "matplotlib__matplotlib-7831",
+      "matplotlib__matplotlib-7968",
+      "scikit-learn__scikit-learn-10474",
+      "scikit-learn__scikit-learn-10615",
+      "scikit-learn__scikit-learn-10852",
+      "scikit-learn__scikit-learn-11277",
+      "scikit-learn__scikit-learn-11509",
+      "scikit-learn__scikit-learn-11534",
+      "scikit-learn__scikit-learn-1201",
+      "scikit-learn__scikit-learn-12033",
+      "scikit-learn__scikit-learn-12409",
+      "scikit-learn__scikit-learn-12718",
+      "scikit-learn__scikit-learn-12915",
+      "scikit-learn__scikit-learn-13251",
+      "scikit-learn__scikit-learn-13468",
+      "scikit-learn__scikit-learn-14465",
+      "scikit-learn__scikit-learn-14817",
+      "scikit-learn__scikit-learn-1496",
+      "scikit-learn__scikit-learn-15098",
+      "scikit-learn__scikit-learn-15423",
+      "scikit-learn__scikit-learn-15847",
+      "scikit-learn__scikit-learn-16269",
+      "scikit-learn__scikit-learn-16841",
+      "scikit-learn__scikit-learn-1712",
+      "scikit-learn__scikit-learn-17552",
+      "scikit-learn__scikit-learn-18062",
+      "scikit-learn__scikit-learn-182",
+      "scikit-learn__scikit-learn-18693",
+      "scikit-learn__scikit-learn-19669",
+      "scikit-learn__scikit-learn-20149",
+      "scikit-learn__scikit-learn-20889",
+      "scikit-learn__scikit-learn-259",
+      "scikit-learn__scikit-learn-280",
+      "scikit-learn__scikit-learn-3030",
+      "scikit-learn__scikit-learn-3065",
+      "scikit-learn__scikit-learn-3365",
+      "scikit-learn__scikit-learn-3925",
+      "scikit-learn__scikit-learn-398",
+      "scikit-learn__scikit-learn-4584",
+      "scikit-learn__scikit-learn-5195",
+      "scikit-learn__scikit-learn-5954",
+      "scikit-learn__scikit-learn-7214",
+      "scikit-learn__scikit-learn-7415",
+      "scikit-learn__scikit-learn-7498",
+      "scikit-learn__scikit-learn-7897",
+      "scikit-learn__scikit-learn-8567",
+      "scikit-learn__scikit-learn-889",
+      "scikit-learn__scikit-learn-8983",
+      "scikit-learn__scikit-learn-9035",
+      "scikit-learn__scikit-learn-9051",
+      "sympy__sympy-10499",
+      "sympy__sympy-10692",
+      "sympy__sympy-11970",
+      "sympy__sympy-12010",
+      "sympy__sympy-12059",
+      "sympy__sympy-12175",
+      "sympy__sympy-12813",
+      "sympy__sympy-13017",
+      "sympy__sympy-13091",
+      "sympy__sympy-13131",
+      "sympy__sympy-13196",
+      "sympy__sympy-13327",
+      "sympy__sympy-13622",
+      "sympy__sympy-13839",
+      "sympy__sympy-1399",
+      "sympy__sympy-14145",
+      "sympy__sympy-15174",
+      "sympy__sympy-15175",
+      "sympy__sympy-15278",
+      "sympy__sympy-15607",
+      "sympy__sympy-15619",
+      "sympy__sympy-15646",
+      "sympy__sympy-15683",
+      "sympy__sympy-15849",
+      "sympy__sympy-15876",
+      "sympy__sympy-16051",
+      "sympy__sympy-1620",
+      "sympy__sympy-16221",
+      "sympy__sympy-16637",
+      "sympy__sympy-1688",
+      "sympy__sympy-17357",
+      "sympy__sympy-1749",
+      "sympy__sympy-17548",
+      "sympy__sympy-1756",
+      "sympy__sympy-17672",
+      "sympy__sympy-18021",
+      "sympy__sympy-18131",
+      "sympy__sympy-1989",
+      "sympy__sympy-2044",
+      "sympy__sympy-2078",
+      "sympy__sympy-2178",
+      "sympy__sympy-2397",
+      "sympy__sympy-2417",
+      "sympy__sympy-2437",
+      "sympy__sympy-245",
+      "sympy__sympy-287",
+      "sympy__sympy-2987",
+      "sympy__sympy-416",
+      "sympy__sympy-491",
+      "sympy__sympy-542",
+      "sympy__sympy-7293",
+      "sympy__sympy-755",
+      "sympy__sympy-7614",
+      "sympy__sympy-7731",
+      "sympy__sympy-7865",
+      "sympy__sympy-8264",
+      "sympy__sympy-9653",
+      "sympy__sympy-9856"
+    ],
+    "limit_per_event_type": 80
+  },
+  "failures": {
+    "baseline": 1,
+    "naive": 0,
+    "baseline_rerun": 0,
+    "governed": 0,
+    "governed_canary": 0
+  },
+  "metrics": {
+    "baseline": {
+      "false_positive_recurrence": {
+        "numerator": 43,
+        "denominator": 79,
+        "rate": 0.544304
+      },
+      "missed_recovery": {
+        "numerator": 8,
+        "denominator": 87,
+        "rate": 0.091954
+      },
+      "correct_retention": {
+        "numerator": 10,
+        "denominator": 11,
+        "rate": 0.909091
+      }
+    },
+    "naive": {
+      "false_positive_recurrence": {
+        "numerator": 18,
+        "denominator": 79,
+        "rate": 0.227848
+      },
+      "missed_recovery": {
+        "numerator": 8,
+        "denominator": 87,
+        "rate": 0.091954
+      },
+      "correct_retention": {
+        "numerator": 10,
+        "denominator": 11,
+        "rate": 0.909091
+      }
+    },
+    "baseline_rerun": {
+      "false_positive_recurrence": {
+        "numerator": 42,
+        "denominator": 79,
+        "rate": 0.531646
+      },
+      "missed_recovery": {
+        "numerator": 12,
+        "denominator": 87,
+        "rate": 0.137931
+      },
+      "correct_retention": {
+        "numerator": 11,
+        "denominator": 11,
+        "rate": 1.0
+      }
+    },
+    "governed": {
+      "false_positive_recurrence": {
+        "numerator": 37,
+        "denominator": 79,
+        "rate": 0.468354
+      },
+      "missed_recovery": {
+        "numerator": 10,
+        "denominator": 87,
+        "rate": 0.114943
+      },
+      "correct_retention": {
+        "numerator": 10,
+        "denominator": 11,
+        "rate": 0.909091
+      }
+    },
+    "governed_canary": {
+      "false_positive_recurrence": {
+        "numerator": 23,
+        "denominator": 79,
+        "rate": 0.291139
+      },
+      "missed_recovery": {
+        "numerator": 12,
+        "denominator": 87,
+        "rate": 0.137931
+      },
+      "correct_retention": {
+        "numerator": 9,
+        "denominator": 11,
+        "rate": 0.818182
+      }
+    }
+  },
+  "comparisons": {
+    "governed_minus_baseline": {
+      "false_positive_recurrence": {
+        "delta": -0.07595,
+        "ci95": [
+          -0.188406,
+          0.0375
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": 0.022989,
+        "ci95": [
+          -0.028571,
+          0.081081
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    },
+    "governed_canary_minus_baseline": {
+      "false_positive_recurrence": {
+        "delta": -0.253165,
+        "ci95": [
+          -0.381579,
+          -0.135135
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": 0.045977,
+        "ci95": [
+          -0.025,
+          0.122222
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": -0.090909,
+        "ci95": [
+          -0.3,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    },
+    "governed_minus_naive": {
+      "false_positive_recurrence": {
+        "delta": 0.240506,
+        "ci95": [
+          0.125,
+          0.355263
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": 0.022989,
+        "ci95": [
+          -0.035294,
+          0.081081
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    },
+    "governed_canary_minus_naive": {
+      "false_positive_recurrence": {
+        "delta": 0.063291,
+        "ci95": [
+          -0.026316,
+          0.152941
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": 0.045977,
+        "ci95": [
+          -0.012658,
+          0.10989
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": -0.090909,
+        "ci95": [
+          -0.3,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    },
+    "governed_minus_baseline_rerun": {
+      "false_positive_recurrence": {
+        "delta": -0.063292,
+        "ci95": [
+          -0.170732,
+          0.041096
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": -0.022988,
+        "ci95": [
+          -0.1,
+          0.047619
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": -0.090909,
+        "ci95": [
+          -0.285714,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    },
+    "governed_canary_minus_baseline_rerun": {
+      "false_positive_recurrence": {
+        "delta": -0.240507,
+        "ci95": [
+          -0.358974,
+          -0.121622
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": 0.0,
+        "ci95": [
+          -0.079545,
+          0.079545
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": -0.181818,
+        "ci95": [
+          -0.444444,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    },
+    "governed_canary_minus_governed": {
+      "false_positive_recurrence": {
+        "delta": -0.177215,
+        "ci95": [
+          -0.292135,
+          -0.068966
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": 0.022988,
+        "ci95": [
+          -0.0375,
+          0.08642
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": -0.090909,
+        "ci95": [
+          -0.3,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    },
+    "naive_minus_baseline": {
+      "false_positive_recurrence": {
+        "delta": -0.316456,
+        "ci95": [
+          -0.426829,
+          -0.2125
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": 0.0,
+        "ci95": [
+          -0.054348,
+          0.055556
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    },
+    "baseline_minus_baseline_rerun": {
+      "false_positive_recurrence": {
+        "delta": 0.012658,
+        "ci95": [
+          -0.094118,
+          0.123288
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": false
+      },
+      "missed_recovery": {
+        "delta": -0.045977,
+        "ci95": [
+          -0.11236,
+          0.012346
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      },
+      "correct_retention": {
+        "delta": -0.090909,
+        "ci95": [
+          -0.285714,
+          0.0
+        ],
+        "iterations": 2000,
+        "paired_prs": 149,
+        "sampling_unit": "PR",
+        "higher_is_better": true
+      }
+    }
+  }
+}

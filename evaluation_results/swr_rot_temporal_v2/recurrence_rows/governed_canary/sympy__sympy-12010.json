@@ -1,0 +1,250 @@
+{
+  "id": "sympy__sympy-12010",
+  "repository": "sympy/sympy",
+  "pull_request": 12010,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 83168,
+  "llm_calls": 5,
+  "input_tokens": 18917,
+  "output_tokens": 2301,
+  "total_tokens": 21218,
+  "instruction_calls": 5,
+  "instruction_tokens": 5495,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {
+    "K-746b600c": {
+      "tp": 0,
+      "fp": 1
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3373,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-581de549",
+        "K-4f9662f0",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "preserve-positional-parameter-order",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2596
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 794,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-962b000c",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-581de549",
+      "K-62f4a6cf",
+      "K-746b600c",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-962b000c",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-ac2e3c0d",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-87ee2eda",
+          "K-581de549",
+          "K-4f9662f0",
+          "K-1f002951",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 433,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-962b000c",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1"
+        ],
+        "tokens": 618,
+        "budget": 600,
+        "dropped": [
+          "K-8184713c",
+          "K-4e30e572",
+          "K-d778c4a2",
+          "K-8810c414",
+          "K-86d0b57a",
+          "K-4e7d5d6b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "ignore-iterator-exhaustion",
+      "severity": "medium",
+      "title": "One-shot ignore iterables are exhausted during repeated-subexpression traversal",
+      "explanation": "The documented iterable contract includes iterators, but the new loop consumes ignore separately for every repeated expression. A minimal counterexample is cse([x + y, x + y, x + y], ignore=iter([x])). The first occurrence records x + y in seen_subexp. On the second occurrence, the loop consumes x and correctly rejects extraction. On the third occurrence, the iterator is exhausted, so the loop's else branch adds x + y to to_eliminate. This permits a replacement containing the explicitly ignored symbol x, whereas ignore=(x,) produces no replacements. The public cse call passes ignore directly to tree_cse at line 688 without materializing it. Both changed signatures append ignore after the existing parameters, so historical positional bindings are preserved; the concrete compatibility failure is the advertised iterable input contract, not positional argument order. With an empty ignore iterable, the new loop immediately takes its else branch, preserving the previous repeated-expression behavior.",
+      "path": "sympy/simplify/cse_main.py",
+      "line": 452,
+      "evidence": "                for ign in ignore:\n                    if ign in expr.free_symbols:\n                        break\n                else:\n                    to_eliminate.add(expr)\n                    return",
+      "fix": "Materialize ignore once at the beginning of tree_cse, for example with ignore = frozenset(ignore), so every repeated-expression check uses the complete collection and direct tree_cse callers are protected as well.",
+      "test": "Assert that cse([x + y] * 3, ignore=iter([x])) equals cse([x + y] * 3, ignore=(x,)) and returns no replacements. Also run the existing allowed-subexpression example with a fresh iterator and assert both that no replacement contains y and that sqrt(x + 1) is still extracted. The added test already meaningfully checks these two properties for a tuple, but cannot expose iterator exhaustion. Preserve an empty-ignore equivalence assertion against the default call.",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 570,
+          "symbol": "cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 688,
+          "symbol": "cse passes ignore directly to tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 410,
+          "symbol": "tree_cse"
+        },
+        {
+          "path": "sympy/simplify/cse_main.py",
+          "line": 452,
+          "symbol": "repeated-subexpression ignore check"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": [
+        "K-746b600c"
+      ]
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

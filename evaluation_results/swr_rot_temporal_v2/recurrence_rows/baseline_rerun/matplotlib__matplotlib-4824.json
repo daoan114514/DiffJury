@@ -1,0 +1,164 @@
+{
+  "id": "matplotlib__matplotlib-4824",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 4824,
+  "split": "train",
+  "expected": 2,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 2,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 96619,
+  "llm_calls": 5,
+  "input_tokens": 20402,
+  "output_tokens": 2972,
+  "total_tokens": 23374,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "input-ownership",
+      "severity": "medium",
+      "title": "In-place clipping modifies caller-owned arrays and rejects read-only inputs",
+      "explanation": "For an unmasked NumPy array, ma.asarray(x) and its filled() result can share the caller's data; np.atleast_1d does not establish independent ownership. Consequently, BoundaryNorm([0, 1, 2], 2, clip=True)(x), with x = np.array([-1., 3.]), now changes x to [0., 2.]. Previously, np.clip allocated a result that was discarded, leaving x unchanged. If the same input has x.flags.writeable = False, the new out=xx operation instead raises ValueError, whereas the previous implementation accepted it. Normalizing an array must not require writable caller storage or change the source values. The added clipping tests use Python scalars and lists, which do not expose this aliasing, and therefore miss both regressions.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1277,
+      "evidence": "_x = ma.asarray(x)\n        mask = ma.getmaskarray(_x)\n        xx = np.atleast_1d(_x.filled(self.vmax + 1))\n        if clip:\n            np.clip(xx, self.vmin, self.vmax, out=xx)",
+      "fix": "Assign the independently allocated result of np.clip to xx instead of clipping into the potentially aliased input, or explicitly copy xx before writing to it.",
+      "test": "Call BoundaryNorm([0, 1, 2], 2, clip=True) with np.array([-1., 3.]) and assert that the original array remains exactly unchanged. Repeat with a read-only array and assert successful normalization with the expected indices. Cover an unmasked MaskedArray as well, since filled() can also share its storage.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1270,
+          "symbol": "BoundaryNorm.__call__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- ALIASING",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "masked-scalar-shape-compatibility",
+      "severity": "low",
+      "title": "Masked scalar normalization now returns a one-dimensional array",
+      "explanation": "With bn = BoundaryNorm([0, 1, 2], 2) and x = np.ma.array(0.5, mask=True), the previous implementation constructed a zero-dimensional iret and returned a masked result with shape (). The new np.atleast_1d changes iret to shape (1,). Because the final scalar conversion explicitly excludes masked inputs, that additional dimension remains in the public return value. Thus np.shape(bn(x)) changes from () to (1,), breaking the existing shape-preserving behavior for masked scalar consumers. This is independent of the intended repair for unmasked interpolated scalars. The new scalar tests only exercise unmasked values, and their assert_array_equal comparisons do not establish the shape contract for masked results.",
+      "path": "lib/matplotlib/colors.py",
+      "line": 1278,
+      "evidence": "iret = np.atleast_1d(np.zeros(_x.shape, dtype=np.int16))\n        for i, b in enumerate(self.boundaries):\n            iret[xx >= b] = i",
+      "fix": "Restore the result to the original input shape before returning masked scalar results, while retaining the Python-integer conversion for unmasked scalars.",
+      "test": "Normalize np.ma.array(0.5, mask=True) using BoundaryNorm([0, 1, 2], 2); assert that the result remains masked and has shape (). Repeat with interpolation enabled, and separately assert that a masked one-element vector retains shape (1,).",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1270,
+          "symbol": "BoundaryNorm.__call__"
+        },
+        {
+          "path": "lib/matplotlib/colors.py",
+          "line": 1287,
+          "symbol": "masked inputs bypass scalar conversion"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

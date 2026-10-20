@@ -1,0 +1,136 @@
+{
+  "id": "astropy__astropy-6422",
+  "repository": "astropy/astropy",
+  "pull_request": 6422,
+  "split": "train",
+  "expected": 2,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 2,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "astropy/utils/tests/test_decorators.py",
+      "line": 292,
+      "cwe": "CWE-440",
+      "rule_id": "cross-platform-warning-filename",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 61367,
+  "llm_calls": 5,
+  "input_tokens": 12013,
+  "output_tokens": 1353,
+  "total_tokens": 13366,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "cross-platform-warning-filename",
+      "severity": "medium",
+      "title": "New warning filename assertions fail with Windows-native paths",
+      "explanation": "The production change correctly moves warning attribution from the decorator wrapper (stacklevel=1) to that wrapper's caller (stacklevel=2) for direct decorated calls. The new assertions verify this file attribution on POSIX, but incorrectly require forward-slash path separators. When these tests run with a Windows-native source filename such as C:\\checkout\\astropy\\utils\\tests\\test_decorators.py, warnings preserves that filename and str() does not normalize its separators. Consequently, both new assertions fail even though the warning identifies the correct caller. The affected assertions are at lines 292 and 322; this is a concrete platform-dependent test regression, not a defect in the stacklevel change or a speculative coverage concern.",
+      "path": "astropy/utils/tests/test_decorators.py",
+      "line": 292,
+      "evidence": "assert 'utils/tests/test_decorators.py' in str(w[0].filename)",
+      "fix": "Make both assertions platform-independent, for example by constructing the expected suffix with os.path.join('utils', 'tests', 'test_decorators.py'), or by comparing normalized warning and test-file paths.",
+      "test": "Run both affected tests on Windows with native backslash-separated source filenames and confirm they pass while still rejecting attribution to astropy/utils/decorators.py. Retain a POSIX run to verify both separator conventions.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

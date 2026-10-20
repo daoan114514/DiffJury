@@ -1,0 +1,297 @@
+{
+  "id": "scikit-learn__scikit-learn-11509",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 11509,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/tests/test_init.py",
+      "line": 39,
+      "cwe": "CWE-706",
+      "rule_id": "import-warning-test-subprocess-environment",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 128262,
+  "llm_calls": 6,
+  "input_tokens": 38874,
+  "output_tokens": 3985,
+  "total_tokens": 42859,
+  "instruction_calls": 6,
+  "instruction_tokens": 8345,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 2,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3073,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-3c8dfccb",
+        "K-1c8d031b",
+        "K-0a2298e4",
+        "K-d3341a3f",
+        "K-f32f49ff",
+        "K-4d5756a5",
+        "K-eb2105bb",
+        "K-1d4bb77e",
+        "K-59df2e59"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3145,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-3c8dfccb",
+        "K-1c8d031b",
+        "K-0a2298e4",
+        "K-d3341a3f",
+        "K-f32f49ff",
+        "K-4d5756a5",
+        "K-eb2105bb",
+        "K-1d4bb77e",
+        "K-59df2e59"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 799,
+      "knowledge_ids": [
+        "K-6d7b0522",
+        "K-0f38f6b6",
+        "K-51e6bbd9",
+        "K-0f45b787",
+        "K-1617cbdc",
+        "K-69a7f4ef",
+        "K-f8f85333",
+        "K-0f51ebe7",
+        "K-d8b204bc",
+        "K-791ded73"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-0f51ebe7",
+      "K-1617cbdc",
+      "K-1c8d031b",
+      "K-1d4bb77e",
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-59df2e59",
+      "K-69a7f4ef",
+      "K-6d7b0522",
+      "K-791ded73",
+      "K-d3341a3f",
+      "K-d8b204bc",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-f8f85333"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-3c8dfccb",
+          "K-1c8d031b",
+          "K-0a2298e4",
+          "K-d3341a3f",
+          "K-f32f49ff",
+          "K-4d5756a5",
+          "K-eb2105bb",
+          "K-1d4bb77e",
+          "K-59df2e59"
+        ],
+        "tokens": 655,
+        "budget": 600,
+        "dropped": [
+          "K-2bba7006",
+          "K-c5fe4768",
+          "K-24ae43fa",
+          "K-5388c8d9",
+          "K-651ca0b6",
+          "K-a62a9e09"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-6d7b0522",
+          "K-0f38f6b6",
+          "K-51e6bbd9",
+          "K-0f45b787",
+          "K-1617cbdc",
+          "K-69a7f4ef",
+          "K-f8f85333",
+          "K-0f51ebe7",
+          "K-d8b204bc",
+          "K-791ded73"
+        ],
+        "tokens": 623,
+        "budget": 600,
+        "dropped": [
+          "K-3636a06a",
+          "K-feee072d",
+          "K-94fa9fcb"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "import-warning-test-subprocess-environment",
+      "severity": "medium",
+      "title": "Run the import probe with the test runner's interpreter and package tree",
+      "explanation": "The module names are discovered from the runner's sklearn.__path__, but the child resolves the literal executable `python` through PATH and resolves those module names using its own import path. For example, invoking `/venv/bin/python -m pytest` without activating that environment can leave PATH pointing to a system Python with a different installed scikit-learn. The child then imports that installation rather than the package whose modules were enumerated. If the system installation imports cleanly, the output is empty, both assertions pass, and warnings in the package under test go undetected even after removing the broad exception handler. If the system interpreter lacks sklearn, check_output instead raises CalledProcessError, which the current handler turns into a skip. A source checkout added only to the runner's sys.path has a similar mismatch when the subprocess runs outside that checkout: runtime sys.path changes are not inherited by a fresh interpreter.",
+      "path": "sklearn/tests/test_init.py",
+      "line": 39,
+      "evidence": "        message = subprocess.check_output(['python', '-Wdefault',\n                                           '-c', import_modules],\n                                          stderr=subprocess.STDOUT)",
+      "fix": "Use sys.executable rather than `python`, and explicitly ensure that the child resolves sklearn from the same package tree as the runner, for example by supplying the appropriate import path. Verify the child's sklearn location if necessary instead of assuming that matching module names identify the same installation.",
+      "test": "Run the test through an explicitly selected virtual-environment interpreter while PATH points to another Python, and run it from outside the checkout with the checkout available only through the runner's import path. Have the child report sys.executable and sklearn.__file__ and assert that they identify the intended interpreter and package tree; a warning emitted only by that package tree must fail the test.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 34,
+          "symbol": "pkgutil.iter_modules: enumerate the runner's sklearn.__path__"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 35,
+          "symbol": "test_import_sklearn_no_warnings: construct name-only imports"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 39,
+          "symbol": "subprocess.check_output: launch PATH-selected python"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 54,
+          "symbol": "test_import_sklearn_no_warnings: assert against child output"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 57,
+          "symbol": "test_import_sklearn_no_warnings: skip child execution failures"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

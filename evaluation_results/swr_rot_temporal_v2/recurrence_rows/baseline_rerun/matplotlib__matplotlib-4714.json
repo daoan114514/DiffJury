@@ -1,0 +1,253 @@
+{
+  "id": "matplotlib__matplotlib-4714",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 4714,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 4345,
+      "cwe": "RULE:PUBLIC-API-POSITIONAL-COMPATIBILITY",
+      "rule_id": "public-api-positional-compatibility",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 151581,
+  "llm_calls": 13,
+  "input_tokens": 76595,
+  "output_tokens": 3655,
+  "total_tokens": 80250,
+  "instruction_calls": 13,
+  "instruction_tokens": 26049,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 8,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 2,
+  "revision_results": 2,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "public-api-positional-compatibility",
+      "severity": "medium",
+      "title": "Preserve existing positional arguments when adding start_points",
+      "explanation": "Inserting start_points before transform breaks previously valid positional calls across Axes.streamplot, pyplot.streamplot, and matplotlib.streamplot.streamplot. For example, with valid grid and vector-field arrays, ax.streamplot(x, y, u, v, 1, None, None, None, None, 1, '-|>', 0.1, ax.transData) previously bound ax.transData to transform. The new signature instead binds it to start_points and leaves transform=None. Axes.streamplot forwards these bindings unchanged to the implementation, which enters the explicit-seed branch and executes start_points.copy(), followed by two-dimensional array indexing, on the transform rather than an Nx2 array. Thus an existing plotting call fails instead of drawing its streamlines. These parameters were positional-capable: the old signatures contain neither a keyword-only separator nor another positional restriction. pyplot has the same insertion and forwards start_points by keyword to Axes, so it does not provide a compatibility adapter. Existing positional zorder arguments, and pyplot's positional hold argument, are shifted as well. This is one shared signature-ordering defect, not three independent wrapper defects.",
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 4345,
+      "evidence": "                   minlength=0.1, start_points=None, transform=None, zorder=1):",
+      "fix": "Append start_points after all existing parameters: after zorder in Axes.streamplot and the implementation, and after hold in pyplot.streamplot. Preserve keyword forwarding and regenerate the pyplot wrapper from its generator rather than relying on an output-only edit.",
+      "test": "Add regression tests using valid vector-field arrays and the complete old positional argument order, including ax.transData and a nondefault zorder, for Axes.streamplot, pyplot.streamplot, and the implementation entry point. Assert that plotting succeeds and the resulting line collection retains the supplied transform and zorder. For pyplot, also exercise the previous positional hold slot. Retain a separate keyword start_points test to verify the new feature.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/pyplot.py",
+          "line": 3341,
+          "symbol": "streamplot: inserts start_points before transform"
+        },
+        {
+          "path": "lib/matplotlib/pyplot.py",
+          "line": 3352,
+          "symbol": "streamplot: forwards start_points=start_points to Axes.streamplot"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4345,
+          "symbol": "Axes.streamplot: changed positional binding"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4357,
+          "symbol": "Axes.streamplot: forwards start_points=start_points to mstream.streamplot"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 24,
+          "symbol": "streamplot: same positional insertion in the implementation entry point"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 138,
+          "symbol": "streamplot: sp2 = start_points.copy()"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 139,
+          "symbol": "streamplot: sp2[:,0] += np.abs(x[0])"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- BACKWARD-COMPATIBILITY",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

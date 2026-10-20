@@ -1,0 +1,246 @@
+{
+  "id": "scikit-learn__scikit-learn-8567",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 8567,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 102924,
+  "llm_calls": 5,
+  "input_tokens": 15005,
+  "output_tokens": 3031,
+  "total_tokens": 18036,
+  "instruction_calls": 5,
+  "instruction_tokens": 5155,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3025,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-2bba7006",
+        "K-3c8dfccb",
+        "K-0a2298e4",
+        "K-eb2105bb",
+        "K-f32f49ff",
+        "K-5388c8d9",
+        "K-a62a9e09",
+        "K-651ca0b6"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 802,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-0f45b787",
+        "K-3636a06a",
+        "K-184c93c6",
+        "K-9ecad403",
+        "K-94fa9fcb",
+        "K-1617cbdc",
+        "K-0f51ebe7",
+        "K-51e6bbd9",
+        "K-0f38f6b6"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-0f51ebe7",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3636a06a",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-651ca0b6",
+      "K-69a7f4ef",
+      "K-94fa9fcb",
+      "K-9ecad403",
+      "K-a62a9e09",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-2bba7006",
+          "K-3c8dfccb",
+          "K-0a2298e4",
+          "K-eb2105bb",
+          "K-f32f49ff",
+          "K-5388c8d9",
+          "K-a62a9e09",
+          "K-651ca0b6"
+        ],
+        "tokens": 607,
+        "budget": 600,
+        "dropped": [
+          "K-60a0fdd6",
+          "K-1c8d031b",
+          "K-4d5756a5"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-0f45b787",
+          "K-3636a06a",
+          "K-184c93c6",
+          "K-9ecad403",
+          "K-94fa9fcb",
+          "K-1617cbdc",
+          "K-0f51ebe7",
+          "K-51e6bbd9",
+          "K-0f38f6b6"
+        ],
+        "tokens": 626,
+        "budget": 600,
+        "dropped": [
+          "K-6d7b0522",
+          "K-f8f85333",
+          "K-feee072d"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "posterior-precision-state-consistency",
+      "severity": "medium",
+      "title": "Posterior covariance still uses the next iteration's precision parameters",
+      "explanation": "The change saves the pre-update alpha and lambda as fitted attributes, making them consistent with the final coefficients, but the covariance calculation at lines 238–239 still uses the post-update local lambda_/alpha_. On both convergence and iteration-limit exits, the last iteration calculates coefficients, saves the old precisions, updates the local precisions, and then calculates covariance from those updated locals. Thus sigma_ no longer describes the posterior implied by the published alpha_ and lambda_. A reproducible algebraic example is BayesianRidge(n_iter=1, fit_intercept=False, alpha_1=0, alpha_2=0, lambda_1=0, lambda_2=0) fitted to X=[[1,0],[-1,0],[0,2],[0,-2]] and y=[1,-1,1,-1]. Ignoring machine-epsilon initialization differences, the saved precisions are both 1 and the coefficients are [2/3,4/9]. The update produces lambda=63/26 and alpha=99/10, so the covariance calculation uses lambda/alpha=35/143 instead of 1. Consequently, its diagonal ratio is (8+35/143)/(2+35/143)=393/107, whereas the posterior implied by the saved precisions requires (8+1)/(2+1)=3. No subsequent common precision scaling can remove this discrepancy. Before the change, the published precisions matched the locals used for covariance; this change introduces that particular inconsistency. The added intercept comparison detects the coefficient/precision mismatch being fixed, but does not detect this covariance regression. Enabling compute_score without asserting its values also does not validate score consistency; the supplied diff does not establish a separate score defect.",
+      "path": "sklearn/linear_model/bayes.py",
+      "line": 206,
+      "evidence": "            self.alpha_ = alpha_\n            self.lambda_ = lambda_",
+      "fix": "Calculate the final posterior covariance entirely from self.alpha_ and self.lambda_, including its precision scaling, so it uses the same parameter estimates as the final coefficients.",
+      "test": "Add a one-iteration, fit_intercept=False regression test using the two-feature example above. Assert that coef_ matches Ridge(alpha=lambda_/alpha_) and that sigma_ equals inv(alpha_ * X.T.dot(X) + lambda_ * eye(n_features)). Also assert the covariance identity for an ordinary convergence exit. These assertions exercise the posterior invariant directly, unlike the intercept-only comparison.",
+      "confidence": 0.78,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 206,
+          "symbol": "BayesianRidge.fit: preserve pre-update precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 209,
+          "symbol": "BayesianRidge.fit: update local precisions"
+        },
+        {
+          "path": "sklearn/linear_model/bayes.py",
+          "line": 238,
+          "symbol": "BayesianRidge.fit: calculate covariance using updated locals"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

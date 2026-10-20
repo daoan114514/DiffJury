@@ -1,0 +1,346 @@
+{
+  "id": "sympy__sympy-15619",
+  "repository": "sympy/sympy",
+  "pull_request": 15619,
+  "split": "train",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 210591,
+  "llm_calls": 6,
+  "input_tokens": 63817,
+  "output_tokens": 8482,
+  "total_tokens": 72299,
+  "instruction_calls": 6,
+  "instruction_tokens": 6490,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1915,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-b9cfc827",
+        "K-4f9662f0",
+        "K-87ee2eda",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-a9677d2d",
+        "K-2b8fec11",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "test-quality"
+      ],
+      "skill_body_tokens": 1080
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2454,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-b9cfc827",
+        "K-4f9662f0",
+        "K-87ee2eda",
+        "K-1f002951",
+        "K-7e90bf29",
+        "K-a9677d2d",
+        "K-2b8fec11",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "deterministic-rule-selection",
+        "test-quality"
+      ],
+      "skill_body_tokens": 1602
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 793,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1",
+        "K-be32699b"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-2b8fec11",
+      "K-3ef68130",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf",
+      "K-be32699b"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-b9cfc827",
+          "K-4f9662f0",
+          "K-87ee2eda",
+          "K-1f002951",
+          "K-7e90bf29",
+          "K-a9677d2d",
+          "K-2b8fec11",
+          "K-a4c9356f"
+        ],
+        "tokens": 523,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-be32699b"
+        ],
+        "tokens": 617,
+        "budget": 600,
+        "dropped": [
+          "K-8810c414",
+          "K-8184713c",
+          "K-4e30e572",
+          "K-4e7d5d6b",
+          "K-d778c4a2",
+          "K-86d0b57a",
+          "K-e4a5fbd0",
+          "K-03e5723b",
+          "K-cde9c599",
+          "K-10578218",
+          "K-9d754682",
+          "K-962b000c"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "complex-quadratic-coefficient-comparison",
+      "severity": "medium",
+      "title": "Gaussian rule raises TypeError for explicitly complex quadratic coefficients",
+      "explanation": "The new matcher allows any nonzero coefficient a, including I. Consequently manualintegrate(exp(I*x**2), x) selects ErfRule with a=I, b=0, c=0. Evaluating that rule constructs the Python argument a < 0 before constructing Piecewise. SymPy rejects ordering the explicitly non-real number I against zero, so this newly introduced evaluation path raises TypeError instead of returning an antiderivative or an unevaluated integral. The tests exercise positive and negative real coefficients only.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1453,
+      "evidence": "sympy.erf((-2*a*symbol - b)/(2*sympy.sqrt(-a))), a < 0),",
+      "fix": "Avoid constructing an ordering relation for non-real coefficients. Use an assumption-aware branch selection and a branch-consistent complex formula, or decline the rule when its coefficient domain is unsupported.",
+      "test": "Call manualintegrate(exp(I*x**2), x) and manualintegrate(exp(-I*x**2), x), require that neither raises, and verify derivatives if evaluated expressions are returned.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 364,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1450,
+          "symbol": "eval_erf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-fresnel-antiderivative",
+      "severity": "medium",
+      "title": "Fresnel evaluators return the negative antiderivative for negative quadratic coefficients",
+      "explanation": "The matcher permits negative a, but the prefactor sqrt(pi/(2*a)) is not equivalent to sqrt(pi)/sqrt(2*a) on the negative real axis. For n = Symbol('n', negative=True), manualintegrate(cos(n*x**2 + x), x) reaches FresnelCRule with a=n, b=1, c=0. Differentiating the returned expression introduces the factor sqrt(pi/(2*n)) * 2*n/sqrt(2*n*pi), which is -1 for negative real n. Thus the derivative is -cos(n*x**2+x), not the integrand. In particular, after substituting n=-1, the derivative at x=0 is -1 while the integrand is 1. The same prefactor defect exists in eval_fresnels. The new tests only use positive quadratic coefficients for the Fresnel rules.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1459,
+      "evidence": "return sympy.sqrt(sympy.pi/(2*a)) * (",
+      "fix": "Use a prefactor whose square-root branch is coordinated with the argument denominator, such as sqrt(pi)/sqrt(2*a), in both Fresnel evaluators.",
+      "test": "Declare n negative and x real, integrate cos(n*x**2+x) and sin(n*x**2+x), and assert that differentiating each result reproduces its integrand. Include substitution n=-1 and a nonsingular numerical evaluation.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 366,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1458,
+          "symbol": "eval_fresnelc"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "elliptic-square-root-branch",
+      "severity": "medium",
+      "title": "Elliptic rules split principal square roots without the necessary domain restrictions",
+      "explanation": "The elliptic matcher accepts negative a and d, while these evaluators assume sqrt(a-d*sin(x)**2) equals sqrt(a)*sqrt(1-(d/a)*sin(x)**2). That identity fails for principal square roots. For manualintegrate(sqrt(2*sin(x)**2-1), x), the matcher obtains a=-1 and d=-2, and eval_elliptic_e returns I*elliptic_e(x, 2). Its derivative is I*sqrt(1-2*sin(x)**2); at x=pi/2 this is -1, whereas the original integrand is 1. The reciprocal input 1/sqrt(2*sin(x)**2-1) likewise reaches eval_elliptic_f and has the same sign error. Both inputs are regular in a real neighborhood of pi/2. The added elliptic tests use positive a and therefore do not expose the branch error.",
+      "path": "sympy/integrals/manualintegrate.py",
+      "line": 1487,
+      "evidence": "return sympy.elliptic_e(symbol, d/a)*sympy.sqrt(a)",
+      "fix": "Restrict the simple elliptic formulas to assumptions that justify splitting the principal square root, or retain an appropriate branch correction. Leave the integral unevaluated when those conditions cannot be established.",
+      "test": "Differentiate the results for sqrt(2*sin(x)**2-1) and its reciprocal, and compare with the integrands at x=pi/2. Also retain positive-a cases to verify the supported branch.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1189,
+          "symbol": "integral_steps"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 371,
+          "symbol": "special_function_rule"
+        },
+        {
+          "path": "sympy/integrals/manualintegrate.py",
+          "line": 1486,
+          "symbol": "eval_elliptic_e"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

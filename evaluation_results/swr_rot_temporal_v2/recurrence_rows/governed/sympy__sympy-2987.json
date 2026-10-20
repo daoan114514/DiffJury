@@ -1,0 +1,174 @@
+{
+  "id": "sympy__sympy-2987",
+  "repository": "sympy/sympy",
+  "pull_request": 2987,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 86224,
+  "llm_calls": 5,
+  "input_tokens": 16478,
+  "output_tokens": 2323,
+  "total_tokens": 18801,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "use-array-explicit-numpy",
+      "severity": "medium",
+      "title": "use_array is ignored when NumPy is explicitly selected",
+      "explanation": "The new translation selection is nested in the default-module initialization path rather than applied when NumPy is selected explicitly. Consequently, in a fresh interpreter, `f = lambdify(x, Matrix([x]), modules='numpy', use_array=True); type(f(1))` uses the existing Matrix-to-matrix translation and returns `numpy.matrix`, not the requested `numpy.ndarray`. Explicit module lists have the same omission. This counterexample does not require a particular cache/reload policy: the explicit-module path never executes the added updates. It breaks the newly exposed option for callers that explicitly choose their numerical backend. The supplied diff does not contain the body of `_import` or namespace assembly, so it does not establish whether default-module calls in opposite orders reload cached bindings or whether previously created functions retain independent namespaces; no additional cache-lifetime defect is asserted.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 286,
+      "evidence": "        if use_array:\n            NUMPY_TRANSLATIONS.update({\"Matrix\": \"array\",\n                \"MutableDenseMatrix\": \"array\",\n                \"ImmutableMatrix\": \"array\"})",
+      "fix": "Apply the array-versus-matrix choice when constructing the NumPy namespace for the current lambdify call, including explicitly supplied NumPy backends. Prefer a per-call namespace overlay rather than mutating shared translations, preserving the default matrix behavior and previously created functions.",
+      "test": "In a fresh process, test `modules='numpy'`, `modules=['numpy']`, and a NumPy module object with both use_array values. Assert `type(result) is numpy.ndarray` for True and `isinstance(result, numpy.matrix)` for False. Also exercise default and explicit backends in both True/False orders after cold and warm initialization, and reevaluate earlier functions after subsequent calls. The added `numpy.all(result == expected)` assertions check values only: an ndarray and matrix containing the same entries both satisfy them, so they cannot establish the requested return type or expose initialization-order defects. Include type assertions in the new test and run the documented array example after a default matrix call.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 148,
+          "symbol": "lambdify(args, expr, modules='numpy', use_array=True)"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 286,
+          "symbol": "translation selection skipped outside default-module initialization"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 1
+    }
+  }
+}

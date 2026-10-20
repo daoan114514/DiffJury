@@ -1,0 +1,192 @@
+{
+  "id": "astropy__astropy-17461",
+  "repository": "astropy/astropy",
+  "pull_request": 17461,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 109862,
+  "llm_calls": 5,
+  "input_tokens": 15885,
+  "output_tokens": 4324,
+  "total_tokens": 20209,
+  "instruction_calls": 5,
+  "instruction_tokens": 4171,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 349,
+      "knowledge_ids": [
+        "K-0519c1fe",
+        "K-6bace452"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0519c1fe",
+      "K-6bace452"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0519c1fe",
+          "K-6bace452"
+        ],
+        "tokens": 173,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "config-cache-coherence",
+      "severity": "medium",
+      "title": "Descriptor reads stop reflecting direct configuration changes",
+      "explanation": "After the first namespace attribute read, __get__ returns the descriptor's cached value without consulting the configuration section. A concrete triggering sequence is: define a namespace item with default 1 and an explicit module; read conf.item; assign get_config(the_same_module)['item'] = 2; read conf.item again. Previously, the second read invoked self() and returned 2; it now returns 1. ConfigItem.set updates both representations, but direct writes to the mutable configuration object bypass that method. Consequently, the public configuration object and the namespace can report different values indefinitely.",
+      "path": "astropy/config/configuration.py",
+      "line": 332,
+      "evidence": "        try:\n            val = self.value\n        except AttributeError:\n            val = self.value = self()\n        return val",
+      "fix": "Preserve live-section reads until writes to the configuration object can invalidate descriptor caches. Alternatively, implement cache invalidation at the configuration-section mutation boundary rather than only in ConfigItem.set.",
+      "test": "Define an isolated ConfigNamespace item with default 1 and an explicit module. Assert its initial attribute value is 1, set the corresponding get_config(module) entry to 2, and assert both the namespace attribute and configuration entry are 2. Exercise the descriptor path rather than only calling ConfigItem directly.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/config/configuration.py",
+          "line": 326,
+          "symbol": "ConfigItem.__get__"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "config-cache-publication-race",
+      "severity": "medium",
+      "title": "An in-flight cache miss can overwrite a completed configuration update",
+      "explanation": "Cache population and ConfigItem.set are unsynchronized. On a cache miss, reader A can obtain the old value from self() and pause before assigning self.value. Writer B then completes set(new_value), updating both the configuration section and self.value. When A resumes, line 334 overwrites self.value with the old value. Subsequent reads return that old value even after the writer has completed, while the underlying configuration section contains the new value. Before this change, an overlapping read could return the old value, but it could not poison all subsequent reads because __get__ consulted self() each time.",
+      "path": "astropy/config/configuration.py",
+      "line": 334,
+      "evidence": "            val = self.value = self()\n\n        # store value on the ConfigObj instance...\n        sec = get_config(self.module, rootname=self.rootname)\n        sec[self.name] = value\n        # and on the descriptor\n        self.value = value",
+      "fix": "Synchronize cache population with configuration updates and invalidation, or use a generation check that prevents publication of a value read before a completed update. Removing descriptor-level caching also preserves the previous behavior.",
+      "test": "Use two threads and events to delay a cache-miss reader after its original ConfigItem.__call__ has read the old value but before that call returns. Complete ConfigItem.set(2) in the other thread, then release the reader. Assert that a subsequent namespace attribute read returns 2 and agrees with the configuration section.",
+      "confidence": 0.8099999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/config/configuration.py",
+          "line": 326,
+          "symbol": "ConfigItem.__get__"
+        },
+        {
+          "path": "astropy/config/configuration.py",
+          "line": 337,
+          "symbol": "ConfigItem.set"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-362",
+      "applied_rules": []
+    }
+  ]
+}

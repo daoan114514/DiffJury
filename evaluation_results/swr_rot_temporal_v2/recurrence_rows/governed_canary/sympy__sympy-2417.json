@@ -1,0 +1,212 @@
+{
+  "id": "sympy__sympy-2417",
+  "repository": "sympy/sympy",
+  "pull_request": 2417,
+  "split": "train",
+  "expected": 2,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 1,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": ".travis.yml",
+      "line": 65,
+      "cwe": "CWE-269",
+      "rule_id": "ci-system-package-privileges",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 66100,
+  "llm_calls": 5,
+  "input_tokens": 10924,
+  "output_tokens": 1743,
+  "total_tokens": 12667,
+  "instruction_calls": 5,
+  "instruction_tokens": 4072,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {
+    "K-dc75de37": {
+      "tp": 1,
+      "fp": 0
+    }
+  },
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2564,
+      "knowledge_ids": [
+        "K-62f4a6cf"
+      ],
+      "skills": [
+        "ci-system-package-privileges",
+        "review-ci-dependency-version-selection",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2114
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-363fd858",
+      "K-62f4a6cf",
+      "K-dc75de37"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf"
+        ],
+        "tokens": 102,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "ci-system-package-privileges",
+      "severity": "medium",
+      "title": "Elevate all three system-package commands in the Sage job",
+      "explanation": "The added TEST_SAGE=true matrix entry activates these commands. Standard Travis Python jobs execute lifecycle commands as the unprivileged travis account, while adding a system APT repository, refreshing system package indexes, and installing system packages require root privileges. None of these commands uses sudo, so under that standard execution identity the Sage setup fails before the intended tests can run. The supplied excerpts do not include the complete runner configuration; an explicit root execution wrapper elsewhere would invalidate this finding, but none is shown. The subsequent install phase deliberately skips python setup.py install for this job, and bin/test_travis.sh instead invokes sage -v followed by sage -python bin/test sympy/external/tests/test_sage.py directly from the checkout. That invocation does not inherently require installing the repository first. The supplied evidence does not establish a missing test dependency or a concrete incompatibility between the selected Sage package and the test interpreter, so neither is reported as an additional defect.",
+      "path": ".travis.yml",
+      "line": 65,
+      "evidence": "      apt-add-repository -y ppa:aims/sagemath;\n      apt-get update;\n      apt-get install sagemath-upstream-binary;",
+      "fix": "Run each repository and package-management command with sudo, or use a supported privileged Travis package-install mechanism. Elevating only the first command does not elevate the subsequent commands.",
+      "test": "Run the Sage matrix entry on the intended Travis runner and confirm its execution identity. Verify that repository registration, package-index refresh, and Sage installation all succeed and that the final Sage interpreter command actually runs the targeted tests with a successful exit status.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".travis.yml",
+          "line": 44,
+          "symbol": "matrix entry TEST_SAGE=\"true\""
+        },
+        {
+          "path": ".travis.yml",
+          "line": 64,
+          "symbol": "before_install TEST_SAGE branch"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 65,
+          "symbol": "system repository and package installation"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 70,
+          "symbol": "skip setup.py install for Sage"
+        },
+        {
+          "path": "bin/test_travis.sh",
+          "line": 18,
+          "symbol": "sage -python bin/test sympy/external/tests/test_sage.py"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-269",
+      "applied_rules": [
+        "K-dc75de37"
+      ]
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

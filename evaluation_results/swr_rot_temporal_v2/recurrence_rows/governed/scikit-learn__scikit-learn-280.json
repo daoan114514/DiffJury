@@ -1,0 +1,190 @@
+{
+  "id": "scikit-learn__scikit-learn-280",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 280,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "scikits/learn/linear_model/least_angle.py",
+      "line": 394,
+      "cwe": "CWE-697",
+      "rule_id": "feature-limit-explicit-zero",
+      "expected_severity": "high",
+      "predicted_severity": "low",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 71626,
+  "llm_calls": 5,
+  "input_tokens": 20828,
+  "output_tokens": 2441,
+  "total_tokens": 23269,
+  "instruction_calls": 5,
+  "instruction_tokens": 4256,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2646,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 282,
+      "knowledge_ids": [
+        "K-69a7f4ef"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef"
+        ],
+        "tokens": 106,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "feature-limit-explicit-zero",
+      "severity": "low",
+      "title": "Preserve an explicit zero fit-time feature limit",
+      "explanation": "The new truthiness check treats an explicitly supplied max_features=0 as an omitted argument. For an existing consumer calling LARS().fit(X, y, max_features=0), the old implementation forwarded zero to lars_path, stopping before adding features; the new implementation replaces zero with the default self.n_features=None, allowing the ordinary unrestricted path. For example, with X=[[-1,1],[0,0],[1,1]] and y=[-1,0,-1], the requested zero-feature fit now produces a nonzero coefficient. With LARS(n_features=1), the same explicit fit-time limit is instead replaced with one. This breaks both the existing zero-limit behavior and fit-time override precedence. It is separate from the intentional LassoLARS alpha override: the added tests explicitly exercise that override but only assert six nonzero coefficients, so they do not cover this regression. The ordinary omitted max_features=None case should continue to inherit the constructor setting.",
+      "path": "scikits/learn/linear_model/least_angle.py",
+      "line": 394,
+      "evidence": "        if not max_features:\n            max_features = self.n_features",
+      "fix": "Replace `if not max_features:` with `if max_features is None:` so only an omitted limit inherits self.n_features and an explicit zero reaches lars_path unchanged.",
+      "test": "Using X=[[-1,1],[0,0],[1,1]] and y=[-1,0,-1], assert that both LARS().fit(X, y, max_features=0) and LARS(n_features=1).fit(X, y, max_features=0) produce entirely zero coefficients. Also retain a test that omitting max_features inherits n_features=1 and produces one nonzero coefficient.",
+      "confidence": 0.78,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "scikits/learn/linear_model/least_angle.py",
+          "line": 367,
+          "symbol": "LARS.fit"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

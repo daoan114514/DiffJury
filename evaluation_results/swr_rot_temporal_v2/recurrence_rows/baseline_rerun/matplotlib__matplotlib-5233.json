@@ -1,0 +1,147 @@
+{
+  "id": "matplotlib__matplotlib-5233",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 5233,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/font_manager.py",
+      "line": 590,
+      "cwe": "CWE-755",
+      "rule_id": "incorrect-exception-handler",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 86043,
+  "llm_calls": 5,
+  "input_tokens": 10141,
+  "output_tokens": 2147,
+  "total_tokens": 12288,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "incorrect-exception-handler",
+      "severity": "medium",
+      "title": "Use an exception tuple to catch RuntimeError",
+      "explanation": "Under Python 2, `except KeyError, RuntimeError:` catches only KeyError and assigns the caught exception instance to a function-local variable named RuntimeError. It does not catch both exception types. Consequently, when the call to ttfFontProperty at line 589 raises RuntimeError, this handler does not execute its continue statement: the exception escapes createFontList instead of skipping that font. Strictly, RuntimeError also escaped before this change; the defect is that the newly added exception name does not implement the intended additional handling, not that propagation is newly introduced. The binding additionally shadows the built-in RuntimeError throughout the function's local scope, but the supplied excerpt contains no references proving a separate failure from that shadowing. Under Python 3, the changed clause is a SyntaxError rather than an exception handler. No repository version declarations or compatibility configuration were supplied, so Python 3 support cannot be established and its import failure is not reported as a separate compatibility defect.",
+      "path": "lib/matplotlib/font_manager.py",
+      "line": 590,
+      "evidence": "            try:\n                prop = ttfFontProperty(font)\n            except KeyError, RuntimeError:\n                continue",
+      "fix": "Replace the clause with `except (KeyError, RuntimeError):`. This catches either exception without assigning to RuntimeError and is valid syntax in both Python 2 and Python 3.",
+      "test": "Add a focused test exercising the real createFontList path with font loading allowed to succeed and ttfFontProperty configured to raise RuntimeError for one font and return a valid property for the next. Assert that processing returns only the valid property's entry without raising. Repeat with KeyError to preserve existing handling. No existing regression tests were supplied for inspection. A minimal Python 2 semantics reproducer is: `def fail():\\n    raise RuntimeError('bad font')\\ndef probe():\\n    try:\\n        fail()\\n    except KeyError, RuntimeError:\\n        return 'skipped'\\nprobe()`; RuntimeError escapes. Replacing the clause with `except (KeyError, RuntimeError):` returns 'skipped'. This reproducer is reasoned from Python's exception semantics, not an executed tool result.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/font_manager.py",
+          "line": 589,
+          "symbol": "createFontList calls ttfFontProperty"
+        },
+        {
+          "path": "lib/matplotlib/font_manager.py",
+          "line": 590,
+          "symbol": "createFontList handles only KeyError under Python 2"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

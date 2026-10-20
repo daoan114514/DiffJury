@@ -1,0 +1,182 @@
+{
+  "id": "sympy__sympy-7293",
+  "repository": "sympy/sympy",
+  "pull_request": 7293,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 129509,
+  "llm_calls": 8,
+  "input_tokens": 62970,
+  "output_tokens": 3121,
+  "total_tokens": 66091,
+  "instruction_calls": 8,
+  "instruction_tokens": 10447,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 3,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "backend-selection",
+      "severity": "medium",
+      "title": "Explicit NumPy backends bypass NumPy matrix-multiplication printing",
+      "explanation": "The NumPy printer flag is initialized to False and enabled only inside the modules-is-None branch. Consequently, explicitly selecting NumPy with modules='numpy', modules=['numpy'], or modules=numpy leaves use_numpy=False, even though the namespace and matrix constructors use NumPy. For A=MatrixSymbol('A', 2, 2), B=MatrixSymbol('B', 2, 2), and expr=A*B, the explicit-backend path generates A*B rather than (A).dot(B). Calling the resulting function with ndarrays a=[[1,2],[3,4]] and b=[[1,0],[0,1]] returns [[1,0],[0,4]] instead of [[1,2],[3,4]]. This also creates a concrete regression for previously supported numpy.matrix callers: multiplying the results of two lambdified concrete matrix expressions now uses ndarray elementwise multiplication because the constructors changed from matrix to array, but explicitly selected NumPy does not receive the corresponding matrix-product printing. The constructor default change itself appears intentional; failing to activate the accompanying NumPy printer for supported explicit backend forms is the actionable inconsistency. The added NumPy test omits modules and tests addition/scalar multiplication, so it does not exercise this failure.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 285,
+      "evidence": "            use_numpy=True",
+      "fix": "Determine NumPy printer selection from the resolved explicit or default backend, handling NumPy strings, entries in module lists, and NumPy module objects while respecting backend precedence. Do not restrict activation to automatic module discovery.",
+      "test": "For modules='numpy', modules=['numpy'], modules=numpy, and the default backend, lambdify A*B and assert that evaluating with non-diagonal ndarrays gives numpy.dot(a, b), not a*b. Include a mixed-backend list to verify precedence. Also assert multiplication of two concrete matrix expressions agrees with SymPy matrix multiplication.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 270,
+          "symbol": "lambdify: initialize use_numpy=False"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 271,
+          "symbol": "lambdify: modules is None branch"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 285,
+          "symbol": "lambdify: enable NumPy printer only for automatic module selection"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 312,
+          "symbol": "lambdify: forward use_numpy to lambdastr"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 441,
+          "symbol": "lambdastr: forward use_numpy to lambdarepr"
+        },
+        {
+          "path": "sympy/printing/lambdarepr.py",
+          "line": 90,
+          "symbol": "LambdaPrinter._print_MatMul"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "id": "sympy__sympy-10499",
+  "repository": "sympy/sympy",
+  "pull_request": 10499,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 88104,
+  "llm_calls": 5,
+  "input_tokens": 19011,
+  "output_tokens": 2369,
+  "total_tokens": 21380,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "backend-abs-semantics",
+      "severity": "medium",
+      "title": "Preserve backend-specific Abs conversion and precision",
+      "explanation": "Unconditionally binding Abs to Python's builtin abs changes the behavior of supported numerical backends. For example, with mpmath.mp.dps = 50, lambdify(x, Abs(x), modules='mpmath')(1+1j) now returns a Python float containing the double-precision approximation of sqrt(2). Previously, the Abs-to-fabs translation called mpmath.fabs, which converts the complex input to mpmath arithmetic before computing its magnitude and returns an mpf at the configured precision. Increasing mpmath precision therefore no longer improves this evaluation for native complex inputs. The NumPy backend also loses accepted array-like inputs: lambdify(x, Abs(x), modules='numpy')([-1, 2]) previously used numpy.abs and returned an array, but now raises TypeError because builtin abs does not accept lists. Actual NumPy arrays and mpmath objects implement __abs__, so the new scalar-only tests do not expose these regressions.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 150,
+      "evidence": "    namespace['Abs'] = abs",
+      "fix": "Retain the mpmath Abs-to-fabs and NumPy Abs-to-abs translations. Bind Abs to builtin abs only for backends that need that fallback, such as math, rather than overwriting the backend-specific binding.",
+      "test": "Add a NumPy regression test calling the generated Abs function with [-1, 2] and asserting an array equal to [1, 2]. Under a restored mpmath precision context with 50 decimal digits, call the generated mpmath Abs function with 1+1j, assert that its result is an mpf, and compare it with mpmath.sqrt(2) at the configured precision. The existing complex test only uses 3+4j, whose exactly representable magnitude cannot reveal premature rounding.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 154,
+          "symbol": "lambdify"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 150,
+          "symbol": "_import"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

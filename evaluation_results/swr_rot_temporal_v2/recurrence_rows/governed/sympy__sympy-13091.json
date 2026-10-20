@@ -1,0 +1,184 @@
+{
+  "id": "sympy__sympy-13091",
+  "repository": "sympy/sympy",
+  "pull_request": 13091,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 118159,
+  "llm_calls": 6,
+  "input_tokens": 89175,
+  "output_tokens": 3946,
+  "total_tokens": 93121,
+  "instruction_calls": 6,
+  "instruction_tokens": 6607,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "rich-comparison-result-coercion",
+      "severity": "medium",
+      "title": "Inequality coerces reflected comparison results instead of allowing reflected __ne__",
+      "explanation": "For a foreign operand that cannot be sympified and returns a non-scalar comparison result, Float.__ne__ now raises an exception rather than allowing the foreign operand's __ne__ to handle the comparison. A minimal reproducer is: define Result.__bool__ (and __nonzero__ for Python 2) to raise ValueError('ambiguous'); define Foreign.__eq__ and Foreign.__ne__ to return Result(); then evaluate Float(1) != Foreign(). Float.__ne__ evaluates self == other; Float.__eq__ returns NotImplemented after sympification fails; Python invokes Foreign.__eq__, obtaining Result(); and the new `not` coerces that result to bool, raising ValueError. In contrast, Foreign() != Float(1) returns Result() without coercion. Before this change, the left-hand inequality returned True rather than raising. Introducing reflected equality is intentional, but forcing its potentially non-Boolean result through `not` is not a necessary consequence of NotImplemented fallback: returning NotImplemented from __ne__ would dispatch directly to Foreign.__ne__. The same changed implementation appears in Rational, Integer, and NumberSymbol.",
+      "path": "sympy/core/numbers.py",
+      "line": 1279,
+      "evidence": "    def __ne__(self, other):\n        return not self == other",
+      "fix": "Call self.__eq__(other) directly inside __ne__; if its result is NotImplemented, return NotImplemented so Python can invoke the foreign operand's __ne__. Otherwise negate the handled equality result. Apply the same correction to the equivalent changed numeric implementations.",
+      "test": "Add a foreign class whose __eq__ and __ne__ return a comparison-result object with a raising __bool__/__nonzero__. Assert that Float, Rational, Integer, and NumberSymbol inequalities in both operand orders return the foreign inequality result without Boolean coercion. The supplied unknown-type tests cover only scalar Boolean comparison results and therefore miss this failure. Separately, test_NumberSymbol_comparison verifies reflection symmetry but does not independently assert numerical truth or equal-value strict/non-strict boundaries. Validation here is static: no execution tools were available, and omitted-hunk summaries were not treated as complete source evidence.",
+      "confidence": 0.9,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/numbers.py",
+          "line": 1279,
+          "symbol": "Float.__ne__"
+        },
+        {
+          "path": "sympy/core/numbers.py",
+          "line": 1261,
+          "symbol": "Float.__eq__ returning NotImplemented on SympifyError"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

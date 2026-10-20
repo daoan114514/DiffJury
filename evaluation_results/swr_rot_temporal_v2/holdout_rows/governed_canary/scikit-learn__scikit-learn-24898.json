@@ -1,0 +1,223 @@
+{
+  "id": "scikit-learn__scikit-learn-24898",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 24898,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/semi_supervised/_label_propagation.py",
+      "line": 330,
+      "cwe": "CWE-1059",
+      "rule_id": "incorrect-api-documentation",
+      "expected_severity": "high",
+      "predicted_severity": "low",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 54281,
+  "llm_calls": 5,
+  "input_tokens": 10951,
+  "output_tokens": 2136,
+  "total_tokens": 13087,
+  "instruction_calls": 5,
+  "instruction_tokens": 5008,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3091,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-8828df10",
+        "K-eb2105bb",
+        "K-3c8dfccb",
+        "K-0a2298e4",
+        "K-2bba7006",
+        "K-1d4bb77e",
+        "K-c5fe4768",
+        "K-5388c8d9"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 589,
+      "knowledge_ids": [
+        "K-0f45b787",
+        "K-fc6f5674",
+        "K-9ecad403",
+        "K-1617cbdc",
+        "K-94fa9fcb",
+        "K-51e6bbd9"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-1d4bb77e",
+      "K-26252785",
+      "K-2bba7006",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-8828df10",
+      "K-94fa9fcb",
+      "K-9ecad403",
+      "K-c5fe4768",
+      "K-eb2105bb",
+      "K-f8bf6084",
+      "K-fc6f5674"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-8828df10",
+          "K-eb2105bb",
+          "K-3c8dfccb",
+          "K-0a2298e4",
+          "K-2bba7006",
+          "K-1d4bb77e",
+          "K-c5fe4768",
+          "K-5388c8d9"
+        ],
+        "tokens": 601,
+        "budget": 600,
+        "dropped": [
+          "K-f32f49ff",
+          "K-60a0fdd6"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0f45b787",
+          "K-fc6f5674",
+          "K-9ecad403",
+          "K-1617cbdc",
+          "K-94fa9fcb",
+          "K-51e6bbd9"
+        ],
+        "tokens": 413,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-api-documentation",
+      "severity": "low",
+      "title": "fit_predict documents inductive inference but returns transductive labels",
+      "explanation": "The new docstring promises inductive inference, but the implementation fits the model and returns transduction_, the flattened training-label assignment stored by fit at line 326. Both LabelPropagation and LabelSpreading inherit this behavior. Returning transduction_ is appropriate for a transductive fit_predict API; the defect is the documentation, not an obligation to call predict(X). The distinction is observable: with LabelPropagation(kernel='knn', n_neighbors=3), X=[[0.0], [0.1], [0.2]] and y=[1, 0, 0], hard clamping preserves transduction_=[1, 0, 0], whereas inductive predict(X) aggregates all three neighbors and returns [0, 0, 0]. A caller relying on the advertised inference semantics therefore receives a different result. Delegating to fit preserves its validation, and returning its raveled transduction_ provides the documented one-dimensional shape; neither requires a functional change.",
+      "path": "sklearn/semi_supervised/_label_propagation.py",
+      "line": 330,
+      "evidence": "        \"\"\"Fit a semi-supervised label propagation model to X and perform inductive inference.\n        self.fit(X, y)\n        return self.transduction_",
+      "fix": "Describe fitting and returning transductive labels for the training samples, and clarify that these need not equal the inductive predictions from predict(X). Retain the existing implementation.",
+      "test": "For both concrete subclasses, assert fit_predict(X, y) equals transduction_ and has shape (n_samples,). Include the all-labeled three-neighbor LabelPropagation example to demonstrate that fit_predict is not required to equal predict(X).",
+      "confidence": 0.8999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/semi_supervised/_label_propagation.py",
+          "line": 329,
+          "symbol": "BaseLabelPropagation.fit_predict"
+        },
+        {
+          "path": "sklearn/semi_supervised/_label_propagation.py",
+          "line": 326,
+          "symbol": "BaseLabelPropagation.fit: self.transduction_ = transduction.ravel()"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-1059",
+      "applied_rules": []
+    }
+  ]
+}

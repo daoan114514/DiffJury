@@ -1,0 +1,316 @@
+{
+  "id": "sympy__sympy-18131",
+  "repository": "sympy/sympy",
+  "pull_request": 18131,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 2,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 117553,
+  "llm_calls": 5,
+  "input_tokens": 23774,
+  "output_tokens": 4434,
+  "total_tokens": 28208,
+  "instruction_calls": 5,
+  "instruction_tokens": 3874,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1754,
+      "knowledge_ids": [
+        "K-a9677d2d",
+        "K-62f4a6cf",
+        "K-1f002951",
+        "K-4f9662f0",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "test-quality"
+      ],
+      "skill_body_tokens": 1080
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 792,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-e4a5fbd0",
+        "K-8810c414",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-8810c414",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-bc43ffcf",
+      "K-e4a5fbd0"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-a9677d2d",
+          "K-62f4a6cf",
+          "K-1f002951",
+          "K-4f9662f0",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 362,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-e4a5fbd0",
+          "K-8810c414",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf"
+        ],
+        "tokens": 616,
+        "budget": 600,
+        "dropped": [
+          "K-11de6ec1",
+          "K-cde9c599",
+          "K-8184713c",
+          "K-60ce9e38",
+          "K-4e7d5d6b",
+          "K-10578218",
+          "K-962b000c",
+          "K-d778c4a2",
+          "K-86d0b57a",
+          "K-03e5723b",
+          "K-9d754682",
+          "K-be32699b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "reciprocal-finite-endpoints",
+      "severity": "medium",
+      "title": "An infinite upper endpoint is accepted even though the distribution cannot be normalized",
+      "explanation": "The checks require only a > 0 and a < b, so a=5 and b=oo pass both checks. A reciprocal distribution requires finite endpoints: the integral of 1/x from a positive finite lower bound to infinity diverges. With the implemented normalization, log(oo)-log(5) is infinite, so the PDF is zero at every finite interior point and the CDF hook is zero at every finite point above 5. This silently constructs an invalid distribution rather than rejecting the parameters. The validation error message even explicitly includes +oo in the allowed range, and test_reciprocal has no invalid-parameter assertions.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3211,
+      "evidence": "_value_check((a < b),\n        \"Parameter b must be in range (%s, +oo]. b = %s\"%(a, b))",
+      "fix": "Validate the proper-distribution condition 0 < a < b < oo while preserving the framework's handling of undecidable symbolic conditions. Update the validation message to exclude infinity.",
+      "test": "Assert that Reciprocal('X', 5, oo) raises ValueError. Cover zero and negative lower endpoints, equal and reversed endpoints, and nonfinite endpoints, while retaining construction tests for valid finite parameters and symbolic parameters whose constraints are undecidable.",
+      "confidence": 0.89,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3209,
+          "symbol": "ReciprocalDistribution.check"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3218,
+          "symbol": "ReciprocalDistribution.pdf"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3223,
+          "symbol": "ReciprocalDistribution._cdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "reciprocal-pdf-support",
+      "severity": "medium",
+      "title": "Reciprocal density is one above the upper support boundary",
+      "explanation": "The PDF's final branch returns 1 rather than 0. For Reciprocal('X', 5, 30), the added implementation gives density 0 at 4, 1/(10*(log(30)-log(5))) at 10, and 1 at 31. Thus the exposed density is not a probability density on the real line: its integral over [5,30] is 1, but its integral over the real line diverges. The added assertion at test_continuous_rv.py:959 explicitly expects the erroneous final branch, providing evidence that the public density result is not support-wrapped. Support-restricted probability and expectation calculations can mask this error, so the existing expectation and probability assertions do not validate the exposed PDF.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3219,
+      "evidence": "(S.One, (x > b)))",
+      "fix": "Return zero above b, preferably expressing the PDF as the reciprocal formula on [a,b] and zero otherwise. Correct the symbolic test and documentation example that currently encode the erroneous tail.",
+      "test": "For X = Reciprocal('X', 5, 30), assert density(X)(4) == 0, density(X)(10) == 1/(10*(log(30)-log(5))), and density(X)(31) == 0. Also integrate the exposed density over the entire real line and assert that it equals 1, rather than integrating only over the declared support.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3214,
+          "symbol": "ReciprocalDistribution.pdf"
+        },
+        {
+          "path": "sympy/stats/tests/test_continuous_rv.py",
+          "line": 959,
+          "symbol": "test_reciprocal"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "reciprocal-cdf-boundaries",
+      "severity": "medium",
+      "title": "The reciprocal CDF hook is not bounded outside the support",
+      "explanation": "The new _cdf hook returns the logarithmic interior formula without boundary branches. For a=5 and b=30 it gives 0 and 1 at the respective endpoints, but gives log(4/5)/log(6), which is negative, at x=4, and log(12)/log(6), which exceeds 1, at x=60. It also attempts to evaluate log(x) for negative arguments instead of returning zero. This is not a valid CDF outside [a,b]. The added tests exercise P(X < 4), not the CDF hook or public cdf result; a probability calculation restricted to the distribution's declared support does not establish that the CDF implementation handles these boundaries.",
+      "path": "sympy/stats/crv_types.py",
+      "line": 3223,
+      "evidence": "return (log(x) - log(a)) / (log(b) - log(a))",
+      "fix": "Return a Piecewise CDF with zero below a, the logarithmic formula between a and b, and one above b.",
+      "test": "Use the public cdf API on Reciprocal('X', 5, 30) and assert exact results at -1, 4, 5, an interior point, 30, and 60: respectively 0, 0, 0, the logarithmic interior value, 1, and 1. Check the distribution CDF hook as well so support-aware probability integration cannot mask the missing branches.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3268,
+          "symbol": "Reciprocal"
+        },
+        {
+          "path": "sympy/stats/crv_types.py",
+          "line": 3221,
+          "symbol": "ReciprocalDistribution._cdf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

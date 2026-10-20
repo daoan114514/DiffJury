@@ -1,0 +1,229 @@
+{
+  "id": "scikit-learn__scikit-learn-25108",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 25108,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/metrics/_ranking.py",
+      "line": 911,
+      "cwe": "CWE-20",
+      "rule_id": "parameter-validation-compatibility",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 59966,
+  "llm_calls": 5,
+  "input_tokens": 11024,
+  "output_tokens": 2370,
+  "total_tokens": 13394,
+  "instruction_calls": 5,
+  "instruction_tokens": 5117,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3102,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-eb2105bb",
+        "K-0a2298e4",
+        "K-2bba7006",
+        "K-f32f49ff",
+        "K-3c8dfccb",
+        "K-651ca0b6",
+        "K-1c8d031b",
+        "K-8828df10",
+        "K-4d5756a5"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 687,
+      "knowledge_ids": [
+        "K-184c93c6",
+        "K-fc6f5674",
+        "K-fe66117a",
+        "K-0f45b787",
+        "K-51e6bbd9",
+        "K-1617cbdc",
+        "K-0f38f6b6",
+        "K-6d7b0522"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-1c8d031b",
+      "K-2bba7006",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-651ca0b6",
+      "K-6d7b0522",
+      "K-8828df10",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-eb2105bb",
+          "K-0a2298e4",
+          "K-2bba7006",
+          "K-f32f49ff",
+          "K-3c8dfccb",
+          "K-651ca0b6",
+          "K-1c8d031b",
+          "K-8828df10",
+          "K-4d5756a5"
+        ],
+        "tokens": 612,
+        "budget": 600,
+        "dropped": [
+          "K-1d4bb77e",
+          "K-60a0fdd6"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-184c93c6",
+          "K-fc6f5674",
+          "K-fe66117a",
+          "K-0f45b787",
+          "K-51e6bbd9",
+          "K-1617cbdc",
+          "K-0f38f6b6",
+          "K-6d7b0522"
+        ],
+        "tokens": 511,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "parameter-validation-compatibility",
+      "severity": "medium",
+      "title": "The pos_label constraint rejects previously supported floating-point labels",
+      "explanation": "The added Integral constraint excludes Python and NumPy floating-point positive labels, even when they identify valid binary classes. For example, roc_curve([0.0, 1.0], [0.1, 0.9], pos_label=1.0) previously succeeds with false-positive rates [0, 0, 1] and true-positive rates [0, 1, 1]: integral-valued floating-point targets are valid binary targets, and positive-class selection compares the target values with pos_label. The new decorator instead raises a parameter-validation error before that implementation runs because 1.0 is not an Integral. This affects callers that obtain their positive label from floating-point target arrays; np.float32(1) is rejected as well. The accepted-label constraint therefore does not preserve the implementation's supported numeric inputs. Adding roc_curve to PARAM_VALIDATION_FUNCTION_LIST registers generic constraint checks but adds no explicit successful-call regression for these previously supported labels, so that registration does not establish compatibility.",
+      "path": "sklearn/metrics/_ranking.py",
+      "line": 911,
+      "evidence": "        \"pos_label\": [Integral, str, None],",
+      "fix": "Accept real-valued positive labels, for example by using numbers.Real rather than Integral, while preserving the existing string and None alternatives.",
+      "test": "Add successful-call tests for roc_curve([0.0, 1.0], [0.1, 0.9], pos_label=label), parameterized over 1, 1.0, np.float32(1), and np.float64(1). Assert identical false-positive and true-positive rates across these representations.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/metrics/_ranking.py",
+          "line": 907,
+          "symbol": "validate_params"
+        },
+        {
+          "path": "sklearn/metrics/_ranking.py",
+          "line": 916,
+          "symbol": "roc_curve"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "id": "scikit-learn__scikit-learn-12915",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 12915,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 160184,
+  "llm_calls": 6,
+  "input_tokens": 22367,
+  "output_tokens": 6204,
+  "total_tokens": 28571,
+  "instruction_calls": 6,
+  "instruction_tokens": 4598,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1437,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1437,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 396,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-fe66117a",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-fe66117a",
+          "K-fc6f5674"
+        ],
+        "tokens": 220,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "nonfinite-calibration-objective",
+      "severity": "medium",
+      "title": "Saturated zero-weight samples now make sigmoid calibration's objective NaN",
+      "explanation": "Removing the positive floor introduces a failure for finite decision scores and supported zero sample weights. Consider df=[-1, 1, 1e300], y=[0, 1, 0], and sample_weight=[1, 1, 0]. Platt's smoothed targets are [1/4, 2/3, 1/4], and the initial parameters are [0, log(3/2)]. The weighted gradient at initialization is [5/12, 7/60], so an ordinary descent trial makes the slope negative. At the unit-step trial, the third sample's exponential underflows and its probability becomes exactly 1. Its new loss is infinite because xlogy(3/4, 0) is negative infinity; the subsequent multiplication by its zero sample weight produces NaN. The old expression instead assigns that sample a finite loss and its weighted contribution is exactly zero. The other two samples have finite losses and gradients, with a finite optimum near slope=-0.89588 and intercept=0.20273. Thus an observation that should contribute nothing now contaminates the line-search objective and prevents normal optimization. The gradient still ignores this sample through its zero weight, so it no longer corresponds to a usable objective along the descent direction. This is not an analogous AdaBoost regression: SAMME.R uses signed class coding of 1 and -1/(n_classes-1), and clips predicted probabilities to a positive epsilon before this operation; on those reachable values, xlogy is equivalent to the previous multiplication by log.",
+      "path": "sklearn/calibration.py",
+      "line": 447,
+      "evidence": "        l = -(xlogy(T, P) + xlogy(T1, 1. - P))\n        if sample_weight is not None:\n            return (sample_weight * l).sum()",
+      "fix": "Preserve the previous positive floor in both logarithm arguments when introducing xlogy, or evaluate the logistic loss stably from the logits using logaddexp. Ensure zero-weight observations cannot introduce NaN into the objective.",
+      "test": "Add a regression test calling _sigmoid_calibration with df=[-1, 1, 1e300], y=[0, 1, 0], and sample_weight=[1, 1, 0]. Verify that calibration reaches parameters approximately [-0.8958797, 0.2027326], rather than stopping at initialization or returning nonfinite parameters. Also check that the objective is finite at a negative-slope descent trial.",
+      "confidence": 0.94,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/calibration.py",
+          "line": 445,
+          "symbol": "_sigmoid_calibration.objective: compute saturated probabilities"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 447,
+          "symbol": "_sigmoid_calibration.objective: evaluate logarithmic loss"
+        },
+        {
+          "path": "sklearn/calibration.py",
+          "line": 449,
+          "symbol": "_sigmoid_calibration.objective: multiply infinite loss by zero sample weight"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "nonfinite-loss-disables-convergence-detection",
+      "severity": "medium",
+      "title": "Removing clipping allows infinite losses that disable stochastic convergence detection",
+      "explanation": "The infinite loss for an exactly wrong probability is mathematically intentional, but its interaction with the MLP convergence bookkeeping is a regression. Boundary comparison: binary_log_loss([[1]], [[1]]) and binary_log_loss([[0]], [[0]]) now return zero, whereas the clipped implementation returned approximately 1e-10; the two incorrectly classified boundary cases now return infinity instead of approximately 23.02585. log_loss has the same behavior for one-column inputs and for corresponding two-column one-hot inputs. These probabilities are reachable with finite, supported training inputs: the logistic output activation rounds sufficiently large positive logits to exactly one and sufficiently negative logits to zero. A concrete counterexample is an MLPClassifier with no hidden layers, random_state=0, two identical feature rows [[10000.], [10000.]], opposing labels [0, 1], and SGD with learning_rate_init=1e-30, momentum=0, and alpha=0. Its initial positive coefficient produces saturated predictions, and the updates are too small to change the coefficient in floating-point arithmetic. Every epoch consequently records an infinite loss. In the stochastic convergence path, best_loss_ initially equals infinity; the comparison loss > best_loss_ - tol is false for infinity versus infinity, so the no-improvement counter keeps resetting instead of detecting the unchanged loss. Training therefore exhausts max_iter and warns rather than stopping for lack of improvement as it did with the finite clipped loss. This is a convergence/resource-use defect, not merely an objection to the mathematical definition of cross-entropy. The counterexample is statically derived; execution was unavailable in the supplied no-tools environment.",
+      "path": "sklearn/neural_network/_base.py",
+      "line": 244,
+      "evidence": "return -(xlogy(y_true, y_prob) +\n             xlogy(1 - y_true, 1 - y_prob)).sum() / y_prob.shape[0]",
+      "fix": "Preserve finite loss values for saturated activation outputs, for example by retaining probability clipping before applying xlogy. Alternatively, compute a numerically stable cross-entropy directly from logits and explicitly make the convergence bookkeeping handle nonfinite losses.",
+      "test": "Add boundary tests for both losses covering correctly and incorrectly classified probabilities at zero and one. Add an integration regression using MLPClassifier(hidden_layer_sizes=(), solver='sgd', random_state=0, learning_rate_init=1e-30, momentum=0, alpha=0, shuffle=False, batch_size=2, max_iter=100, tol=1e-4) on X=np.array([[10000.], [10000.]]) and y=np.array([0, 1]). Compare against the previous clipped binary loss by temporarily replacing LOSS_FUNCTIONS['binary_log_loss'] with a function that clips to [1e-10, 1-1e-10] before evaluating binary cross-entropy. Verify that the changed implementation does not repeatedly reset its no-improvement counter on an unchanged infinite loss, and that the repaired implementation terminates for lack of improvement before max_iter. The supplied environment did not permit executing this regression.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neural_network/_base.py",
+          "line": 244,
+          "symbol": "binary_log_loss"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

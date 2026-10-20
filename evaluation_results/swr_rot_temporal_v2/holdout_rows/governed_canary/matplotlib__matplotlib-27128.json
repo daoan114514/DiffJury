@@ -1,0 +1,307 @@
+{
+  "id": "matplotlib__matplotlib-27128",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 27128,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 1,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 480,
+      "cwe": "CWE-628",
+      "rule_id": "decorator-call-contract",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 71249,
+  "llm_calls": 5,
+  "input_tokens": 20063,
+  "output_tokens": 3312,
+  "total_tokens": 23375,
+  "instruction_calls": 5,
+  "instruction_tokens": 4792,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2896,
+      "knowledge_ids": [
+        "K-2b3b5530",
+        "K-130dc527",
+        "K-42776966",
+        "K-d76217f5",
+        "K-58d26727",
+        "K-d7b7bb6f",
+        "K-708dda56",
+        "K-489cde43"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 568,
+      "knowledge_ids": [
+        "K-12284e0a",
+        "K-ac8cc41a",
+        "K-94275c11",
+        "K-1bd0d82a",
+        "K-eee6e319",
+        "K-86e6ca00"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-130dc527",
+      "K-1bd0d82a",
+      "K-2b3b5530",
+      "K-42776966",
+      "K-489cde43",
+      "K-58d26727",
+      "K-708dda56",
+      "K-86e6ca00",
+      "K-94275c11",
+      "K-ac8cc41a",
+      "K-d76217f5",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-2b3b5530",
+          "K-130dc527",
+          "K-42776966",
+          "K-d76217f5",
+          "K-58d26727",
+          "K-d7b7bb6f",
+          "K-708dda56",
+          "K-489cde43"
+        ],
+        "tokens": 478,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-12284e0a",
+          "K-ac8cc41a",
+          "K-94275c11",
+          "K-1bd0d82a",
+          "K-eee6e319",
+          "K-86e6ca00"
+        ],
+        "tokens": 392,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "decorator-call-contract",
+      "severity": "medium",
+      "title": "Preserve the wrapped tests' pytest metadata and argument contract",
+      "explanation": "The new outer decorator replaces each test with a function accepting only family_name, without copying metadata or exposing __wrapped__. Because @pytest.mark.parametrize is applied before this decorator, its family_name/file_name parametrization is attached to the discarded inner function, not the returned wrapper. Pytest therefore collects an unparametrized test and requests a family_name fixture during setup instead of supplying the declared parameter values. The outer wrapper also hides the figure-comparison decorator's metadata. Even if metadata preservation alone is added, forwarding only family_name remains incorrect: test__get_fontmap requires both family_name and file_name, and the figure-comparison test also needs its declared arguments preserved. These are failures of the decorator's transparency, occurring before or independently of font detection.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 480,
+      "evidence": "        def wrapper(family_name):\n            for font in fonts:\n                fp = fm.FontProperties(family=[font])\n                found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")\n                return func(family_name)\n        return wrapper",
+      "fix": "Use functools.wraps(func) and a wrapper accepting *args and **kwargs, then invoke func(*args, **kwargs). Preserve the existing parametrization and figure-comparison metadata rather than replacing their call contract.",
+      "test": "Run pytest collection and execution for both decorated tests. Assert that both family_name/file_name parameter cases remain collected, the figure-comparison extension cases remain represented, no family_name fixture lookup occurs, and an available-font case reaches the underlying test with all arguments.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 80,
+          "symbol": "skipif_font_missing applied outside pytest.mark.parametrize"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 479,
+          "symbol": "decorator"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 480,
+          "symbol": "wrapper"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 88,
+          "symbol": "test__get_fontmap(family_name, file_name)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-628",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "font-availability-detection",
+      "severity": "medium",
+      "title": "Do not compare a font filename against the requested family names",
+      "explanation": "The supplied fonts list contains family names such as 'WenQuanYi Zen Hei' and 'Noto Sans CJK JP', whereas found_file_name is the basename of a font file. For an installed WenQuanYi font resolving to wqy-zenhei.ttc, the membership test is false and skips the test despite the font being present. The same mismatch applies to NotoSansCJK font filenames. The removed checks instead compared each parameter's expected filename substring with the resolved basename. Missing fonts may resolve to a fallback through findfont's default behavior, but this new predicate does not distinguish that situation from successful lookup: both ordinary installed fonts and fallback files fail membership in the family-name list. After fixing the wrapper contract, both tests therefore remain incorrectly skipped on systems providing the requested fonts.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 484,
+      "evidence": "                found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")",
+      "fix": "Check whether the requested family resolves without fallback, for example by using findfont with fallback_to_default=False and skipping on its missing-font error. Alternatively preserve an explicit family-to-expected-filename mapping and the previous filename checks.",
+      "test": "Exercise the real decorator with an installed family whose font filename differs from its family name, asserting that the body executes. Also exercise a nonexistent family and assert that it skips instead of accepting the default fallback font.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_ft2font.py",
+          "line": 58,
+          "symbol": "skipif_font_missing(['WenQuanYi Zen Hei', 'Noto Sans CJK JP'])"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 482,
+          "symbol": "fm.FontProperties(family=[font])"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 483,
+          "symbol": "fm.findfont"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 484,
+          "symbol": "wrapper font-availability predicate"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "font-check-iteration",
+      "severity": "medium",
+      "title": "Invoke the decorated function only after checking the entire font list",
+      "explanation": "The return is inside the loop. An empty fonts list consequently returns None without ever executing the decorated function, although there is no missing font to justify suppressing it. For one font, the function executes only if that one lookup passes. For multiple fonts, the first passing lookup immediately executes the function and no later font is checked, violating the stated 'if any ... are missing' contract. This is independent of the incorrect filename predicate: a focused counterexample can supply fonts=['present.ttf', 'missing.ttf'] and have findfont return '/fonts/present.ttf' for the first lookup and '/fonts/fallback.ttf' for the second. The first lookup satisfies the current predicate, but the second lookup is never performed and the body runs instead of skipping.",
+      "path": "lib/matplotlib/testing/decorators.py",
+      "line": 486,
+      "evidence": "            for font in fonts:\n                fp = fm.FontProperties(family=[font])\n                found_file_name = Path(fm.findfont(fp)).name\n                if found_file_name not in fonts:\n                    pytest.skip(f\"Font {font} is missing\")\n                return func(family_name)",
+      "fix": "Move the wrapped-function invocation outside the loop so that all requested fonts are validated before execution, and an empty list executes the function normally.",
+      "test": "Add focused decorator tests for zero, one, and multiple fonts. Assert that an empty list calls the body once and preserves its return value; all-present multiple fonts are all checked before one body call; and a present first font followed by a missing font skips without calling the body.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 470,
+          "symbol": "skipif_font_missing"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 481,
+          "symbol": "wrapper font loop"
+        },
+        {
+          "path": "lib/matplotlib/testing/decorators.py",
+          "line": 486,
+          "symbol": "early return to func"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ]
+}

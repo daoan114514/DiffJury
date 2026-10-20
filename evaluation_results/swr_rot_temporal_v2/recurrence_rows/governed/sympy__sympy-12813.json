@@ -1,0 +1,174 @@
+{
+  "id": "sympy__sympy-12813",
+  "repository": "sympy/sympy",
+  "pull_request": 12813,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 52095,
+  "llm_calls": 5,
+  "input_tokens": 12551,
+  "output_tokens": 1474,
+  "total_tokens": 14025,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "undefined-test-skip",
+      "severity": "medium",
+      "title": "Import skip before using it in the Travis-only hyperexpand guard",
+      "explanation": "The updated sympy.utilities.pytest import adds ON_TRAVIS but omits skip. The new branch in test_prudnikov_3 calls skip when ON_TRAVIS is truthy, so the intended Travis skip instead raises NameError if skip has no other module-level binding. This call is introduced by this change; local execution with a false ON_TRAVIS bypasses it. The supplied excerpt establishes the missing name in the updated import, but does not include the complete module or the helper definitions, so another binding cannot be conclusively excluded. The heurisch import section is also absent from the supplied evidence and cannot be independently verified.",
+      "path": "sympy/simplify/tests/test_hyperexpand.py",
+      "line": 733,
+      "evidence": "from sympy.utilities.pytest import XFAIL, raises, slow, ON_TRAVIS\n...\n    if ON_TRAVIS:\n        # See https://github.com/sympy/sympy/pull/12795\n        skip(\"Too slow for travis.\")",
+      "fix": "Add skip to the sympy.utilities.pytest import in test_hyperexpand.py unless it is already explicitly bound elsewhere in the complete module.",
+      "test": "Set the test module's ON_TRAVIS to True and invoke test_prudnikov_3 through the test runner; assert that it is reported as skipped rather than failing with NameError. Also run with ON_TRAVIS false to confirm the original test body remains executable. Inspect the complete imports of test_heurisch.py to verify both ON_TRAVIS and skip are available there.",
+      "confidence": 0.75,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/tests/test_hyperexpand.py",
+          "line": 730,
+          "symbol": "test_prudnikov_3"
+        },
+        {
+          "path": "sympy/simplify/tests/test_hyperexpand.py",
+          "line": 733,
+          "symbol": "skip"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-457",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "id": "matplotlib__matplotlib-17105",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 17105,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 57124,
+  "llm_calls": 6,
+  "input_tokens": 60321,
+  "output_tokens": 3023,
+  "total_tokens": 63344,
+  "instruction_calls": 6,
+  "instruction_tokens": 7878,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 2,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2961,
+      "knowledge_ids": [
+        "K-42776966",
+        "K-58d26727",
+        "K-708dda56",
+        "K-d76217f5",
+        "K-130dc527",
+        "K-386f03af",
+        "K-489cde43",
+        "K-2b3b5530",
+        "K-4fb328e2",
+        "K-d7b7bb6f"
+      ],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3081,
+      "knowledge_ids": [
+        "K-42776966",
+        "K-58d26727",
+        "K-708dda56",
+        "K-d76217f5",
+        "K-130dc527",
+        "K-386f03af",
+        "K-489cde43",
+        "K-2b3b5530",
+        "K-4fb328e2",
+        "K-d7b7bb6f"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 508,
+      "knowledge_ids": [
+        "K-eee6e319",
+        "K-12284e0a",
+        "K-ac8cc41a",
+        "K-86e6ca00",
+        "K-94275c11"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-130dc527",
+      "K-2b3b5530",
+      "K-386f03af",
+      "K-42776966",
+      "K-489cde43",
+      "K-4fb328e2",
+      "K-58d26727",
+      "K-708dda56",
+      "K-86e6ca00",
+      "K-94275c11",
+      "K-ac8cc41a",
+      "K-d76217f5",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-42776966",
+          "K-58d26727",
+          "K-708dda56",
+          "K-d76217f5",
+          "K-130dc527",
+          "K-386f03af",
+          "K-489cde43",
+          "K-2b3b5530",
+          "K-4fb328e2",
+          "K-d7b7bb6f"
+        ],
+        "tokens": 591,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-eee6e319",
+          "K-12284e0a",
+          "K-ac8cc41a",
+          "K-86e6ca00",
+          "K-94275c11"
+        ],
+        "tokens": 332,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "textbox-managerless-submit",
+      "severity": "medium",
+      "title": "Manager-less TextBox silently drops submit notifications",
+      "explanation": "The new begin_typing guard allows a TextBox on a canvas without a manager to enter typing mode. However, stop_typing now places notifysubmit = True inside a condition that also requires a manager. For a manager-less canvas, calling begin_typing followed by stop_typing clears capturekeystrokes and hides the cursor, but leaves notifysubmit false, so registered on_submit callbacks never run. Manager presence should govern keymap/toolmanager restoration, not whether completed editing is submitted. This affects embedded canvases without a FigureManager. The supplied added tests exercise Dropdown selection and validation, not this manager-less submission path.",
+      "path": "lib/matplotlib/widgets.py",
+      "line": 1126,
+      "evidence": "        if self.capturekeystrokes and self.ax.figure.canvas.manager is not None:\n...\n            notifysubmit = True\n        self.capturekeystrokes = False\n        self.cursor.set_visible(False)\n        if notifysubmit:\n            self._notify_submit_observers()",
+      "fix": "Keep capturekeystrokes as the outer condition, nest the manager check only around keymap/toolmanager restoration, and set notifysubmit = True whenever typing was active. Preserve cleanup before invoking observers.",
+      "test": "Create a Figure with a FigureCanvasAgg whose manager is None, construct a TextBox with initial text, register an on_submit recorder, call begin_typing(0), then stop_typing(). Assert that the recorder receives the current text once, capturekeystrokes is false, and the cursor is hidden. Call stop_typing again and verify no duplicate notification.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1108,
+          "symbol": "TextBox.begin_typing"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1122,
+          "symbol": "TextBox.stop_typing"
+        },
+        {
+          "path": "lib/matplotlib/widgets.py",
+          "line": 1139,
+          "symbol": "TextBox._notify_submit_observers (incorrectly skipped)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ]
+}

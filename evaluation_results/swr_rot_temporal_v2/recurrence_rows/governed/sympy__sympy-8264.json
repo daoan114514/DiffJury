@@ -1,0 +1,179 @@
+{
+  "id": "sympy__sympy-8264",
+  "repository": "sympy/sympy",
+  "pull_request": 8264,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 106651,
+  "llm_calls": 5,
+  "input_tokens": 18652,
+  "output_tokens": 2897,
+  "total_tokens": 21549,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "correctness-review",
+      "severity": "medium",
+      "title": "Deep expansion changes the labels of existing ket and bra inputs",
+      "explanation": "The unconditional expand calls use deep expansion, which descends into the labels of KetBase and BraBase objects, rather than only distributing linear combinations of states. A concrete counterexample is x, y = symbols('x y'); k = Ket((x + y)**2); b = Bra('b'); op = OuterProduct(k, b). Previously, op.ket == k was true because the constructor stored the supplied state. With this change, expansion reconstructs the ket as Ket(x**2 + 2*x*y + y**2), so op.ket == k is false. Thus an already-supported input consisting of a plain ket and bra no longer preserves the supplied states or their structural identity. This result follows from the default deep traversal of expand and the changed constructor call chain; it was not runtime-verified in this review. The same traversal also introduces avoidable growth unrelated to distributing an outer product: a single ket whose label is a product of n independent binomials acquires a label with 2**n terms even though the requested outer product contains only one ket/bra pair.",
+      "path": "sympy/physics/quantum/operator.py",
+      "line": 397,
+      "evidence": "        ket_expr = expand(args[0])\n        bra_expr = expand(args[1])",
+      "fix": "Distribute the outer state expressions without recursively expanding state labels. Preserve KetBase and BraBase instances as atomic inputs, and use shallow expansion or a state-aware linear decomposition for scaled states and sums.",
+      "test": "Add a regression using k = Ket((x + y)**2) and b = Bra((x - y)**2), asserting OuterProduct(k, b).ket == k and OuterProduct(k, b).bra == b. Repeat with scaled and summed states to ensure distribution still works without rewriting their labels. Include a ket labeled by a product of independent binomials and assert that its original factored label is preserved.",
+      "confidence": 0.91,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 397,
+          "symbol": "OuterProduct.__new__: deep expansion of the supplied ket"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 402,
+          "symbol": "OuterProduct.__new__: extraction of the reconstructed ket"
+        },
+        {
+          "path": "sympy/physics/quantum/operator.py",
+          "line": 421,
+          "symbol": "OuterProduct.__new__: storage of the reconstructed states"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

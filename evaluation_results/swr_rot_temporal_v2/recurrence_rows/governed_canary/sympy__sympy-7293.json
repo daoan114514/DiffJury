@@ -1,0 +1,303 @@
+{
+  "id": "sympy__sympy-7293",
+  "repository": "sympy/sympy",
+  "pull_request": 7293,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 159060,
+  "llm_calls": 8,
+  "input_tokens": 75281,
+  "output_tokens": 4711,
+  "total_tokens": 79992,
+  "instruction_calls": 8,
+  "instruction_tokens": 9057,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 2,
+    "security": 2,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 3,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3064,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-4feced24",
+        "K-a9677d2d",
+        "K-1f002951",
+        "K-87ee2eda",
+        "K-4f9662f0",
+        "K-b9cfc827",
+        "K-7e90bf29",
+        "K-2b8fec11",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3064,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-4feced24",
+        "K-a9677d2d",
+        "K-1f002951",
+        "K-87ee2eda",
+        "K-4f9662f0",
+        "K-b9cfc827",
+        "K-7e90bf29",
+        "K-2b8fec11",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 782,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-9d754682",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-2b8fec11",
+      "K-4f9662f0",
+      "K-4feced24",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-9d754682",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-4feced24",
+          "K-a9677d2d",
+          "K-1f002951",
+          "K-87ee2eda",
+          "K-4f9662f0",
+          "K-b9cfc827",
+          "K-7e90bf29",
+          "K-2b8fec11",
+          "K-a4c9356f"
+        ],
+        "tokens": 574,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-9d754682",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1"
+        ],
+        "tokens": 606,
+        "budget": 600,
+        "dropped": [
+          "K-f00ce49b",
+          "K-cde9c599",
+          "K-60ce9e38",
+          "K-86d0b57a",
+          "K-03e5723b",
+          "K-8810c414",
+          "K-4e7d5d6b",
+          "K-d778c4a2",
+          "K-8184713c",
+          "K-4e30e572",
+          "K-10578218",
+          "K-e4a5fbd0",
+          "K-962b000c"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "numpy-backend-selection",
+      "severity": "medium",
+      "title": "Enable NumPy matrix-product printing for explicitly selected NumPy modules",
+      "explanation": "The NumPy-printing flag is initialized to False and set to True only inside `if modules is None`. Consequently, `modules='numpy'`, `modules=['numpy']`, and lists containing a NumPy module object all obtain a NumPy namespace but retain the non-NumPy MatMul printer. For example, with A and B as 2-by-2 MatrixSymbols, `lambdify((A, B), A*B, modules='numpy')` generates a body equivalent to `A*B`. Given ndarray inputs a=[[1,2],[3,4]] and b=[[1,0],[0,1]], it returns [[1,0],[0,4]] instead of the matrix product [[1,2],[3,4]]. In contrast, default modules with NumPy installed set the flag and generate `(A).dot(B)`. The same problem affects scalar coefficients and longer products: `5*A*B` performs scaled elementwise multiplication under explicit NumPy selection. This is particularly consequential for mixed concrete/symbolic products because this change also switches concrete matrix translations to ndarray. The added NumPy lambdify test uses default modules and an addition-only expression, so neither the explicit-backend mismatch nor numerical multiplication is exercised.",
+      "path": "sympy/utilities/lambdify.py",
+      "line": 285,
+      "evidence": "            use_numpy=True",
+      "fix": "Determine use_numpy from the effective selected modules, including the string, module-object, and module-list forms, rather than only from automatic dependency discovery.",
+      "test": "Parametrize default modules, 'numpy', ['numpy'], and [numpy] using non-diagonal ndarray factors. Check A*B, 5*A*B, A*B*C, and an unevaluated product containing a concrete matrix against numpy.dot results.",
+      "confidence": 0.95,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:93bd9951ae1ab4b7",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \"sympy/utilities/lambdify.py\", \"start_line\": 260, \"end_line\": 447, \"content\": \"    5\\n\\n    ``lambdify`` always prefers ``_imp_`` implementations to implementations\\n    in other namespaces, unless the ``use_imps`` input parameter is False.\\n    \\\"\\\"\\\"\\n    from sympy.core.symbol import Symbol\\n    from sympy.utilities.iterables import flatten\\n\\n    # If the user hasn't specified any modules, use what is available.\\n    module_provided = True\\n    use_numpy = False\\n    if modules is None:\\n        module_provided = False\\n        # Use either numpy (if available) or python.math where possible.\\n        # XXX: This leads to different behaviour on different systems and\\n        #      might be the reason for irreproducible errors.\\n        modules = [\\\"math\\\", \\\"mpmath\\\", \\\"sympy\\\"]\\n\\n        #Attempt to import numpy\\n        try:\\n            _import(\\\"numpy\\\")\\n        except ImportError:\\n            pass\\n        else:\\n            modules.insert(1, \\\"numpy\\\")\\n            use_numpy=True\\n\\n\\n    # Get the needed namespaces.\\n    namespaces = []\\n    # First find any function implementations\\n    if use_imps:\\n        namespaces.append(_imp_namespace(expr))\\n    # Check for dict before iterating\\n    if isinstance(modules, (dict, str)) or not hasattr(modules, '__iter__'):\\n        namespaces.append(modules)\\n    else:\\n        namespaces += list(modules)\\n    # fill namespace with first having highest priority\\n    namespace = {}\\n    for m in namespaces[::-1]:\\n        buf = _get_namespace(m)\\n        namespace.update(buf)\\n\\n    if hasattr(expr, \\\"atoms\\\"):\\n        #Try if you can extract symbols from the expression.\\n        #Move on if expr.atoms in not implemented.\\n        syms = expr.atoms(Symbol)\\n        for term in syms:\\n            namespace.update({str(term): term})\\n\\n    # Create lambda function.\\n    lstr = lambdastr(args, expr, printer=printer, dummify=dummify, use_numpy=use_numpy)\\n    flat = '__flatten_args__'\\n    if flat in lstr:\\"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 270,
+          "symbol": "lambdify: initialize use_numpy=False"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 285,
+          "symbol": "lambdify: enable only for automatically selected NumPy"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 312,
+          "symbol": "lambdify -> lambdastr"
+        },
+        {
+          "path": "sympy/utilities/lambdify.py",
+          "line": 441,
+          "symbol": "lambdastr -> lambdarepr"
+        },
+        {
+          "path": "sympy/printing/lambdarepr.py",
+          "line": 104,
+          "symbol": "LambdaPrinter._print_MatMul: non-NumPy multiplication"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

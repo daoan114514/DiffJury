@@ -1,0 +1,183 @@
+{
+  "id": "sympy__sympy-7614",
+  "repository": "sympy/sympy",
+  "pull_request": 7614,
+  "split": "train",
+  "expected": 2,
+  "predicted": 2,
+  "tp": 2,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 1,
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1218,
+      "cwe": "CWE-682",
+      "rule_id": "ellipse-evolute-real-powers",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    },
+    {
+      "expected_index": 1,
+      "predicted_index": 0,
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1216,
+      "cwe": "CWE-682",
+      "rule_id": "ellipse-evolute-center",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 2,
+  "evidence_hits": 2,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 88097,
+  "llm_calls": 5,
+  "input_tokens": 14707,
+  "output_tokens": 2496,
+  "total_tokens": 17203,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "ellipse-evolute-center",
+      "severity": "medium",
+      "title": "Evolute equation ignores the ellipse's center",
+      "explanation": "The returned equation uses absolute x and y coordinates instead of coordinates relative to self.center. Independently, the evolute of an ellipse parameterized by (h + a*cos(t), k + b*sin(t)) is (h + (a**2 - b**2)*cos(t)**3/a, k + (b**2 - a**2)*sin(t)**3/b). For the documented Ellipse(Point(1, 0), 3, 2), t = 0 therefore gives the evolute point (8/3, 0). Substituting this point into the new expression gives 4 - 5**(2/3), which is nonzero. Both power bases in this counterexample are nonnegative, so this failure is independent of fractional-power branch behavior. The documented output actually demonstrates the missing translation rather than verifying the geometric equation. The omission also affects translated circles: their evolute is their center, but for center (1, 0) and equal positive radii r, substitution of that center gives r**(2/3), not zero. No relevant test files were supplied, so existing test coverage could not be inspected.",
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1216,
+      "evidence": "return (self.hradius*x)**Rational(2, 3) + \\\n        (self.vradius*y)**Rational(2, 3) -\\\n        (self.hradius**2 - self.vradius**2)**Rational(2, 3)",
+      "fix": "Use x - self.center.x and y - self.center.y in the equation, while also correcting the fractional-power branch issue separately. Update the translated example to reflect those coordinates.",
+      "test": "For Ellipse(Point(1, 0), 3, 2), assert that substituting x = 8/3 and y = 0 into evolute() gives zero exactly. Add a translation-invariance check and a translated-circle case whose center must satisfy the returned equation.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/ellipse.py",
+          "line": 1190,
+          "symbol": "Ellipse.evolute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "ellipse-evolute-real-powers",
+      "severity": "medium",
+      "title": "Principal fractional powers exclude real evolute points",
+      "explanation": "SymPy's Rational(2, 3) exponent uses the principal complex power, not the square of the real cube root. Consequently, the expression is not a valid implicit equation for the complete real evolute even when the ellipse is centered at the origin. For a = 3, b = 2, the independently derived evolute point at t = pi is (-5/3, 0). Substitution gives (-5)**(2/3) - 5**(2/3) = 5**(2/3)*(exp(2*pi*I/3) - 1), which is nonzero. The point (0, -5/2) at t = pi/2 fails identically. Reversing the radii also fails without any negative point coordinates: for a = 2, b = 3, t = pi gives the evolute point (5/2, 0), but substitution produces 5**(2/3) - (-5)**(2/3), again nonzero because the right-hand constant has a negative base. There is no guard or real-root operation in the added implementation. For equal radii at the origin, this particular problem does not invalidate the real zero locus, which remains the origin; translated circular degeneracy is covered by the separate center defect. The documented example does not check point substitution, and no relevant test files were supplied for inspection.",
+      "path": "sympy/geometry/ellipse.py",
+      "line": 1218,
+      "evidence": "return (self.hradius*x)**Rational(2, 3) + \\\n        (self.vradius*y)**Rational(2, 3) -\\\n        (self.hradius**2 - self.vradius**2)**Rational(2, 3)",
+      "fix": "Represent each two-thirds power using the square of a real cube root, including the radius-difference term, or return an equivalent branch-free polynomial equation. Apply the center translation as well.",
+      "test": "Use exact rational substitutions to assert zero at all four evolute cusps for origin-centered ellipses with radii (3, 2) and (2, 3). Include an interior point with both coordinates negative, such as (-5/24, -15*sqrt(3)/16) for radii (3, 2), obtained at t = 2*pi/3. Repeat representative substitutions after a nonzero center translation.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/ellipse.py",
+          "line": 1190,
+          "symbol": "Ellipse.evolute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

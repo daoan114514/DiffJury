@@ -1,0 +1,197 @@
+{
+  "id": "sympy__sympy-16051",
+  "repository": "sympy/sympy",
+  "pull_request": 16051,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 176902,
+  "llm_calls": 5,
+  "input_tokens": 42372,
+  "output_tokens": 5492,
+  "total_tokens": 47864,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "correctness.symbolic_truth_value",
+      "severity": "medium",
+      "title": "Undecidable integer positivity now raises during expint evaluation",
+      "explanation": "When nu is an integer symbol without a known sign and the argument has a nonzero polar branch, nu.is_integer is true but nu > 0 remains an unevaluated relational. The previous comparison with True returned early unless positivity was established. The replacement instead requests the relational's Python truth value, which raises TypeError. A minimal triggering input is `k = Symbol('k', integer=True); expint(k, exp_polar(2*pi*I))`. Branch extraction gives a nonzero branch index, reaching this condition. Previously the expression remained unevaluated; construction now fails with `TypeError: cannot determine truth value of Relational`. The existing integer check does not establish positivity.",
+      "path": "sympy/functions/special/error_functions.py",
+      "line": 1221,
+      "evidence": "        if nu.is_integer:\n            if not nu > 0:\n                return",
+      "fix": "Retain an explicit established-true check, such as `(nu > 0) != True`, rather than coercing the symbolic relation to bool.",
+      "test": "Construct expint(Symbol('k', integer=True), exp_polar(2*pi*I)) and assert that it remains an unevaluated expint without raising. Also retain positive- and nonpositive-integer branch tests.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/special/error_functions.py",
+          "line": 1221,
+          "symbol": "expint.eval"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "correctness.absence_sentinel_identity",
+      "severity": "medium",
+      "title": "Code generators no longer recognize the AST absence sentinel",
+      "explanation": "Codegen AST optional attributes use the custom `none` instance of NoneToken, not the Python None singleton. NoneToken equality intentionally recognizes Python None, so the previous equality checks recognized an absent attribute while the new identity checks do not. For example, `ccode(Element('A', (Symbol('i'),)))` has absent strides and offset represented by that sentinel. At the changed condition, `elem.strides is None` is false, so the printer takes the explicit-strides branch and executes `zip(elem.indices, elem.strides)`, raising TypeError because NoneToken is not iterable; previously this produced `A[i]`. The same mistaken identity conversion also affects absent initializers in C/Fortran declarations, optional Fortran sum/use/print fields, and optional Python Print fields. The two changed AST doctests likewise cannot make a NoneToken identical to Python None. These are downstream manifestations of the same absence-representation mismatch.",
+      "path": "sympy/printing/ccode.py",
+      "line": 527,
+      "evidence": "        if elem.strides is None:\n            if elem.offset is not None:\n                raise ValueError(\"Expected strides when offset is given\")\n            idxs = ']['.join(map(lambda arg: self._print(arg),\n                                 elem.indices))\n        else:\n            global_idx = sum([i*s for i, s in zip(elem.indices, elem.strides)])",
+      "fix": "Preserve the AST sentinel contract: retain equality-based absence checks or explicitly recognize NoneToken/the `none` sentinel. Audit the corresponding changed C, Fortran, Python, and Token._construct checks together, and keep the doctests consistent with the actual sentinel representation.",
+      "test": "Assert that ccode(Element('A', (Symbol('i'),))) returns `A[i]`; additionally exercise explicit strides with omitted offset. Run declaration tests without initializers and Fortran/Python printing tests with omitted optional fields, as well as the two modified AST doctests.",
+      "confidence": 0.86,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/ccode.py",
+          "line": 527,
+          "symbol": "C89CodePrinter._print_Element"
+        },
+        {
+          "path": "sympy/printing/ccode.py",
+          "line": 533,
+          "symbol": "C89CodePrinter._print_Element explicit-strides branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "correctness.symbolic_membership",
+      "severity": "medium",
+      "title": "Finite-set union coerces undecidable membership to a Python boolean",
+      "explanation": "The outer guard establishes that at least one finite-set element is contained in b, not that membership of every element is decidable. For example, with `x = Symbol('x', real=True)`, constructing `Union(FiniteSet(0, x), Interval(0, oo))` reaches this handler because 0 is definitely contained. Membership of x in that interval remains the relational `x >= 0`. The old filter retained x because this relation is not structurally equal to True. The new `not` evaluates its truth value and raises TypeError instead of returning the symbolic union. More generally, symbolic Boolean membership expressions must not be interpreted as ordinary Python membership booleans.",
+      "path": "sympy/sets/handlers/union.py",
+      "line": 113,
+      "evidence": "    if any(b.contains(x) == True for x in a):\n        return set((\n            FiniteSet(*[x for x in a if not b.contains(x)]), b))",
+      "fix": "Remove only elements whose membership is explicitly True; restore `b.contains(x) != True` or an equivalent explicit symbolic-true comparison.",
+      "test": "For a real symbol x, assert that Union(FiniteSet(0, x), Interval(0, oo)) constructs successfully and equals Union(FiniteSet(x), Interval(0, oo)). Include an interval with two symbolic endpoint comparisons and verify that an undecidable element is retained rather than discarded.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 111,
+          "symbol": "union_sets(FiniteSet, Set)"
+        },
+        {
+          "path": "sympy/sets/handlers/union.py",
+          "line": 113,
+          "symbol": "union_sets membership filter"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

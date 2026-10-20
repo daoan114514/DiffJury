@@ -1,0 +1,208 @@
+{
+  "id": "scikit-learn__scikit-learn-28802",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 28802,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 60833,
+  "llm_calls": 5,
+  "input_tokens": 75302,
+  "output_tokens": 3039,
+  "total_tokens": 78341,
+  "instruction_calls": 5,
+  "instruction_tokens": 6464,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 2,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3054,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-f8bf6084",
+        "K-1c8d031b",
+        "K-8828df10",
+        "K-c5fe4768",
+        "K-59df2e59",
+        "K-5388c8d9",
+        "K-f32f49ff",
+        "K-a62a9e09",
+        "K-6e16a2a3",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 810,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-fe66117a",
+        "K-791ded73",
+        "K-0f45b787",
+        "K-184c93c6",
+        "K-2968cdc5",
+        "K-feee072d",
+        "K-1617cbdc",
+        "K-51e6bbd9",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-184c93c6",
+      "K-1c8d031b",
+      "K-26252785",
+      "K-2968cdc5",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-5388c8d9",
+      "K-59df2e59",
+      "K-69a7f4ef",
+      "K-6e16a2a3",
+      "K-791ded73",
+      "K-8828df10",
+      "K-a62a9e09",
+      "K-c5fe4768",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-fc6f5674",
+      "K-fe66117a",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-f8bf6084",
+          "K-1c8d031b",
+          "K-8828df10",
+          "K-c5fe4768",
+          "K-59df2e59",
+          "K-5388c8d9",
+          "K-f32f49ff",
+          "K-a62a9e09",
+          "K-6e16a2a3",
+          "K-3c8dfccb"
+        ],
+        "tokens": 636,
+        "budget": 600,
+        "dropped": [
+          "K-4d5756a5",
+          "K-0a2298e4",
+          "K-2bba7006",
+          "K-651ca0b6",
+          "K-eb2105bb",
+          "K-d3341a3f",
+          "K-1d4bb77e",
+          "K-24ae43fa",
+          "K-60a0fdd6"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-fe66117a",
+          "K-791ded73",
+          "K-0f45b787",
+          "K-184c93c6",
+          "K-2968cdc5",
+          "K-feee072d",
+          "K-1617cbdc",
+          "K-51e6bbd9",
+          "K-fc6f5674"
+        ],
+        "tokens": 634,
+        "budget": 600,
+        "dropped": [
+          "K-0f38f6b6",
+          "K-3636a06a",
+          "K-94fa9fcb",
+          "K-9ecad403",
+          "K-0f51ebe7",
+          "K-70b43072",
+          "K-6d7b0522",
+          "K-d8b204bc"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": []
+}

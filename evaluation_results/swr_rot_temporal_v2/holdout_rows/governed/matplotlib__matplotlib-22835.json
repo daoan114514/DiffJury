@@ -1,0 +1,170 @@
+{
+  "id": "matplotlib__matplotlib-22835",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 22835,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 84461,
+  "llm_calls": 5,
+  "input_tokens": 22358,
+  "output_tokens": 3524,
+  "total_tokens": 25882,
+  "instruction_calls": 5,
+  "instruction_tokens": 4022,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2514,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "boundarynorm-cursor-local-precision",
+      "severity": "medium",
+      "title": "Nonuniform boundaries select an unrelated interval and lose cursor precision",
+      "explanation": "For a supported BoundaryNorm with boundaries [0, 1, 1.01, 2], formatting data=1.009 selects boundary 1.01 and computes delta=max(0.01, 0.99)=0.99. The significant-digit calculation therefore selects two significant digits, producing '[1.0]' even though the containing color interval is only 0.01 wide. Using that interval's width would produce '[1.01]'. Taking the larger interval adjacent to the nearest boundary lets an unrelated, wide interval erase the precision needed to distinguish narrow color intervals. This defect is in the newly added BoundaryNorm path. The new tests only use uniformly spaced boundaries, where the incorrect spacing selection is indistinguishable from selecting the containing interval. Their expected labels also reuse the production significant-digit helper rather than independently checking literal output. The advertised out-of-bounds dataset Y is never displayed or iterated, and the explicitly constructed 200- and 2000-entry colormaps are not passed to imshow. Those omissions do not independently prove further defects: X already exercises underflow and the upper endpoint, and the new BoundaryNorm spacing calculation does not depend on colormap size. Neither omission provides coverage of the reproducible nonuniform-spacing error.",
+      "path": "lib/matplotlib/artist.py",
+      "line": 1314,
+      "evidence": "cur_idx = np.argmin(np.abs(self.norm.boundaries - data))\n...\ndelta = np.diff(\n    self.norm.boundaries[[neigh_idx1, cur_idx, neigh_idx2]]\n).max()",
+      "fix": "Determine the interval containing data and derive precision from that interval, rather than the maximum spacing on both sides of the nearest boundary. Explicitly use the first or last interval for values outside the endpoints, independently of BoundaryNorm's clipping or extension color indices.",
+      "test": "Add a test using BoundaryNorm([0, 1, 1.01, 2], 256) and assert a literal cursor label '[1.01]' for 1.009. Include other values in the narrow interval, exact endpoints, and values below and above the boundary range under supported clipping and extension configurations. Use Y in the out-of-bounds cases and pass the constructed colormap objects where their sizes are intended to be exercised.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/artist.py",
+          "line": 1305,
+          "symbol": "Artist.format_cursor_data: self.norm(data)"
+        },
+        {
+          "path": "lib/matplotlib/artist.py",
+          "line": 1309,
+          "symbol": "Artist.format_cursor_data: nearest-boundary selection"
+        },
+        {
+          "path": "lib/matplotlib/artist.py",
+          "line": 1314,
+          "symbol": "Artist.format_cursor_data: adjacent-spacing maximum"
+        },
+        {
+          "path": "lib/matplotlib/artist.py",
+          "line": 1323,
+          "symbol": "Artist.format_cursor_data: cbook._g_sig_digits(data, delta)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

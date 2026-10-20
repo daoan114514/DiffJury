@@ -1,0 +1,211 @@
+{
+  "id": "matplotlib__matplotlib-17851",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 17851,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+      "line": 210,
+      "cwe": "CWE-20",
+      "rule_id": "collection3d-zs-broadcasting",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 60525,
+  "llm_calls": 5,
+  "input_tokens": 15694,
+  "output_tokens": 2423,
+  "total_tokens": 18117,
+  "instruction_calls": 5,
+  "instruction_tokens": 4812,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2903,
+      "knowledge_ids": [
+        "K-58d26727",
+        "K-708dda56",
+        "K-42776966",
+        "K-2b3b5530",
+        "K-130dc527",
+        "K-d76217f5",
+        "K-386f03af"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 581,
+      "knowledge_ids": [
+        "K-86e6ca00",
+        "K-ac8cc41a",
+        "K-d2310f1b",
+        "K-12284e0a",
+        "K-9728b835",
+        "K-eee6e319"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-130dc527",
+      "K-2b3b5530",
+      "K-386f03af",
+      "K-42776966",
+      "K-58d26727",
+      "K-708dda56",
+      "K-86e6ca00",
+      "K-9728b835",
+      "K-ac8cc41a",
+      "K-d2310f1b",
+      "K-d76217f5",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727",
+          "K-708dda56",
+          "K-42776966",
+          "K-2b3b5530",
+          "K-130dc527",
+          "K-d76217f5",
+          "K-386f03af"
+        ],
+        "tokens": 413,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-86e6ca00",
+          "K-ac8cc41a",
+          "K-d2310f1b",
+          "K-12284e0a",
+          "K-9728b835",
+          "K-eee6e319"
+        ],
+        "tokens": 405,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "collection3d-zs-broadcasting",
+      "severity": "medium",
+      "title": "Iterable z values silently discard collection paths instead of broadcasting or rejecting mismatches",
+      "explanation": "A previously accepted singleton iterable now truncates the collection. For example, create a LineCollection containing two segments and call ax.add_collection3d(collection, zs=[1]). Previously, np.broadcast_to([1], 2) supplied z=1 for both paths. Now np.iterable([1]) is true, broadcasting is skipped, and zip(paths, zs) produces only one pair; only that path reaches _path_to_3d_segment. Thus the second segment disappears. The previous unconditional broadcasting establishes that singleton sequences were supported, rather than merely an assumed contract. Similarly, three paths with zs=[1, 2] previously raised ValueError but now silently retain only two paths; an empty zs iterable drops every path. The added tests exercise scalar z and matching per-vertex arrays, so neither detects this regression. Returning the result of super().add_collection(col) does not itself introduce a demonstrated defect.",
+      "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+      "line": 210,
+      "evidence": "    if not np.iterable(zs):\n        zs = np.broadcast_to(zs, len(paths))\n\n    segs = [_path_to_3d_segment(path, pathz, zdir)\n            for path, pathz in zip(paths, zs)]",
+      "fix": "Preserve broadcasting for scalar and singleton flat zs inputs. For other iterables, validate that the outer length matches the number of paths before conversion, while retaining support for nested per-vertex z arrays.",
+      "test": "Add a two-segment LineCollection with zs=[1] and assert that both resulting 3D segments remain and every vertex has z=1. Add mismatched and empty zs cases for a nonempty collection and assert ValueError rather than truncation. Retain the matching per-vertex-array test and assert that add_collection3d returns the supplied collection.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+          "line": 207,
+          "symbol": "_paths_to_3d_segments"
+        },
+        {
+          "path": "lib/mpl_toolkits/mplot3d/art3d.py",
+          "line": 213,
+          "symbol": "_path_to_3d_segment (call site)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

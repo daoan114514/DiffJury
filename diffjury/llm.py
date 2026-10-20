@@ -1,6 +1,8 @@
 """Small OpenAI-compatible JSON client with auditable usage accounting."""
 import json
+import os
 import socket
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -21,12 +23,28 @@ def first_json_object(content: Any) -> Any:
     return value
 
 
+_slots_guard = threading.Lock()
+_slots: Dict[int, threading.BoundedSemaphore] = {}
+
+
+def request_slots(limit: int) -> Optional[threading.BoundedSemaphore]:
+    """Process-wide cap on in-flight model requests, shared by every client.
+
+    Parallel agents and replay workers queue here when an upstream only allows
+    serial (or lightly concurrent) use; 0 means unlimited."""
+    if limit <= 0:
+        return None
+    with _slots_guard:
+        return _slots.setdefault(limit, threading.BoundedSemaphore(limit))
+
+
 class JsonChatClient:
     def __init__(
         self, base_url: str, api_key: str, model: str,
         provider: str = "openai-compatible", timeout: int = 60,
         extra_headers: Optional[Dict[str, str]] = None,
         json_retries: int = 0,
+        max_concurrency: Optional[int] = None,
     ):
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
@@ -35,6 +53,9 @@ class JsonChatClient:
         self.timeout = timeout
         self.extra_headers = dict(extra_headers or {})
         self.json_retries = max(0, min(2, int(json_retries)))
+        if max_concurrency is None:
+            max_concurrency = int(os.environ.get("DIFFJURY_LLM_MAX_CONCURRENCY", "0") or 0)
+        self.slots = request_slots(int(max_concurrency))
 
     @staticmethod
     def _mention_json(user: str) -> str:
@@ -80,11 +101,18 @@ class JsonChatClient:
                 data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
                 headers=headers, method="POST",
             )
+            if self.slots is not None:
+                self.slots.acquire()
+            # Latency excludes time spent queueing for a request slot.
             started = time.monotonic()
             usage, finish_reason, response_chars, can_retry = {}, "", 0, False
             try:
-                with urllib.request.urlopen(request, timeout=self.timeout) as response:
-                    body = json.loads(response.read().decode("utf-8"))
+                try:
+                    with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                        body = json.loads(response.read().decode("utf-8"))
+                finally:
+                    if self.slots is not None:
+                        self.slots.release()
                 choice = body["choices"][0]
                 usage = body.get("usage") or {}
                 finish_reason = str(choice.get("finish_reason") or "")

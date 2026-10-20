@@ -1,0 +1,140 @@
+{
+  "id": "scikit-learn__scikit-learn-1201",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 1201,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 140874,
+  "llm_calls": 5,
+  "input_tokens": 16776,
+  "output_tokens": 4574,
+  "total_tokens": 21350,
+  "instruction_calls": 5,
+  "instruction_tokens": 5094,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "outlier-label-used-as-class-index",
+      "severity": "medium",
+      "title": "Exclude outlier sentinel values before decoding class indices",
+      "explanation": "The new decoding step runs before the outlier label is restored. Consequently, an outlier mode outside the valid class-index range raises IndexError before the restoration code can run. A concrete regression case is training on X=[[0], [1]], y=[10, 20], with radius=0.1 and outlier_label=100, then predicting [[100]]: the expected result is [100], but an outlier mode of 100 cannot be passed to the two-element classes_.take array. Negative outlier labels below -len(classes_) fail similarly. The old return path returned integer modes directly and did not introduce this indexing operation. This is a static counterexample, not an executed test: the supplied evidence omits the earlier radius-prediction code that constructs outlier modes, so that construction and the complete public call path still require confirmation.",
+      "path": "sklearn/neighbors/classification.py",
+      "line": 317,
+      "evidence": "prediction = self.classes_.take(modes)",
+      "fix": "Retain the actual outlier-row mask, decode only inlier modes through classes_, and assign the configured outlier label directly to outlier rows using an output dtype that can represent both classes and the outlier label.",
+      "test": "Exercise the real RadiusNeighborsClassifier.predict path with two classes, one inlier query and one query outside every training radius. Set outlier_label=100 and assert that prediction returns the original inlier class and 100 without raising. Repeat with an outlier label below -len(classes_). No existing tests or full implementation were supplied for inspection.",
+      "confidence": 0.7,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/neighbors/base.py",
+          "line": 580,
+          "symbol": "SupervisedIntegerMixin.fit"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 315,
+          "symbol": "RadiusNeighborsClassifier.predict"
+        },
+        {
+          "path": "sklearn/neighbors/classification.py",
+          "line": 317,
+          "symbol": "self.classes_.take"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-129",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

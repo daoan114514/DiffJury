@@ -1,0 +1,187 @@
+{
+  "id": "scikit-learn__scikit-learn-11509",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 11509,
+  "split": "train",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sklearn/tests/test_init.py",
+      "line": 39,
+      "cwe": "CWE-706",
+      "rule_id": "subprocess-interpreter-mismatch",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 71492,
+  "llm_calls": 5,
+  "input_tokens": 29389,
+  "output_tokens": 2202,
+  "total_tokens": 31591,
+  "instruction_calls": 5,
+  "instruction_tokens": 4974,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3466,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3124
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "subprocess-interpreter-mismatch",
+      "severity": "medium",
+      "title": "Run the import check with the interpreter executing pytest",
+      "explanation": "The literal executable name 'python' is resolved through PATH, which need not select the interpreter running the test. For example, invoke /opt/venv/bin/python -m pytest against an installed package from outside its source directory while PATH selects /usr/bin/python. If both environments have sklearn installed, the child checks the system interpreter's installation instead of the virtual environment under test. A warning-free system installation can therefore make this test pass despite import warnings in the tested installation. If the system interpreter lacks sklearn, the resulting CalledProcessError is instead skipped by the broad handler. This is independent of the exception-handler defect: even with that handler removed, a successful child can validate the wrong installation.",
+      "path": "sklearn/tests/test_init.py",
+      "line": 39,
+      "evidence": "        message = subprocess.check_output(['python', '-Wdefault',\n                                           '-c', import_modules],\n                                          stderr=subprocess.STDOUT)",
+      "fix": "Import sys and use sys.executable instead of 'python' so the child uses the interpreter and environment running the suite.",
+      "test": "Run the test using an explicitly selected virtual-environment interpreter while PATH resolves 'python' to a different interpreter. Verify that the subprocess command uses sys.executable and that a warning from the virtual environment's installation fails the check.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 30,
+          "symbol": "test_import_sklearn_no_warnings"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 39,
+          "symbol": "subprocess.check_output"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-706",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-failure-converted-to-skip",
+      "severity": "medium",
+      "title": "Do not convert warning assertions and import failures into skips",
+      "explanation": "The exception handler covers both subprocess execution and the assertions that enforce the test's contract. If an imported module emits an unfiltered DeprecationWarning, check_output returns its output, the assertion at line 54 raises AssertionError, and this handler converts that genuine regression into a skipped test. Similarly, an import failure makes check_output raise CalledProcessError, which is also converted into a skip. Thus neither a detected warning nor a broken import fails the suite, defeating the new regression test.",
+      "path": "sklearn/tests/test_init.py",
+      "line": 57,
+      "evidence": "        assert 'Warning' not in message\n        assert 'Error' not in message\n\n    except Exception as e:\n        pytest.skip('soft-failed test_import_sklearn_no_warnings.\\n'\n                    ' %s' % e)",
+      "fix": "Remove the broad exception handler so assertion failures and child import failures propagate. If a specific unsupported environment genuinely warrants skipping, detect that condition explicitly and narrowly before running the assertions.",
+      "test": "Exercise the test with subprocess output containing an otherwise unfiltered DeprecationWarning and verify that pytest reports failure rather than skip. Separately make the child import exit nonzero and verify that this also fails the test.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 39,
+          "symbol": "subprocess.check_output"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 54,
+          "symbol": "test_import_sklearn_no_warnings assertions"
+        },
+        {
+          "path": "sklearn/tests/test_init.py",
+          "line": 58,
+          "symbol": "pytest.skip"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

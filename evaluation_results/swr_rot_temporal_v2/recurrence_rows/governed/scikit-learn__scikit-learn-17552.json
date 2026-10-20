@@ -1,0 +1,173 @@
+{
+  "id": "scikit-learn__scikit-learn-17552",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 17552,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 57913,
+  "llm_calls": 5,
+  "input_tokens": 13608,
+  "output_tokens": 1689,
+  "total_tokens": 15297,
+  "instruction_calls": 5,
+  "instruction_tokens": 3146,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1482,
+      "knowledge_ids": [
+        "K-26252785",
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 336,
+      "knowledge_ids": [
+        "K-69a7f4ef",
+        "K-fe66117a"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-26252785",
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-26252785",
+          "K-3c8dfccb"
+        ],
+        "tokens": 155,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-69a7f4ef",
+          "K-fe66117a"
+        ],
+        "tokens": 160,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "incorrect-max-features-documentation",
+      "severity": "medium",
+      "title": "Float max_features is truncated, not rounded",
+      "explanation": "The replacement documents a different feature-count calculation from the underlying trees. The forest constructors pass max_features through estimator_params to their DecisionTreeClassifier, DecisionTreeRegressor, ExtraTreeClassifier, or ExtraTreeRegressor instances. BaseForest.fit builds those estimators through _parallel_build_trees, which calls tree.fit; the shared BaseDecisionTree.fit implementation converts a positive fractional max_features using max(1, int(self.max_features * self.n_features_)) and assigns the result to max_features_. For example, max_features=0.26 with 10 input features is supported and produces 2, whereas the newly documented round(0.26 * 10) produces 3. The minimum-one behavior also matters: max_features=0.01 with 10 features produces 1, not round(0.1) == 0. The same documentation regression occurs at lines 1275, 1557, and 1875 in RandomForestRegressor, ExtraTreesClassifier, and ExtraTreesRegressor, respectively. No implementation change in the supplied diff makes rounding the new behavior.",
+      "path": "sklearn/ensemble/_forest.py",
+      "line": 951,
+      "evidence": "`round(max_features * n_features)` features are considered at each",
+      "fix": "Change all four float max_features descriptions to use max(1, int(max_features * n_features)), preserving truncation and documenting the minimum of one feature.",
+      "test": "Fit each of the four forest classes with n_estimators=1 on a nonconstant dataset containing 10 features. Assert estimators_[0].max_features_ == 2 for max_features=0.26 and == 1 for max_features=0.01, and ensure all four docstrings describe that calculation. The implementation call chain should be verified against the repository before applying the finding because only the documentation diff was available in this review.",
+      "confidence": 0.8499999999999999,
+      "evidence_refs": [],
+      "call_chain": [],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "id": "sympy__sympy-12813",
+  "repository": "sympy/sympy",
+  "pull_request": 12813,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 73216,
+  "llm_calls": 5,
+  "input_tokens": 12494,
+  "output_tokens": 1901,
+  "total_tokens": 14395,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "undefined-skip-helper",
+      "severity": "medium",
+      "title": "Import skip before calling it in the Travis-only branch",
+      "explanation": "The new branch calls `skip(\"Too slow for travis.\")`, but the changed import adds only `ON_TRAVIS`, not `skip`. If `skip` is not otherwise bound in this module, executing test_prudnikov_3 with ON_TRAVIS true raises NameError instead of skipping the test. Non-Travis execution does not evaluate that call, and collection alone would not expose it. This is distinct from the intentional reduction in Travis coverage. Verification limitation: the supplied excerpts do not include the complete imports or definitions of either module, or sympy.utilities.pytest, so an alternative binding of skip and the helper semantics cannot be independently ruled out; the unchanged ON_TRAVIS/skip bindings in test_heurisch.py likewise cannot be verified from this input.",
+      "path": "sympy/simplify/tests/test_hyperexpand.py",
+      "line": 733,
+      "evidence": "from sympy.utilities.pytest import XFAIL, raises, slow, ON_TRAVIS\n...\n    if ON_TRAVIS:\n        # See https://github.com/sympy/sympy/pull/12795\n        skip(\"Too slow for travis.\")",
+      "fix": "Verify that there is no existing skip binding, then add skip to the sympy.utilities.pytest import.",
+      "test": "Run test_prudnikov_3 with the module's ON_TRAVIS set to true and assert that the real test runner reports a skip rather than NameError. Also check collection and execution with ON_TRAVIS false. Inspect both complete modules and sympy.utilities.pytest to confirm the imported helper and environment-flag semantics.",
+      "confidence": 0.65,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/simplify/tests/test_hyperexpand.py",
+          "line": 730,
+          "symbol": "test_prudnikov_3"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE- NAMEERROR",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

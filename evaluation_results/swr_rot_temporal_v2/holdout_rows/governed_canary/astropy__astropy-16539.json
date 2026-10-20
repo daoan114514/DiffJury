@@ -1,0 +1,256 @@
+{
+  "id": "astropy__astropy-16539",
+  "repository": "astropy/astropy",
+  "pull_request": 16539,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 107709,
+  "llm_calls": 14,
+  "input_tokens": 37819,
+  "output_tokens": 4792,
+  "total_tokens": 42611,
+  "instruction_calls": 14,
+  "instruction_tokens": 22199,
+  "model_roles": {
+    "lead": 3,
+    "correctness-reliability": 5,
+    "security": 5,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 2,
+  "revision_results": 2,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 292,
+      "knowledge_ids": [
+        "K-0683c9f6"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0683c9f6"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-0683c9f6"
+        ],
+        "tokens": 116,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "mutable-third-party-action-reference",
+      "severity": "low",
+      "title": "Mutable action tag removes the workflow's immutable dependency pin",
+      "explanation": "At line 17, the third-party action changes from commit 4755e7510a07c6f6817cb607ffb9a711d3d62422 to the movable v1 tag. This allows whoever controls that upstream tag to change the code executed by subsequent workflow runs without a change in this repository. The supplied read_file observation verifies pull_request_target triggers for opened, synchronize, labeled, and unlabeled events. Line 19 explicitly supplies secrets.GITHUB_TOKEN to the action. Exploitation requires control of the upstream tag, such as compromise of an upstream maintainer account; no such compromise or malicious action code is demonstrated. If the tag were redirected to malicious code, that code could access the supplied token and act within its effective permissions. Those permissions are not declared in the supplied workflow, and repository or organization defaults are unavailable, so write access, credential exfiltration, and repository compromise are not established. The supported defect is the loss of immutable dependency pinning, not a verified privileged-execution exploit.",
+      "path": ".github/workflows/check_changelog.yml",
+      "line": 17,
+      "evidence": "    - uses: scientific-python/action-towncrier-changelog@v1\n      env:\n        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}",
+      "fix": "Pin the intended v1 release to its reviewed full commit SHA, optionally retaining v1 in a comment. Separately declare the minimum required GITHUB_TOKEN permissions rather than relying on unknown defaults.",
+      "test": "Add a workflow-policy check that rejects third-party uses references not pinned to a full 40-character commit SHA. Verify that @v1 fails and the reviewed v1 commit SHA passes.",
+      "confidence": 0.98,
+      "evidence_refs": [
+        {
+          "evidence_id": "read_file:80e8a0fd000a405d",
+          "tool": "read_file",
+          "output_preview": "{\"path\": \".github/workflows/check_changelog.yml\", \"start_line\": 1, \"end_line\": 20, \"content\": \"name: Check PR change log\\n\\non:\\n  # So it cannot be skipped.\\n  pull_request_target:\\n    types: [opened, synchronize, labeled, unlabeled]\\n\\nconcurrency:\\n  group: ${{ github.workflow }}-${{ github.ref }}\\n  cancel-in-progress: true\\n\\njobs:\\n  changelog_checker:\\n    name: Check if towncrier change log entry is correct\\n    runs-on: ubuntu-latest\\n    steps:\\n    - uses: scientific-python/action-towncrier-changelog@v1\\n      env:\\n        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}\\n        BOT_USERNAME: gilesbot\\n\"}"
+        }
+      ],
+      "call_chain": [
+        {
+          "path": ".github/workflows/check_changelog.yml",
+          "line": 5,
+          "symbol": "pull_request_target: opened, synchronize, labeled, unlabeled"
+        },
+        {
+          "path": ".github/workflows/check_changelog.yml",
+          "line": 17,
+          "symbol": "scientific-python/action-towncrier-changelog@v1"
+        },
+        {
+          "path": ".github/workflows/check_changelog.yml",
+          "line": 19,
+          "symbol": "GITHUB_TOKEN environment assignment"
+        }
+      ],
+      "source": "security",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-829",
+      "applied_rules": []
+    }
+  ]
+}

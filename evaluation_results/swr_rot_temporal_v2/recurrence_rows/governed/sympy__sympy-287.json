@@ -1,0 +1,189 @@
+{
+  "id": "sympy__sympy-287",
+  "repository": "sympy/sympy",
+  "pull_request": 287,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 214733,
+  "llm_calls": 6,
+  "input_tokens": 85651,
+  "output_tokens": 6694,
+  "total_tokens": 92345,
+  "instruction_calls": 6,
+  "instruction_tokens": 6445,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2332,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "performance-review"
+      ],
+      "skill_body_tokens": 2002
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "missing-test-assertion",
+      "severity": "low",
+      "title": "Assert the expected results in the nth-power wrapper tests",
+      "explanation": "The five successful-result checks discard their Boolean results, so test_nth_power_roots_poly passes even when the returned polynomial is incorrect. A concrete counterexample is changing the public wrapper's expression-return branch to return result.as_expr() + 1 only when n == 1: the comparison at line 2099 becomes False, but this test still passes, and its exception checks remain unaffected. The Poly method's doctests do check powers 2, 3, 4 and 12, and the wrapper's doctest checks power 2, so those provide overlapping coverage; however, they do not check the wrapper's n == 1 result. The new unit test therefore fails to enforce its intended identity and powered-root/multiplicity expectations.",
+      "path": "sympy/polys/tests/test_polytools.py",
+      "line": 2099,
+      "evidence": "    nth_power_roots_poly(f, 1) == f\n\n    raises(ValueError, \"nth_power_roots_poly(f, 0)\")\n    raises(ValueError, \"nth_power_roots_poly(f, x)\")\n\n    factor(nth_power_roots_poly(f, 2)) == f_2\n    factor(nth_power_roots_poly(f, 3)) == f_3\n    factor(nth_power_roots_poly(f, 4)) == f_4\n    factor(nth_power_roots_poly(f, 12)) == f_12",
+      "fix": "Prefix all five successful-result comparisons with assert.",
+      "test": "Run test_nth_power_roots_poly after temporarily making the wrapper return result.as_expr() + 1 for n == 1. The corrected test must fail at the identity assertion; restore the implementation and verify that all five assertions pass.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polytools.py",
+          "line": 2099,
+          "symbol": "test_nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4871,
+          "symbol": "nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4874,
+          "symbol": "nth_power_roots_poly expression-return branch"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-252",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

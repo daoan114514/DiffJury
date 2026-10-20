@@ -1,0 +1,209 @@
+{
+  "id": "scikit-learn__scikit-learn-3065",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 3065,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 136151,
+  "llm_calls": 6,
+  "input_tokens": 91507,
+  "output_tokens": 5060,
+  "total_tokens": 96567,
+  "instruction_calls": 6,
+  "instruction_tokens": 8198,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 26,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1582,
+      "knowledge_ids": [],
+      "skills": [
+        "security-review"
+      ],
+      "skill_body_tokens": 1233
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 396,
+      "knowledge_ids": [
+        "K-fe66117a",
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fe66117a",
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 220,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "REL-NETWORK-EXCEPTION-MASKED",
+      "severity": "medium",
+      "title": "Python 2 network failures are replaced by an uncaught AttributeError",
+      "explanation": "On Python 2, the successful import branch binds urllib to urllib2 (line 24). If urllib.urlopen(url) raises HTTPError or URLError—for example, when the documentation server returns 404 or the build runs offline—the new bare except catches that network exception and executes urllib.request.urlopen(url). Python 2's urllib2 module has no request attribute, so this raises AttributeError instead of preserving the original exception. The documentation hyperlink consumer's HTTPError and URLError handlers at lines 1099–1107 therefore cannot handle the failure. Previously, the original urllib2 exception propagated to those handlers, allowing the optional hyperlink embedding step to report the network problem gracefully. This is a regression on the previously supported Python 2 path, not an existing Python 3 limitation.",
+      "path": "doc/sphinxext/gen_rst.py",
+      "line": 77,
+      "evidence": "        except:\n            resp = urllib.request.urlopen(url)",
+      "fix": "Select the compatible urlopen implementation at import time, then call it without catching network exceptions to select the Python version. For example, import urlopen from urllib2 on Python 2 and urllib.request on Python 3. Handle header access separately so HTTPError and URLError propagate unchanged.",
+      "test": "Under Python 2.7, stub urllib2.urlopen to raise urllib2.URLError('offline'), then call _get_data('http://example.invalid/searchindex.js'). Assert that the same URLError propagates; the current code instead raises AttributeError because urllib2.request does not exist. Repeat with HTTPError for a 404 response, and verify that the embedding consumer handles both exceptions through its existing warning handlers rather than failing the documentation build.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 24,
+          "symbol": "import urllib2 as urllib"
+        },
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 74,
+          "symbol": "_get_data: urllib.urlopen(url)"
+        },
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 77,
+          "symbol": "_get_data: exception fallback"
+        },
+        {
+          "path": "doc/sphinxext/gen_rst.py",
+          "line": 1099,
+          "symbol": "embed_code_links: HTTPError/URLError handlers"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

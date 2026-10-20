@@ -1,0 +1,230 @@
+{
+  "id": "sympy__sympy-2417",
+  "repository": "sympy/sympy",
+  "pull_request": 2417,
+  "split": "train",
+  "expected": 2,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": ".travis.yml",
+      "line": 65,
+      "cwe": "CWE-269",
+      "rule_id": "sage-ci-package-install-privileges",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 90419,
+  "llm_calls": 5,
+  "input_tokens": 13412,
+  "output_tokens": 2685,
+  "total_tokens": 16097,
+  "instruction_calls": 5,
+  "instruction_tokens": 3883,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2375,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "sage-ci-package-install-privileges",
+      "severity": "medium",
+      "title": "Run the Sage repository and package installation commands with sudo",
+      "explanation": "The new TEST_SAGE matrix entry reaches system package-management commands without privilege elevation. Travis build commands normally execute as the unprivileged build user; enabling a sudo-capable Travis worker does not make those commands run as root. Adding a system repository and updating or installing system packages require root. Consequently, apt-add-repository fails, and the subsequent apt-get commands also fail on permissions or package-manager locks. The final apt-get failure makes this before_install entry fail, stopping the job before either Sage command executes. This is a CI-job failure, not a successful run that silently skips integration coverage. No repository execution tools were available to inspect a custom runner or reproduce the job; this finding relies on the standard Travis execution model and the explicit command chain.",
+      "path": ".travis.yml",
+      "line": 65,
+      "evidence": "  - if [[ \"${TEST_SAGE}\" == \"true\" ]]; then\n      apt-add-repository -y ppa:aims/sagemath;\n      apt-get update;\n      apt-get install sagemath-upstream-binary;\n    fi",
+      "fix": "Use sudo for all three system package-management commands and run the job on a sudo-capable Travis worker.",
+      "test": "Run the Sage matrix entry on a clean, standard Travis worker as its normal build user. Verify repository addition, package-index update, and package installation succeed, and that execution reaches bin/test_travis.sh.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".travis.yml",
+          "line": 43,
+          "symbol": "matrix.include entry setting TEST_SAGE=true"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 64,
+          "symbol": "before_install TEST_SAGE conditional"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 65,
+          "symbol": "apt-add-repository"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 67,
+          "symbol": "apt-get install"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-269",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "sage-ci-unattended-package-install",
+      "severity": "medium",
+      "title": "Make the Sage package installation noninteractive",
+      "explanation": "Even after granting the package commands the required privileges, the newly added apt-get install does not pass -y. On a clean worker where installing Sage requires additional dependencies, apt-get requests confirmation. In an unattended build with no confirmation input, it aborts rather than installing the packages. The -y passed to apt-add-repository affects only that separate command and does not answer apt-get's prompt. The resulting nonzero status fails before_install, so the Sage tests never run. This assumes normal apt-get defaults; the provided context does not establish any global Assume-Yes configuration, and no tools were available to inspect the worker.",
+      "path": ".travis.yml",
+      "line": 67,
+      "evidence": "      apt-get install sagemath-upstream-binary;",
+      "fix": "Install with sudo apt-get install -y sagemath-upstream-binary so dependency confirmation does not require terminal input.",
+      "test": "With privileges corrected, run the installation on a clean worker with stdin redirected from /dev/null and without an apt Assume-Yes override. Assert installation exits successfully and the subsequent sage -v command executes.",
+      "confidence": 0.8099999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": ".travis.yml",
+          "line": 43,
+          "symbol": "matrix.include entry setting TEST_SAGE=true"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 64,
+          "symbol": "before_install TEST_SAGE conditional"
+        },
+        {
+          "path": ".travis.yml",
+          "line": 67,
+          "symbol": "apt-get install"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 2
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

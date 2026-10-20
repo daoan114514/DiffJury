@@ -1,0 +1,302 @@
+{
+  "id": "matplotlib__matplotlib-17257",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 17257,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 134021,
+  "llm_calls": 6,
+  "input_tokens": 61913,
+  "output_tokens": 8095,
+  "total_tokens": 70008,
+  "instruction_calls": 6,
+  "instruction_tokens": 8036,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 2,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3087,
+      "knowledge_ids": [
+        "K-708dda56",
+        "K-386f03af",
+        "K-d7b7bb6f",
+        "K-58d26727",
+        "K-42776966",
+        "K-130dc527",
+        "K-489cde43",
+        "K-d76217f5",
+        "K-2b3b5530"
+      ],
+      "skills": [
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2231
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3039,
+      "knowledge_ids": [
+        "K-708dda56",
+        "K-386f03af",
+        "K-d7b7bb6f",
+        "K-58d26727",
+        "K-42776966",
+        "K-130dc527",
+        "K-489cde43",
+        "K-d76217f5",
+        "K-2b3b5530"
+      ],
+      "skills": [
+        "reliability-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2182
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 582,
+      "knowledge_ids": [
+        "K-12284e0a",
+        "K-ac8cc41a",
+        "K-eee6e319",
+        "K-86e6ca00",
+        "K-1bd0d82a",
+        "K-d2310f1b"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-12284e0a",
+      "K-130dc527",
+      "K-1bd0d82a",
+      "K-2b3b5530",
+      "K-386f03af",
+      "K-42776966",
+      "K-489cde43",
+      "K-58d26727",
+      "K-708dda56",
+      "K-86e6ca00",
+      "K-ac8cc41a",
+      "K-d2310f1b",
+      "K-d76217f5",
+      "K-d7b7bb6f",
+      "K-eee6e319"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-708dda56",
+          "K-386f03af",
+          "K-d7b7bb6f",
+          "K-58d26727",
+          "K-42776966",
+          "K-130dc527",
+          "K-489cde43",
+          "K-d76217f5",
+          "K-2b3b5530"
+        ],
+        "tokens": 531,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-12284e0a",
+          "K-ac8cc41a",
+          "K-eee6e319",
+          "K-86e6ca00",
+          "K-1bd0d82a",
+          "K-d2310f1b"
+        ],
+        "tokens": 406,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "dvi-stack-depth-is-not-a-baseline",
+      "severity": "medium",
+      "title": "The third DVI push can produce a negative page height",
+      "explanation": "Stack depth alone does not identify a text baseline in supported DVI input. For example, a valid page containing `bop; push; push; push; down4 100; set_rule(height=10, width=20); pop; pop; pop; eop` captures v=0 at the third push, although the only visible content occupies vertical coordinates 90 through 100. The new override replaces the content-derived maxy_pure=100 with 0, so dimension calculation reports height=-90 and descent=100 instead of height=10 and descent=0 (before DPI scaling). This is newly introduced: previously this rule-only page obtained its dimensions from its visible content. Resetting the baseline between pages and returning zero dimensions for empty pages do not address this nonstandard-but-valid nesting. The added empty-input and ordinary LaTeX image tests do not exercise this failure.",
+      "path": "lib/matplotlib/dviread.py",
+      "line": 320,
+      "evidence": "if (self._baseline_v is None\n                    and len(getattr(self, \"stack\", [])) == 3):\n                self._baseline_v = self.v",
+      "fix": "Do not unconditionally apply a LaTeX-specific stack-depth heuristic to arbitrary DVI pages. Make baseline detection conditional on an explicitly established page structure or restrict it to the TexManager-generated document path, retaining content-derived dimensions for other DVI input.",
+      "test": "Add a small valid DVI fixture with three pushes followed by a downward move and a rule. Assert that its height is the rule height and its descent is zero, rather than a negative height and an inflated descent. Include an empty page followed by this page to verify page-state reset independently.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/dviread.py",
+          "line": 319,
+          "symbol": "Dvi._read"
+        },
+        {
+          "path": "lib/matplotlib/dviread.py",
+          "line": 272,
+          "symbol": "Dvi._output"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-quality",
+      "severity": "medium",
+      "title": "The switching test leaves tick Text objects in non-usetex mode",
+      "explanation": "test_mathdefault creates its Axes while text.usetex is false and only changes the global setting afterward. Text objects capture their usetex setting when created; existing tick labels, and ticks subsequently copied from them, do not switch renderers when rcParams changes. Consequently, fig.canvas.draw() renders the mathdefault labels through mathtext rather than exercising the new TeX macro. Removing the macro can therefore leave this test passing despite breaking the integration it claims to test.",
+      "path": "lib/matplotlib/tests/test_usetex.py",
+      "line": 62,
+      "evidence": "mpl.rcParams['text.usetex'] = True",
+      "fix": "Construct the formatter before switching usetex, but construct the Axes and tick Text objects after switching, then attach that formatter. Alternatively, explicitly enable usetex on the tick labels before drawing. Assert that the labels have get_usetex() == True.",
+      "test": "Run the revised test with the real TeX renderer and verify that removing the new mathdefault macro makes it fail with an undefined-control-sequence error. Include an offset and log or logit labels if those formatter branches are intended to be protected by this integration test.",
+      "confidence": 0.77,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_usetex.py",
+          "line": 59,
+          "symbol": "test_mathdefault: fig.add_subplot().set_xlim"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_usetex.py",
+          "line": 62,
+          "symbol": "test_mathdefault: rcParams update"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_usetex.py",
+          "line": 63,
+          "symbol": "test_mathdefault: fig.canvas.draw"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "custom-preamble-mathdefault-collision",
+      "severity": "medium",
+      "title": "The unconditional mathdefault definition breaks existing custom preambles",
+      "explanation": "An existing configuration such as `text.latex.preamble = r'\\newcommand{\\mathdefault}[1]{#1}'` was accepted by the old generated document. It is also a natural workaround for rendering mathdefault-bearing strings with usetex. The generated preamble now defines the same command before inserting the custom preamble, so LaTeX raises `Command \\mathdefault already defined` when it reaches the user's definition. Both regular TeX generation and the preview path use this new shared preamble, making previously successful rendering fail rather than merely changing appearance. The new test_mathdefault exercises the default configuration, not this existing custom-preamble case.",
+      "path": "lib/matplotlib/texmanager.py",
+      "line": 205,
+      "evidence": "r\"\\newcommand{\\mathdefault}[1]{#1}\",",
+      "fix": "Insert a fallback `\\providecommand{\\mathdefault}[1]{#1}` after the custom preamble, so existing user definitions remain valid while configurations without a definition receive the new pass-through command.",
+      "test": "Render a mathdefault-bearing string with a custom preamble defining mathdefault through newcommand, with preview both enabled and disabled. Verify that LaTeX succeeds and that the user's definition is preserved.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 237,
+          "symbol": "TexManager.make_tex"
+        },
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 205,
+          "symbol": "TexManager._get_preamble"
+        },
+        {
+          "path": "lib/matplotlib/texmanager.py",
+          "line": 211,
+          "symbol": "TexManager.get_custom_preamble"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ]
+}

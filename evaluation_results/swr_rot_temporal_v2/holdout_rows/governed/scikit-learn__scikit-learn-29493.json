@@ -1,0 +1,216 @@
+{
+  "id": "scikit-learn__scikit-learn-29493",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 29493,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 85254,
+  "llm_calls": 6,
+  "input_tokens": 76906,
+  "output_tokens": 4621,
+  "total_tokens": 81527,
+  "instruction_calls": 6,
+  "instruction_tokens": 5762,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 2,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 2,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1437,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2601,
+      "knowledge_ids": [
+        "K-3c8dfccb"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 396,
+      "knowledge_ids": [
+        "K-fe66117a",
+        "K-69a7f4ef",
+        "K-fc6f5674"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-3c8dfccb",
+      "K-69a7f4ef",
+      "K-fc6f5674",
+      "K-fe66117a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-3c8dfccb"
+        ],
+        "tokens": 111,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fe66117a",
+          "K-69a7f4ef",
+          "K-fc6f5674"
+        ],
+        "tokens": 220,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "REL-UI-KEYBOARD",
+      "severity": "medium",
+      "title": "Replacing the toggle-all button with a span removes keyboard activation",
+      "explanation": "The previous control was a native button, which could receive keyboard focus and activate its onclick handler with Enter or Space when displayed. A concrete regression occurs when the pointer remains over a dropdown, making its toggle-all control visible, and the user switches to Tab navigation: previously the visible button was a tab stop; the replacement span is not. It has neither tabindex nor a keyboard handler. Focusing the surrounding summary and pressing Enter or Space only activates that summary, so it toggles one dropdown without invoking the span's toggle-all listener. The old hover-only styling already limited pointer-free discovery; this finding concerns the loss of keyboard activation of an already-visible control, not a claim that the old implementation was fully keyboard-accessible. Native summary activation correctly explains excluding the clicked dropdown from the mouse handler's explicit updates, but does not provide keyboard activation for its child span. This defect follows from the supplied markup and event-handler changes and does not depend on unverified sphinx-design marker styling.",
+      "path": "doc/js/scripts/dropdown.js",
+      "line": 20,
+      "evidence": "const newStateMarker = document.createElement(\"span\");",
+      "fix": "Retain a native button with an accessible name and visible focus styling. Handle its activation by explicitly applying the desired open state to every dropdown, including the clicked one, rather than relying on the summary's default action for an interactive child. Ensure the control becomes visible on keyboard focus as well as hover.",
+      "test": "Use two dropdowns with mixed open states. Hover the first summary, then navigate using Tab and activate its toggle-all control with Enter and Space; verify that the control is focusable, its focus is visible, and both dropdowns reach the intended state. Also verify that mouse activation toggles the clicked dropdown exactly once and that ordinary summary activation remains local. Repeat toggle-all activation from a nested dropdown.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/js/scripts/dropdown.js",
+          "line": 11,
+          "symbol": "DOMContentLoaded listener"
+        },
+        {
+          "path": "doc/js/scripts/dropdown.js",
+          "line": 20,
+          "symbol": "creation of non-focusable toggle-all span"
+        },
+        {
+          "path": "doc/js/scripts/dropdown.js",
+          "line": 40,
+          "symbol": "click-only toggle-all listener"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-684",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "REL-SPHINX-NODE-TRAVERSAL",
+      "severity": "low",
+      "title": "Summary lookup fails on dropdowns with a prefix icon",
+      "explanation": "For a dropdown with `:icon: info`, sphinx-design places the icon before the `sd-summary-text` inline node. The icon contains a raw SVG node with a docutils Text child. `next_node` invokes its callable predicate on descendant nodes, including that Text child, which has no `get` method. Consequently, this lookup raises AttributeError before reaching the summary text and aborts the HTML build. The previous type-based `next_node(dropdown_title)` lookup skipped Text nodes and allowed the dropdown's anchor to be emitted. Plain titles, including inline markup inside the summary-text node, do not encounter this problem because the matching summary node is reached before its children. The repository notes that its documentation currently does not use dropdown icons, limiting the immediate impact.",
+      "path": "doc/sphinxext/dropdown_anchors.py",
+      "line": 31,
+      "evidence": "sd_summary_text = sd_dropdown.next_node(\n                lambda node: \"sd-summary-text\" in node.get(\"classes\", [])\n            )",
+      "fix": "Restrict the predicate to Element nodes before accessing attributes, for example `isinstance(node, nodes.Element) and \"sd-summary-text\" in node.get(\"classes\", [])`. Prefer searching descendants of the current dropdown rather than allowing traversal into following siblings.",
+      "test": "Build a minimal Sphinx document using sphinx-design 0.6.0 with `.. dropdown:: Title` and `:icon: info`. Assert that the build succeeds and the summary-text node contains its anchor. Include inline-code titles and nested dropdowns as companion cases.",
+      "confidence": 0.83,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "doc/sphinxext/dropdown_anchors.py",
+          "line": 28,
+          "symbol": "DropdownAnchorAdder.run"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-476",
+      "applied_rules": []
+    }
+  ]
+}

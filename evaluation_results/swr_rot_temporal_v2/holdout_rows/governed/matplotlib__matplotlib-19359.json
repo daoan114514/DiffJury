@@ -1,0 +1,164 @@
+{
+  "id": "matplotlib__matplotlib-19359",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 19359,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 49130,
+  "llm_calls": 5,
+  "input_tokens": 28356,
+  "output_tokens": 2011,
+  "total_tokens": 30367,
+  "instruction_calls": 5,
+  "instruction_tokens": 2930,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1422,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "grid-enablement-replaced-with-toggle",
+      "severity": "low",
+      "title": "Replacing explicit grid enablement with toggling hides already-enabled grids",
+      "explanation": "This changes observable behavior when grids are enabled through configuration. For example, execute symlog_demo.py with rcParams['axes.grid'] = True and rcParams['axes.grid.which'] = 'major'. Previously, plt.grid(True) kept the major grids visible on the first and third subplots; ax0.grid() and ax2.grid() now toggle those grids off. With axes.grid.which = 'both', the new ax0.xaxis.grid(which='minor') also toggles the initially enabled minor x-grid off, contrary to the accompanying 'minor grid on too' comment. Default execution with grids initially disabled is unaffected. The same explicit-enable-to-toggle replacement occurs in multiline.py:22 and custom_projection.py:448 and changes their output whenever the corresponding grids are initially enabled. This analysis relies on Matplotlib's public Axes.grid/Axis.grid contract that an omitted visibility argument, without styling arguments, toggles visibility; implementation evidence and runtime execution were not available in this review.",
+      "path": "examples/scales/symlog_demo.py",
+      "line": 21,
+      "evidence": "ax0.grid()\nax0.xaxis.grid(which='minor')  # minor grid on too\n...\nax2.grid()",
+      "fix": "Preserve explicit enablement: use ax0.grid(True), ax0.xaxis.grid(True, which='minor'), and ax2.grid(True). Likewise retain True in the changed grid calls in multiline.py and custom_projection.py.",
+      "test": "Execute the affected examples with a noninteractive backend inside rc_context with axes.grid=True, testing axes.grid.which='major' and 'both'. Draw the figures and assert that the explicitly requested major grids remain visible and the first symlog subplot's minor x-grid remains enabled. Also verify unchanged output with the default axes.grid=False configuration.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "examples/scales/symlog_demo.py",
+          "line": 16,
+          "symbol": "plt.subplots"
+        },
+        {
+          "path": "examples/scales/symlog_demo.py",
+          "line": 21,
+          "symbol": "ax0.grid"
+        },
+        {
+          "path": "examples/scales/symlog_demo.py",
+          "line": 22,
+          "symbol": "ax0.xaxis.grid"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ]
+}

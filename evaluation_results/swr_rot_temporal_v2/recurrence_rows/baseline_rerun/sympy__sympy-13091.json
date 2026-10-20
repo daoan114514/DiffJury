@@ -1,0 +1,150 @@
+{
+  "id": "sympy__sympy-13091",
+  "repository": "sympy/sympy",
+  "pull_request": 13091,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 148237,
+  "llm_calls": 6,
+  "input_tokens": 90000,
+  "output_tokens": 4115,
+  "total_tokens": 94115,
+  "instruction_calls": 6,
+  "instruction_tokens": 7588,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "rich-comparison-notimplemented-propagation",
+      "severity": "medium",
+      "title": "Return NotImplemented from __ne__ instead of negating reflected equality",
+      "explanation": "When sympification fails, Integer.__eq__ now ultimately returns NotImplemented, allowing the foreign operand's __eq__ to supply the result. However, the changed Integer.__ne__ evaluates that entire reflected equality and applies Python's `not` to its result. Rich comparisons may legitimately return non-boolean objects, such as array-valued comparison results. Consequently, inequality now either discards that result or raises during truth-value conversion, instead of allowing the foreign operand's __ne__ to run. A complete static counterexample is a foreign object whose __eq__ and __ne__ return a comparison object whose __bool__ raises ValueError: `Integer(3) == foreign` successfully returns that object, but `Integer(3) != foreign` raises ValueError inside the changed line. Before this change, the latter returned True without raising. The same pattern appears in the changed Basic, Float, Rational, and NumberSymbol implementations. The added Foo and Bar tests return only scalar booleans, so they do not expose this failure. This finding is based on the explicit dispatch chain, not an executed test.",
+      "path": "sympy/core/numbers.py",
+      "line": 2115,
+      "evidence": "    def __ne__(self, other):\n        return not self == other",
+      "fix": "In each affected __ne__, call self.__eq__(other) directly, return NotImplemented unchanged when that is its result, and negate only a supported local equality result. This lets Python invoke the foreign operand's __ne__ rather than coercing its reflected __eq__ result.",
+      "test": "Add a regression test with `class Result(object):\\n    def __bool__(self): raise ValueError('ambiguous truth value')\\n    __nonzero__ = __bool__`, a `result = Result()`, and a foreign class with no sympification hooks whose __eq__ and __ne__ both return result. Assert `(Integer(3) == foreign) is result` and `(Integer(3) != foreign) is result`, including reversed operands. Repeat for Basic(), Rational(1, 3), Float(1), pi, and oo. The current implementation raises on the forward inequality instead of returning result.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/core/numbers.py",
+          "line": 2114,
+          "symbol": "Integer.__ne__"
+        },
+        {
+          "path": "sympy/core/numbers.py",
+          "line": 2112,
+          "symbol": "Integer.__eq__ delegates to Rational.__eq__"
+        },
+        {
+          "path": "sympy/core/numbers.py",
+          "line": 1719,
+          "symbol": "Rational.__eq__: failed _sympify returns NotImplemented at line 1722"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

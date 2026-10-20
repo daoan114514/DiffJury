@@ -1,0 +1,284 @@
+{
+  "id": "sympy__sympy-2044",
+  "repository": "sympy/sympy",
+  "pull_request": 2044,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 110059,
+  "llm_calls": 5,
+  "input_tokens": 15838,
+  "output_tokens": 3466,
+  "total_tokens": 19304,
+  "instruction_calls": 5,
+  "instruction_tokens": 5031,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2909,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-4f9662f0",
+        "K-b9cfc827",
+        "K-1f002951",
+        "K-87ee2eda",
+        "K-4feced24",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 794,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1",
+        "K-4e30e572"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4e30e572",
+      "K-4f9662f0",
+      "K-4feced24",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-4f9662f0",
+          "K-b9cfc827",
+          "K-1f002951",
+          "K-87ee2eda",
+          "K-4feced24",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 491,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-4e30e572"
+        ],
+        "tokens": 618,
+        "budget": 600,
+        "dropped": [
+          "K-8810c414",
+          "K-8184713c",
+          "K-4e7d5d6b",
+          "K-03e5723b",
+          "K-86d0b57a",
+          "K-cde9c599",
+          "K-e4a5fbd0",
+          "K-60ce9e38",
+          "K-9d754682",
+          "K-d778c4a2",
+          "K-962b000c",
+          "K-f00ce49b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "piecewise-candidate-condition-isolation",
+      "severity": "medium",
+      "title": "A candidate's substituted condition is reused for subsequent roots",
+      "explanation": "The assignment overwrites the branch condition inside the candidate loop. Consider x, y = symbols('x y', real=True) and solve(Piecewise((x**2 - 1, x > y), (1, True)), x). The quadratic branch has candidates -1 and 1. Directly tracing candidates in that order, the first iteration replaces cond with -1 > y; the second iteration substitutes into that already-specialized expression, retaining -1 > y rather than computing 1 > y. Both roots therefore receive the same condition. Mathematically, -1 is a solution when y < -1, while 1 is a solution when y < 1. At y = 0, the returned conditional expressions consequently lose the valid solution 1. Reversing candidate order still incorrectly assigns both roots the same condition. This counterexample uses an unresolved relational condition, so it does not depend on whether evaluated Boolean constants are Python bools or SymPy Boolean objects. The new regression test has only one candidate per branch and therefore cannot expose the mutation.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1089,
+      "evidence": "cond = cond is True or cond.subs(symbol, candidate)",
+      "fix": "Preserve the original branch condition and calculate a separate candidate_cond for every candidate. Use candidate_cond for acceptance and construction of the conditional solution.",
+      "test": "Add a regression for solve(Piecewise((x**2 - 1, x > y), (1, True)), x), with real x and y. Assert that the -1 result is conditional on y < -1 and the 1 result is conditional on y < 1. In particular, specializing the returned solutions at y = 0 must retain 1 as a valid solution.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1086,
+          "symbol": "_solve: iterate candidates for a Piecewise branch"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1089,
+          "symbol": "_solve: overwrite the shared branch condition"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1103,
+          "symbol": "_solve: construct the candidate's conditional result"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "piecewise-symbolic-prior-branch-exclusion",
+      "severity": "medium",
+      "title": "Unresolved earlier branch conditions are discarded instead of excluding their domains",
+      "explanation": "Consider x, y = symbols('x y', real=True) and solve(Piecewise((1, x < y), (x, True)), x). The first branch has no roots. The second branch supplies candidate 0, but that candidate is valid only when y <= 0, because an earlier branch otherwise selects the nonzero expression 1. Directly tracing the changed code, other_cond.subs(x, 0) is the unresolved relation 0 < y, which is not identical to True. The exclusion flag therefore remains false. The result wrapper uses only the current branch's True condition and simplifies to the unconditional root 0. Thus the solver returns [0], even though for y = 1 the original Piecewise expression has no roots. Line 1107 disables subsequent checking for this path. Changing the truth test to an identity check permits unresolved conditions to reach this incorrect result without carrying their negations into the returned condition. This failure does not require any assumption about the representation of evaluated Boolean constants: the triggering condition remains symbolic. The added absolute-value regression does not exercise an unresolved earlier-branch condition.",
+      "path": "sympy/solvers/solvers.py",
+      "line": 1099,
+      "evidence": "if other_cond.subs(symbol, candidate) is True:",
+      "fix": "Construct each candidate's effective condition from its own branch condition together with the negations of all preceding branch conditions, after substitution. Reject a false effective condition, return an unconditional candidate only when it is true, and retain unresolved effective conditions in the Piecewise result.",
+      "test": "Add a regression for solve(Piecewise((1, x < y), (x, True)), x), with real x and y. Assert that 0 is returned only under y <= 0, for example as Piecewise((0, y <= 0), (S.NaN, True)), and is not an unconditional solution. Verify the boundary y = 0 is included and y = 1 is excluded.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1099,
+          "symbol": "_solve: test whether a previous Piecewise branch excludes the candidate"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1103,
+          "symbol": "_solve: construct a result using only the current branch condition"
+        },
+        {
+          "path": "sympy/solvers/solvers.py",
+          "line": 1107,
+          "symbol": "_solve: disable subsequent solution checking"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

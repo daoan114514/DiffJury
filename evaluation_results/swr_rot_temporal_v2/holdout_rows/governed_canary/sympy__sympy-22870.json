@@ -1,0 +1,221 @@
+{
+  "id": "sympy__sympy-22870",
+  "repository": "sympy/sympy",
+  "pull_request": 22870,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 100571,
+  "llm_calls": 5,
+  "input_tokens": 15535,
+  "output_tokens": 3824,
+  "total_tokens": 19359,
+  "instruction_calls": 5,
+  "instruction_tokens": 4958,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2838,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-87ee2eda",
+        "K-a9677d2d",
+        "K-1f002951",
+        "K-4f9662f0",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 792,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1",
+        "K-d778c4a2"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-bc43ffcf",
+      "K-d778c4a2"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-87ee2eda",
+          "K-a9677d2d",
+          "K-1f002951",
+          "K-4f9662f0",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 420,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-d778c4a2"
+        ],
+        "tokens": 616,
+        "budget": 600,
+        "dropped": [
+          "K-8184713c",
+          "K-e4a5fbd0",
+          "K-cde9c599",
+          "K-10578218",
+          "K-4e7d5d6b",
+          "K-60ce9e38",
+          "K-86d0b57a",
+          "K-9d754682",
+          "K-8810c414",
+          "K-962b000c"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "finite-limit-series-bailout",
+      "severity": "medium",
+      "title": "The exponential bailout suppresses valid Taylor expansions at finite complex limits",
+      "explanation": "The new predicate detects an imaginary unit or sign expression among the limit's immediate arguments, but these do not establish that the limit is unsupported. For example, exp(x + 1 + I).nseries(x, 0, 2) reaches this branch with arg0 = 1 + I and returns the original exponential instead of exp(1 + I)*(1 + x) + O(x**2). The function is analytic at the expansion point, so this regresses a supported Taylor expansion. The same problem occurs for exp(x + 1 + sign(a)), where the finite symbolic constant is a valid Taylor coefficient. It also affects the exponential expansion used by nonconstant powers: (2 + x)**I has exponential argument limit I*log(2), which triggers this bailout. Expanding exp(x + I) about x = 1 likewise produces the problematic finite limit after shifting the expansion variable. The added tests exercise logarithmically divergent limits, not finite complex or sign-containing limits, and therefore miss this regression. Although the returned expression remains mathematically equivalent to the input, it no longer supplies the requested truncated expansion.",
+      "path": "sympy/functions/elementary/exponential.py",
+      "line": 498,
+      "evidence": "if any(isinstance(arg, (sign, ImaginaryUnit)) for arg in arg0.args):\n            return self",
+      "fix": "Restrict the bailout to genuinely unsupported nonfinite or indeterminate limits. Do not reject finite limits merely because their expression contains I or sign.",
+      "test": "Assert exp(x + 1 + I).nseries(x, 0, 2) equals exp(1 + I)*(1 + x) + O(x**2). Add corresponding tests for exp(x + 1 + sign(a)), (2 + x)**I, and exp(x + I).series(x, 1, 2), checking the Taylor coefficients and the requested Order term.",
+      "confidence": 0.9199999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/exponential.py",
+          "line": 479,
+          "symbol": "exp._eval_nseries"
+        },
+        {
+          "path": "sympy/functions/elementary/exponential.py",
+          "line": 498,
+          "symbol": "finite-limit bailout"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ]
+}

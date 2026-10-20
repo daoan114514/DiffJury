@@ -1,0 +1,179 @@
+{
+  "id": "sympy__sympy-1688",
+  "repository": "sympy/sympy",
+  "pull_request": 1688,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 0,
+  "fn": 1,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 1,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 61760,
+  "llm_calls": 5,
+  "input_tokens": 20699,
+  "output_tokens": 1734,
+  "total_tokens": 22433,
+  "instruction_calls": 5,
+  "instruction_tokens": 3994,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2375,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "reliability-review"
+      ],
+      "skill_body_tokens": 2044
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "generation-write-before-compute",
+      "severity": "medium",
+      "title": "Regeneration truncates the generated module before computation succeeds",
+      "explanation": "Opening ask_generated.py in mode 'w' immediately truncates the existing module, before compute_known_facts runs. If computation raises an exception or the user interrupts it with Ctrl-C, execution never reaches f.write(code), leaving the generated module empty. A subsequent fresh import of sympy.assumptions.ask then fails at its import of known_facts_dict and known_facts_cnf from that empty module. This newly added regeneration path therefore turns an interrupted or failed computation into persistent damage to an otherwise working checkout, rather than preserving the previous generated facts.",
+      "path": "sympy/assumptions/ask_update.py",
+      "line": 13,
+      "evidence": "f = open('sympy/assumptions/ask_generated.py', 'w')\ncode = compute_known_facts(known_facts, known_facts_keys)\nf.write(code)\nf.close()",
+      "fix": "Compute the generated code before touching the destination, then write it to a temporary file in the destination directory and atomically replace ask_generated.py only after writing and closing succeeds. Clean up the temporary file on failure.",
+      "test": "In a disposable checkout, save the existing generated module and execute the regeneration script with compute_known_facts replaced by a function that raises RuntimeError or KeyboardInterrupt. Assert that ask_generated.py remains byte-for-byte unchanged and that a fresh process can still import its two generated names. Also inject a temporary-file write failure and verify that the original destination is preserved.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/assumptions/ask_update.py",
+          "line": 13,
+          "symbol": "open"
+        },
+        {
+          "path": "sympy/assumptions/ask_update.py",
+          "line": 14,
+          "symbol": "compute_known_facts"
+        },
+        {
+          "path": "sympy/assumptions/ask.py",
+          "line": 303,
+          "symbol": "from sympy.assumptions.ask_generated import known_facts_dict, known_facts_cnf"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

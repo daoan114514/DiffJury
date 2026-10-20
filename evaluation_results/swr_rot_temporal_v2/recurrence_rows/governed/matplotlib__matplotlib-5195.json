@@ -1,0 +1,231 @@
+{
+  "id": "matplotlib__matplotlib-5195",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 5195,
+  "split": "train",
+  "expected": 1,
+  "predicted": 2,
+  "tp": 1,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 1,
+      "path": "lib/matplotlib/tests/test_backend_qt5.py",
+      "line": 106,
+      "cwe": "CWE-704",
+      "rule_id": "unicode-expectation-python2",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 85950,
+  "llm_calls": 5,
+  "input_tokens": 20281,
+  "output_tokens": 2905,
+  "total_tokens": 23186,
+  "instruction_calls": 5,
+  "instruction_tokens": 4022,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2514,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "optional-binding-import-failure",
+      "severity": "medium",
+      "title": "PyQt-specific version detection raises AttributeError with PySide",
+      "explanation": "When qt_compat selects PySide and the preceding backend imports succeed, QtCore does not provide the PyQt-specific PYQT_VERSION_STR attribute. The new lookup therefore raises AttributeError, which the surrounding except ImportError does not catch. Instead of collecting or skipping the tests, importing the test module fails. This change occurs in both test_backend_qt4.py:28 and test_backend_qt5.py:27. The existing default discovery of test_backend_qt4 makes this a regression in the default test run; adding test_backend_qt5 to default_test_modules at __init__.py:1432 also exposes the new Qt5 import-time lookup through default discovery. The knownfailureif and switch_backend decorators cannot prevent this error because it happens before their definitions are evaluated. Qualification: qt_compat and the supported-binding declarations were not supplied, so acceptance of PySide by this exact repository revision could not be independently checked; the concrete triggering prerequisite is that qt_compat successfully selects PySide.",
+      "path": "lib/matplotlib/tests/test_backend_qt4.py",
+      "line": 28,
+      "evidence": "py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])",
+      "fix": "Determine the selected Qt major version using binding-neutral information from qt_compat or QtCore.qVersion(), rather than assuming every binding exposes a PyQt version attribute. Apply the correction in both test modules.",
+      "test": "With PySide selected through the repository's supported binding-selection mechanism, import both test modules and assert that collection succeeds, the Qt4 tests are enabled, and the Qt5 tests are skipped. Also verify collection with no Qt binding and with PyQt4/PyQt5.",
+      "confidence": 0.85,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/__init__.py",
+          "line": 1431,
+          "symbol": "default_test_modules"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 19,
+          "symbol": "module-level import of QtCore"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt4.py",
+          "line": 28,
+          "symbol": "module-level binding version detection"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "unicode-expectation-python2",
+      "severity": "medium",
+      "title": "Replacing unichr with chr makes the Unicode key expectations fail on Python 2",
+      "explanation": "On Python 2, chr(193) and chr(225) produce byte strings, not the Unicode characters produced by unichr. With PyQt5 available and the tests enabled, the expected value '\\xc1' consequently does not compare equal to the Unicode key value u'\\u00c1'; the lowercase and modifier-order expectations at lines 114 and 138 have the same problem. Implicit comparison attempts ASCII decoding of the non-ASCII byte and does not establish equality. On Python 3, chr is correct, so the replacement fixes that interpreter while regressing Python 2. Neither backend switching nor cleanup changes this string-type mismatch. Qualification: the supplied excerpt does not include supported-Python metadata, so this finding applies to Python 2 test runs; whether this revision formally supports those runs could not be independently verified. The decorator implementation was also not supplied, and no separate backend-restoration defect is asserted.",
+      "path": "lib/matplotlib/tests/test_backend_qt5.py",
+      "line": 106,
+      "evidence": "                       chr(193))",
+      "fix": "Use six.unichr for all three expectations, or equivalent Unicode literals, so the expected characters have Unicode semantics on both Python 2 and Python 3.",
+      "test": "Run test_unicode_upper, test_unicode_lower, and test_modifier_order with PyQt5 on each supported Python major version and assert the exact Unicode key values. On Python 2, additionally verify that the expected values are Unicode rather than non-ASCII byte strings.",
+      "confidence": 0.7999999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt5.py",
+          "line": 103,
+          "symbol": "test_unicode_upper"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt5.py",
+          "line": 104,
+          "symbol": "assert_correct_key invocation"
+        },
+        {
+          "path": "lib/matplotlib/tests/test_backend_qt5.py",
+          "line": 106,
+          "symbol": "construction of expected Unicode key"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-704",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

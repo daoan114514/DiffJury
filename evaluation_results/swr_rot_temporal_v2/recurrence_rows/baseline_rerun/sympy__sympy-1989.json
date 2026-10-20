@@ -1,0 +1,168 @@
+{
+  "id": "sympy__sympy-1989",
+  "repository": "sympy/sympy",
+  "pull_request": 1989,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 172522,
+  "llm_calls": 5,
+  "input_tokens": 19659,
+  "output_tokens": 4946,
+  "total_tokens": 24605,
+  "instruction_calls": 5,
+  "instruction_tokens": 3930,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "callable-resolution-must-not-test-truth-value",
+      "severity": "medium",
+      "title": "Callable detection evaluates the truth value of locally bound objects",
+      "explanation": "A local callable need not support Boolean evaluation. For example, define `class F: def __call__(self, x): return x + 1` with `def __bool__(self): raise TypeError('no truth value')` (and `__nonzero__ = __bool__` where needed). Then call `parse_expr('f**2(3)', local_dict={'f': F()}, global_dict=None, transformations=standard_transformations + (function_exponentiation,))`. Previously, function_exponentiation moved the exponent after the application, producing `f(Integer(3))**Integer(2)` and the result 16. The new path calls `_token_callable` for `f`, where `if not func` raises before callable detection. A callable whose Boolean value is False similarly loses its local binding to the global lookup and is no longer recognized when no global `f` exists. These outcomes follow directly from the changed branch and token flow; they were not executed in this tool-free review. The added tests use default, truthy bindings and do not exercise either case.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 41,
+      "evidence": "    func = local_dict.get(token[1])\n    if not func:\n        func = global_dict.get(token[1])",
+      "fix": "Resolve bindings by dictionary membership rather than truth value: use the local value whenever the name exists in local_dict, otherwise consult global_dict. Do not invoke Boolean conversion on the resolved object.",
+      "test": "Add regression tests using the real parse_expr path with standard_transformations + (function_exponentiation,). Bind f to a callable returning x + 1 whose Boolean conversion raises, and separately one whose Boolean conversion returns False. Assert that parsing 'f**2(3)' returns 16 in both cases.",
+      "confidence": 0.96,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 304,
+          "symbol": "function_exponentiation -> _token_callable"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 41,
+          "symbol": "_token_callable -> bound object's Boolean evaluation"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "function-exponentiation-preserve-callable-bindings",
+      "severity": "medium",
+      "title": "Function exponentiation now rejects callable symbolic objects with is_Function=False",
+      "explanation": "The newly applied predicate excludes an object whenever it has an `is_Function` attribute set to False, even when Python considers that object callable. A concrete example is `p = Poly(x + 1, x)`: p is callable, p(3) is 4, and its inherited is_Function flag is False. With `local_dict={'p': p}`, default globals, and `transformations=standard_transformations + (function_exponentiation,)`, parsing 'p**2(3)' previously transformed the application into `p(Integer(3))**Integer(2)`, yielding 16. Now `_token_callable` returns False, so exponent consumption never starts and the original `p**Integer(2)(Integer(3))` structure remains, which attempts to call an Integer and raises TypeError. This is a static token-flow reproduction, not an executed result. The restrictive predicate already existed in implicit application, but applying it to function_exponentiation introduces this regression for the standalone transformation. The added tests cover sin and E, not callable symbolic bindings.",
+      "path": "sympy/parsing/sympy_parser.py",
+      "line": 304,
+      "evidence": "            if _token_callable(tok, local_dict, global_dict):\n                consuming_exponent = True",
+      "fix": "For function exponentiation, recognize resolved Python-callable objects even when they expose is_Function=False. If implicit application intentionally needs a narrower predicate, keep that distinction explicit rather than imposing its restriction on the previously supported exponentiation path.",
+      "test": "Bind p to Poly(x + 1, x), parse 'p**2(3)' using standard_transformations + (function_exponentiation,), and assert the result is 16. Also retain a noncallable Symbol-power test to verify that ordinary symbolic powers are not treated as function applications.",
+      "confidence": 0.89,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 304,
+          "symbol": "function_exponentiation -> _token_callable"
+        },
+        {
+          "path": "sympy/parsing/sympy_parser.py",
+          "line": 45,
+          "symbol": "_token_callable: callable(func) and not hasattr(func, 'is_Function')"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

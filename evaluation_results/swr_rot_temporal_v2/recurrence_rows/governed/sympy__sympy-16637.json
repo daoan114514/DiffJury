@@ -1,0 +1,184 @@
+{
+  "id": "sympy__sympy-16637",
+  "repository": "sympy/sympy",
+  "pull_request": 16637,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 78502,
+  "llm_calls": 5,
+  "input_tokens": 19704,
+  "output_tokens": 1464,
+  "total_tokens": 21168,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "correctness-review",
+      "severity": "medium",
+      "title": "Distance to a disjoint parallel segment or ray now raises ValueError",
+      "explanation": "The new bounded-entity branch assumes that the supporting line has exactly one intersection with the plane. For example, let p = Plane(Point3D(0, 0, 0), normal_vector=(0, 0, 1)) and s = Segment3D(Point3D(0, 0, 1), Point3D(1, 0, 1)). The initial p.intersection(s) returns [], so execution reaches line 287. The supporting line is also disjoint and parallel to p, making self.intersection(Line3D(a, b)) return []. Unpacking that empty list raises ValueError instead of returning the correct distance, 1. Ray3D with the same defining points fails identically. The old LinearEntity3D distance branch calculated the distance from the first point and correctly returned 1 for these inputs. The added tests exercise nonparallel segments and rays but do not cover this parallel case. This counterexample follows directly from the supplied implementation; no execution tools were available.",
+      "path": "sympy/geometry/plane.py",
+      "line": 287,
+      "evidence": "            pi, = self.intersection(Line3D(a, b))",
+      "fix": "Check the supporting-line intersection before unpacking it. If it is empty, return self.distance(a), since the supporting line is parallel to and disjoint from the plane and every point on it has the same distance. Preserve the existing endpoint-selection logic for a unique intersection.",
+      "test": "Add regression tests using the plane z = 0 and Segment3D((0, 0, 1), (1, 0, 1)), the reversed segment, and Ray3D((0, 0, 1), (1, 0, 1)). Assert that each distance is exactly 1 and no exception is raised. These tests exercise the real Plane.distance path and expose the currently untested empty supporting-line intersection.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 282,
+          "symbol": "Plane.distance: disjoint entity passes the initial intersection check"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 287,
+          "symbol": "Plane.distance: unpack supporting-line intersection"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 407,
+          "symbol": "Plane.intersection: solve the constant nonzero plane equation"
+        },
+        {
+          "path": "sympy/geometry/plane.py",
+          "line": 409,
+          "symbol": "Plane.intersection: return [] when there is no solution"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-703",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

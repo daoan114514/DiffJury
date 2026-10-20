@@ -1,0 +1,210 @@
+{
+  "id": "scikit-learn__scikit-learn-3925",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 3925,
+  "split": "train",
+  "expected": 0,
+  "predicted": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": true,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 102577,
+  "llm_calls": 5,
+  "input_tokens": 35507,
+  "output_tokens": 2964,
+  "total_tokens": 38471,
+  "instruction_calls": 5,
+  "instruction_tokens": 6223,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 0,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1363,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3051,
+      "knowledge_ids": [
+        "K-8828df10",
+        "K-d3341a3f",
+        "K-3c8dfccb",
+        "K-4d5756a5",
+        "K-f32f49ff",
+        "K-1d4bb77e",
+        "K-eb2105bb",
+        "K-0a2298e4",
+        "K-2bba7006",
+        "K-651ca0b6"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 791,
+      "knowledge_ids": [
+        "K-fe66117a",
+        "K-791ded73",
+        "K-2968cdc5",
+        "K-51e6bbd9",
+        "K-fc6f5674",
+        "K-70b43072",
+        "K-0f45b787",
+        "K-0f38f6b6",
+        "K-69a7f4ef",
+        "K-feee072d"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1d4bb77e",
+      "K-2968cdc5",
+      "K-2bba7006",
+      "K-3c8dfccb",
+      "K-4d5756a5",
+      "K-51e6bbd9",
+      "K-651ca0b6",
+      "K-69a7f4ef",
+      "K-70b43072",
+      "K-791ded73",
+      "K-8828df10",
+      "K-d3341a3f",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-fc6f5674",
+      "K-fe66117a",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-8828df10",
+          "K-d3341a3f",
+          "K-3c8dfccb",
+          "K-4d5756a5",
+          "K-f32f49ff",
+          "K-1d4bb77e",
+          "K-eb2105bb",
+          "K-0a2298e4",
+          "K-2bba7006",
+          "K-651ca0b6"
+        ],
+        "tokens": 633,
+        "budget": 600,
+        "dropped": [
+          "K-6e16a2a3",
+          "K-5388c8d9",
+          "K-1c8d031b",
+          "K-60a0fdd6",
+          "K-c5fe4768",
+          "K-a62a9e09"
+        ]
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-fe66117a",
+          "K-791ded73",
+          "K-2968cdc5",
+          "K-51e6bbd9",
+          "K-fc6f5674",
+          "K-70b43072",
+          "K-0f45b787",
+          "K-0f38f6b6",
+          "K-69a7f4ef",
+          "K-feee072d"
+        ],
+        "tokens": 615,
+        "budget": 600,
+        "dropped": [
+          "K-1617cbdc",
+          "K-9ecad403"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

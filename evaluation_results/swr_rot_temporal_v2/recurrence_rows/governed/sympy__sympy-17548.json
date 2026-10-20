@@ -1,0 +1,197 @@
+{
+  "id": "sympy__sympy-17548",
+  "repository": "sympy/sympy",
+  "pull_request": 17548,
+  "split": "train",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sympy/abc.py",
+      "line": 100,
+      "cwe": "CWE-682",
+      "rule_id": "module-scope-symbol-overwrite",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 72828,
+  "llm_calls": 5,
+  "input_tokens": 16360,
+  "output_tokens": 1924,
+  "total_tokens": 18284,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "module-scope-symbol-overwrite",
+      "severity": "medium",
+      "title": "Module-level initialization overwrites the exported symbol k",
+      "explanation": "Moving this loop out of clashing() makes its assignment to k overwrite the module's existing alphabet symbol. The namespace populated by exec_('from sympy import *', ns) is nonempty, and its keys are strings, so after initialization abc.k is the last popped namespace key rather than Symbol('k'), regardless of dictionary iteration order. Consequently, `from sympy.abc import k; k + 1` previously produced a symbolic expression but now raises TypeError. `from sympy.abc import *` likewise imports the incorrect string as k. There is no cleanup or restoration of k at the end of the module. This is a functional regression, unlike merely leaving the temporary ns dictionary exported. The clash dictionaries themselves still use the same namespace keys, membership checks, Symbol construction, and union operations as before; their construction does not depend on preserving the previous value of k. The relocated doctest's changed printed representation cannot be independently verified from the supplied diff, and no separate doctest defect is established.",
+      "path": "sympy/abc.py",
+      "line": 100,
+      "evidence": "    k, _ = ns.popitem()",
+      "fix": "Use a private loop variable such as _name instead of k throughout the loop, preserving the existing alphabet symbol. Delete initialization temporaries afterward, including ns, to avoid adding an unintended public wildcard export.",
+      "test": "Add a regression test asserting that both an explicit import of k and k obtained through `exec('from sympy.abc import *', namespace)` equal Symbol('k') and support addition with 1. Also verify that _clash equals the union of _clash1 and _clash2 and run the relocated module doctests to validate their printed expectations.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/abc.py",
+          "line": 96,
+          "symbol": "module initialization: exec_('from sympy import *', ns)"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 99,
+          "symbol": "module initialization: while ns"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 100,
+          "symbol": "module-global assignment to exported k"
+        },
+        {
+          "path": "sympy/abc.py",
+          "line": 111,
+          "symbol": "module cleanup leaves overwritten k in place"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

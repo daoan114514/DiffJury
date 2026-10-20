@@ -1,0 +1,296 @@
+{
+  "id": "matplotlib__matplotlib-4714",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 4714,
+  "split": "train",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 1,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 4345,
+      "cwe": "CWE-754",
+      "rule_id": "public-api-positional-compatibility",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 110933,
+  "llm_calls": 6,
+  "input_tokens": 29825,
+  "output_tokens": 4079,
+  "total_tokens": 33904,
+  "instruction_calls": 6,
+  "instruction_tokens": 5516,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 1422,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2586,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "api-compatibility",
+        "correctness-review"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "public-api-positional-compatibility",
+      "severity": "medium",
+      "title": "Inserting start_points before transform breaks existing positional streamplot calls",
+      "explanation": "The new parameter shifts existing positional arguments in all three streamplot signatures. For example, ax.streamplot(x, y, u, v, 1, None, None, None, None, 1, '-|>', 0.1, ax.transData, 2) previously bound transform=ax.transData and zorder=2. It now binds start_points=ax.transData, transform=2, and zorder=1. Axes forwards these bindings unchanged to the implementation, which enters the explicit-seed branch and attempts start_points.copy() on the transform rather than plotting the vector field. The pyplot signature has the same regression and additionally shifts a positional hold argument. Keyword forwarding of start_points is consistent across the wrappers; the defect is the changed positional contract.",
+      "path": "lib/matplotlib/axes/_axes.py",
+      "line": 4345,
+      "evidence": "                   minlength=0.1, start_points=None, transform=None, zorder=1):",
+      "fix": "Append start_points after all existing parameters: after zorder in Axes.streamplot and the implementation, and after hold in pyplot.streamplot. Keep forwarding it by keyword.",
+      "test": "Add regression tests invoking Axes.streamplot and pyplot.streamplot with the pre-change positional transform and zorder arguments, including a positional hold argument for pyplot. Verify that the calls succeed, the supplied transform and zorder remain effective, and hold retains its original binding. Also verify that keyword start_points still reaches the implementation.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/pyplot.py",
+          "line": 3341,
+          "symbol": "streamplot"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4345,
+          "symbol": "Axes.streamplot"
+        },
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4357,
+          "symbol": "mstream.streamplot keyword forwarding"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 24,
+          "symbol": "streamplot"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 138,
+          "symbol": "sp2 = start_points.copy()"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "seed-coordinate-integer-dtype",
+      "severity": "medium",
+      "title": "Convert integer seed arrays to floating point before translating them",
+      "explanation": "start_points.copy() preserves the input dtype, but the following in-place additions can require fractional coordinates. For example, use x = y = np.array([-0.5, 0.5, 1.5]), u = np.ones((3, 3)), v = np.zeros((3, 3)), and start_points = np.array([[0, 0]], dtype=int). The valid data-space seed must become (0.5, 0.5) before data2grid. An integer destination cannot represent that result: NumPy versions enforcing same-kind in-place casting raise a casting exception at line 139, while versions permitting the cast truncate the coordinate and seed the wrong location. Neither outcome meets the documented Nx2-array contract, which does not require floating-point dtype. This is a source-level dtype counterexample, not a claim that a particular NumPy version was executed. The new example also constructs integer seed_points, so integer seed arrays are an intended input representation.",
+      "path": "lib/matplotlib/streamplot.py",
+      "line": 138,
+      "evidence": "sp2 = start_points.copy()\n        sp2[:,0] += np.abs(x[0])\n        sp2[:,1] += np.abs(y[0])",
+      "fix": "Create an owned floating-point array before modifying coordinates, for example np.array(start_points, dtype=float, copy=True), then subtract the grid origins.",
+      "test": "Run streamplot on the fractional-origin grid above with integer seeds and with their floating-point equivalents. Both calls must succeed and produce the same trajectory through (0, 0), and neither call may mutate the supplied seed array. Also run the newly added example with the supported NumPy versions.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 138,
+          "symbol": "streamplot copies start_points without dtype conversion"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 139,
+          "symbol": "in-place seed-origin translation"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 142,
+          "symbol": "dmap.data2grid(xs, ys)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-681",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-seed-origin-translation",
+      "severity": "medium",
+      "title": "Subtract the grid origin instead of adding its absolute value",
+      "explanation": "The new translation works for negative and zero origins but is incorrect for positive origins. For example, use x = y = np.array([10., 11., 12.]), u = np.ones((3, 3)), v = np.zeros((3, 3)), and start_points = np.array([[11., 11.]]). The seed is at the center of the domain and should be translated to (1, 1) before data2grid. These lines instead translate it to (21, 21), placing it outside the three-by-three grid before integration. This prevents the requested valid streamline from being integrated at its seed. The arithmetic error is directly established by the changed code; whether the out-of-domain integration subsequently returns no trajectory or raises depends on surrounding implementation not supplied in this review. The same problem occurs independently on either axis with a positive origin.",
+      "path": "lib/matplotlib/streamplot.py",
+      "line": 139,
+      "evidence": "sp2[:,0] += np.abs(x[0])\n        sp2[:,1] += np.abs(y[0])",
+      "fix": "Translate floating-point seed coordinates by subtracting each grid origin: sp2[:, 0] -= x_origin and sp2[:, 1] -= y_origin. Do not use the absolute value of the origin.",
+      "test": "With the uniform horizontal field and center seed above, assert that a nonempty horizontal trajectory passes through (11, 11). Parameterize the grid origins over negative, zero, and positive values, translating the seed with the grid; the trajectories should be identical after removing the translation.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/axes/_axes.py",
+          "line": 4357,
+          "symbol": "Axes.streamplot forwards start_points"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 139,
+          "symbol": "streamplot translates seed coordinates"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 142,
+          "symbol": "dmap.data2grid(xs, ys)"
+        },
+        {
+          "path": "lib/matplotlib/streamplot.py",
+          "line": 143,
+          "symbol": "integrate(xg, yg)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "missed_recovery": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

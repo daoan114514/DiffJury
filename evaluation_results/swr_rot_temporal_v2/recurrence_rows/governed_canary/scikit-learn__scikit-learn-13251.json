@@ -1,0 +1,272 @@
+{
+  "id": "scikit-learn__scikit-learn-13251",
+  "repository": "scikit-learn/scikit-learn",
+  "pull_request": 13251,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 171732,
+  "llm_calls": 6,
+  "input_tokens": 42689,
+  "output_tokens": 5203,
+  "total_tokens": 47892,
+  "instruction_calls": 6,
+  "instruction_tokens": 8193,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 2,
+  "critic_rejected": 1,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3034,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-c5fe4768",
+        "K-59df2e59",
+        "K-a62a9e09",
+        "K-3c8dfccb",
+        "K-eb2105bb",
+        "K-f32f49ff",
+        "K-0a2298e4",
+        "K-2bba7006",
+        "K-1d4bb77e"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3034,
+      "knowledge_ids": [
+        "K-f8bf6084",
+        "K-c5fe4768",
+        "K-59df2e59",
+        "K-a62a9e09",
+        "K-3c8dfccb",
+        "K-eb2105bb",
+        "K-f32f49ff",
+        "K-0a2298e4",
+        "K-2bba7006",
+        "K-1d4bb77e"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 797,
+      "knowledge_ids": [
+        "K-f8f85333",
+        "K-d8b204bc",
+        "K-feee072d",
+        "K-1617cbdc",
+        "K-0f45b787",
+        "K-0f38f6b6",
+        "K-51e6bbd9",
+        "K-69a7f4ef",
+        "K-fc6f5674",
+        "K-9ecad403"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0a2298e4",
+      "K-0f38f6b6",
+      "K-0f45b787",
+      "K-1617cbdc",
+      "K-1d4bb77e",
+      "K-2bba7006",
+      "K-3c8dfccb",
+      "K-51e6bbd9",
+      "K-59df2e59",
+      "K-69a7f4ef",
+      "K-9ecad403",
+      "K-a62a9e09",
+      "K-c5fe4768",
+      "K-d8b204bc",
+      "K-eb2105bb",
+      "K-f32f49ff",
+      "K-f8bf6084",
+      "K-f8f85333",
+      "K-fc6f5674",
+      "K-feee072d"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-f8bf6084",
+          "K-c5fe4768",
+          "K-59df2e59",
+          "K-a62a9e09",
+          "K-3c8dfccb",
+          "K-eb2105bb",
+          "K-f32f49ff",
+          "K-0a2298e4",
+          "K-2bba7006",
+          "K-1d4bb77e"
+        ],
+        "tokens": 616,
+        "budget": 600,
+        "dropped": [
+          "K-5388c8d9",
+          "K-1c8d031b",
+          "K-651ca0b6",
+          "K-60a0fdd6",
+          "K-26252785",
+          "K-d3341a3f",
+          "K-8828df10"
+        ]
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-f8f85333",
+          "K-d8b204bc",
+          "K-feee072d",
+          "K-1617cbdc",
+          "K-0f45b787",
+          "K-0f38f6b6",
+          "K-51e6bbd9",
+          "K-69a7f4ef",
+          "K-fc6f5674",
+          "K-9ecad403"
+        ],
+        "tokens": 621,
+        "budget": 600,
+        "dropped": [
+          "K-0f51ebe7",
+          "K-6d7b0522",
+          "K-3636a06a",
+          "K-94fa9fcb"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "missing-contamination-validation-without-decision-function",
+      "severity": "medium",
+      "title": "Contamination checking is silently skipped for detectors without decision_function",
+      "explanation": "Previously, check_outliers_fit_predict required every estimator exposing contamination to produce the requested outlier fraction. Now, when an estimator lacks decision_function, a wrong count executes no assertion at all. For example, a detector that returns 15 outliers among the 300 samples after contamination is set to 0.1 passes this part of the check despite the expected count being 30. This includes the LOF-style API that the change explicitly intends to handle. The new LOF test checks only the concrete LocalOutlierFactor implementation on iris; it does not restore the generic estimator contract check, nor does it check the same make_blobs input. Consequently, an estimator that ignores contamination can newly pass this check merely by not exposing decision_function.",
+      "path": "sklearn/utils/estimator_checks.py",
+      "line": 2420,
+      "evidence": "        if (num_outliers != expected_outliers and\n                hasattr(estimator, 'decision_function')):\n            decision = estimator.decision_function(X)\n            check_outlier_corruption(num_outliers, expected_outliers, decision)",
+      "fix": "Do not treat an unavailable decision_function as successful validation. Obtain training anomaly scores through the appropriate API, such as negative_outlier_factor_ for LOF, and apply the tie check. Retain an explicit assertion or failure for a mismatching count when no supported score source is available.",
+      "test": "Add a detector fixture with contamination and fit_predict but no decision_function that deliberately returns 15 outliers for this 300-sample check. Assert that check_outliers_fit_predict rejects it. Also exercise a LOF-style fixture with negative_outlier_factor_ and verify that a genuine threshold tie passes while an unexplained count mismatch fails.",
+      "confidence": 0.89,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2412,
+          "symbol": "check_outliers_fit_predict: set contamination"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2413,
+          "symbol": "estimator.fit_predict"
+        },
+        {
+          "path": "sklearn/utils/estimator_checks.py",
+          "line": 2420,
+          "symbol": "conditional contamination assertion"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-754",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

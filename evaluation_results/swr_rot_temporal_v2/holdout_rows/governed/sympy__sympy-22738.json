@@ -1,0 +1,157 @@
+{
+  "id": "sympy__sympy-22738",
+  "repository": "sympy/sympy",
+  "pull_request": 22738,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 66184,
+  "llm_calls": 5,
+  "input_tokens": 23319,
+  "output_tokens": 2694,
+  "total_tokens": 26013,
+  "instruction_calls": 5,
+  "instruction_tokens": 5166,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 1363,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review"
+      ],
+      "skill_body_tokens": 1013
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "latex-basic-text-mode",
+      "severity": "low",
+      "title": "Argument-free Basic objects put mathematical subscripts inside text mode",
+      "explanation": "For an argument-free Basic subclass whose name contains a subscript or superscript, _deal_with_super_sub produces mathematical markup, but the new empty-argument branch places that markup inside \\text. For example, defining `class Foo_x(Basic): pass` and calling `latex(Foo_x())` produces `\\text{Foo_{x}}`. The underscore is then interpreted in LaTeX text mode, causing a missing-math-mode error rather than rendering the subscript. The previous implementation placed the processed name directly in math mode, so this input rendered successfully. The changed test at test_latex.py:2695 confirms that processed class names contain mathematical script syntax, but exercises only the argument-bearing branch and therefore misses this regression. Removing empty parentheses can remain intentional without putting mathematical name markup into text mode.",
+      "path": "sympy/printing/latex.py",
+      "line": 366,
+      "evidence": "name = self._deal_with_super_sub(expr.__class__.__name__)\nif expr.args:\n    ls = [self._print(o) for o in expr.args]\n    s = r\"\\operatorname{{{}}}\\left({}\\right)\"\n    return s.format(name, \", \".join(ls))\nelse:\n    return r\"\\text{{{}}}\".format(name)",
+      "fix": "Keep the processed name in math mode in the empty-argument branch, for example by using an operator-name wrapper. Alternatively, if literal text is intended, escape the original class name instead of passing mathematical markup to \\text.",
+      "test": "Add argument-free Basic subclasses named Foo_x and Foo_x^1 (the latter through assignment to __name__), alongside the existing argument-bearing cases. Assert that their output retains valid mathematical script markup outside text mode, and compile the generated LaTeX with amsmath to verify that it produces no missing-math-mode errors.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/latex.py",
+          "line": 359,
+          "symbol": "LatexPrinter._print_Basic"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-116",
+      "applied_rules": []
+    }
+  ]
+}

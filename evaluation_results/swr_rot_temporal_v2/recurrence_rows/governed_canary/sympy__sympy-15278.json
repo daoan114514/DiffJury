@@ -1,0 +1,353 @@
+{
+  "id": "sympy__sympy-15278",
+  "repository": "sympy/sympy",
+  "pull_request": 15278,
+  "split": "train",
+  "expected": 0,
+  "predicted": 3,
+  "tp": 0,
+  "fp": 3,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 3,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 167926,
+  "llm_calls": 6,
+  "input_tokens": 99223,
+  "output_tokens": 4816,
+  "total_tokens": 104039,
+  "instruction_calls": 6,
+  "instruction_tokens": 8569,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3465,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-581de549",
+        "K-b9cfc827",
+        "K-87ee2eda",
+        "K-4feced24",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-2b8fec11",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "deterministic-rule-selection",
+        "code-quality"
+      ],
+      "skill_body_tokens": 2559
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2982,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-581de549",
+        "K-b9cfc827",
+        "K-87ee2eda",
+        "K-4feced24",
+        "K-a9677d2d",
+        "K-4f9662f0",
+        "K-2b8fec11",
+        "K-7e90bf29",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 794,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-8810c414",
+        "K-60ce9e38",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-86d0b57a",
+        "K-962b000c"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-2545551e",
+      "K-2b8fec11",
+      "K-3ef68130",
+      "K-4f9662f0",
+      "K-4feced24",
+      "K-581de549",
+      "K-60ce9e38",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-86d0b57a",
+      "K-87ee2eda",
+      "K-8810c414",
+      "K-962b000c",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-b9cfc827"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-581de549",
+          "K-b9cfc827",
+          "K-87ee2eda",
+          "K-4feced24",
+          "K-a9677d2d",
+          "K-4f9662f0",
+          "K-2b8fec11",
+          "K-7e90bf29",
+          "K-a4c9356f"
+        ],
+        "tokens": 564,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-8810c414",
+          "K-60ce9e38",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-86d0b57a",
+          "K-962b000c"
+        ],
+        "tokens": 618,
+        "budget": 600,
+        "dropped": [
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-cde9c599",
+          "K-8184713c",
+          "K-10578218",
+          "K-4e7d5d6b",
+          "K-d778c4a2",
+          "K-4e30e572",
+          "K-e4a5fbd0",
+          "K-9d754682",
+          "K-be32699b",
+          "K-03e5723b"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "tensor-variance-axis-permutation",
+      "severity": "medium",
+      "title": "Variance conversion permutes unrelated axes for rank-three tensors",
+      "explanation": "Converting an index at position 2 or later moves unrelated axes. After tensorcontraction prepends the metric's surviving axis, the axis order is [new_axis, old_axis_0, ..., old_axis_pos_minus_1, ...]. Swapping axis 0 with axis pos does not restore the original order; the new axis must be moved into position while preserving the other axes. For example, define a dimension-two index type L, indices i,j,k, a nonsymmetric rank-three tensor T, and A = Array(list(range(8))).reshape(2,2,2). Then T(i,j,k).replace_with_arrays({T(i,j,k): A, L: diag(1,-1)}, [i,j,-k]) should produce [[[0,-1],[2,-3]],[[4,-5],[6,-7]]]. The implemented contraction and swap instead produce [[[0,-1],[4,-5]],[[2,-3],[6,-7]]]. In particular, component [0,1,0] becomes 4 instead of 2. The subsequent index permutation is the identity in this example, so it cannot repair the corrupted axis order.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2714,
+      "evidence": "            permu = list(range(len(free_ind1)))\n            permu[0], permu[pos] = permu[pos], permu[0]\n            return permutedims(array, permu)",
+      "fix": "Replace the swap with an axis insertion permutation, such as list(range(1, pos + 1)) + [0] + list(range(pos + 1, len(free_ind1))). This moves the surviving metric axis to the converted slot without reversing or exchanging preceding axes.",
+      "test": "Add a rank-three replacement test using distinct components 0 through 7 and a nonidentity diagonal metric. Lower the third index and assert every component against A[a,b,c] * metric[c,c]. Also cover raising the third index, multiple variance conversions, and rank-four conversion at the last position.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2736,
+          "symbol": "TensExpr.replace_with_arrays"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2725,
+          "symbol": "contract_and_permute"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "tensor-metric-index-type",
+      "severity": "medium",
+      "title": "Reordering mixed index types selects the wrong metric for variance conversion",
+      "explanation": "pos2up and pos2down contain positions in free_ind2, the source array's axis order, but index_types1 is constructed in free_ind1, the requested order. Looking up index_types1[pos] therefore uses the wrong tensor index type when a variance conversion accompanies a permutation across different types. For a concrete example, use dimension-two types L and M, i of type L, j of type M, and a nonsymmetric tensor H with index types [L,M]. Evaluating H(i,j).replace_with_arrays({H(i,j): [[1,2],[3,4]], L: diag(2,3), M: diag(5,7)}, [-j,i]) must lower the M index and then transpose, yielding [[5,15],[14,28]]. The matching loop records source position 1 for lowering j, while index_types1 is [M,L], so this line selects L's metric instead. The resulting array is [[2,6],[6,12]]. Both metrics and all dimensions are valid, so shape validation does not prevent the silently incorrect result.",
+      "path": "sympy/tensor/tensor.py",
+      "line": 2724,
+      "evidence": "        index_types1 = [i.tensor_index_type for i in free_ind1]\n...\n                    pos2down.append(pos2)\n...\n        for pos in pos2down:\n            metric = replacement_dict[index_types1[pos]]\n            array = contract_and_permute(metric, array, pos)",
+      "fix": "Associate each conversion with the matched index's tensor_index_type, or derive metric types from the source-axis ordering rather than the requested ordering. Apply the same correction to the raising lookup at line 2719.",
+      "test": "Add a mixed-type rank-two tensor test with different nonidentity metrics for its two index types. Request reversed axes while lowering one index and assert [[5,15],[14,28]] for the example. Include the corresponding raising case to exercise both metric lookups.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2736,
+          "symbol": "TensExpr.replace_with_arrays"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2673,
+          "symbol": "TensExpr._match_indices_with_other_tensor"
+        },
+        {
+          "path": "sympy/tensor/tensor.py",
+          "line": 2724,
+          "symbol": "metric lookup for lowering indices"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "test-decorator-eager-execution",
+      "severity": "medium",
+      "title": "Return a callable wrapper instead of executing decorated tests during import",
+      "explanation": "The decorator calls f() immediately and implicitly returns None. Consequently, every test decorated with @filter_warnings_decorator runs while test_tensor.py is imported, and its test_* binding becomes None rather than a callable test. For example, test_valued_tensor_pow is no longer independently collectable or selectable by the test runner. Importing the module to select an unrelated test nevertheless executes all these legacy-data tests; an assertion failure or optional-dependency skip raised in one of them occurs during module import instead of being attributed to an individual test, potentially preventing collection of the rest of the module. Although assertions execute once on a successful import, that does not preserve test collection, selection, reruns, or per-test isolation. The warnings context correctly uses 'ignore'; the defect is its execution timing and missing callable return, not the intentional deprecation warnings.",
+      "path": "sympy/tensor/tests/test_tensor.py",
+      "line": 23,
+      "evidence": "def filter_warnings_decorator(f):\n    with warnings.catch_warnings():\n        warnings.filterwarnings(\"ignore\", category=SymPyDeprecationWarning)\n        f()",
+      "fix": "Return a functools.wraps(f)-decorated wrapper accepting *args and **kwargs. Enter warnings.catch_warnings(), set the category filter, and invoke f only inside that wrapper when the test runner calls it.",
+      "test": "Decorate a function that records calls and assert decoration leaves the record empty and returns a callable; invoke the returned function and assert exactly one call and restoration of warning filters. Also verify collection includes test_valued_tensor_pow and selecting an unrelated test does not execute it.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 1395,
+          "symbol": "@filter_warnings_decorator on test_valued_tensor_pow"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 20,
+          "symbol": "filter_warnings_decorator"
+        },
+        {
+          "path": "sympy/tensor/tests/test_tensor.py",
+          "line": 23,
+          "symbol": "f() during decorator application"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-670",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

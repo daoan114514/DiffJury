@@ -1,0 +1,174 @@
+{
+  "id": "sympy__sympy-17357",
+  "repository": "sympy/sympy",
+  "pull_request": 17357,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 81965,
+  "llm_calls": 5,
+  "input_tokens": 19398,
+  "output_tokens": 2384,
+  "total_tokens": 21782,
+  "instruction_calls": 5,
+  "instruction_tokens": 4041,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2422,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "rewrite-preserve-depth",
+      "severity": "medium",
+      "title": "Internal public rewrites ignore deep=False and rewrite nested arguments",
+      "explanation": "The replacement invokes public rewrite with its default recursive traversal, even when the caller explicitly disabled traversal. A concrete counterexample is csc(sin(x)).rewrite(cos, deep=False). Previously, the direct sine rewrite hook produced 1/cos(sin(x) - pi/2, evaluate=False), preserving the nested sin(x). The new call first recursively rewrites that nested sine and produces 1/cos(cos(x - pi/2, evaluate=False) - pi/2, evaluate=False). These expressions are mathematically equivalent, but the latter violates the requested rewrite depth and changes subexpressions the caller explicitly excluded. The outer rewrite's depth guard cannot prevent this because the hook starts a fresh public rewrite without specifying deep=False. The other newly introduced public rewrite calls have the same option-loss mechanism. The added csc regression exercises a simplified intermediate expression with default recursive rewriting; it does not exercise or protect the deep=False contract.",
+      "path": "sympy/functions/elementary/trigonometric.py",
+      "line": 1770,
+      "evidence": "return 1 / sin(arg).rewrite(cos)",
+      "fix": "Disable recursive traversal on these internal public rewrite calls, for example sin(arg).rewrite(cos, deep=False), while preserving other applicable rewrite hints. Let the outer rewrite operation own traversal of the original arguments. Apply this consistently to the analogous changed helpers.",
+      "test": "Add a regression asserting csc(sin(x)).rewrite(cos, deep=False) == 1/cos(sin(x) - pi/2, evaluate=False). Parameterize comparable nested-argument tests over the changed cos, tan, cot, sec, and csc rewrite paths, asserting that deep=False preserves the original argument while ordinary recursive rewriting still transforms it. Retain the added Bessel-expression regression to verify that evaluated intermediate expressions remain supported.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1769,
+          "symbol": "csc._eval_rewrite_as_cos"
+        },
+        {
+          "path": "sympy/functions/elementary/trigonometric.py",
+          "line": 1770,
+          "symbol": "sin(arg).rewrite(cos)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-440",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

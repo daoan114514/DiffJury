@@ -1,0 +1,320 @@
+{
+  "id": "sympy__sympy-2078",
+  "repository": "sympy/sympy",
+  "pull_request": 2078,
+  "split": "train",
+  "expected": 1,
+  "predicted": 3,
+  "tp": 1,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 1,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "sympy/printing/tests/test_theanocode.py",
+      "line": 220,
+      "cwe": "CWE-682",
+      "rule_id": "test-uses-function-class-instead-of-expression",
+      "expected_severity": "medium",
+      "predicted_severity": "medium",
+      "severity_hit": true,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 109220,
+  "llm_calls": 5,
+  "input_tokens": 13450,
+  "output_tokens": 3664,
+  "total_tokens": 17114,
+  "instruction_calls": 5,
+  "instruction_tokens": 5017,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2895,
+      "knowledge_ids": [
+        "K-62f4a6cf",
+        "K-4f9662f0",
+        "K-a9677d2d",
+        "K-7e90bf29",
+        "K-87ee2eda",
+        "K-b9cfc827",
+        "K-1f002951",
+        "K-a4c9356f"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 794,
+      "knowledge_ids": [
+        "K-2545551e",
+        "K-7609a0f4",
+        "K-a077c313",
+        "K-ac2e3c0d",
+        "K-9b7687e1",
+        "K-76cf1bf8",
+        "K-9b028a49",
+        "K-bc43ffcf",
+        "K-11de6ec1",
+        "K-cde9c599"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-11de6ec1",
+      "K-1f002951",
+      "K-2545551e",
+      "K-4f9662f0",
+      "K-62f4a6cf",
+      "K-7609a0f4",
+      "K-76cf1bf8",
+      "K-7e90bf29",
+      "K-87ee2eda",
+      "K-9b028a49",
+      "K-9b7687e1",
+      "K-a077c313",
+      "K-a4c9356f",
+      "K-a9677d2d",
+      "K-ac2e3c0d",
+      "K-b9cfc827",
+      "K-bc43ffcf",
+      "K-cde9c599"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-62f4a6cf",
+          "K-4f9662f0",
+          "K-a9677d2d",
+          "K-7e90bf29",
+          "K-87ee2eda",
+          "K-b9cfc827",
+          "K-1f002951",
+          "K-a4c9356f"
+        ],
+        "tokens": 477,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-2545551e",
+          "K-7609a0f4",
+          "K-a077c313",
+          "K-ac2e3c0d",
+          "K-9b7687e1",
+          "K-76cf1bf8",
+          "K-9b028a49",
+          "K-bc43ffcf",
+          "K-11de6ec1",
+          "K-cde9c599"
+        ],
+        "tokens": 618,
+        "budget": 600,
+        "dropped": [
+          "K-8810c414",
+          "K-4e7d5d6b",
+          "K-8184713c",
+          "K-be32699b",
+          "K-86d0b57a",
+          "K-60ce9e38",
+          "K-03e5723b",
+          "K-d778c4a2",
+          "K-9d754682",
+          "K-e4a5fbd0",
+          "K-962b000c"
+        ]
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "test-uses-function-class-instead-of-expression",
+      "severity": "medium",
+      "title": "The new test passes an undefined function class rather than f(t)",
+      "explanation": "sy.Function('f') constructs the undefined function class, not an applied expression. The test never applies that class to t, and t is otherwise unused. Thus theano_code(f) does not exercise the intended applied-function path and cannot justify the expected name f_t: no t argument was supplied to the printer. Depending on class dispatch, this instead exercises unsupported class printing or fails before reaching the intended assertions. This defect is independent of whether tt.TheanoVariable exists. The supplied evidence establishes tt.TensorVariable as the variable type used by the neighboring test, but does not establish the availability of tt.TheanoVariable; no separate API-availability finding is asserted without that verification.",
+      "path": "sympy/printing/tests/test_theanocode.py",
+      "line": 220,
+      "evidence": "f = sy.Function('f')\n    ft = theano_code(f)\n    assert isinstance(ft, tt.TheanoVariable)\n    assert ft.name == 'f_t'",
+      "fix": "Construct an applied expression with sy.Function('f')(t), and assert against the supported tensor variable type already used by neighboring tests, tt.TensorVariable.",
+      "test": "Run the corrected test in an environment with the supported Theano dependency installed. Assert that printing f(t) returns a TensorVariable named f_t, and use a shared cache to assert repeated printing returns the same tensor.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 218,
+          "symbol": "test_Function"
+        },
+        {
+          "path": "sympy/printing/tests/test_theanocode.py",
+          "line": 221,
+          "symbol": "theano_code(f)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "incorrect-function-printer-dispatch",
+      "severity": "medium",
+      "title": "The generic Function handler replaces mathematical operations with independent inputs",
+      "explanation": "The new handler applies to built-in mathematical functions as well as undefined functions. For example, sin(x) inherits from Function, so printer dispatch now selects _print_Function instead of falling through to _print_Basic, which translates the expression through mapping and recursively prints its arguments. The new implementation instead returns an independent tensor named sin_x without printing x or applying sine. Consequently, translating sin(x) no longer produces a graph computing sine of x, and an expression such as sin(x) + x now requires an additional, unrelated input. This is a source-level dispatch counterexample; execution was not available in this review.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 79,
+      "evidence": "def _print_Function(self, s, dtypes={}, broadcastables={}):\n        dtype = dtypes.get(s, 'floatX')\n        broadcastable = broadcastables.get(s, ())\n        name = str(type(s)) + '_' + str(s.args[0])",
+      "fix": "Restrict placeholder creation to applied undefined functions, for example with an _print_AppliedUndef handler, and preserve the existing mapping-based translation for built-in mathematical functions.",
+      "test": "Translate sin(x) with an explicit cache and compile the resulting graph using the cached x tensor as its only input. Assert that evaluating at a nontrivial value returns its sine. Also retain a separate assertion that an applied undefined function f(x) becomes a placeholder.",
+      "confidence": 0.95,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        },
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 92,
+          "symbol": "TheanoPrinter._print_Basic (previous fallback)"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "zero-argument-function-indexing",
+      "severity": "low",
+      "title": "Zero-argument undefined functions raise IndexError",
+      "explanation": "An applied undefined function can have no arguments: Function('f')() is a valid expression with args == (). It reaches the newly added Function handler, which unconditionally indexes s.args[0] before creating its tensor or consulting the cache. The resulting IndexError prevents the new undefined-function support from handling this valid boundary case. Restricting the handler to applied undefined functions alone does not fix this independent problem.",
+      "path": "sympy/printing/theanocode.py",
+      "line": 82,
+      "evidence": "name = str(type(s)) + '_' + str(s.args[0])",
+      "fix": "Construct the placeholder name without assuming a first argument exists, while retaining the complete argument tuple in the cache key.",
+      "test": "Pass Function('f')() to theano_code and assert that it produces a tensor placeholder rather than raising IndexError. Print it twice with a shared cache and assert identity; also check that f(), f(x), and f(x, y) remain distinct.",
+      "confidence": 0.99,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 79,
+          "symbol": "TheanoPrinter._print_Function"
+        },
+        {
+          "path": "sympy/printing/theanocode.py",
+          "line": 82,
+          "symbol": "s.args[0]"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-129",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 1,
+      "denominator": 1
+    }
+  }
+}

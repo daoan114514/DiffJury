@@ -1,0 +1,205 @@
+{
+  "id": "astropy__astropy-4979",
+  "repository": "astropy/astropy",
+  "pull_request": 4979,
+  "split": "train",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 117465,
+  "llm_calls": 5,
+  "input_tokens": 15341,
+  "output_tokens": 3339,
+  "total_tokens": 18680,
+  "instruction_calls": 5,
+  "instruction_tokens": 4628,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 1,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2831,
+      "knowledge_ids": [
+        "K-679741fc",
+        "K-345791ff",
+        "K-0b7c4492",
+        "K-a148283a",
+        "K-5cf660aa"
+      ],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 469,
+      "knowledge_ids": [
+        "K-6464d4ae",
+        "K-0519c1fe",
+        "K-0683c9f6",
+        "K-6bace452"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-0519c1fe",
+      "K-0683c9f6",
+      "K-0b7c4492",
+      "K-345791ff",
+      "K-5cf660aa",
+      "K-6464d4ae",
+      "K-679741fc",
+      "K-6bace452",
+      "K-a148283a"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-679741fc",
+          "K-345791ff",
+          "K-0b7c4492",
+          "K-a148283a",
+          "K-5cf660aa"
+        ],
+        "tokens": 340,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-6464d4ae",
+          "K-0519c1fe",
+          "K-0683c9f6",
+          "K-6bace452"
+        ],
+        "tokens": 293,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "coordinate-output-shape",
+      "severity": "medium",
+      "title": "Keeping the norm axis breaks get_sun for vector Time inputs",
+      "explanation": "For time = Time(['2000-01-01', '2000-01-02']), earth_p and earth_v have shape (2, 3), but the new keepdims=True gives dsun shape (2, 1); invlorentz remains shape (2,). ERFA ab takes one scalar distance per direction, so its distance argument should have shape (2,), not (2, 1). With generalized broadcasting, the arguments expand properdir to (2, 2, 3), and the Cartesian components become (2, 2). Independently of that wrapper behavior, even an expected properdir shape of (2, 3) would produce (2, 2) components when multiplied by dsun at lines 166 onward. Thus the function cannot preserve the input's (2,) shape. For scalar inputs, the new dsun has shape (1,), but the previous reshape(-1, 1) already introduced a singleton direction axis, so a new scalar regression is not established. For multidimensional input shape S, earth_p/earth_v have shape S+(3,), dsun has shape S+(1,), and invlorentz has shape S; these are likewise incompatible with the intended scalar-per-direction distance convention, though general multidimensional support was already limited by the previous reshape. The velocity conversion from AU/day to units of c, barycentric velocity selection, negative velocity with the subsequently negated direction, and sqrt(1-v²) reciprocal Lorentz factor are consistent with the aberration calculation; they do not correct this shape defect. The relaxed route-comparison tolerance supplies neither an explicit output-shape check against Time nor an absolute solar-position reference. No separate numerical regression concealed by that tolerance is demonstrated by the supplied evidence.",
+      "path": "astropy/coordinates/funcs.py",
+      "line": 162,
+      "evidence": "dsun = np.sqrt(np.sum(earth_p**2, axis=-1, keepdims=True))",
+      "fix": "Compute dsun without keepdims, use earth_p / dsun[..., np.newaxis] only for direction normalization, and pass the unexpanded dsun to erfa.ab and the Cartesian component multiplications.",
+      "test": "Call get_sun with a two-element Time array and assert result.shape == time.shape and result.cartesian.xyz.shape == (3, 2). Compare each returned position with the corresponding independently computed scalar-time position. Also exercise scalar, singleton-vector, empty-vector, and multidimensional Time inputs to verify the intended shape contract.",
+      "confidence": 0.98,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 162,
+          "symbol": "get_sun: compute dsun"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 164,
+          "symbol": "get_sun: erfa.ab(earth_p/dsun, -earth_v, dsun, invlorentz)"
+        },
+        {
+          "path": "astropy/coordinates/funcs.py",
+          "line": 166,
+          "symbol": "get_sun: construct Cartesian component using -dsun*properdir[..., 0]"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-682",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 1,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

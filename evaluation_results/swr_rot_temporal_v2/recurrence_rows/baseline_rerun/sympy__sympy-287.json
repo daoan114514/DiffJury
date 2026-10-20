@@ -1,0 +1,185 @@
+{
+  "id": "sympy__sympy-287",
+  "repository": "sympy/sympy",
+  "pull_request": 287,
+  "split": "train",
+  "expected": 0,
+  "predicted": 2,
+  "tp": 0,
+  "fp": 2,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 2,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 246531,
+  "llm_calls": 6,
+  "input_tokens": 88969,
+  "output_tokens": 7405,
+  "total_tokens": 96374,
+  "instruction_calls": 6,
+  "instruction_tokens": 8518,
+  "model_roles": {
+    "lead": 2,
+    "correctness-reliability": 2,
+    "security": 1,
+    "critic": 1
+  },
+  "critic_accepted": 3,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3424,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "performance-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3082
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 3586,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility",
+        "test-quality"
+      ],
+      "skill_body_tokens": 3244
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {},
+  "findings": [
+    {
+      "rule_id": "removed-test-variable-initialization",
+      "severity": "medium",
+      "title": "Updated quartic expectations still reference the removed r1_2 binding",
+      "explanation": "The replacement assignment initializes r1_4, r1_8 and r5_8, removing the r1_2 binding from the old assignment, while every updated expected root still uses r1_2 as the square-root exponent. Consequently, evaluating this assertion raises NameError instead of checking the cyclotomic result. Restore the half exponent alongside the newly introduced eighth fractions. The supplied excerpt does not show the entire enclosing test function; this finding assumes there is no additional earlier r1_2 binding in that omitted portion.",
+      "path": "sympy/polys/tests/test_polyroots.py",
+      "line": 226,
+      "evidence": "r1_4, r1_8, r5_8 = [ Rational(*r) for r in ((1,4), (1,8), (5,8)) ]\n\n    assert roots(f, x) == {\n        -r1_4 + r1_4*5**r1_2 + I*(r5_8 + r1_8*5**r1_2)**r1_2: 1,",
+      "fix": "Include r1_2 = Rational(1, 2) in the local initialization, or replace its remaining uses with S.Half.",
+      "test": "Run test_roots and verify that execution reaches and evaluates all four expected quartic roots without NameError.",
+      "confidence": 0.6499999999999999,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polyroots.py",
+          "line": 226,
+          "symbol": "test_roots"
+        },
+        {
+          "path": "sympy/polys/tests/test_polyroots.py",
+          "line": 229,
+          "symbol": "expected-root expression"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-457",
+      "applied_rules": []
+    },
+    {
+      "rule_id": "ineffective-result-assertions",
+      "severity": "medium",
+      "title": "Assert the results of the nth-power root transformation tests",
+      "explanation": "The five success-case comparisons discard their Boolean results instead of asserting them. Consequently, these tests do not enforce the advertised transformations or the n=1 identity. A concrete counterexample is replacing the method's final return with `return f`, leaving its validation unchanged: all five comparisons still execute without failing, and the existing invalid-input checks still pass, although n=2 returns x**4 - x**2 + 1 instead of (x**2 - x + 1)**2. The success cases also all use the same monic, even-degree input; they provide no asserted evidence for odd-degree, nonmonic, zero/constant, symbolic-coefficient, or Poly-versus-expression behavior.",
+      "path": "sympy/polys/tests/test_polytools.py",
+      "line": 2104,
+      "evidence": "    nth_power_roots_poly(f, 1) == f\n\n    raises(ValueError, \"nth_power_roots_poly(f, 0)\")\n    raises(ValueError, \"nth_power_roots_poly(f, x)\")\n\n    factor(nth_power_roots_poly(f, 2)) == f_2\n    factor(nth_power_roots_poly(f, 3)) == f_3\n    factor(nth_power_roots_poly(f, 4)) == f_4\n    factor(nth_power_roots_poly(f, 12)) == f_12",
+      "fix": "Add `assert` to each of the five success-case comparisons.",
+      "test": "Run test_nth_power_roots_poly after adding the assertions. Temporarily change Poly.nth_power_roots_poly's final return to `return f`; verify that the n=2 assertion fails, then restore the implementation and verify that the test passes.",
+      "confidence": 1.0,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/polys/tests/test_polytools.py",
+          "line": 2091,
+          "symbol": "test_nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 4871,
+          "symbol": "nth_power_roots_poly"
+        },
+        {
+          "path": "sympy/polys/polytools.py",
+          "line": 2787,
+          "symbol": "Poly.nth_power_roots_poly"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-697",
+      "applied_rules": []
+    }
+  ],
+  "metrics": {
+    "false_positive_recurrence": {
+      "numerator": 0,
+      "denominator": 1
+    },
+    "missed_recovery": {
+      "numerator": 0,
+      "denominator": 0
+    },
+    "correct_retention": {
+      "numerator": 0,
+      "denominator": 0
+    }
+  }
+}

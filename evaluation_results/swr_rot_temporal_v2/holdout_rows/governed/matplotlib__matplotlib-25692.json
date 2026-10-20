@@ -1,0 +1,178 @@
+{
+  "id": "matplotlib__matplotlib-25692",
+  "repository": "matplotlib/matplotlib",
+  "pull_request": 25692,
+  "split": "holdout",
+  "expected": 1,
+  "predicted": 1,
+  "tp": 1,
+  "fp": 0,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 1,
+  "high_hits": 1,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [
+    {
+      "expected_index": 0,
+      "predicted_index": 0,
+      "path": "lib/matplotlib/text.py",
+      "line": 646,
+      "cwe": "CWE-20",
+      "rule_id": "mathtext-wrapping-parser-contract",
+      "expected_severity": "high",
+      "predicted_severity": "medium",
+      "severity_hit": false,
+      "location_distance": 0
+    }
+  ],
+  "error": null,
+  "invalid_comments": 0,
+  "exact_location_hits": 1,
+  "evidence_hits": 1,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 81946,
+  "llm_calls": 5,
+  "input_tokens": 10482,
+  "output_tokens": 3198,
+  "total_tokens": 13680,
+  "instruction_calls": 5,
+  "instruction_tokens": 4022,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2514,
+      "knowledge_ids": [
+        "K-58d26727"
+      ],
+      "skills": [
+        "correctness-review",
+        "test-quality"
+      ],
+      "skill_body_tokens": 2093
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 180,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-58d26727"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [
+          "K-58d26727"
+        ],
+        "tokens": 96,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "mathtext-wrapping-parser-contract",
+      "severity": "medium",
+      "title": "Dollar-sign presence incorrectly enables mathtext for incomplete wrapping candidates",
+      "explanation": "The renderer's mathtext mode requires valid math delimiters, not merely the presence of a dollar sign. `_get_wrapped_text` constructs candidates by progressively joining space-separated words and measures them through `_get_rendered_text_width`. Consequently, `fig.text(0, .5, 'Price $5', wrap=True); fig.canvas.draw()` now passes `Price $5` to the renderer with mathtext enabled, causing a mathtext parsing ValueError instead of rendering an ordinary literal-dollar label. Even a valid complete expression can trigger this regression: wrapping `r'Answer $x + y$ now'` measures the incomplete candidate `Answer $x` before reaching its closing delimiter. Previously these measurements used ordinary text mode and did not raise. Text's normal mathtext preprocessing distinguishes paired unescaped delimiters from literal or unmatched dollars; the new presence check bypasses that contract. The added test checks an exact wrapped result, but its math expression contains no spaces and has balanced delimiters in every candidate containing it, so it does not exercise either failure.",
+      "path": "lib/matplotlib/text.py",
+      "line": 646,
+      "evidence": "        has_math = '$' in text\n\n        w, h, d = self._renderer.get_text_width_height_descent(\n            text,\n            self.get_fontproperties(),\n            has_math)",
+      "fix": "Preprocess each width-measurement candidate using Text's existing mathtext preprocessing contract, and pass both the resulting string and parser mode to the renderer. This preserves delimiter escaping, unmatched-dollar handling, and applicable parsing settings instead of independently detecting dollar-sign presence.",
+      "test": "Add regression tests that draw wrapped `Price $5`, an escaped-dollar label, and `r'Answer $x + y$ now'`; assert drawing succeeds. For unmatched and escaped dollar candidates, also compare measured widths with the renderer call using Text's normal preprocessing result. Retain the existing exact wrapping assertion for the balanced, single-token math expression.",
+      "confidence": 0.97,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 654,
+          "symbol": "Text._get_wrapped_text"
+        },
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 646,
+          "symbol": "Text._get_rendered_text_width"
+        },
+        {
+          "path": "lib/matplotlib/text.py",
+          "line": 648,
+          "symbol": "renderer.get_text_width_height_descent"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": false,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-20",
+      "applied_rules": []
+    }
+  ]
+}

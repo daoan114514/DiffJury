@@ -1,0 +1,180 @@
+{
+  "id": "sympy__sympy-27688",
+  "repository": "sympy/sympy",
+  "pull_request": 27688,
+  "split": "holdout",
+  "expected": 0,
+  "predicted": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "severity_hits": 0,
+  "high_total": 0,
+  "high_hits": 0,
+  "clean_hit": false,
+  "neutral_hits": 0,
+  "execution_success": true,
+  "matches": [],
+  "error": null,
+  "invalid_comments": 1,
+  "exact_location_hits": 0,
+  "evidence_hits": 0,
+  "accepted_comments": 0,
+  "closed_comments": 0,
+  "cost_usd": 0.0,
+  "latency_ms": 84373,
+  "llm_calls": 5,
+  "input_tokens": 18189,
+  "output_tokens": 3441,
+  "total_tokens": 21630,
+  "instruction_calls": 5,
+  "instruction_tokens": 4113,
+  "model_roles": {
+    "lead": 2,
+    "security": 1,
+    "correctness-reliability": 1,
+    "critic": 1
+  },
+  "critic_accepted": 1,
+  "critic_rejected": 0,
+  "revision_requests": 0,
+  "revision_results": 0,
+  "cited_rules": {},
+  "skill_instructions": [
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "correctness-reliability",
+      "instruction_tokens": 2494,
+      "knowledge_ids": [],
+      "skills": [
+        "correctness-review",
+        "api-compatibility"
+      ],
+      "skill_body_tokens": 2164
+    },
+    {
+      "role": "security",
+      "instruction_tokens": 310,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "critic",
+      "instruction_tokens": 291,
+      "knowledge_ids": [
+        "K-a077c313"
+      ],
+      "skills": [],
+      "skill_body_tokens": 0
+    },
+    {
+      "role": "lead",
+      "instruction_tokens": 509,
+      "knowledge_ids": [],
+      "skills": [],
+      "skill_body_tokens": 0
+    }
+  ],
+  "knowledge": {
+    "lane": "stable",
+    "exposed": [
+      "K-a077c313"
+    ],
+    "assemblies": [
+      {
+        "role": "lead",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "correctness-reliability",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "security",
+        "ids": [],
+        "tokens": 0,
+        "budget": 600,
+        "dropped": []
+      },
+      {
+        "role": "critic",
+        "ids": [
+          "K-a077c313"
+        ],
+        "tokens": 115,
+        "budget": 600,
+        "dropped": []
+      }
+    ],
+    "attribution": null
+  },
+  "findings": [
+    {
+      "rule_id": "algebraic-root-enumeration",
+      "severity": "medium",
+      "title": "Later elimination stages use all_roots without enabling algebraic coefficient support",
+      "explanation": "For solve_triangulated([x**2 - y, y**2 - 2], x, y, extension=True), the initial univariate stage enumerates the two roots of y**2 - 2 and creates an algebraic field for each. Lines 455–457 then correctly propagate that field into x**2 - y before substituting y. The next polynomial is therefore x**2 minus an irrational algebraic coefficient. However, the shared helper calls all_roots without enabling its algebraic-coefficient support; this raises NotImplementedError instead of returning the four solutions, algebraically equivalent to (2**(1/4), sqrt(2)), (-2**(1/4), sqrt(2)), (I*2**(1/4), -sqrt(2)), and (-I*2**(1/4), -sqrt(2)). The membership check at line 466 cannot help because enumeration fails before reaching it. The added test at lines 175–177 reuses a system whose additional coordinates repeat the initial algebraic root; it does not test a later nonlinear polynomial requiring new roots over that field. Without extension, the ground_roots path and explicit-domain conversion remain in place; this defect concerns the newly introduced extension path, including truthy explicit extensions.",
+      "path": "sympy/solvers/polysys.py",
+      "line": 421,
+      "evidence": "return [r for r, _ in f.all_roots(multiple=False, radicals=False)]",
+      "fix": "Enable algebraic-coefficient support in the all_roots call, using extension=True where supported. If that API is unavailable in this revision, use an algebraic-domain root-enumeration implementation rather than the rational-coefficient-only path.",
+      "test": "Add solve_triangulated([x**2 - y, y**2 - 2], x, y, extension=True). Assert that four distinct solutions are returned and that each satisfies both equations exactly. Also retain default-extension and explicit-domain tests to verify that ground-root-only behavior remains unchanged.",
+      "confidence": 0.88,
+      "evidence_refs": [],
+      "call_chain": [
+        {
+          "path": "sympy/solvers/polysys.py",
+          "line": 435,
+          "symbol": "solve_triangulated: enumerate initial univariate roots"
+        },
+        {
+          "path": "sympy/solvers/polysys.py",
+          "line": 438,
+          "symbol": "solve_triangulated: construct branch algebraic domains"
+        },
+        {
+          "path": "sympy/solvers/polysys.py",
+          "line": 456,
+          "symbol": "solve_triangulated: unify polynomial and branch domains"
+        },
+        {
+          "path": "sympy/solvers/polysys.py",
+          "line": 457,
+          "symbol": "solve_triangulated: substitute previously solved algebraic coordinates"
+        },
+        {
+          "path": "sympy/solvers/polysys.py",
+          "line": 463,
+          "symbol": "solve_triangulated: enumerate subsequent univariate roots"
+        },
+        {
+          "path": "sympy/solvers/polysys.py",
+          "line": 421,
+          "symbol": "_solve_univariate -> Poly.all_roots"
+        }
+      ],
+      "source": "correctness-reliability",
+      "gate": {
+        "passed": true,
+        "reasons": [],
+        "exact_location_evidence": true,
+        "strong_evidence_count": 0
+      },
+      "cwe": "CWE-755",
+      "applied_rules": []
+    }
+  ]
+}
